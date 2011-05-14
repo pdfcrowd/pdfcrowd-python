@@ -27,7 +27,7 @@ you a username and an API key.
         client.convertFile('/path/to/local/file.html', open('file.pdf', 'wb'))
     
     except pdfcrowd.Error, why:
-        print 'Failed:', why</pre>
+        print 'Failed:', why
     
 ## Links
 
