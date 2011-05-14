@@ -10,25 +10,25 @@ you a username and an API key.
 
 ## Example
 
-import pdfcrowd
-
-try:
-    # create an API client instance
-    client = pdfcrowd.Client("username", "apikey")
-
-    # convert a web page and store the generated PDF into a pdf variable
-    pdf = client.convertURI('http://example.com')
-
-    # convert an HTML string and save the result to a file
-    html="<html><body>In-memory HTML.</body></html>"
-    client.convertHtml(html, open('html.pdf', 'wb'))
-
-    # convert an HTML file
-    client.convertFile('/path/to/local/file.html', open('file.pdf', 'wb'))
-
-except pdfcrowd.Error, why:
-    print 'Failed:', why</pre>
-
+    import pdfcrowd
+    
+    try:
+        # create an API client instance
+        client = pdfcrowd.Client("username", "apikey")
+    
+        # convert a web page and store the generated PDF into a pdf variable
+        pdf = client.convertURI('http://example.com')
+    
+        # convert an HTML string and save the result to a file
+        html="<html><body>In-memory HTML.</body></html>"
+        client.convertHtml(html, open('html.pdf', 'wb'))
+    
+        # convert an HTML file
+        client.convertFile('/path/to/local/file.html', open('file.pdf', 'wb'))
+    
+    except pdfcrowd.Error, why:
+        print 'Failed:', why</pre>
+    
 ## Links
 
 API Home:
