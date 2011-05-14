@@ -238,7 +238,12 @@ class Client:
         try:
             obj = urllib2.urlopen(uri, data)
             if out_stream:
-                out_stream.write(obj.read())
+                while True:
+                    data = obj.read(16384)
+                    if data:
+                        out_stream.write(data)
+                    else:
+                        break
                 return out_stream
             else:
                 return obj.read()
@@ -292,7 +297,12 @@ class Client:
             if response.status != 200:
                 raise Error(response.read(), response.status)
             if out_stream:
-                out_stream.write(response.read())
+                while True:
+                    data = response.read(16384)
+                    if data:
+                        out_stream.write(data)
+                    else:
+                        break
                 return out_stream
             else:
                 return response.read()
