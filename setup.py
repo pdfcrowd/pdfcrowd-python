@@ -29,7 +29,7 @@ py_modules=['pdfcrowd']
 
 setup(name='pdfcrowd',
       version='1.9',
-      description="A client for Pdfcrowd API."
+      description="A client for Pdfcrowd API.",
       url='http://pdfcrowd.com/html-to-pdf-api/',
       license="License :: OSI Approved :: MIT License",
       author='Pdfcrowd Team',
@@ -38,12 +38,15 @@ setup(name='pdfcrowd',
 The Pdfcrowd API lets you easily create PDF from web pages or raw HTML
 code in your Python applications.
 
+
 To use the API, you need an account on `pdfcrowd.com
 <https://pdfcrowd.com>`_, if you don't have one you can sign up `here
 <https://pdfcrowd.com/pricing/api/>`_. This will give you a username
 and an API key.
 
+
 An example::
+
     import pdfcrowd
     
     try:
@@ -63,7 +66,7 @@ An example::
     except pdfcrowd.Error, why:
         print 'Failed:', why
 
-"""
+""",
       py_modules=py_modules,
       classifiers=["Development Status :: 5 - Production/Stable",
                    "License :: OSI Approved :: MIT License",
