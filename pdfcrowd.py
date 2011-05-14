@@ -65,7 +65,8 @@ class Client:
         host     -- API host, defaults to pdfcrowd.com
    
         """
-        self.fields = dict(username=username, key=apikey)
+        self.fields = dict(username=username, key=apikey, \
+                           pdf_scaling_factor=1, html_zoom=200)
         self.host = host or HOST
         self.http_port = http_port or HTTP_PORT
         self.useSSL(False)
