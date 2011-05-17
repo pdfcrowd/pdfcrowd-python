@@ -8,6 +8,17 @@ To use the API, you need an account on
 can sign up [here](https://pdfcrowd.com/pricing/api/). This will give
 you a username and an API key.
 
+## Installation
+
+The package can be retrieved from
+[pypi](http://pypi.python.org/pypi/pdfcrowd/). You can install it with pip/easy_install:
+
+    pip install pdfcrowd
+    
+Or you can download/clone the client and run
+    
+    python setup.py install
+
 ## Example
 
     import pdfcrowd
