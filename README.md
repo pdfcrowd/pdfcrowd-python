@@ -16,7 +16,9 @@ The package can be retrieved from
     pip install pdfcrowd
     
 Or you can download/clone the client and run
-    
+
+    git clone git@github.com:pdfcrowd/pdfcrowd-python.git    
+    cd pdfcrowd-python/
     python setup.py install
 
 ## Example
