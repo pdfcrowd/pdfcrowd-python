@@ -23,6 +23,8 @@ Or you can download/clone the client and run
 
 ## Example
 
+(don't forget to use your `"username"` and `"apikey"`)
+
     import pdfcrowd
     
     try:
