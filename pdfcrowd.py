@@ -400,7 +400,8 @@ if __name__ == "__main__":
              ('setFooterUrl', 'http://google.com'),
              ('setHeaderHtml', 'page %p out of %n'),
              ('setHeaderUrl', 'http://google.com'),             
-             ('setAuthor', 'Your Name'))
+             ('setAuthor', 'Your Name'),
+             ('setPageBackgroundColor', 'ee82EE'))
     try:
         for method, arg in tests:
             client = Client(sys.argv[1], sys.argv[2])
