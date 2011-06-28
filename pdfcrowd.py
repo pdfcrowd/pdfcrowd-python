@@ -220,6 +220,10 @@ class Client:
         
     def setHeaderUrl(self, value):
         self.fields['header_url'] = value
+
+    def setPageBackgroundColor(self, value):
+        self.fields['page_background_color'] = value
+        
         
         
 
