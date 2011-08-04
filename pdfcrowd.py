@@ -223,6 +223,9 @@ class Client:
 
     def setPageBackgroundColor(self, value):
         self.fields['page_background_color'] = value
+
+    def setTransparentBackground(self, value=True):
+        self.fields['transparent_background'] = value
         
         
         
