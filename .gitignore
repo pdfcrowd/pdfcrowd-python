@@ -7,4 +7,5 @@
 MANIFEST
 build/
 dist/
+tests/out/
 
