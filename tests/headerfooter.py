@@ -8,11 +8,6 @@ def myclient():
     return client
 
 def main():
-    pass 
-
-
-
-def ok():
     client = myclient()
     client.setHeaderHtml('<i>Logo:</i><img src="http://pdfcrowd.com/static/images/logo_opaque.png">')
     client.convertHtml(in_data("paragraph"), out_stream('headerimg'))
@@ -52,15 +47,19 @@ def ok():
     client.setHeaderHtml("%p/%n")
     client.setPageNumberingOffset(1)
     client.convertHtml(in_data("multipage"), out_stream('numbering_offset'))
-
-def bug():
-    # bug -> does not expand %u in href
+    #
     client = myclient()
     client.setHeaderUrl("http://pdfcrowd.com/hub/random/header.html")
     client.setFooterUrl("http://pdfcrowd.com/hub/random/footer.html")
     client.convertHtml(in_data("multipage"), out_stream('fromurl'))    
-    
+    #
+    client = myclient()
+    client.setHeaderHtml('<div style="padding-top:0"><a href="http://seznam.cz">here</a></div>')    
+    client.convertHtml(in_data("paragraph"), out_stream('exturl'))
+    #
+    client = myclient()
+    client.setHorizontalMargin(0)
+    client.setHeaderHtml('<div style="margin-left:-20px;"><a href="http://seznam.cz">here is a negative link</a></div>')    
+    client.convertHtml(in_data("paragraph"), out_stream('neglink'))
 
 test_runner(main)
-test_runner(ok)
-#test_runner(bug)
