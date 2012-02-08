@@ -241,7 +241,7 @@ class Client:
     def setWatermarkRotation(self, angle):
         self.fields["watermark_rotation"] = angle
 
-    def setWatermarkInBackground(self, val):
+    def setWatermarkInBackground(self, val=True):
         self.fields["watermark_in_background"] = val
 
 
