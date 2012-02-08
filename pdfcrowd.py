@@ -131,10 +131,10 @@ class Client:
         self.fields['height'] = value
 
     def setHorizontalMargin(self, value):
-        self.fields['hmargin'] = value
+        self.fields['hmargin'] = str(value)
 
     def setVerticalMargin(self, value):
-        self.fields['vmargin'] = value
+        self.fields['vmargin'] = str(value)
 
     def setEncrypted(self, val=True):
         self.fields['encrypted'] = val
