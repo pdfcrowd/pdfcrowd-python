@@ -227,8 +227,22 @@ class Client:
     def setTransparentBackground(self, value=True):
         self.fields['transparent_background'] = value
         
+    def setPageNumberingOffset(self, value):
+        self.fields['page_numbering_offset'] = value
+
+    def setHeaderFooterPageExcludeList(self, value):
+        self.fields['header_footer_page_exclude_list'] = value
         
-        
+    def setWatermark(self, url, offset_x=0, offset_y=0):
+        self.fields["watermark_url"] = url
+        self.fields["watermark_offset_x"] = offset_x
+        self.fields["watermark_offset_y"] = offset_y
+    
+    def setWatermarkRotation(self, angle):
+        self.fields["watermark_rotation"] = angle
+
+    def setWatermarkInBackground(self, val):
+        self.fields["watermark_in_background"] = val
 
 
     # ----------------------------------------------------------------------
