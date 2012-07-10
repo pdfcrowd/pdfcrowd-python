@@ -7,7 +7,7 @@ dist/pdfcrowd-*.tar.gz dist/pdfcrowd-*.zip: setup.py pdfcrowd.py
 	python setup.py clean && python setup.py sdist --formats=gztar,zip
 
 test:
-	python ./pdfcrowd.py $(API_USERNAME) $(API_TOKEN) $(API_HOSTNAME) $(API_HTTP_PORT) $(API_HTTPS_PORT)
+	python ./tests.py $(API_USERNAME) $(API_TOKEN) $(API_HOSTNAME) $(API_HTTP_PORT) $(API_HTTPS_PORT)
 
 publish:
 	rm -rf dist/* build/* python/MANIFEST
