@@ -30,6 +30,8 @@ import httplib
 import mimetypes
 import socket
 
+__version__ = "2.3"
+
 
 # constants for Client.setPageLayout()
 SINGLE_PAGE, CONTINUOUS, CONTINUOUS_FACING = range(1,4)
