@@ -25,7 +25,6 @@
 # OTHER DEALINGS IN THE SOFTWARE.
 
 import urllib
-import urllib2
 import httplib
 import mimetypes
 import socket
@@ -81,7 +80,9 @@ class Client:
                       StringIO, etc.; if None then the return value is a string
                       containing the PDF.
         """
-        return self.__convert(outstream, 'uri', uri)
+        body = urllib.urlencode(self._prepare_fields(dict(src=uri)))
+        content_type = 'application/x-www-form-urlencoded'
+        return self._post(body, content_type, 'pdf/convert/uri/', outstream)
 
     def convertHtml(self, html, outstream=None):
         """Converts an in-memory html document.
@@ -91,7 +92,9 @@ class Client:
                       StringIO, etc.; if None then the return value is a string
                       containing the PDF.
         """
-        return self.__convert(outstream, 'html', html)
+        body = urllib.urlencode(self._prepare_fields(dict(src=html)))
+        content_type = 'application/x-www-form-urlencoded'
+        return self._post(body, content_type, 'pdf/convert/html/', outstream)
 
     def convertFile(self, fpath, outstream=None):
         """Converts an html file.
@@ -101,13 +104,14 @@ class Client:
                       StringIO, etc.; if None then the return value is a string
                       containing the PDF.
         """
-        return self.__post_multipart(fpath, outstream)
+        body, content_type = self._encode_multipart_post_data(fpath)
+        return self._post(body, content_type, 'pdf/convert/html/', outstream)
 
     def numTokens(self):
         """Returns the number of available conversion tokens."""
-        uri = self.api_uri + 'user/%s/tokens/' % self.fields['username']
-        response = self.__call_api(uri)
-        return int(response)
+        body = urllib.urlencode(self._prepare_fields())
+        content_type = 'application/x-www-form-urlencoded'
+        return int(self._post(body, content_type, 'user/%s/tokens/' % self.fields['username']))
 
     def useSSL(self, use_ssl):
         if use_ssl:
@@ -252,47 +256,23 @@ class Client:
     #                       Private stuff
     # 
 
-    def __convert(self, out_stream, method, src):
-        uri = self.api_uri + 'pdf/convert/%s/' % method
-        return self.__call_api(uri, out_stream, src)
-
-    def __call_api(self, uri, out_stream=None, src=None):
-        data = self.__encode_post_data({'src': src})
-        try:
-            obj = urllib2.urlopen(uri, data)
-            if out_stream:
-                while True:
-                    data = obj.read(16384)
-                    if data:
-                        out_stream.write(data)
-                    else:
-                        break
-                return out_stream
-            else:
-                return obj.read()
-        except urllib2.HTTPError, why:
-            raise Error(why.read(), why.code)
-        except urllib2.URLError, why:
-            raise Error(why.reason[1])
-
-    def __encode_post_data(self, extra_data={}):
+    def _prepare_fields(self, extra_data={}):
         result = extra_data.copy()
         for key, val in self.fields.iteritems():
             if val:
                 if type(val) == float:
                     val = str(val).replace(',', '.')
                 result[key] = val
-        return urllib.urlencode(result)
+        return result
 
-    def __encode_multipart_post_data(self, filename):
+    def _encode_multipart_post_data(self, filename):
         boundary = '----------ThIs_Is_tHe_bOUnDary_$'
         body = []
-        for field, value in self.fields.iteritems():
-            if value:
-                body.append('--' + boundary)
-                body.append('Content-Disposition: form-data; name="%s"' % field)
-                body.append('')
-                body.append(str(value))
+        for field, value in self._prepare_fields().iteritems():
+            body.append('--' + boundary)
+            body.append('Content-Disposition: form-data; name="%s"' % field)
+            body.append('')
+            body.append(str(value))
         # filename
         body.append('--' + boundary)
         body.append('Content-Disposition: form-data; name="src"; filename="%s"' % filename)
@@ -305,13 +285,13 @@ class Client:
         body.append('')
         body = '\r\n'.join(body)
         content_type = 'multipart/form-data; boundary=%s' % boundary
-        return content_type, body
+        return body, content_type
 
-    def __post_multipart(self, fpath, out_stream):
+    # sends a POST to the API
+    def _post(self, body, content_type, api_path, outstream=None):
         try:
-            content_type, body = self.__encode_multipart_post_data(fpath)
             conn = self.conn_type(self.host, self.port)
-            conn.putrequest('POST', API_SELECTOR_BASE+'pdf/convert/html/')
+            conn.putrequest('POST', API_SELECTOR_BASE + api_path)
             conn.putheader('content-type', content_type)
             conn.putheader('content-length', str(len(body)))
             conn.endheaders()
@@ -319,19 +299,20 @@ class Client:
             response = conn.getresponse()
             if response.status != 200:
                 raise Error(response.read(), response.status)
-            if out_stream:
+            if outstream:
                 while True:
                     data = response.read(16384)
                     if data:
-                        out_stream.write(data)
+                        outstream.write(data)
                     else:
                         break
-                return out_stream
+                return outstream
             else:
                 return response.read()
+        except httplib.HTTPException, err:
+            raise Error(str(err))
         except socket.gaierror, err:
             raise Error(err[1])
-
 
 
 API_SELECTOR_BASE = '/api/'
