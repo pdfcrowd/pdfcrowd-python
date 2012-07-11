@@ -92,6 +92,8 @@ class Client:
                       StringIO, etc.; if None then the return value is a string
                       containing the PDF.
         """
+        if type(html) == unicode:
+            html = html.encode('utf-8')
         body = urllib.urlencode(self._prepare_fields(dict(src=html)))
         content_type = 'application/x-www-form-urlencoded'
         return self._post(body, content_type, 'pdf/convert/html/', outstream)
