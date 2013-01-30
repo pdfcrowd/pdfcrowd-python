@@ -59,6 +59,7 @@ if __name__ == "__main__":
         client.useSSL(use_ssl)
         try:
             ntokens = client.numTokens()
+            client.setFooterText("%p out of %n")
             client.convertURI('http://www.web-to-pdf.com', out_stream('uri', use_ssl))
             client.convertHtml(html, out_stream('content', use_ssl))
             client.convertFile(test_dir + '/in/simple.html', out_stream('upload', use_ssl))
