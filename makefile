@@ -14,7 +14,11 @@ publish:
 	rm -rf dist/* build/* python/MANIFEST
 	python setup.py clean && python setup.py sdist upload
 
+init:
+	test -d ../test_files/out || mkdir -p ../test_files/out
+	test -e test_files || ln -s ../test_files/ test_files
+
 .PHONY: clean
 clean:
-	rm -rf dist/* build/* python/MANIFEST ./out/py_client*.pdf
+	rm -rf dist/* build/* python/MANIFEST ./test_files/out/py_client*.pdf
 
