@@ -1,4 +1,4 @@
-# Copyright (C) 2009 pdfcrowd.com
+# Copyright (C) 2009-2013 pdfcrowd.com
 # 
 # Portions of this code:
 #   <http://code.activestate.com/recipes/146306/>
