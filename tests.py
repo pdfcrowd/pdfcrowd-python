@@ -48,7 +48,7 @@ if __name__ == "__main__":
         os.makedirs(test_dir + '/out')
 
     def out_stream(name, use_ssl):
-        fname = test_dir + '/out/py_client_%s' % name
+        fname = './out/py_client_%s' % name
         if use_ssl:
             fname = fname + '_ssl'
         return open(fname + '.pdf', 'wb')
