@@ -102,7 +102,9 @@ if __name__ == "__main__":
              ('setHeaderUrl', 'http://google.com'),             
              ('setAuthor', 'Your Name'),
              ('setPageBackgroundColor', 'ee82EE'),
-             ('setTransparentBackground', True))
+             ('setTransparentBackground', True)
+             )
+
     try:
         for method, arg in tests:
             client = pdfcrowd.Client(sys.argv[1], sys.argv[2])
@@ -112,6 +114,10 @@ if __name__ == "__main__":
     except pdfcrowd.Error, why:
         print 'FAILED', why
         sys.exit(1)
+    # 4 margins
+    client = pdfcrowd.Client(sys.argv[1], sys.argv[2])
+    client.setPageMargins('0.25in', '0.5in', '0.75in', '1.0in')
+    client.convertHtml('<div style="background-color:red;height:100%">4 margins</div>', out_stream('4margins', False))
     # expected failures
     client = pdfcrowd.Client(sys.argv[1], sys.argv[2])
     try:
