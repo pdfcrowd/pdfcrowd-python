@@ -16,5 +16,5 @@ publish:
 
 .PHONY: clean
 clean:
-	rm -rf dist/* build/* python/MANIFEST
+	rm -rf dist/* build/* python/MANIFEST ./out/py_client*.pdf
 
