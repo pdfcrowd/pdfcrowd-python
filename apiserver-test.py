@@ -10,5 +10,5 @@ if len(sys.argv) != 4:
 c = pdfcrowd.Client(*sys.argv[1:])
 c.convertURI('http://www.jagpdf.org')
 c.convertHtml('raw html')
-c.convertFile('../test_files/in/simple.html')
+c.convertFile('./test_files/in/simple.html')
 

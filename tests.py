@@ -43,12 +43,10 @@ if __name__ == "__main__":
     print "using %s ports %d %d" % (pdfcrowd.HOST, pdfcrowd.HTTP_PORT, pdfcrowd.HTTPS_PORT)
 
     os.chdir(os.path.dirname(sys.argv[0]))
-    test_dir = '../test_files'
-    if not os.path.exists(test_dir + '/out'):
-        os.makedirs(test_dir + '/out')
+    test_dir = './test_files'
 
     def out_stream(name, use_ssl):
-        fname = './out/py_client_%s' % name
+        fname = test_dir + '/out/py_client_%s' % name
         if use_ssl:
             fname = fname + '_ssl'
         return open(fname + '.pdf', 'wb')
