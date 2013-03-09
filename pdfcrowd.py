@@ -1,4 +1,4 @@
-# Copyright (C) 2009 pdfcrowd.com
+# Copyright (C) 2009-2013 pdfcrowd.com
 # 
 # Portions of this code:
 #   <http://code.activestate.com/recipes/146306/>
@@ -29,7 +29,7 @@ import httplib
 import mimetypes
 import socket
 
-__version__ = "2.3"
+__version__ = "2.4"
 
 
 # constants for Client.setPageLayout()
@@ -139,10 +139,16 @@ class Client:
         self.fields['height'] = value
 
     def setHorizontalMargin(self, value):
-        self.fields['hmargin'] = str(value)
+        self.fields['margin_right'] = self.fields['margin_left'] = str(value)
 
     def setVerticalMargin(self, value):
-        self.fields['vmargin'] = str(value)
+        self.fields['margin_top'] = self.fields['margin_bottom'] = str(value)
+
+    def setPageMargins(self, top, right, bottom, left):
+        self.fields['margin_top'] = str(top)
+        self.fields['margin_right'] = str(right)
+        self.fields['margin_bottom'] = str(bottom)
+        self.fields['margin_left'] = str(left)
 
     def setEncrypted(self, val=True):
         self.fields['encrypted'] = val

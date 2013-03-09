@@ -7,5 +7,5 @@
 MANIFEST
 build/
 dist/
-tests/out/
+test_files
 

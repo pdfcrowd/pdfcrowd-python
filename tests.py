@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2009 pdfcrowd.com
+# Copyright (C) 2009-2013 pdfcrowd.com
 # 
 # Permission is hereby granted, free of charge, to any person
 # obtaining a copy of this software and associated documentation
@@ -43,9 +43,7 @@ if __name__ == "__main__":
     print "using %s ports %d %d" % (pdfcrowd.HOST, pdfcrowd.HTTP_PORT, pdfcrowd.HTTPS_PORT)
 
     os.chdir(os.path.dirname(sys.argv[0]))
-    test_dir = '../test_files'
-    if not os.path.exists(test_dir + '/out'):
-        os.makedirs(test_dir + '/out')
+    test_dir = './test_files'
 
     def out_stream(name, use_ssl):
         fname = test_dir + '/out/py_client_%s' % name
@@ -102,7 +100,9 @@ if __name__ == "__main__":
              ('setHeaderUrl', 'http://google.com'),             
              ('setAuthor', 'Your Name'),
              ('setPageBackgroundColor', 'ee82EE'),
-             ('setTransparentBackground', True))
+             ('setTransparentBackground', True)
+             )
+
     try:
         for method, arg in tests:
             client = pdfcrowd.Client(sys.argv[1], sys.argv[2])
@@ -112,6 +112,10 @@ if __name__ == "__main__":
     except pdfcrowd.Error, why:
         print 'FAILED', why
         sys.exit(1)
+    # 4 margins
+    client = pdfcrowd.Client(sys.argv[1], sys.argv[2])
+    client.setPageMargins('0.25in', '0.5in', '0.75in', '1.0in')
+    client.convertHtml('<div style="background-color:red;height:100%">4 margins</div>', out_stream('4margins', False))
     # expected failures
     client = pdfcrowd.Client(sys.argv[1], sys.argv[2])
     try:
