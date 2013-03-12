@@ -95,9 +95,9 @@ if __name__ == "__main__":
              ('setInitialPdfExactZoom', 113),
              ('setPdfScalingFactor', .5),
              ('setFooterHtml', '<b>bold</b> and <i>italic</i> <img src="http://pdfcrowd.com/static/images/logo175x30.png" />'),
-             ('setFooterUrl', 'http://google.com'),
+             ('setFooterUrl', 'http://pdfcrowd.com/hub/random/footer.html'),
              ('setHeaderHtml', 'page %p out of %n'),
-             ('setHeaderUrl', 'http://google.com'),             
+             ('setHeaderUrl', 'http://pdfcrowd.com/hub/random/header.html'),
              ('setAuthor', 'Your Name'),
              ('setPageBackgroundColor', 'ee82EE'),
              ('setTransparentBackground', True)

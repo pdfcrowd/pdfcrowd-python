@@ -8,7 +8,7 @@ if len(sys.argv) != 4:
     sys.exit(2)
 
 c = pdfcrowd.Client(*sys.argv[1:])
-c.convertURI('http://www.jagpdf.org')
+c.convertURI('http://www.web-to-pdf.com')
 c.convertHtml('raw html')
 c.convertFile('./test_files/in/simple.html')
 
