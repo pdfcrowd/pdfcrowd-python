@@ -287,7 +287,7 @@ class Client:
         mime_type = mimetypes.guess_type(filename)[0] or 'application/octet-stream'
         body.append('Content-Type: ' + mime_type)
         body.append('')
-        body.append(open(filename).read())
+        body.append(open(filename, 'rb').read())
         # finalize
         body.append('--' + boundary + '--')
         body.append('')
