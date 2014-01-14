@@ -1,3 +1,6 @@
+* version 2.5
+  - fixed an issue with uploading zip files on Windows
+
 * version 2.4
   - added watermark support
   - added header/footer page numbering and exclusion methods
