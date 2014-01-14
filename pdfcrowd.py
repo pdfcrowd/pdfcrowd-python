@@ -29,7 +29,7 @@ import httplib
 import mimetypes
 import socket
 
-__version__ = "2.4"
+__version__ = "2.5"
 
 
 # constants for Client.setPageLayout()
