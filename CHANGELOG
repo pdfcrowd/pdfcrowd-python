@@ -1,0 +1,13 @@
+* version 2.4
+  - added watermark support
+  - added header/footer page numbering and exclusion methods
+
+* version 2.2
+  - added setTransparentBackground()
+
+* version 2.1
+  - added setPageBackgroundColor()
+
+* version 2.0 
+  - changed the defaults for setPdfScalingFactor() and setHtmlZoom()
+  - API response is read in chunks
