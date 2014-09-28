@@ -28,6 +28,7 @@ import urllib
 import httplib
 import mimetypes
 import socket
+import base64
 
 __version__ = "2.5"
 
@@ -71,6 +72,13 @@ class Client:
         self.host = host or HOST
         self.http_port = http_port or HTTP_PORT
         self.useSSL(False)
+        self.setProxy(None, None)
+
+    def setProxy(self, host, port, username=None, password=None):
+        self.proxy_host = host
+        self.proxy_port = port
+        self.proxy_username = username
+        self.proxy_password = password
 
     def convertURI(self, uri, outstream=None):
         """Converts a web page.
@@ -298,8 +306,18 @@ class Client:
     # sends a POST to the API
     def _post(self, body, content_type, api_path, outstream=None):
         try:
-            conn = self.conn_type(self.host, self.port)
-            conn.putrequest('POST', API_SELECTOR_BASE + api_path)
+            if self.proxy_host:
+                if self.conn_type == httplib.HTTPSConnection:
+                    raise Error("HTTPS over a proxy is not supported.")
+                conn = self.conn_type(self.proxy_host, self.proxy_port)
+                conn.putrequest('POST', "http://%s:%d%s" % (self.host, self.port, API_SELECTOR_BASE + api_path))
+                if self.proxy_username:
+                    user_string = "%s:%s" % (self.proxy_username, self.proxy_password)
+                    proxy_auth = "Basic " + base64.b64encode(user_string)
+                    conn.putheader('Proxy-Authorization', proxy_auth)
+            else:
+                conn = self.conn_type(self.host, self.port)
+                conn.putrequest('POST', API_SELECTOR_BASE + api_path)
             conn.putheader('content-type', content_type)
             conn.putheader('content-length', str(len(body)))
             conn.endheaders()
