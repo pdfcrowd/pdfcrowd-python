@@ -30,7 +30,7 @@ import mimetypes
 import socket
 import base64
 
-__version__ = "2.5"
+__version__ = "2.6"
 
 
 # constants for Client.setPageLayout()
