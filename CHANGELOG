@@ -1,3 +1,6 @@
+* version 2.6
+  - added support for connecting the API via a proxy (HTTP)
+
 * version 2.5
   - fixed an issue with uploading zip files on Windows
 
