@@ -293,7 +293,7 @@ class Client:
         body.append('--' + boundary)
         body.append('Content-Disposition: form-data; name="src"; filename="%s"' % filename)
         mime_type = mimetypes.guess_type(filename)[0] or 'application/octet-stream'
-        body.append('Content-Type: ' + mime_type)
+        body.append('Content-Type: ' + str(mime_type))
         body.append('')
         body.append(open(filename, 'rb').read())
         # finalize
