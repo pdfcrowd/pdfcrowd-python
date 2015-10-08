@@ -25,7 +25,7 @@
 # OTHER DEALINGS IN THE SOFTWARE.
 
 import urllib
-import httplib
+import http
 import mimetypes
 import socket
 import base64
@@ -34,10 +34,10 @@ __version__ = "2.6"
 
 
 # constants for Client.setPageLayout()
-SINGLE_PAGE, CONTINUOUS, CONTINUOUS_FACING = range(1,4)
+SINGLE_PAGE, CONTINUOUS, CONTINUOUS_FACING = range(1, 4)
 
 # constants for Client.setPageMode()
-NONE_VISIBLE, THUMBNAILS_VISIBLE, FULLSCREEN = range(1,4)
+NONE_VISIBLE, THUMBNAILS_VISIBLE, FULLSCREEN = range(1, 4)
 
 # constants for setInitialPdfZoomType()
 FIT_WIDTH, FIT_HEIGHT, FIT_PAGE = range(1, 4)
@@ -67,7 +67,7 @@ class Client:
         host     -- API host, defaults to pdfcrowd.com
    
         """
-        self.fields = dict(username=username, key=apikey, \
+        self.fields = dict(username=username, key=apikey,
                            pdf_scaling_factor=1, html_zoom=200)
         self.host = host or HOST
         self.http_port = http_port or HTTP_PORT
@@ -90,6 +90,7 @@ class Client:
         """
         body = urllib.urlencode(self._prepare_fields(dict(src=uri)))
         content_type = 'application/x-www-form-urlencoded'
+
         return self._post(body, content_type, 'pdf/convert/uri/', outstream)
 
     def convertHtml(self, html, outstream=None):
@@ -104,6 +105,7 @@ class Client:
             html = html.encode('utf-8')
         body = urllib.urlencode(self._prepare_fields(dict(src=html)))
         content_type = 'application/x-www-form-urlencoded'
+
         return self._post(body, content_type, 'pdf/convert/html/', outstream)
 
     def convertFile(self, fpath, outstream=None):
@@ -115,6 +117,7 @@ class Client:
                       containing the PDF.
         """
         body, content_type = self._encode_multipart_post_data(fpath)
+
         return self._post(body, content_type, 'pdf/convert/html/', outstream)
 
     def numTokens(self):
@@ -127,11 +130,11 @@ class Client:
         if use_ssl:
             self.port = HTTPS_PORT
             scheme = 'https'
-            self.conn_type = httplib.HTTPSConnection
+            self.conn_type = http.client.HTTPSConnection
         else:
             self.port = self.http_port
             scheme = 'http'
-            self.conn_type = httplib.HTTPConnection
+            self.conn_type = http.client.HTTPConnection
         self.api_uri = '%s://%s:%d%s' % (scheme, self.host, self.port, API_SELECTOR_BASE)
 
     def setUsername(self, username):
@@ -266,7 +269,6 @@ class Client:
     def setWatermarkInBackground(self, val=True):
         self.fields["watermark_in_background"] = val
 
-
     # ----------------------------------------------------------------------
     #
     #                       Private stuff
@@ -284,30 +286,34 @@ class Client:
     def _encode_multipart_post_data(self, filename):
         boundary = '----------ThIs_Is_tHe_bOUnDary_$'
         body = []
+
         for field, value in self._prepare_fields().iteritems():
             body.append('--' + boundary)
             body.append('Content-Disposition: form-data; name="%s"' % field)
             body.append('')
             body.append(str(value))
+
         # filename
         body.append('--' + boundary)
         body.append('Content-Disposition: form-data; name="src"; filename="%s"' % filename)
         mime_type = mimetypes.guess_type(filename)[0] or 'application/octet-stream'
-        body.append('Content-Type: ' + str(mime_type))
+        body.append('Content-Type: ' + mime_type)
         body.append('')
         body.append(open(filename, 'rb').read())
+
         # finalize
         body.append('--' + boundary + '--')
         body.append('')
         body = '\r\n'.join(body)
         content_type = 'multipart/form-data; boundary=%s' % boundary
+
         return body, content_type
 
     # sends a POST to the API
     def _post(self, body, content_type, api_path, outstream=None):
         try:
             if self.proxy_host:
-                if self.conn_type == httplib.HTTPSConnection:
+                if self.conn_type == http.client.HTTPSConnection:
                     raise Error("HTTPS over a proxy is not supported.")
                 conn = self.conn_type(self.proxy_host, self.proxy_port)
                 conn.putrequest('POST', "http://%s:%d%s" % (self.host, self.port, API_SELECTOR_BASE + api_path))
@@ -323,8 +329,10 @@ class Client:
             conn.endheaders()
             conn.send(body)
             response = conn.getresponse()
+
             if response.status != 200:
                 raise Error(response.read(), response.status)
+
             if outstream:
                 while True:
                     data = response.read(16384)
@@ -335,16 +343,12 @@ class Client:
                 return outstream
             else:
                 return response.read()
-        except httplib.HTTPException, err:
+        except http.client.HTTPException as err:
             raise Error(str(err))
-        except socket.gaierror, err:
+        except socket.gaierror as err:
             raise Error(err[1])
-
 
 API_SELECTOR_BASE = '/api/'
 HOST = 'pdfcrowd.com'
 HTTP_PORT = 80
 HTTPS_PORT = 443
-
-
-

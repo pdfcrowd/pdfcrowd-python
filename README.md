@@ -41,8 +41,8 @@ Or you can download/clone the client and run
         # convert an HTML file
         client.convertFile('/path/to/local/file.html', open('file.pdf', 'wb'))
     
-    except pdfcrowd.Error, why:
-        print 'Failed:', why
+    except pdfcrowd.Error as why:
+        print('Failed: {}'.format(why))
     
 ## Links
 
