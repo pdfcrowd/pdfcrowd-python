@@ -25,12 +25,12 @@
 # OTHER DEALINGS IN THE SOFTWARE.
 
 import urllib
-import http
+import http.client
 import mimetypes
 import socket
 import base64
 
-__version__ = "2.6"
+__version__ = "2.7"
 
 
 # constants for Client.setPageLayout()
@@ -276,7 +276,7 @@ class Client:
 
     def _prepare_fields(self, extra_data={}):
         result = extra_data.copy()
-        for key, val in self.fields.iteritems():
+        for key, val in iter(self.fields):
             if val:
                 if type(val) == float:
                     val = str(val).replace(',', '.')

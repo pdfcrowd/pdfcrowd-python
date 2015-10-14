@@ -28,7 +28,7 @@ from distutils.core import setup
 py_modules=['pdfcrowd']
 
 setup(name='pdfcrowd',
-      version='2.6',
+      version='3.0',
       description="A client for Pdfcrowd API.",
       url='http://pdfcrowd.com/html-to-pdf-api/',
       license="License :: OSI Approved :: MIT License",
@@ -36,10 +36,10 @@ setup(name='pdfcrowd',
       author_email='info@pdfcrowd.com',
       long_description="""
 The Pdfcrowd API lets you easily create PDF from web pages or raw HTML
-code in your Python applications.
+code in your Python 3 applications.
 
 
-To use the API, you need an account on `pdfcrowd.com
+To use the API, you need Python3 and an account on `pdfcrowd.com
 <https://pdfcrowd.com>`_, if you don't have one you can sign up `here
 <https://pdfcrowd.com/pricing/api/>`_. This will give you a username
 and an API key.
