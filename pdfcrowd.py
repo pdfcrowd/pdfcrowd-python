@@ -88,7 +88,7 @@ class Client:
                       StringIO, etc.; if None then the return value is a string
                       containing the PDF.
         """
-        body = urllib.urlencode(self._prepare_fields(dict(src=uri)))
+        body = urllib.parse.urlencode(self._prepare_fields(dict(src=uri)))
         content_type = 'application/x-www-form-urlencoded'
 
         return self._post(body, content_type, 'pdf/convert/uri/', outstream)
@@ -103,7 +103,7 @@ class Client:
         """
         if type(html) == unicode:
             html = html.encode('utf-8')
-        body = urllib.urlencode(self._prepare_fields(dict(src=html)))
+        body = urllib.parse.urlencode(self._prepare_fields(dict(src=html)))
         content_type = 'application/x-www-form-urlencoded'
 
         return self._post(body, content_type, 'pdf/convert/html/', outstream)
@@ -122,7 +122,7 @@ class Client:
 
     def numTokens(self):
         """Returns the number of available conversion tokens."""
-        body = urllib.urlencode(self._prepare_fields())
+        body = urllib.parse.urlencode(self._prepare_fields())
         content_type = 'application/x-www-form-urlencoded'
         return int(self._post(body, content_type, 'user/%s/tokens/' % self.fields['username']))
 
