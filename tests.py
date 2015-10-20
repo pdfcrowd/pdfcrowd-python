@@ -42,8 +42,8 @@ if __name__ == "__main__":
 
     print("using %s ports %d %d" % (pdfcrowd.HOST, pdfcrowd.HTTP_PORT, pdfcrowd.HTTPS_PORT))
 
-    os.chdir(os.path.dirname(sys.argv[0]))
-    test_dir = './test_files'
+    os.chdir(os.path.dirname(os.path.realpath(__file__)))
+    test_dir = 'test_files'
 
     def out_stream(name, use_ssl):
         fname = test_dir + '/out/py_client_%s' % name
@@ -52,7 +52,7 @@ if __name__ == "__main__":
 
         return open(fname + '.pdf', 'wb')
 
-    html="<html><body>Uploaded content!</body></html>"
+    html = "<html><body>Uploaded content!</body></html>"
     client = pdfcrowd.Client(sys.argv[1], sys.argv[2])
 
     for use_ssl in [False, True]:
@@ -60,15 +60,22 @@ if __name__ == "__main__":
 
         try:
             ntokens = client.numTokens()
+
+            print('Current Tokens:', ntokens)
+
             client.setFooterText("%p out of %n")
-            client.convertURI('http://dl.dropboxusercontent.com/u/9346438/tests/webtopdfcom.html', out_stream(
-                'uri', use_ssl))
+            client.convertURI('http://dl.dropboxusercontent.com/u/9346438/tests/webtopdfcom.html',
+                              out_stream('uri', use_ssl))
+
             client.convertHtml(html, out_stream('content', use_ssl))
             client.convertFile(test_dir + '/in/simple.html', out_stream('upload', use_ssl))
             client.convertFile(test_dir + '/in/archive.tar.gz', out_stream('archive', use_ssl))
+
             after_tokens = client.numTokens()
+
             print('remaining tokens:', after_tokens)
-            assert ntokens-4 == after_tokens
+
+            assert ntokens - 4 == after_tokens
         except pdfcrowd.Erro as why:
             print('FAILED: {}'.format(why))
             sys.exit(1)
@@ -134,4 +141,4 @@ if __name__ == "__main__":
         print("FAILED expected an exception")
         sys.exit(1)
     except pdfcrowd.Error as why:
-        pass # expected
+        pass  # expected
