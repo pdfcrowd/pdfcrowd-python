@@ -101,7 +101,7 @@ class Client:
                       StringIO, etc.; if None then the return value is a string
                       containing the PDF.
         """
-        if type(html) == unicode:
+        if not isinstance(html, str):
             html = html.encode('utf-8')
         body = urllib.parse.urlencode(self._prepare_fields(dict(src=html)))
         content_type = 'application/x-www-form-urlencoded'
@@ -276,7 +276,8 @@ class Client:
 
     def _prepare_fields(self, extra_data={}):
         result = extra_data.copy()
-        for key, val in iter(self.fields):
+
+        for key, val in iter(self.fields.items()):
             if val:
                 if type(val) == float:
                     val = str(val).replace(',', '.')
@@ -287,13 +288,14 @@ class Client:
         boundary = '----------ThIs_Is_tHe_bOUnDary_$'
         body = []
 
-        for field, value in self._prepare_fields().iteritems():
+        for field, value in iter(self._prepare_fields().items()):
             body.append('--' + boundary)
             body.append('Content-Disposition: form-data; name="%s"' % field)
             body.append('')
             body.append(str(value))
 
         # filename
+        print(filename)
         body.append('--' + boundary)
         body.append('Content-Disposition: form-data; name="src"; filename="%s"' % filename)
         mime_type = mimetypes.guess_type(filename)[0] or 'application/octet-stream'
@@ -304,7 +306,7 @@ class Client:
         # finalize
         body.append('--' + boundary + '--')
         body.append('')
-        body = '\r\n'.join(body)
+        body = '\r\n'.join(map(str, body))
         content_type = 'multipart/form-data; boundary=%s' % boundary
 
         return body, content_type
@@ -315,8 +317,10 @@ class Client:
             if self.proxy_host:
                 if self.conn_type == http.client.HTTPSConnection:
                     raise Error("HTTPS over a proxy is not supported.")
+
                 conn = self.conn_type(self.proxy_host, self.proxy_port)
                 conn.putrequest('POST', "http://%s:%d%s" % (self.host, self.port, API_SELECTOR_BASE + api_path))
+
                 if self.proxy_username:
                     user_string = "%s:%s" % (self.proxy_username, self.proxy_password)
                     proxy_auth = "Basic " + base64.b64encode(user_string)
@@ -324,10 +328,11 @@ class Client:
             else:
                 conn = self.conn_type(self.host, self.port)
                 conn.putrequest('POST', API_SELECTOR_BASE + api_path)
+
             conn.putheader('content-type', content_type)
             conn.putheader('content-length', str(len(body)))
             conn.endheaders()
-            conn.send(body)
+            conn.send(body.encode('ascii'))
             response = conn.getresponse()
 
             if response.status != 200:
