@@ -8,4 +8,4 @@ MANIFEST
 build/
 dist/
 test_files
-
+.idea/
