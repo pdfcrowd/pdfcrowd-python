@@ -4,7 +4,8 @@ import pdfcrowd
 import sys
 
 if len(sys.argv) != 4:
-    print 'required args: username apikey hostname'
+    print(len(sys.argv))
+    print('required args: username apikey hostname')
     sys.exit(2)
 
 c = pdfcrowd.Client(*sys.argv[1:])

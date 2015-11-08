@@ -30,7 +30,7 @@ if __name__ == "__main__":
     import pdfcrowd
 
     if len(sys.argv) < 2:
-        print "usage: python pdfcrowd.py username apikey [apihost [http-port https-port]]"
+        print("usage: python pdfcrowd.py username apikey [apihost [http-port https-port]]")
         sys.exit(1)
 
     if len(sys.argv) > 3:
@@ -40,34 +40,46 @@ if __name__ == "__main__":
         pdfcrowd.HTTP_PORT = int(sys.argv[4])
         pdfcrowd.HTTPS_PORT = int(sys.argv[5])
 
-    print "using %s ports %d %d" % (pdfcrowd.HOST, pdfcrowd.HTTP_PORT, pdfcrowd.HTTPS_PORT)
+    print("using %s ports %d %d" % (pdfcrowd.HOST, pdfcrowd.HTTP_PORT, pdfcrowd.HTTPS_PORT))
 
-    os.chdir(os.path.dirname(sys.argv[0]))
-    test_dir = './test_files'
+    os.chdir(os.path.dirname(os.path.realpath(__file__)))
+    test_dir = 'test_files'
 
     def out_stream(name, use_ssl):
         fname = test_dir + '/out/py_client_%s' % name
         if use_ssl:
             fname = fname + '_ssl'
+
         return open(fname + '.pdf', 'wb')
 
-    html="<html><body>Uploaded content!</body></html>"
+    html = "<html><body>Uploaded content!</body></html>"
     client = pdfcrowd.Client(sys.argv[1], sys.argv[2])
+
     for use_ssl in [False, True]:
         client.useSSL(use_ssl)
+
         try:
             ntokens = client.numTokens()
+
+            print('Current Tokens:', ntokens)
+
             client.setFooterText("%p out of %n")
-            client.convertURI('http://dl.dropboxusercontent.com/u/9346438/tests/webtopdfcom.html', out_stream('uri', use_ssl))
+            client.convertURI('http://dl.dropboxusercontent.com/u/9346438/tests/webtopdfcom.html',
+                              out_stream('uri', use_ssl))
+
             client.convertHtml(html, out_stream('content', use_ssl))
             client.convertFile(test_dir + '/in/simple.html', out_stream('upload', use_ssl))
             client.convertFile(test_dir + '/in/archive.tar.gz', out_stream('archive', use_ssl))
+
             after_tokens = client.numTokens()
-            print 'remaining tokens:', after_tokens
-            assert ntokens-4 == after_tokens
-        except pdfcrowd.Error, why:
-            print 'FAILED:', why
+
+            print('remaining tokens:', after_tokens)
+
+            assert ntokens - 4 == after_tokens
+        except pdfcrowd.Erro as why:
+            print('FAILED: {}'.format(why))
             sys.exit(1)
+
     # test individual methods
     tests = (('setPageWidth', 500),
              ('setPageHeight', -1),
@@ -94,7 +106,10 @@ if __name__ == "__main__":
              ('setInitialPdfZoomType', pdfcrowd.FIT_PAGE),
              ('setInitialPdfExactZoom', 113),
              ('setPdfScalingFactor', .5),
-             ('setFooterHtml', '<b>bold</b> and <i>italic</i> <img src="http://s3.pdfcrowd.com/test-resources/logo175x30.png" />'),
+             (
+                 'setFooterHtml',
+                 '<b>bold</b> and <i>italic</i> <img src="http://s3.pdfcrowd.com/test-resources/logo175x30.png" />'
+             ),
              ('setFooterUrl', 'http://s3.pdfcrowd.com/test-resources/footer.html'),
              ('setHeaderHtml', 'page %p out of %n'),
              ('setHeaderUrl', 'http://s3.pdfcrowd.com/test-resources/header.html'),
@@ -109,19 +124,21 @@ if __name__ == "__main__":
             client.setVerticalMargin("1in")
             getattr(client, method)(arg)
             client.convertFile(test_dir + '/in/simple.html', out_stream(method.lower(), False))
-    except pdfcrowd.Error, why:
-        print 'FAILED', why
+    except pdfcrowd.Error as why:
+        print('FAILED'.format(why))
         sys.exit(1)
+
     # 4 margins
     client = pdfcrowd.Client(sys.argv[1], sys.argv[2])
     client.setPageMargins('0.25in', '0.5in', '0.75in', '1.0in')
     client.convertHtml('<div style="background-color:red;height:100%">4 margins</div>', out_stream('4margins', False))
     # expected failures
     client = pdfcrowd.Client(sys.argv[1], sys.argv[2])
+
     try:
         client.setFailOnNon200(True)
         client.convertURI("http://s3.pdfcrowd.com/this/url/does/not/exist/")
-        print "FAILED expected an exception"
+        print("FAILED expected an exception")
         sys.exit(1)
-    except pdfcrowd.Error, why:
-        pass # expected
+    except pdfcrowd.Error as why:
+        pass  # expected
