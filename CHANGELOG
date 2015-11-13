@@ -1,3 +1,6 @@
+* version 2.7
+  - internal: explicitly convert mime_type to a string
+
 * version 2.6
   - added support for connecting the API via a proxy (HTTP)
 
