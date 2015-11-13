@@ -28,7 +28,7 @@ from distutils.core import setup
 py_modules=['pdfcrowd']
 
 setup(name='pdfcrowd',
-      version='2.6',
+      version='2.7',
       description="A client for Pdfcrowd API.",
       url='http://pdfcrowd.com/html-to-pdf-api/',
       license="License :: OSI Approved :: MIT License",
@@ -64,7 +64,7 @@ An example::
         client.convertFile('/path/to/local/file.html', open('file.pdf', 'wb'))
     
     except pdfcrowd.Error, why:
-        print 'Failed:', why
+        print('Failed: {}'.format(why))
 
 """,
       py_modules=py_modules,
