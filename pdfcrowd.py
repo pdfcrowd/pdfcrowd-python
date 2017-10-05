@@ -42,7 +42,7 @@ import sys
 import os
 import ssl
 
-__version__ = '4.0'
+__version__ = '4.0.1'
 
 # ======================================
 # === PDFCrowd legacy version client ===
@@ -90,7 +90,7 @@ if PYTHON_3:
             """
             self.fields = dict(username=username, key=apikey,
                                pdf_scaling_factor=1, html_zoom=200)
-            self.host = host or HOST
+            self.host = host or HOST_LEGACY
             self.http_port = http_port or HTTP_PORT
             self.useSSL(False)
             self.setProxy(None, None)
@@ -369,7 +369,7 @@ if PYTHON_3:
                 raise Error(err[1])
 
     API_SELECTOR_BASE = '/api/'
-    HOST = 'pdfcrowd.com'
+    HOST_LEGACY = os.environ.get('PDFCROWD_HOST', 'pdfcrowd.com')
     HTTP_PORT = 80
     HTTPS_PORT = 443
 else:
@@ -414,7 +414,7 @@ else:
             """
             self.fields = dict(username=username, key=apikey, \
                                pdf_scaling_factor=1, html_zoom=200)
-            self.host = host or HOST
+            self.host = host or HOST_LEGACY
             self.http_port = http_port or HTTP_PORT
             self.useSSL(False)
             self.setProxy(None, None)
@@ -687,7 +687,7 @@ else:
 
 
     API_SELECTOR_BASE = '/api/'
-    HOST = 'pdfcrowd.com'
+    HOST_LEGACY = os.environ.get('PDFCROWD_HOST', 'pdfcrowd.com')
     HTTP_PORT = 80
     HTTPS_PORT = 443
 
@@ -697,7 +697,7 @@ else:
 
 HOST = os.environ.get('PDFCROWD_HOST', 'api.pdfcrowd.com')
 MULTIPART_BOUNDARY = '----------ThIs_Is_tHe_bOUnDary_$'
-CLIENT_VERSION = '4.0'
+CLIENT_VERSION = '4.0.1'
 
 def get_utf8_string(string):
     if not PYTHON_3 and type(string) == unicode:
@@ -778,7 +778,7 @@ class ConnectionHelper:
         self._reset_response_data()
         self.setProxy(None, None, None, None)
         self.setUseHttp(False)
-        self.setUserAgent('pdfcrowd_python_client/4.0 (http://pdfcrowd.com)')
+        self.setUserAgent('pdfcrowd_python_client/4.0.1 (http://pdfcrowd.com)')
 
     def _reset_response_data(self):
         self.debug_log_url = None
