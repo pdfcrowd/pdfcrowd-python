@@ -1102,13 +1102,13 @@ class HtmlToPdfClient:
 
     def setPageHeight(self, page_height):
         """
-        Set the output page height.
+        Set the output page height. Use -1 for a single page PDF.
         
-        page_height - Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
+        page_height - Can be -1 or specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
         return - The converter object.
         """
-        if not re.match('(?i)^[0-9]*(\.[0-9]+)?(pt|px|mm|cm|in)$', page_height):
-            raise Error(create_invalid_value_message(page_height, "page_height", "html-to-pdf", "Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).", "set_page_height"), 470);
+        if not re.match('(?i)^\-1$|^[0-9]*(\.[0-9]+)?(pt|px|mm|cm|in)$', page_height):
+            raise Error(create_invalid_value_message(page_height, "page_height", "html-to-pdf", "Can be -1 or specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).", "set_page_height"), 470);
         
         self.fields['page_height'] = get_utf8_string(page_height)
         return self
@@ -1118,7 +1118,7 @@ class HtmlToPdfClient:
         Set the output page dimensions.
         
         width - Set the output page width. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
-        height - Set the output page height. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
+        height - Set the output page height. Use -1 for a single page PDF. Can be -1 or specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
         return - The converter object.
         """
         self.setPageWidth(width)
@@ -1861,7 +1861,7 @@ class HtmlToPdfClient:
 
     def setRetryCount(self, retry_count):
         """
-        Specifies number of retries after HTTP status code 502 was received. The status 502 occurs seldom due to network problems. This feature can be disabled by setting to 0.
+        Specifies the number of retries when the 502 HTTP status code is received. The 502 status code indicates a temporary network issue. This feature can be disabled by setting to 0.
         
         retry_count - Number of retries wanted.
         return - The converter object.
@@ -2367,7 +2367,7 @@ class HtmlToImageClient:
 
     def setRetryCount(self, retry_count):
         """
-        Specifies number of retries after HTTP status code 502 was received. The status 502 occurs seldom due to network problems. This feature can be disabled by setting to 0.
+        Specifies the number of retries when the 502 HTTP status code is received. The 502 status code indicates a temporary network issue. This feature can be disabled by setting to 0.
         
         retry_count - Number of retries wanted.
         return - The converter object.
@@ -2625,7 +2625,7 @@ class ImageToImageClient:
 
     def setRetryCount(self, retry_count):
         """
-        Specifies number of retries after HTTP status code 502 was received. The status 502 occurs seldom due to network problems. This feature can be disabled by setting to 0.
+        Specifies the number of retries when the 502 HTTP status code is received. The 502 status code indicates a temporary network issue. This feature can be disabled by setting to 0.
         
         retry_count - Number of retries wanted.
         return - The converter object.
@@ -2812,7 +2812,7 @@ class PdfToPdfClient:
 
     def setRetryCount(self, retry_count):
         """
-        Specifies number of retries after HTTP status code 502 was received. The status 502 occurs seldom due to network problems. This feature can be disabled by setting to 0.
+        Specifies the number of retries when the 502 HTTP status code is received. The 502 status code indicates a temporary network issue. This feature can be disabled by setting to 0.
         
         retry_count - Number of retries wanted.
         return - The converter object.
@@ -3057,7 +3057,7 @@ class ImageToPdfClient:
 
     def setRetryCount(self, retry_count):
         """
-        Specifies number of retries after HTTP status code 502 was received. The status 502 occurs seldom due to network problems. This feature can be disabled by setting to 0.
+        Specifies the number of retries when the 502 HTTP status code is received. The 502 status code indicates a temporary network issue. This feature can be disabled by setting to 0.
         
         retry_count - Number of retries wanted.
         return - The converter object.
@@ -3130,14 +3130,14 @@ available converters:
                             help = 'Set the output page size. Allowed values are A2, A3, A4, A5, A6, Letter.'
 )
         parser.add_argument('-page-width',
-                            help = argparse.SUPPRESS
+                            help = 'Set the output page width. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).'
 )
         parser.add_argument('-page-height',
-                            help = argparse.SUPPRESS
+                            help = 'Set the output page height. Use -1 for a single page PDF. Can be -1 or specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).'
 )
         multi_args['page_dimensions'] = 2
         parser.add_argument('-page-dimensions',
-                            help = 'Set the output page dimensions. PAGE_DIMENSIONS must contain 2 values separated by a semicolon. Set the output page width. Set the output page height. All values can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).'
+                            help = 'Set the output page dimensions. PAGE_DIMENSIONS must contain 2 values separated by a semicolon. Set the output page width. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt). Set the output page height. Use -1 for a single page PDF. Can be -1 or specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).'
 )
         parser.add_argument('-orientation',
                             help = 'Set the output page orientation. Allowed values are landscape, portrait.'
@@ -3339,7 +3339,7 @@ available converters:
                             help = 'Specifies an HTTP proxy that the API client library will use to connect to the internet. PROXY must contain 4 values separated by a semicolon. The proxy hostname. The proxy port. The username. The password.'
 )
         parser.add_argument('-retry-count',
-                            help = 'Specifies number of retries after HTTP status code 502 was received. The status 502 occurs seldom due to network problems. This feature can be disabled by setting to 0. Number of retries wanted.'
+                            help = 'Specifies the number of retries when the 502 HTTP status code is received. The 502 status code indicates a temporary network issue. This feature can be disabled by setting to 0. Number of retries wanted.'
 )
 
     if converter == 'html2image':
@@ -3451,7 +3451,7 @@ available converters:
                             help = 'Specifies an HTTP proxy that the API client library will use to connect to the internet. PROXY must contain 4 values separated by a semicolon. The proxy hostname. The proxy port. The username. The password.'
 )
         parser.add_argument('-retry-count',
-                            help = 'Specifies number of retries after HTTP status code 502 was received. The status 502 occurs seldom due to network problems. This feature can be disabled by setting to 0. Number of retries wanted.'
+                            help = 'Specifies the number of retries when the 502 HTTP status code is received. The 502 status code indicates a temporary network issue. This feature can be disabled by setting to 0. Number of retries wanted.'
 )
 
     if converter == 'image2image':
@@ -3489,7 +3489,7 @@ available converters:
                             help = 'Specifies an HTTP proxy that the API client library will use to connect to the internet. PROXY must contain 4 values separated by a semicolon. The proxy hostname. The proxy port. The username. The password.'
 )
         parser.add_argument('-retry-count',
-                            help = 'Specifies number of retries after HTTP status code 502 was received. The status 502 occurs seldom due to network problems. This feature can be disabled by setting to 0. Number of retries wanted.'
+                            help = 'Specifies the number of retries when the 502 HTTP status code is received. The 502 status code indicates a temporary network issue. This feature can be disabled by setting to 0. Number of retries wanted.'
 )
 
     if converter == 'pdf2pdf':
@@ -3521,7 +3521,7 @@ available converters:
                             help = 'Specifies an HTTP proxy that the API client library will use to connect to the internet. PROXY must contain 4 values separated by a semicolon. The proxy hostname. The proxy port. The username. The password.'
 )
         parser.add_argument('-retry-count',
-                            help = 'Specifies number of retries after HTTP status code 502 was received. The status 502 occurs seldom due to network problems. This feature can be disabled by setting to 0. Number of retries wanted.'
+                            help = 'Specifies the number of retries when the 502 HTTP status code is received. The 502 status code indicates a temporary network issue. This feature can be disabled by setting to 0. Number of retries wanted.'
 )
 
     if converter == 'image2pdf':
@@ -3556,7 +3556,7 @@ available converters:
                             help = 'Specifies an HTTP proxy that the API client library will use to connect to the internet. PROXY must contain 4 values separated by a semicolon. The proxy hostname. The proxy port. The username. The password.'
 )
         parser.add_argument('-retry-count',
-                            help = 'Specifies number of retries after HTTP status code 502 was received. The status 502 occurs seldom due to network problems. This feature can be disabled by setting to 0. Number of retries wanted.'
+                            help = 'Specifies the number of retries when the 502 HTTP status code is received. The 502 status code indicates a temporary network issue. This feature can be disabled by setting to 0. Number of retries wanted.'
 )
 
 
