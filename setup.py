@@ -28,7 +28,7 @@ from distutils.core import setup
 py_modules=['pdfcrowd']
 
 setup(name='pdfcrowd',
-      version='4.1.0',
+      version='4.2.0',
       description="A client library for the Pdfcrowd API.",
       url='https://pdfcrowd.com/doc/api/',
       license="License :: OSI Approved :: MIT License",

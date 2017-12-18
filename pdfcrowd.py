@@ -43,7 +43,7 @@ import os
 import ssl
 import time
 
-__version__ = '4.1.0'
+__version__ = '4.2.0'
 
 # ======================================
 # === PDFCrowd legacy version client ===
@@ -698,7 +698,7 @@ else:
 
 HOST = os.environ.get('PDFCROWD_HOST', 'api.pdfcrowd.com')
 MULTIPART_BOUNDARY = '----------ThIs_Is_tHe_bOUnDary_$'
-CLIENT_VERSION = '4.1.0'
+CLIENT_VERSION = '4.2.0'
 
 def get_utf8_string(string):
     if not PYTHON_3 and type(string) == unicode:
@@ -779,7 +779,7 @@ class ConnectionHelper:
         self._reset_response_data()
         self.setProxy(None, None, None, None)
         self.setUseHttp(False)
-        self.setUserAgent('pdfcrowd_python_client/4.1.0 (http://pdfcrowd.com)')
+        self.setUserAgent('pdfcrowd_python_client/4.2.0 (http://pdfcrowd.com)')
 
         self.retry_count = 1
 
@@ -2667,14 +2667,14 @@ class PdfToPdfClient:
         self.fields['action'] = get_utf8_string(action)
         return self
 
-    def convertFiles(self):
+    def convert(self):
         """
         Perform an action on the input files.
         return - Byte array containing the output PDF.
         """
         return self.helper.post(self.fields, self.files, self.raw_data)
 
-    def convertFilesToStream(self, out_stream):
+    def convertToStream(self, out_stream):
         """
         Perform an action on the input files and write the output PDF to an output stream.
         
@@ -2682,17 +2682,17 @@ class PdfToPdfClient:
         """
         self.helper.post(self.fields, self.files, self.raw_data, out_stream)
 
-    def convertFilesToFile(self, file_path):
+    def convertToFile(self, file_path):
         """
         Perform an action on the input files and write the output PDF to a file.
         
         file_path - The output file path. The string must not be empty.
         """
         if not (file_path):
-            raise Error(create_invalid_value_message(file_path, "file_path", "pdf-to-pdf", "The string must not be empty.", "convert_files_to_file"), 470);
+            raise Error(create_invalid_value_message(file_path, "file_path", "pdf-to-pdf", "The string must not be empty.", "convert_to_file"), 470);
         
         output_file = open(file_path, 'wb')
-        self.convertFilesToStream(output_file)
+        self.convertToStream(output_file)
         output_file.close()
 
     def addPdfFile(self, file_path):
@@ -2711,7 +2711,7 @@ class PdfToPdfClient:
 
     def addPdfRawData(self, pdf_raw_data):
         """
-        Add in-memory raw PDF data to the list of the input PDFs.
+        Add in-memory raw PDF data to the list of the input PDFs.Typical usage is for adding PDF created by another Pdfcrowd converter. Example in PHP: $clientPdf2Pdf->addPdfRawData($clientHtml2Pdf->convertUrl('http://www.example.com'));
         
         pdf_raw_data - The raw PDF data. The input data must be PDF content.
         return - The converter object.
@@ -3614,7 +3614,7 @@ available converters:
     if converter_name == 'PdfToPdfClient':
         for in_file in args.source:
             converter.addPdfFile(in_file)
-        out = converter.convertFiles()
+        out = converter.convert()
     else:
         method, args = get_input(args.source[0])
         out = getattr(converter, method)(args)

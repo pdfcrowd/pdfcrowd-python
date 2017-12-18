@@ -15,4 +15,3 @@ try:
 except pdfcrowd.Error as why:
     sys.stderr.write('Pdfcrowd Error: {}\n'.format(why))
     sys.exit(1)
-
