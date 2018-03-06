@@ -43,7 +43,7 @@ import os
 import ssl
 import time
 
-__version__ = '4.2.0'
+__version__ = '4.3.0'
 
 # ======================================
 # === PDFCrowd legacy version client ===
@@ -698,7 +698,7 @@ else:
 
 HOST = os.environ.get('PDFCROWD_HOST', 'api.pdfcrowd.com')
 MULTIPART_BOUNDARY = '----------ThIs_Is_tHe_bOUnDary_$'
-CLIENT_VERSION = '4.2.0'
+CLIENT_VERSION = '4.3.0'
 
 def get_utf8_string(string):
     if not PYTHON_3 and type(string) == unicode:
@@ -779,7 +779,7 @@ class ConnectionHelper:
         self._reset_response_data()
         self.setProxy(None, None, None, None)
         self.setUseHttp(False)
-        self.setUserAgent('pdfcrowd_python_client/4.2.0 (http://pdfcrowd.com)')
+        self.setUserAgent('pdfcrowd_python_client/4.3.0 (http://pdfcrowd.com)')
 
         self.retry_count = 1
 
@@ -985,8 +985,13 @@ class HtmlToPdfClient:
             raise Error(create_invalid_value_message(file_path, "file_path", "html-to-pdf", "The string must not be empty.", "convert_url_to_file"), 470);
         
         output_file = open(file_path, 'wb')
-        self.convertUrlToStream(url, output_file)
-        output_file.close()
+        try:
+            self.convertUrlToStream(url, output_file)
+            output_file.close()
+        except Error:
+            output_file.close()
+            os.remove(file_path)
+            raise
 
     def convertFile(self, file):
         """
@@ -1031,8 +1036,13 @@ class HtmlToPdfClient:
             raise Error(create_invalid_value_message(file_path, "file_path", "html-to-pdf", "The string must not be empty.", "convert_file_to_file"), 470);
         
         output_file = open(file_path, 'wb')
-        self.convertFileToStream(file, output_file)
-        output_file.close()
+        try:
+            self.convertFileToStream(file, output_file)
+            output_file.close()
+        except Error:
+            output_file.close()
+            os.remove(file_path)
+            raise
 
     def convertString(self, text):
         """
@@ -1071,8 +1081,13 @@ class HtmlToPdfClient:
             raise Error(create_invalid_value_message(file_path, "file_path", "html-to-pdf", "The string must not be empty.", "convert_string_to_file"), 470);
         
         output_file = open(file_path, 'wb')
-        self.convertStringToStream(text, output_file)
-        output_file.close()
+        try:
+            self.convertStringToStream(text, output_file)
+            output_file.close()
+        except Error:
+            output_file.close()
+            os.remove(file_path)
+            raise
 
     def setPageSize(self, page_size):
         """
@@ -1089,7 +1104,7 @@ class HtmlToPdfClient:
 
     def setPageWidth(self, page_width):
         """
-        Set the output page width.
+        Set the output page width. The safe maximum is 200in otherwise some PDF viewers may be unable to open the PDF.
         
         page_width - Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
         return - The converter object.
@@ -1102,7 +1117,7 @@ class HtmlToPdfClient:
 
     def setPageHeight(self, page_height):
         """
-        Set the output page height. Use -1 for a single page PDF.
+        Set the output page height. Use -1 for a single page PDF. The safe maximum is 200in otherwise some PDF viewers may be unable to open the PDF.
         
         page_height - Can be -1 or specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
         return - The converter object.
@@ -1117,8 +1132,8 @@ class HtmlToPdfClient:
         """
         Set the output page dimensions.
         
-        width - Set the output page width. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
-        height - Set the output page height. Use -1 for a single page PDF. Can be -1 or specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
+        width - Set the output page width. The safe maximum is 200in otherwise some PDF viewers may be unable to open the PDF. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
+        height - Set the output page height. Use -1 for a single page PDF. The safe maximum is 200in otherwise some PDF viewers may be unable to open the PDF. Can be -1 or specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
         return - The converter object.
         """
         self.setPageWidth(width)
@@ -1588,7 +1603,7 @@ class HtmlToPdfClient:
 
     def setElementToConvert(self, selectors):
         """
-        Convert only the specified element and its children. The element is specified by one or more CSS selectors. If the element is not found, the conversion fails. If multiple elements are found, the first one is used.
+        Convert only the specified element from the main document and its children. The element is specified by one or more CSS selectors. If the element is not found, the conversion fails. If multiple elements are found, the first one is used.
         
         selectors - One or more CSS selectors separated by commas. The string must not be empty.
         return - The converter object.
@@ -1614,7 +1629,7 @@ class HtmlToPdfClient:
 
     def setWaitForElement(self, selectors):
         """
-        Wait for the specified element in a source document. The element is specified by one or more CSS selectors. If the element is not found, the conversion fails.
+        Wait for the specified element in a source document. The element is specified by one or more CSS selectors. The element is searched for in the main document and all iframes. If the element is not found, the conversion fails.
         
         selectors - One or more CSS selectors separated by commas. The string must not be empty.
         return - The converter object.
@@ -1772,9 +1787,184 @@ class HtmlToPdfClient:
         self.fields['no_copy'] = no_copy
         return self
 
+    def setTitle(self, title):
+        """
+        Set the title of the PDF.
+        
+        title - The title.
+        return - The converter object.
+        """
+        self.fields['title'] = get_utf8_string(title)
+        return self
+
+    def setSubject(self, subject):
+        """
+        Set the subject of the PDF.
+        
+        subject - The subject.
+        return - The converter object.
+        """
+        self.fields['subject'] = get_utf8_string(subject)
+        return self
+
+    def setAuthor(self, author):
+        """
+        Set the author of the PDF.
+        
+        author - The author.
+        return - The converter object.
+        """
+        self.fields['author'] = get_utf8_string(author)
+        return self
+
+    def setKeywords(self, keywords):
+        """
+        Associate keywords with the document.
+        
+        keywords - The string with the keywords.
+        return - The converter object.
+        """
+        self.fields['keywords'] = get_utf8_string(keywords)
+        return self
+
+    def setPageLayout(self, page_layout):
+        """
+        Specify the page layout to be used when the document is opened.
+        
+        page_layout - Allowed values are single-page, one-column, two-column-left, two-column-right.
+        return - The converter object.
+        """
+        if not re.match('(?i)^(single-page|one-column|two-column-left|two-column-right)$', page_layout):
+            raise Error(create_invalid_value_message(page_layout, "page_layout", "html-to-pdf", "Allowed values are single-page, one-column, two-column-left, two-column-right.", "set_page_layout"), 470);
+        
+        self.fields['page_layout'] = get_utf8_string(page_layout)
+        return self
+
+    def setPageMode(self, page_mode):
+        """
+        Specify how the document should be displayed when opened.
+        
+        page_mode - Allowed values are full-screen, thumbnails, outlines.
+        return - The converter object.
+        """
+        if not re.match('(?i)^(full-screen|thumbnails|outlines)$', page_mode):
+            raise Error(create_invalid_value_message(page_mode, "page_mode", "html-to-pdf", "Allowed values are full-screen, thumbnails, outlines.", "set_page_mode"), 470);
+        
+        self.fields['page_mode'] = get_utf8_string(page_mode)
+        return self
+
+    def setInitialZoomType(self, initial_zoom_type):
+        """
+        Specify how the page should be displayed when opened.
+        
+        initial_zoom_type - Allowed values are fit-width, fit-height, fit-page.
+        return - The converter object.
+        """
+        if not re.match('(?i)^(fit-width|fit-height|fit-page)$', initial_zoom_type):
+            raise Error(create_invalid_value_message(initial_zoom_type, "initial_zoom_type", "html-to-pdf", "Allowed values are fit-width, fit-height, fit-page.", "set_initial_zoom_type"), 470);
+        
+        self.fields['initial_zoom_type'] = get_utf8_string(initial_zoom_type)
+        return self
+
+    def setInitialPage(self, initial_page):
+        """
+        Display the specified page when the document is opened.
+        
+        initial_page - Must be a positive integer number.
+        return - The converter object.
+        """
+        if not (int(initial_page) > 0):
+            raise Error(create_invalid_value_message(initial_page, "initial_page", "html-to-pdf", "Must be a positive integer number.", "set_initial_page"), 470);
+        
+        self.fields['initial_page'] = initial_page
+        return self
+
+    def setInitialZoom(self, initial_zoom):
+        """
+        Specify the initial page zoom in percents when the document is opened.
+        
+        initial_zoom - Must be a positive integer number.
+        return - The converter object.
+        """
+        if not (int(initial_zoom) > 0):
+            raise Error(create_invalid_value_message(initial_zoom, "initial_zoom", "html-to-pdf", "Must be a positive integer number.", "set_initial_zoom"), 470);
+        
+        self.fields['initial_zoom'] = initial_zoom
+        return self
+
+    def setHideToolbar(self, hide_toolbar):
+        """
+        Specify whether to hide the viewer application's tool bars when the document is active.
+        
+        hide_toolbar - Set to True to hide tool bars.
+        return - The converter object.
+        """
+        self.fields['hide_toolbar'] = hide_toolbar
+        return self
+
+    def setHideMenubar(self, hide_menubar):
+        """
+        Specify whether to hide the viewer application's menu bar when the document is active.
+        
+        hide_menubar - Set to True to hide the menu bar.
+        return - The converter object.
+        """
+        self.fields['hide_menubar'] = hide_menubar
+        return self
+
+    def setHideWindowUi(self, hide_window_ui):
+        """
+        Specify whether to hide user interface elements in the document's window (such as scroll bars and navigation controls), leaving only the document's contents displayed.
+        
+        hide_window_ui - Set to True to hide ui elements.
+        return - The converter object.
+        """
+        self.fields['hide_window_ui'] = hide_window_ui
+        return self
+
+    def setFitWindow(self, fit_window):
+        """
+        Specify whether to resize the document's window to fit the size of the first displayed page.
+        
+        fit_window - Set to True to resize the window.
+        return - The converter object.
+        """
+        self.fields['fit_window'] = fit_window
+        return self
+
+    def setCenterWindow(self, center_window):
+        """
+        Specify whether to position the document's window in the center of the screen.
+        
+        center_window - Set to True to center the window.
+        return - The converter object.
+        """
+        self.fields['center_window'] = center_window
+        return self
+
+    def setDisplayTitle(self, display_title):
+        """
+        Specify whether the window's title bar should display the document title. If false , the title bar should instead display the name of the PDF file containing the document.
+        
+        display_title - Set to True to display the title.
+        return - The converter object.
+        """
+        self.fields['display_title'] = display_title
+        return self
+
+    def setRightToLeft(self, right_to_left):
+        """
+        Set the predominant reading order for text to right-to-left. This option has no direct effect on the document's contents or page numbering but can be used to determine the relative positioning of pages when displayed side by side or printed n-up
+        
+        right_to_left - Set to True to set right-to-left reading order.
+        return - The converter object.
+        """
+        self.fields['right_to_left'] = right_to_left
+        return self
+
     def setDebugLog(self, debug_log):
         """
-        Turn on the debug logging.
+        Turn on the debug logging. Details about the conversion are stored in the debug log. The URL of the log can be obtained from the getDebugLogUrl method.
         
         debug_log - Set to True to enable the debug logging.
         return - The converter object.
@@ -1940,8 +2130,13 @@ class HtmlToImageClient:
             raise Error(create_invalid_value_message(file_path, "file_path", "html-to-image", "The string must not be empty.", "convert_url_to_file"), 470);
         
         output_file = open(file_path, 'wb')
-        self.convertUrlToStream(url, output_file)
-        output_file.close()
+        try:
+            self.convertUrlToStream(url, output_file)
+            output_file.close()
+        except Error:
+            output_file.close()
+            os.remove(file_path)
+            raise
 
     def convertFile(self, file):
         """
@@ -1986,8 +2181,13 @@ class HtmlToImageClient:
             raise Error(create_invalid_value_message(file_path, "file_path", "html-to-image", "The string must not be empty.", "convert_file_to_file"), 470);
         
         output_file = open(file_path, 'wb')
-        self.convertFileToStream(file, output_file)
-        output_file.close()
+        try:
+            self.convertFileToStream(file, output_file)
+            output_file.close()
+        except Error:
+            output_file.close()
+            os.remove(file_path)
+            raise
 
     def convertString(self, text):
         """
@@ -2026,8 +2226,13 @@ class HtmlToImageClient:
             raise Error(create_invalid_value_message(file_path, "file_path", "html-to-image", "The string must not be empty.", "convert_string_to_file"), 470);
         
         output_file = open(file_path, 'wb')
-        self.convertStringToStream(text, output_file)
-        output_file.close()
+        try:
+            self.convertStringToStream(text, output_file)
+            output_file.close()
+        except Error:
+            output_file.close()
+            os.remove(file_path)
+            raise
 
     def setNoBackground(self, no_background):
         """
@@ -2222,7 +2427,7 @@ class HtmlToImageClient:
 
     def setElementToConvert(self, selectors):
         """
-        Convert only the specified element and its children. The element is specified by one or more CSS selectors. If the element is not found, the conversion fails. If multiple elements are found, the first one is used.
+        Convert only the specified element from the main document and its children. The element is specified by one or more CSS selectors. If the element is not found, the conversion fails. If multiple elements are found, the first one is used.
         
         selectors - One or more CSS selectors separated by commas. The string must not be empty.
         return - The converter object.
@@ -2248,7 +2453,7 @@ class HtmlToImageClient:
 
     def setWaitForElement(self, selectors):
         """
-        Wait for the specified element in a source document. The element is specified by one or more CSS selectors. If the element is not found, the conversion fails.
+        Wait for the specified element in a source document. The element is specified by one or more CSS selectors. The element is searched for in the main document and all iframes. If the element is not found, the conversion fails.
         
         selectors - One or more CSS selectors separated by commas. The string must not be empty.
         return - The converter object.
@@ -2287,7 +2492,7 @@ class HtmlToImageClient:
 
     def setDebugLog(self, debug_log):
         """
-        Turn on the debug logging.
+        Turn on the debug logging. Details about the conversion are stored in the debug log. The URL of the log can be obtained from the getDebugLogUrl method.
         
         debug_log - Set to True to enable the debug logging.
         return - The converter object.
@@ -2433,8 +2638,13 @@ class ImageToImageClient:
             raise Error(create_invalid_value_message(file_path, "file_path", "image-to-image", "The string must not be empty.", "convert_url_to_file"), 470);
         
         output_file = open(file_path, 'wb')
-        self.convertUrlToStream(url, output_file)
-        output_file.close()
+        try:
+            self.convertUrlToStream(url, output_file)
+            output_file.close()
+        except Error:
+            output_file.close()
+            os.remove(file_path)
+            raise
 
     def convertFile(self, file):
         """
@@ -2473,8 +2683,13 @@ class ImageToImageClient:
             raise Error(create_invalid_value_message(file_path, "file_path", "image-to-image", "The string must not be empty.", "convert_file_to_file"), 470);
         
         output_file = open(file_path, 'wb')
-        self.convertFileToStream(file, output_file)
-        output_file.close()
+        try:
+            self.convertFileToStream(file, output_file)
+            output_file.close()
+        except Error:
+            output_file.close()
+            os.remove(file_path)
+            raise
 
     def convertRawData(self, data):
         """
@@ -2507,8 +2722,13 @@ class ImageToImageClient:
             raise Error(create_invalid_value_message(file_path, "file_path", "image-to-image", "The string must not be empty.", "convert_raw_data_to_file"), 470);
         
         output_file = open(file_path, 'wb')
-        self.convertRawDataToStream(data, output_file)
-        output_file.close()
+        try:
+            self.convertRawDataToStream(data, output_file)
+            output_file.close()
+        except Error:
+            output_file.close()
+            os.remove(file_path)
+            raise
 
     def setOutputFormat(self, output_format):
         """
@@ -2545,7 +2765,7 @@ class ImageToImageClient:
 
     def setDebugLog(self, debug_log):
         """
-        Turn on the debug logging.
+        Turn on the debug logging. Details about the conversion are stored in the debug log. The URL of the log can be obtained from the getDebugLogUrl method.
         
         debug_log - Set to True to enable the debug logging.
         return - The converter object.
@@ -2725,7 +2945,7 @@ class PdfToPdfClient:
 
     def setDebugLog(self, debug_log):
         """
-        Turn on the debug logging.
+        Turn on the debug logging. Details about the conversion are stored in the debug log. The URL of the log can be obtained from the getDebugLogUrl method.
         
         debug_log - Set to True to enable the debug logging.
         return - The converter object.
@@ -2878,8 +3098,13 @@ class ImageToPdfClient:
             raise Error(create_invalid_value_message(file_path, "file_path", "image-to-pdf", "The string must not be empty.", "convert_url_to_file"), 470);
         
         output_file = open(file_path, 'wb')
-        self.convertUrlToStream(url, output_file)
-        output_file.close()
+        try:
+            self.convertUrlToStream(url, output_file)
+            output_file.close()
+        except Error:
+            output_file.close()
+            os.remove(file_path)
+            raise
 
     def convertFile(self, file):
         """
@@ -2918,8 +3143,13 @@ class ImageToPdfClient:
             raise Error(create_invalid_value_message(file_path, "file_path", "image-to-pdf", "The string must not be empty.", "convert_file_to_file"), 470);
         
         output_file = open(file_path, 'wb')
-        self.convertFileToStream(file, output_file)
-        output_file.close()
+        try:
+            self.convertFileToStream(file, output_file)
+            output_file.close()
+        except Error:
+            output_file.close()
+            os.remove(file_path)
+            raise
 
     def convertRawData(self, data):
         """
@@ -2952,8 +3182,13 @@ class ImageToPdfClient:
             raise Error(create_invalid_value_message(file_path, "file_path", "image-to-pdf", "The string must not be empty.", "convert_raw_data_to_file"), 470);
         
         output_file = open(file_path, 'wb')
-        self.convertRawDataToStream(data, output_file)
-        output_file.close()
+        try:
+            self.convertRawDataToStream(data, output_file)
+            output_file.close()
+        except Error:
+            output_file.close()
+            os.remove(file_path)
+            raise
 
     def setResize(self, resize):
         """
@@ -2977,7 +3212,7 @@ class ImageToPdfClient:
 
     def setDebugLog(self, debug_log):
         """
-        Turn on the debug logging.
+        Turn on the debug logging. Details about the conversion are stored in the debug log. The URL of the log can be obtained from the getDebugLogUrl method.
         
         debug_log - Set to True to enable the debug logging.
         return - The converter object.
@@ -3130,14 +3365,14 @@ available converters:
                             help = 'Set the output page size. Allowed values are A2, A3, A4, A5, A6, Letter.'
 )
         parser.add_argument('-page-width',
-                            help = 'Set the output page width. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).'
+                            help = 'Set the output page width. The safe maximum is 200in otherwise some PDF viewers may be unable to open the PDF. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).'
 )
         parser.add_argument('-page-height',
-                            help = 'Set the output page height. Use -1 for a single page PDF. Can be -1 or specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).'
+                            help = 'Set the output page height. Use -1 for a single page PDF. The safe maximum is 200in otherwise some PDF viewers may be unable to open the PDF. Can be -1 or specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).'
 )
         multi_args['page_dimensions'] = 2
         parser.add_argument('-page-dimensions',
-                            help = 'Set the output page dimensions. PAGE_DIMENSIONS must contain 2 values separated by a semicolon. Set the output page width. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt). Set the output page height. Use -1 for a single page PDF. Can be -1 or specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).'
+                            help = 'Set the output page dimensions. PAGE_DIMENSIONS must contain 2 values separated by a semicolon. Set the output page width. The safe maximum is 200in otherwise some PDF viewers may be unable to open the PDF. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt). Set the output page height. Use -1 for a single page PDF. The safe maximum is 200in otherwise some PDF viewers may be unable to open the PDF. Can be -1 or specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).'
 )
         parser.add_argument('-orientation',
                             help = 'Set the output page orientation. Allowed values are landscape, portrait.'
@@ -3270,13 +3505,13 @@ available converters:
                             help = 'Wait the specified number of milliseconds to finish all JavaScript after the document is loaded. The maximum value is determined by your API license. The number of milliseconds to wait. Must be a positive integer number or 0.'
 )
         parser.add_argument('-element-to-convert',
-                            help = 'Convert only the specified element and its children. The element is specified by one or more CSS selectors. If the element is not found, the conversion fails. If multiple elements are found, the first one is used. One or more CSS selectors separated by commas. The string must not be empty.'
+                            help = 'Convert only the specified element from the main document and its children. The element is specified by one or more CSS selectors. If the element is not found, the conversion fails. If multiple elements are found, the first one is used. One or more CSS selectors separated by commas. The string must not be empty.'
 )
         parser.add_argument('-element-to-convert-mode',
                             help = 'Specify the DOM handling when only a part of the document is converted. Allowed values are cut-out, remove-siblings, hide-siblings.'
 )
         parser.add_argument('-wait-for-element',
-                            help = 'Wait for the specified element in a source document. The element is specified by one or more CSS selectors. If the element is not found, the conversion fails. One or more CSS selectors separated by commas. The string must not be empty.'
+                            help = 'Wait for the specified element in a source document. The element is specified by one or more CSS selectors. The element is searched for in the main document and all iframes. If the element is not found, the conversion fails. One or more CSS selectors separated by commas. The string must not be empty.'
 )
         parser.add_argument('-viewport-width',
                             help = argparse.SUPPRESS
@@ -3323,9 +3558,64 @@ available converters:
                             action = 'store_true',
                             help = 'Disallow text and graphics extraction from the output PDF.'
 )
+        parser.add_argument('-title',
+                            help = 'Set the title of the PDF. The title.'
+)
+        parser.add_argument('-subject',
+                            help = 'Set the subject of the PDF. The subject.'
+)
+        parser.add_argument('-author',
+                            help = 'Set the author of the PDF. The author.'
+)
+        parser.add_argument('-keywords',
+                            help = 'Associate keywords with the document. The string with the keywords.'
+)
+        parser.add_argument('-page-layout',
+                            help = 'Specify the page layout to be used when the document is opened. Allowed values are single-page, one-column, two-column-left, two-column-right.'
+)
+        parser.add_argument('-page-mode',
+                            help = 'Specify how the document should be displayed when opened. Allowed values are full-screen, thumbnails, outlines.'
+)
+        parser.add_argument('-initial-zoom-type',
+                            help = 'Specify how the page should be displayed when opened. Allowed values are fit-width, fit-height, fit-page.'
+)
+        parser.add_argument('-initial-page',
+                            help = 'Display the specified page when the document is opened. Must be a positive integer number.'
+)
+        parser.add_argument('-initial-zoom',
+                            help = 'Specify the initial page zoom in percents when the document is opened. Must be a positive integer number.'
+)
+        parser.add_argument('-hide-toolbar',
+                            action = 'store_true',
+                            help = 'Specify whether to hide the viewer application\'s tool bars when the document is active.'
+)
+        parser.add_argument('-hide-menubar',
+                            action = 'store_true',
+                            help = 'Specify whether to hide the viewer application\'s menu bar when the document is active.'
+)
+        parser.add_argument('-hide-window-ui',
+                            action = 'store_true',
+                            help = 'Specify whether to hide user interface elements in the document\'s window (such as scroll bars and navigation controls), leaving only the document\'s contents displayed.'
+)
+        parser.add_argument('-fit-window',
+                            action = 'store_true',
+                            help = 'Specify whether to resize the document\'s window to fit the size of the first displayed page.'
+)
+        parser.add_argument('-center-window',
+                            action = 'store_true',
+                            help = 'Specify whether to position the document\'s window in the center of the screen.'
+)
+        parser.add_argument('-display-title',
+                            action = 'store_true',
+                            help = 'Specify whether the window\'s title bar should display the document title. If false , the title bar should instead display the name of the PDF file containing the document.'
+)
+        parser.add_argument('-right-to-left',
+                            action = 'store_true',
+                            help = 'Set the predominant reading order for text to right-to-left. This option has no direct effect on the document\'s contents or page numbering but can be used to determine the relative positioning of pages when displayed side by side or printed n-up'
+)
         parser.add_argument('-debug-log',
                             action = 'store_true',
-                            help = 'Turn on the debug logging.'
+                            help = 'Turn on the debug logging. Details about the conversion are stored in the debug log.'
 )
         parser.add_argument('-use-http',
                             action = 'store_true',
@@ -3421,13 +3711,13 @@ available converters:
                             help = 'Wait the specified number of milliseconds to finish all JavaScript after the document is loaded. The maximum value is determined by your API license. The number of milliseconds to wait. Must be a positive integer number or 0.'
 )
         parser.add_argument('-element-to-convert',
-                            help = 'Convert only the specified element and its children. The element is specified by one or more CSS selectors. If the element is not found, the conversion fails. If multiple elements are found, the first one is used. One or more CSS selectors separated by commas. The string must not be empty.'
+                            help = 'Convert only the specified element from the main document and its children. The element is specified by one or more CSS selectors. If the element is not found, the conversion fails. If multiple elements are found, the first one is used. One or more CSS selectors separated by commas. The string must not be empty.'
 )
         parser.add_argument('-element-to-convert-mode',
                             help = 'Specify the DOM handling when only a part of the document is converted. Allowed values are cut-out, remove-siblings, hide-siblings.'
 )
         parser.add_argument('-wait-for-element',
-                            help = 'Wait for the specified element in a source document. The element is specified by one or more CSS selectors. If the element is not found, the conversion fails. One or more CSS selectors separated by commas. The string must not be empty.'
+                            help = 'Wait for the specified element in a source document. The element is specified by one or more CSS selectors. The element is searched for in the main document and all iframes. If the element is not found, the conversion fails. One or more CSS selectors separated by commas. The string must not be empty.'
 )
         parser.add_argument('-screenshot-width',
                             help = 'Set the output image width in pixels. The value must be in a range 96-7680.'
@@ -3437,7 +3727,7 @@ available converters:
 )
         parser.add_argument('-debug-log',
                             action = 'store_true',
-                            help = 'Turn on the debug logging.'
+                            help = 'Turn on the debug logging. Details about the conversion are stored in the debug log.'
 )
         parser.add_argument('-use-http',
                             action = 'store_true',
@@ -3475,7 +3765,7 @@ available converters:
 )
         parser.add_argument('-debug-log',
                             action = 'store_true',
-                            help = 'Turn on the debug logging.'
+                            help = 'Turn on the debug logging. Details about the conversion are stored in the debug log.'
 )
         parser.add_argument('-use-http',
                             action = 'store_true',
@@ -3507,7 +3797,7 @@ available converters:
 )
         parser.add_argument('-debug-log',
                             action = 'store_true',
-                            help = 'Turn on the debug logging.'
+                            help = 'Turn on the debug logging. Details about the conversion are stored in the debug log.'
 )
         parser.add_argument('-use-http',
                             action = 'store_true',
@@ -3542,7 +3832,7 @@ available converters:
 )
         parser.add_argument('-debug-log',
                             action = 'store_true',
-                            help = 'Turn on the debug logging.'
+                            help = 'Turn on the debug logging. Details about the conversion are stored in the debug log.'
 )
         parser.add_argument('-use-http',
                             action = 'store_true',
