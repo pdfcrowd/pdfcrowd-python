@@ -43,7 +43,7 @@ import os
 import ssl
 import time
 
-__version__ = '4.3.0'
+__version__ = '4.3.1'
 
 # ======================================
 # === PDFCrowd legacy version client ===
@@ -698,7 +698,7 @@ else:
 
 HOST = os.environ.get('PDFCROWD_HOST', 'api.pdfcrowd.com')
 MULTIPART_BOUNDARY = '----------ThIs_Is_tHe_bOUnDary_$'
-CLIENT_VERSION = '4.3.0'
+CLIENT_VERSION = '4.3.1'
 
 def get_utf8_string(string):
     if not PYTHON_3 and type(string) == unicode:
@@ -744,7 +744,10 @@ def encode_multipart_post_data(fields, files, raw_data):
         head.append('Content-Disposition: form-data; name="%s"' % field)
         head.append('')
         head.append(value)
-    body.append('\r\n'.join(head).encode('utf-8'))
+    if PYTHON_3:
+        body.append('\r\n'.join(head).encode('utf-8'))
+    else:
+        body.append('\r\n'.join(head))
 
     for name, file_name in iter_items(files):
         with open(file_name, 'rb') as f:
@@ -779,7 +782,7 @@ class ConnectionHelper:
         self._reset_response_data()
         self.setProxy(None, None, None, None)
         self.setUseHttp(False)
-        self.setUserAgent('pdfcrowd_python_client/4.3.0 (http://pdfcrowd.com)')
+        self.setUserAgent('pdfcrowd_python_client/4.3.1 (http://pdfcrowd.com)')
 
         self.retry_count = 1
 
@@ -793,15 +796,6 @@ class ConnectionHelper:
         self.retry = 0
 
     def post(self, fields, files, raw_data, out_stream = None):
-        return self._post_multipart(fields, files, raw_data, out_stream) \
-               if files or raw_data else self._post_url_encoded(fields, out_stream)
-
-    def _post_url_encoded(self, fields, out_stream):
-        body = urlencode(dict(gen_fields(fields)))
-        content_type = 'application/x-www-form-urlencoded'
-        return self._do_post(body, content_type, out_stream)
-
-    def _post_multipart(self, fields, files, raw_data, out_stream):
         body = encode_multipart_post_data(fields, files, raw_data)
         content_type = 'multipart/form-data; boundary=' + MULTIPART_BOUNDARY
         return self._do_post(body, content_type, out_stream)
@@ -1492,7 +1486,7 @@ class HtmlToPdfClient:
 
     def setHttpAuth(self, user_name, password):
         """
-        Set the HTTP authentication.
+        Set credentials to access HTTP base authentication protected websites.
         
         user_name - Set the HTTP authentication user name.
         password - Set the HTTP authentication password.
@@ -2316,7 +2310,7 @@ class HtmlToImageClient:
 
     def setHttpAuth(self, user_name, password):
         """
-        Set the HTTP authentication.
+        Set credentials to access HTTP base authentication protected websites.
         
         user_name - Set the HTTP authentication user name.
         password - Set the HTTP authentication password.
@@ -3470,7 +3464,7 @@ available converters:
 )
         multi_args['http_auth'] = 2
         parser.add_argument('-http-auth',
-                            help = 'Set the HTTP authentication. HTTP_AUTH must contain 2 values separated by a semicolon. Set the HTTP authentication user name. Set the HTTP authentication password.'
+                            help = 'Set credentials to access HTTP base authentication protected websites. HTTP_AUTH must contain 2 values separated by a semicolon. Set the HTTP authentication user name. Set the HTTP authentication password.'
 )
         parser.add_argument('-use-print-media',
                             action = 'store_true',
@@ -3676,7 +3670,7 @@ available converters:
 )
         multi_args['http_auth'] = 2
         parser.add_argument('-http-auth',
-                            help = 'Set the HTTP authentication. HTTP_AUTH must contain 2 values separated by a semicolon. Set the HTTP authentication user name. Set the HTTP authentication password.'
+                            help = 'Set credentials to access HTTP base authentication protected websites. HTTP_AUTH must contain 2 values separated by a semicolon. Set the HTTP authentication user name. Set the HTTP authentication password.'
 )
         parser.add_argument('-use-print-media',
                             action = 'store_true',
