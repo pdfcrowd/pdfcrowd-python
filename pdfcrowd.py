@@ -43,7 +43,7 @@ import os
 import ssl
 import time
 
-__version__ = '4.3.1'
+__version__ = '4.3.2'
 
 # ======================================
 # === PDFCrowd legacy version client ===
@@ -698,7 +698,7 @@ else:
 
 HOST = os.environ.get('PDFCROWD_HOST', 'api.pdfcrowd.com')
 MULTIPART_BOUNDARY = '----------ThIs_Is_tHe_bOUnDary_$'
-CLIENT_VERSION = '4.3.1'
+CLIENT_VERSION = '4.3.2'
 
 def get_utf8_string(string):
     if not PYTHON_3 and type(string) == unicode:
@@ -782,7 +782,7 @@ class ConnectionHelper:
         self._reset_response_data()
         self.setProxy(None, None, None, None)
         self.setUseHttp(False)
-        self.setUserAgent('pdfcrowd_python_client/4.3.1 (http://pdfcrowd.com)')
+        self.setUserAgent('pdfcrowd_python_client/4.3.2 (http://pdfcrowd.com)')
 
         self.retry_count = 1
 
@@ -1709,6 +1709,16 @@ class HtmlToPdfClient:
             raise Error(create_invalid_value_message(header_footer_scale_factor, "header_footer_scale_factor", "html-to-pdf", "The value must be in a range 10-500.", "set_header_footer_scale_factor"), 470);
         
         self.fields['header_footer_scale_factor'] = header_footer_scale_factor
+        return self
+
+    def setDisableSmartShrinking(self, disable_smart_shrinking):
+        """
+        Disable the intelligent shrinking strategy that tries to optimally fit the HTML contents to a PDF page.
+        
+        disable_smart_shrinking - Set to True to disable the intelligent shrinking strategy.
+        return - The converter object.
+        """
+        self.fields['disable_smart_shrinking'] = disable_smart_shrinking
         return self
 
     def setLinearize(self, linearize):
@@ -3525,6 +3535,10 @@ available converters:
 )
         parser.add_argument('-header-footer-scale-factor',
                             help = 'Set the scaling factor (zoom) for the header and footer. The scale factor. The value must be in a range 10-500.'
+)
+        parser.add_argument('-disable-smart-shrinking',
+                            action = 'store_true',
+                            help = 'Disable the intelligent shrinking strategy that tries to optimally fit the HTML contents to a PDF page.'
 )
         parser.add_argument('-linearize',
                             action = 'store_true',
