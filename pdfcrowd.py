@@ -875,6 +875,11 @@ class ConnectionHelper:
             return response.read()
         except httplib.HTTPException as err:
             raise Error(str(err))
+        except ssl.SSLError as err:
+            raise Error("There was a problem connecting to Pdfcrowd servers over HTTPS:\n" +
+                        "{} ({})".format(err.reason, err.errno) +
+                        "\nYou can still use the API over HTTP, you just need to add the following line right after Pdfcrowd client initialization:\nclient.setUseHttp(True)",
+                        481)
         except socket.gaierror as err:
             raise Error(err[1])
         except socket.error as err:
