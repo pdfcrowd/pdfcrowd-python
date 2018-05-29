@@ -43,7 +43,7 @@ import os
 import ssl
 import time
 
-__version__ = '4.3.2'
+__version__ = '4.3.3'
 
 # ======================================
 # === PDFCrowd legacy version client ===
@@ -698,7 +698,7 @@ else:
 
 HOST = os.environ.get('PDFCROWD_HOST', 'api.pdfcrowd.com')
 MULTIPART_BOUNDARY = '----------ThIs_Is_tHe_bOUnDary_$'
-CLIENT_VERSION = '4.3.2'
+CLIENT_VERSION = '4.3.3'
 
 def get_utf8_string(string):
     if not PYTHON_3 and type(string) == unicode:
@@ -782,7 +782,7 @@ class ConnectionHelper:
         self._reset_response_data()
         self.setProxy(None, None, None, None)
         self.setUseHttp(False)
-        self.setUserAgent('pdfcrowd_python_client/4.3.2 (http://pdfcrowd.com)')
+        self.setUserAgent('pdfcrowd_python_client/4.3.3 (http://pdfcrowd.com)')
 
         self.retry_count = 1
 
