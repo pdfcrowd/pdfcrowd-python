@@ -43,7 +43,7 @@ import os
 import ssl
 import time
 
-__version__ = '4.3.3'
+__version__ = '4.3.5'
 
 # ======================================
 # === PDFCrowd legacy version client ===
@@ -698,7 +698,7 @@ else:
 
 HOST = os.environ.get('PDFCROWD_HOST', 'api.pdfcrowd.com')
 MULTIPART_BOUNDARY = '----------ThIs_Is_tHe_bOUnDary_$'
-CLIENT_VERSION = '4.3.3'
+CLIENT_VERSION = '4.3.5'
 
 def get_utf8_string(string):
     if not PYTHON_3 and type(string) == unicode:
@@ -782,7 +782,7 @@ class ConnectionHelper:
         self._reset_response_data()
         self.setProxy(None, None, None, None)
         self.setUseHttp(False)
-        self.setUserAgent('pdfcrowd_python_client/4.3.3 (http://pdfcrowd.com)')
+        self.setUserAgent('pdfcrowd_python_client/4.3.5 (http://pdfcrowd.com)')
 
         self.retry_count = 1
 
@@ -2025,6 +2025,16 @@ class HtmlToPdfClient:
         """
         return self.helper.getOutputSize()
 
+    def setTag(self, tag):
+        """
+        Tag the conversion with a custom value. The tag is used in conversion statistics. A value longer than 32 characters is cut off.
+        
+        tag - A string with the custom tag.
+        return - The converter object.
+        """
+        self.fields['tag'] = get_utf8_string(tag)
+        return self
+
     def setUseHttp(self, use_http):
         """
         Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API.
@@ -2546,6 +2556,16 @@ class HtmlToImageClient:
         """
         return self.helper.getOutputSize()
 
+    def setTag(self, tag):
+        """
+        Tag the conversion with a custom value. The tag is used in conversion statistics. A value longer than 32 characters is cut off.
+        
+        tag - A string with the custom tag.
+        return - The converter object.
+        """
+        self.fields['tag'] = get_utf8_string(tag)
+        return self
+
     def setUseHttp(self, use_http):
         """
         Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API.
@@ -2819,6 +2839,16 @@ class ImageToImageClient:
         """
         return self.helper.getOutputSize()
 
+    def setTag(self, tag):
+        """
+        Tag the conversion with a custom value. The tag is used in conversion statistics. A value longer than 32 characters is cut off.
+        
+        tag - A string with the custom tag.
+        return - The converter object.
+        """
+        self.fields['tag'] = get_utf8_string(tag)
+        return self
+
     def setUseHttp(self, use_http):
         """
         Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API.
@@ -3005,6 +3035,16 @@ class PdfToPdfClient:
         return - The count of bytes.
         """
         return self.helper.getOutputSize()
+
+    def setTag(self, tag):
+        """
+        Tag the conversion with a custom value. The tag is used in conversion statistics. A value longer than 32 characters is cut off.
+        
+        tag - A string with the custom tag.
+        return - The converter object.
+        """
+        self.fields['tag'] = get_utf8_string(tag)
+        return self
 
     def setUseHttp(self, use_http):
         """
@@ -3265,6 +3305,16 @@ class ImageToPdfClient:
         return - The count of bytes.
         """
         return self.helper.getOutputSize()
+
+    def setTag(self, tag):
+        """
+        Tag the conversion with a custom value. The tag is used in conversion statistics. A value longer than 32 characters is cut off.
+        
+        tag - A string with the custom tag.
+        return - The converter object.
+        """
+        self.fields['tag'] = get_utf8_string(tag)
+        return self
 
     def setUseHttp(self, use_http):
         """
@@ -3630,6 +3680,9 @@ available converters:
                             action = 'store_true',
                             help = 'Turn on the debug logging. Details about the conversion are stored in the debug log.'
 )
+        parser.add_argument('-tag',
+                            help = 'Tag the conversion with a custom value. The tag is used in conversion statistics. A value longer than 32 characters is cut off. A string with the custom tag.'
+)
         parser.add_argument('-use-http',
                             action = 'store_true',
                             help = 'Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API.'
@@ -3742,6 +3795,9 @@ available converters:
                             action = 'store_true',
                             help = 'Turn on the debug logging. Details about the conversion are stored in the debug log.'
 )
+        parser.add_argument('-tag',
+                            help = 'Tag the conversion with a custom value. The tag is used in conversion statistics. A value longer than 32 characters is cut off. A string with the custom tag.'
+)
         parser.add_argument('-use-http',
                             action = 'store_true',
                             help = 'Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API.'
@@ -3780,6 +3836,9 @@ available converters:
                             action = 'store_true',
                             help = 'Turn on the debug logging. Details about the conversion are stored in the debug log.'
 )
+        parser.add_argument('-tag',
+                            help = 'Tag the conversion with a custom value. The tag is used in conversion statistics. A value longer than 32 characters is cut off. A string with the custom tag.'
+)
         parser.add_argument('-use-http',
                             action = 'store_true',
                             help = 'Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API.'
@@ -3811,6 +3870,9 @@ available converters:
         parser.add_argument('-debug-log',
                             action = 'store_true',
                             help = 'Turn on the debug logging. Details about the conversion are stored in the debug log.'
+)
+        parser.add_argument('-tag',
+                            help = 'Tag the conversion with a custom value. The tag is used in conversion statistics. A value longer than 32 characters is cut off. A string with the custom tag.'
 )
         parser.add_argument('-use-http',
                             action = 'store_true',
@@ -3846,6 +3908,9 @@ available converters:
         parser.add_argument('-debug-log',
                             action = 'store_true',
                             help = 'Turn on the debug logging. Details about the conversion are stored in the debug log.'
+)
+        parser.add_argument('-tag',
+                            help = 'Tag the conversion with a custom value. The tag is used in conversion statistics. A value longer than 32 characters is cut off. A string with the custom tag.'
 )
         parser.add_argument('-use-http',
                             action = 'store_true',
