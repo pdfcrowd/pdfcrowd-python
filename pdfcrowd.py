@@ -1,5 +1,5 @@
-# Copyright (C) 2009-2016 pdfcrowd.com
-# 
+# Copyright (C) 2009-2018 pdfcrowd.com
+#
 # Permission is hereby granted, free of charge, to any person
 # obtaining a copy of this software and associated documentation
 # files (the "Software"), to deal in the Software without
@@ -8,10 +8,10 @@
 # copies of the Software, and to permit persons to whom the
 # Software is furnished to do so, subject to the following
 # conditions:
-# 
+#
 # The above copyright notice and this permission notice shall be
 # included in all copies or substantial portions of the Software.
-# 
+#
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
 # EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
 # OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
@@ -705,9 +705,6 @@ def get_utf8_string(string):
         return string.encode('utf-8')
     return string
 
-def float_to_string(value):
-    return str(value).replace(',', '.')
-
 def create_invalid_value_message(value, field, converter, hint, id):
     message = "Invalid value '%s' for a field '%s'." % (value, field)
     if hint:
@@ -934,7 +931,7 @@ class HtmlToPdfClient:
     def __init__(self, user_name, api_key):
         """
         Constructor for the Pdfcrowd API client.
-        
+
         user_name - Your username at Pdfcrowd.
         api_key - Your API key.
         """
@@ -950,7 +947,7 @@ class HtmlToPdfClient:
     def convertUrl(self, url):
         """
         Convert a web page.
-        
+
         url - The address of the web page to convert. The supported protocols are http:// and https://.
         return - Byte array containing the conversion output.
         """
@@ -963,7 +960,7 @@ class HtmlToPdfClient:
     def convertUrlToStream(self, url, out_stream):
         """
         Convert a web page and write the result to an output stream.
-        
+
         url - The address of the web page to convert. The supported protocols are http:// and https://.
         out_stream - The output stream that will contain the conversion output.
         """
@@ -976,7 +973,7 @@ class HtmlToPdfClient:
     def convertUrlToFile(self, url, file_path):
         """
         Convert a web page and write the result to a local file.
-        
+
         url - The address of the web page to convert. The supported protocols are http:// and https://.
         file_path - The output file path. The string must not be empty.
         """
@@ -995,7 +992,7 @@ class HtmlToPdfClient:
     def convertFile(self, file):
         """
         Convert a local file.
-        
+
         file - The path to a local file to convert. The file can be either a single file or an archive (.tar.gz, .tar.bz2, or .zip). If the HTML document refers to local external assets (images, style sheets, javascript), zip the document together with the assets. The file must exist and not be empty. The file name must have a valid extension.
         return - Byte array containing the conversion output.
         """
@@ -1011,7 +1008,7 @@ class HtmlToPdfClient:
     def convertFileToStream(self, file, out_stream):
         """
         Convert a local file and write the result to an output stream.
-        
+
         file - The path to a local file to convert. The file can be either a single file or an archive (.tar.gz, .tar.bz2, or .zip). If the HTML document refers to local external assets (images, style sheets, javascript), zip the document together with the assets. The file must exist and not be empty. The file name must have a valid extension.
         out_stream - The output stream that will contain the conversion output.
         """
@@ -1027,7 +1024,7 @@ class HtmlToPdfClient:
     def convertFileToFile(self, file, file_path):
         """
         Convert a local file and write the result to a local file.
-        
+
         file - The path to a local file to convert. The file can be either a single file or an archive (.tar.gz, .tar.bz2, or .zip). If the HTML document refers to local external assets (images, style sheets, javascript), zip the document together with the assets. The file must exist and not be empty. The file name must have a valid extension.
         file_path - The output file path. The string must not be empty.
         """
@@ -1046,7 +1043,7 @@ class HtmlToPdfClient:
     def convertString(self, text):
         """
         Convert a string.
-        
+
         text - The string content to convert. The string must not be empty.
         return - Byte array containing the conversion output.
         """
@@ -1059,7 +1056,7 @@ class HtmlToPdfClient:
     def convertStringToStream(self, text, out_stream):
         """
         Convert a string and write the output to an output stream.
-        
+
         text - The string content to convert. The string must not be empty.
         out_stream - The output stream that will contain the conversion output.
         """
@@ -1072,7 +1069,7 @@ class HtmlToPdfClient:
     def convertStringToFile(self, text, file_path):
         """
         Convert a string and write the output to a file.
-        
+
         text - The string content to convert. The string must not be empty.
         file_path - The output file path. The string must not be empty.
         """
@@ -1091,7 +1088,7 @@ class HtmlToPdfClient:
     def setPageSize(self, page_size):
         """
         Set the output page size.
-        
+
         page_size - Allowed values are A2, A3, A4, A5, A6, Letter.
         return - The converter object.
         """
@@ -1104,7 +1101,7 @@ class HtmlToPdfClient:
     def setPageWidth(self, page_width):
         """
         Set the output page width. The safe maximum is 200in otherwise some PDF viewers may be unable to open the PDF.
-        
+
         page_width - Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
         return - The converter object.
         """
@@ -1117,7 +1114,7 @@ class HtmlToPdfClient:
     def setPageHeight(self, page_height):
         """
         Set the output page height. Use -1 for a single page PDF. The safe maximum is 200in otherwise some PDF viewers may be unable to open the PDF.
-        
+
         page_height - Can be -1 or specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
         return - The converter object.
         """
@@ -1130,7 +1127,7 @@ class HtmlToPdfClient:
     def setPageDimensions(self, width, height):
         """
         Set the output page dimensions.
-        
+
         width - Set the output page width. The safe maximum is 200in otherwise some PDF viewers may be unable to open the PDF. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
         height - Set the output page height. Use -1 for a single page PDF. The safe maximum is 200in otherwise some PDF viewers may be unable to open the PDF. Can be -1 or specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
         return - The converter object.
@@ -1142,7 +1139,7 @@ class HtmlToPdfClient:
     def setOrientation(self, orientation):
         """
         Set the output page orientation.
-        
+
         orientation - Allowed values are landscape, portrait.
         return - The converter object.
         """
@@ -1155,7 +1152,7 @@ class HtmlToPdfClient:
     def setMarginTop(self, margin_top):
         """
         Set the output page top margin.
-        
+
         margin_top - Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
         return - The converter object.
         """
@@ -1168,7 +1165,7 @@ class HtmlToPdfClient:
     def setMarginRight(self, margin_right):
         """
         Set the output page right margin.
-        
+
         margin_right - Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
         return - The converter object.
         """
@@ -1181,7 +1178,7 @@ class HtmlToPdfClient:
     def setMarginBottom(self, margin_bottom):
         """
         Set the output page bottom margin.
-        
+
         margin_bottom - Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
         return - The converter object.
         """
@@ -1194,7 +1191,7 @@ class HtmlToPdfClient:
     def setMarginLeft(self, margin_left):
         """
         Set the output page left margin.
-        
+
         margin_left - Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
         return - The converter object.
         """
@@ -1207,7 +1204,7 @@ class HtmlToPdfClient:
     def setNoMargins(self, no_margins):
         """
         Disable margins.
-        
+
         no_margins - Set to True to disable margins.
         return - The converter object.
         """
@@ -1217,7 +1214,7 @@ class HtmlToPdfClient:
     def setPageMargins(self, top, right, bottom, left):
         """
         Set the output page margins.
-        
+
         top - Set the output page top margin. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
         right - Set the output page right margin. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
         bottom - Set the output page bottom margin. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
@@ -1233,7 +1230,7 @@ class HtmlToPdfClient:
     def setHeaderUrl(self, header_url):
         """
         Load an HTML code from the specified URL and use it as the page header. The following classes can be used in the HTML. The content of the respective elements will be expanded as follows: pdfcrowd-page-count - the total page count of printed pages pdfcrowd-page-number - the current page number pdfcrowd-source-url - the source URL of a converted document The following attributes can be used: data-pdfcrowd-number-format - specifies the type of the used numerals Arabic numerals are used by default. Roman numerals can be generated by the roman and roman-lowercase values Example: <span class='pdfcrowd-page-number' data-pdfcrowd-number-format='roman'></span> data-pdfcrowd-placement - specifies where to place the source URL, allowed values: The URL is inserted to the content Example: <span class='pdfcrowd-source-url'></span> will produce <span>http://example.com</span> href - the URL is set to the href attribute Example: <a class='pdfcrowd-source-url' data-pdfcrowd-placement='href'>Link to source</a> will produce <a href='http://example.com'>Link to source</a> href-and-content - the URL is set to the href attribute and to the content Example: <a class='pdfcrowd-source-url' data-pdfcrowd-placement='href-and-content'></a> will produce <a href='http://example.com'>http://example.com</a>
-        
+
         header_url - The supported protocols are http:// and https://.
         return - The converter object.
         """
@@ -1246,7 +1243,7 @@ class HtmlToPdfClient:
     def setHeaderHtml(self, header_html):
         """
         Use the specified HTML code as the page header. The following classes can be used in the HTML. The content of the respective elements will be expanded as follows: pdfcrowd-page-count - the total page count of printed pages pdfcrowd-page-number - the current page number pdfcrowd-source-url - the source URL of a converted document The following attributes can be used: data-pdfcrowd-number-format - specifies the type of the used numerals Arabic numerals are used by default. Roman numerals can be generated by the roman and roman-lowercase values Example: <span class='pdfcrowd-page-number' data-pdfcrowd-number-format='roman'></span> data-pdfcrowd-placement - specifies where to place the source URL, allowed values: The URL is inserted to the content Example: <span class='pdfcrowd-source-url'></span> will produce <span>http://example.com</span> href - the URL is set to the href attribute Example: <a class='pdfcrowd-source-url' data-pdfcrowd-placement='href'>Link to source</a> will produce <a href='http://example.com'>Link to source</a> href-and-content - the URL is set to the href attribute and to the content Example: <a class='pdfcrowd-source-url' data-pdfcrowd-placement='href-and-content'></a> will produce <a href='http://example.com'>http://example.com</a>
-        
+
         header_html - The string must not be empty.
         return - The converter object.
         """
@@ -1259,7 +1256,7 @@ class HtmlToPdfClient:
     def setHeaderHeight(self, header_height):
         """
         Set the header height.
-        
+
         header_height - Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
         return - The converter object.
         """
@@ -1272,7 +1269,7 @@ class HtmlToPdfClient:
     def setFooterUrl(self, footer_url):
         """
         Load an HTML code from the specified URL and use it as the page footer. The following classes can be used in the HTML. The content of the respective elements will be expanded as follows: pdfcrowd-page-count - the total page count of printed pages pdfcrowd-page-number - the current page number pdfcrowd-source-url - the source URL of a converted document The following attributes can be used: data-pdfcrowd-number-format - specifies the type of the used numerals Arabic numerals are used by default. Roman numerals can be generated by the roman and roman-lowercase values Example: <span class='pdfcrowd-page-number' data-pdfcrowd-number-format='roman'></span> data-pdfcrowd-placement - specifies where to place the source URL, allowed values: The URL is inserted to the content Example: <span class='pdfcrowd-source-url'></span> will produce <span>http://example.com</span> href - the URL is set to the href attribute Example: <a class='pdfcrowd-source-url' data-pdfcrowd-placement='href'>Link to source</a> will produce <a href='http://example.com'>Link to source</a> href-and-content - the URL is set to the href attribute and to the content Example: <a class='pdfcrowd-source-url' data-pdfcrowd-placement='href-and-content'></a> will produce <a href='http://example.com'>http://example.com</a>
-        
+
         footer_url - The supported protocols are http:// and https://.
         return - The converter object.
         """
@@ -1285,7 +1282,7 @@ class HtmlToPdfClient:
     def setFooterHtml(self, footer_html):
         """
         Use the specified HTML as the page footer. The following classes can be used in the HTML. The content of the respective elements will be expanded as follows: pdfcrowd-page-count - the total page count of printed pages pdfcrowd-page-number - the current page number pdfcrowd-source-url - the source URL of a converted document The following attributes can be used: data-pdfcrowd-number-format - specifies the type of the used numerals Arabic numerals are used by default. Roman numerals can be generated by the roman and roman-lowercase values Example: <span class='pdfcrowd-page-number' data-pdfcrowd-number-format='roman'></span> data-pdfcrowd-placement - specifies where to place the source URL, allowed values: The URL is inserted to the content Example: <span class='pdfcrowd-source-url'></span> will produce <span>http://example.com</span> href - the URL is set to the href attribute Example: <a class='pdfcrowd-source-url' data-pdfcrowd-placement='href'>Link to source</a> will produce <a href='http://example.com'>Link to source</a> href-and-content - the URL is set to the href attribute and to the content Example: <a class='pdfcrowd-source-url' data-pdfcrowd-placement='href-and-content'></a> will produce <a href='http://example.com'>http://example.com</a>
-        
+
         footer_html - The string must not be empty.
         return - The converter object.
         """
@@ -1298,7 +1295,7 @@ class HtmlToPdfClient:
     def setFooterHeight(self, footer_height):
         """
         Set the footer height.
-        
+
         footer_height - Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
         return - The converter object.
         """
@@ -1311,7 +1308,7 @@ class HtmlToPdfClient:
     def setPrintPageRange(self, pages):
         """
         Set the page range to print.
-        
+
         pages - A comma seperated list of page numbers or ranges.
         return - The converter object.
         """
@@ -1324,7 +1321,7 @@ class HtmlToPdfClient:
     def setPageWatermark(self, page_watermark):
         """
         Apply the first page of the watermark PDF to every page of the output PDF.
-        
+
         page_watermark - The file path to a local watermark PDF file. The file must exist and not be empty.
         return - The converter object.
         """
@@ -1337,7 +1334,7 @@ class HtmlToPdfClient:
     def setMultipageWatermark(self, multipage_watermark):
         """
         Apply each page of the specified watermark PDF to the corresponding page of the output PDF.
-        
+
         multipage_watermark - The file path to a local watermark PDF file. The file must exist and not be empty.
         return - The converter object.
         """
@@ -1350,7 +1347,7 @@ class HtmlToPdfClient:
     def setPageBackground(self, page_background):
         """
         Apply the first page of the specified PDF to the background of every page of the output PDF.
-        
+
         page_background - The file path to a local background PDF file. The file must exist and not be empty.
         return - The converter object.
         """
@@ -1363,7 +1360,7 @@ class HtmlToPdfClient:
     def setMultipageBackground(self, multipage_background):
         """
         Apply each page of the specified PDF to the background of the corresponding page of the output PDF.
-        
+
         multipage_background - The file path to a local background PDF file. The file must exist and not be empty.
         return - The converter object.
         """
@@ -1376,7 +1373,7 @@ class HtmlToPdfClient:
     def setExcludeHeaderOnPages(self, pages):
         """
         The page header is not printed on the specified pages.
-        
+
         pages - List of physical page numbers. Negative numbers count backwards from the last page: -1 is the last page, -2 is the last but one page, and so on. A comma seperated list of page numbers.
         return - The converter object.
         """
@@ -1389,7 +1386,7 @@ class HtmlToPdfClient:
     def setExcludeFooterOnPages(self, pages):
         """
         The page footer is not printed on the specified pages.
-        
+
         pages - List of physical page numbers. Negative numbers count backwards from the last page: -1 is the last page, -2 is the last but one page, and so on. A comma seperated list of page numbers.
         return - The converter object.
         """
@@ -1402,7 +1399,7 @@ class HtmlToPdfClient:
     def setPageNumberingOffset(self, offset):
         """
         Set an offset between physical and logical page numbers.
-        
+
         offset - Integer specifying page offset.
         return - The converter object.
         """
@@ -1412,7 +1409,7 @@ class HtmlToPdfClient:
     def setNoBackground(self, no_background):
         """
         Do not print the background graphics.
-        
+
         no_background - Set to True to disable the background graphics.
         return - The converter object.
         """
@@ -1422,7 +1419,7 @@ class HtmlToPdfClient:
     def setDisableJavascript(self, disable_javascript):
         """
         Do not execute JavaScript.
-        
+
         disable_javascript - Set to True to disable JavaScript in web pages.
         return - The converter object.
         """
@@ -1432,7 +1429,7 @@ class HtmlToPdfClient:
     def setDisableImageLoading(self, disable_image_loading):
         """
         Do not load images.
-        
+
         disable_image_loading - Set to True to disable loading of images.
         return - The converter object.
         """
@@ -1442,7 +1439,7 @@ class HtmlToPdfClient:
     def setDisableRemoteFonts(self, disable_remote_fonts):
         """
         Disable loading fonts from remote sources.
-        
+
         disable_remote_fonts - Set to True disable loading remote fonts.
         return - The converter object.
         """
@@ -1452,7 +1449,7 @@ class HtmlToPdfClient:
     def setBlockAds(self, block_ads):
         """
         Try to block ads. Enabling this option can produce smaller output and speed up the conversion.
-        
+
         block_ads - Set to True to block ads in web pages.
         return - The converter object.
         """
@@ -1462,7 +1459,7 @@ class HtmlToPdfClient:
     def setDefaultEncoding(self, default_encoding):
         """
         Set the default HTML content text encoding.
-        
+
         default_encoding - The text encoding of the HTML content.
         return - The converter object.
         """
@@ -1472,7 +1469,7 @@ class HtmlToPdfClient:
     def setHttpAuthUserName(self, user_name):
         """
         Set the HTTP authentication user name.
-        
+
         user_name - The user name.
         return - The converter object.
         """
@@ -1482,7 +1479,7 @@ class HtmlToPdfClient:
     def setHttpAuthPassword(self, password):
         """
         Set the HTTP authentication password.
-        
+
         password - The password.
         return - The converter object.
         """
@@ -1492,7 +1489,7 @@ class HtmlToPdfClient:
     def setHttpAuth(self, user_name, password):
         """
         Set credentials to access HTTP base authentication protected websites.
-        
+
         user_name - Set the HTTP authentication user name.
         password - Set the HTTP authentication password.
         return - The converter object.
@@ -1504,7 +1501,7 @@ class HtmlToPdfClient:
     def setUsePrintMedia(self, use_print_media):
         """
         Use the print version of the page if available (@media print).
-        
+
         use_print_media - Set to True to use the print version of the page.
         return - The converter object.
         """
@@ -1514,7 +1511,7 @@ class HtmlToPdfClient:
     def setNoXpdfcrowdHeader(self, no_xpdfcrowd_header):
         """
         Do not send the X-Pdfcrowd HTTP header in Pdfcrowd HTTP requests.
-        
+
         no_xpdfcrowd_header - Set to True to disable sending X-Pdfcrowd HTTP header.
         return - The converter object.
         """
@@ -1524,7 +1521,7 @@ class HtmlToPdfClient:
     def setCookies(self, cookies):
         """
         Set cookies that are sent in Pdfcrowd HTTP requests.
-        
+
         cookies - The cookie string.
         return - The converter object.
         """
@@ -1534,7 +1531,7 @@ class HtmlToPdfClient:
     def setVerifySslCertificates(self, verify_ssl_certificates):
         """
         Do not allow insecure HTTPS connections.
-        
+
         verify_ssl_certificates - Set to True to enable SSL certificate verification.
         return - The converter object.
         """
@@ -1544,7 +1541,7 @@ class HtmlToPdfClient:
     def setFailOnMainUrlError(self, fail_on_error):
         """
         Abort the conversion if the main URL HTTP status code is greater than or equal to 400.
-        
+
         fail_on_error - Set to True to abort the conversion.
         return - The converter object.
         """
@@ -1553,8 +1550,8 @@ class HtmlToPdfClient:
 
     def setFailOnAnyUrlError(self, fail_on_error):
         """
-        Abort the conversion if any of the sub-request HTTP status code is greater than or equal to 400.
-        
+        Abort the conversion if any of the sub-request HTTP status code is greater than or equal to 400 or if some sub-requests are still pending. See details in a debug log.
+
         fail_on_error - Set to True to abort the conversion.
         return - The converter object.
         """
@@ -1564,7 +1561,7 @@ class HtmlToPdfClient:
     def setCustomJavascript(self, custom_javascript):
         """
         Run a custom JavaScript after the document is loaded. The script is intended for post-load DOM manipulation (add/remove elements, update CSS, ...).
-        
+
         custom_javascript - String containing a JavaScript code. The string must not be empty.
         return - The converter object.
         """
@@ -1577,7 +1574,7 @@ class HtmlToPdfClient:
     def setCustomHttpHeader(self, custom_http_header):
         """
         Set a custom HTTP header that is sent in Pdfcrowd HTTP requests.
-        
+
         custom_http_header - A string containing the header name and value separated by a colon.
         return - The converter object.
         """
@@ -1590,7 +1587,7 @@ class HtmlToPdfClient:
     def setJavascriptDelay(self, javascript_delay):
         """
         Wait the specified number of milliseconds to finish all JavaScript after the document is loaded. The maximum value is determined by your API license.
-        
+
         javascript_delay - The number of milliseconds to wait. Must be a positive integer number or 0.
         return - The converter object.
         """
@@ -1603,7 +1600,7 @@ class HtmlToPdfClient:
     def setElementToConvert(self, selectors):
         """
         Convert only the specified element from the main document and its children. The element is specified by one or more CSS selectors. If the element is not found, the conversion fails. If multiple elements are found, the first one is used.
-        
+
         selectors - One or more CSS selectors separated by commas. The string must not be empty.
         return - The converter object.
         """
@@ -1616,7 +1613,7 @@ class HtmlToPdfClient:
     def setElementToConvertMode(self, mode):
         """
         Specify the DOM handling when only a part of the document is converted.
-        
+
         mode - Allowed values are cut-out, remove-siblings, hide-siblings.
         return - The converter object.
         """
@@ -1628,8 +1625,8 @@ class HtmlToPdfClient:
 
     def setWaitForElement(self, selectors):
         """
-        Wait for the specified element in a source document. The element is specified by one or more CSS selectors. The element is searched for in the main document and all iframes. If the element is not found, the conversion fails.
-        
+        Wait for the specified element in a source document. The element is specified by one or more CSS selectors. The element is searched for in the main document and all iframes. If the element is not found, the conversion fails. Your API license defines the maximum wait time by "Max Delay" parameter.
+
         selectors - One or more CSS selectors separated by commas. The string must not be empty.
         return - The converter object.
         """
@@ -1642,7 +1639,7 @@ class HtmlToPdfClient:
     def setViewportWidth(self, viewport_width):
         """
         Set the viewport width in pixels. The viewport is the user's visible area of the page.
-        
+
         viewport_width - The value must be in a range 96-7680.
         return - The converter object.
         """
@@ -1655,7 +1652,7 @@ class HtmlToPdfClient:
     def setViewportHeight(self, viewport_height):
         """
         Set the viewport height in pixels. The viewport is the user's visible area of the page.
-        
+
         viewport_height - Must be a positive integer number.
         return - The converter object.
         """
@@ -1668,7 +1665,7 @@ class HtmlToPdfClient:
     def setViewport(self, width, height):
         """
         Set the viewport size. The viewport is the user's visible area of the page.
-        
+
         width - Set the viewport width in pixels. The viewport is the user's visible area of the page. The value must be in a range 96-7680.
         height - Set the viewport height in pixels. The viewport is the user's visible area of the page. Must be a positive integer number.
         return - The converter object.
@@ -1680,7 +1677,7 @@ class HtmlToPdfClient:
     def setRenderingMode(self, rendering_mode):
         """
         Sets the rendering mode.
-        
+
         rendering_mode - The rendering mode. Allowed values are default, viewport.
         return - The converter object.
         """
@@ -1693,7 +1690,7 @@ class HtmlToPdfClient:
     def setScaleFactor(self, scale_factor):
         """
         Set the scaling factor (zoom) for the main page area.
-        
+
         scale_factor - The scale factor. The value must be in a range 10-500.
         return - The converter object.
         """
@@ -1706,7 +1703,7 @@ class HtmlToPdfClient:
     def setHeaderFooterScaleFactor(self, header_footer_scale_factor):
         """
         Set the scaling factor (zoom) for the header and footer.
-        
+
         header_footer_scale_factor - The scale factor. The value must be in a range 10-500.
         return - The converter object.
         """
@@ -1719,7 +1716,7 @@ class HtmlToPdfClient:
     def setDisableSmartShrinking(self, disable_smart_shrinking):
         """
         Disable the intelligent shrinking strategy that tries to optimally fit the HTML contents to a PDF page.
-        
+
         disable_smart_shrinking - Set to True to disable the intelligent shrinking strategy.
         return - The converter object.
         """
@@ -1729,7 +1726,7 @@ class HtmlToPdfClient:
     def setLinearize(self, linearize):
         """
         Create linearized PDF. This is also known as Fast Web View.
-        
+
         linearize - Set to True to create linearized PDF.
         return - The converter object.
         """
@@ -1739,7 +1736,7 @@ class HtmlToPdfClient:
     def setEncrypt(self, encrypt):
         """
         Encrypt the PDF. This prevents search engines from indexing the contents.
-        
+
         encrypt - Set to True to enable PDF encryption.
         return - The converter object.
         """
@@ -1749,7 +1746,7 @@ class HtmlToPdfClient:
     def setUserPassword(self, user_password):
         """
         Protect the PDF with a user password. When a PDF has a user password, it must be supplied in order to view the document and to perform operations allowed by the access permissions.
-        
+
         user_password - The user password.
         return - The converter object.
         """
@@ -1759,7 +1756,7 @@ class HtmlToPdfClient:
     def setOwnerPassword(self, owner_password):
         """
         Protect the PDF with an owner password. Supplying an owner password grants unlimited access to the PDF including changing the passwords and access permissions.
-        
+
         owner_password - The owner password.
         return - The converter object.
         """
@@ -1769,7 +1766,7 @@ class HtmlToPdfClient:
     def setNoPrint(self, no_print):
         """
         Disallow printing of the output PDF.
-        
+
         no_print - Set to True to set the no-print flag in the output PDF.
         return - The converter object.
         """
@@ -1779,7 +1776,7 @@ class HtmlToPdfClient:
     def setNoModify(self, no_modify):
         """
         Disallow modification of the ouput PDF.
-        
+
         no_modify - Set to True to set the read-only only flag in the output PDF.
         return - The converter object.
         """
@@ -1789,7 +1786,7 @@ class HtmlToPdfClient:
     def setNoCopy(self, no_copy):
         """
         Disallow text and graphics extraction from the output PDF.
-        
+
         no_copy - Set to True to set the no-copy flag in the output PDF.
         return - The converter object.
         """
@@ -1799,7 +1796,7 @@ class HtmlToPdfClient:
     def setTitle(self, title):
         """
         Set the title of the PDF.
-        
+
         title - The title.
         return - The converter object.
         """
@@ -1809,7 +1806,7 @@ class HtmlToPdfClient:
     def setSubject(self, subject):
         """
         Set the subject of the PDF.
-        
+
         subject - The subject.
         return - The converter object.
         """
@@ -1819,7 +1816,7 @@ class HtmlToPdfClient:
     def setAuthor(self, author):
         """
         Set the author of the PDF.
-        
+
         author - The author.
         return - The converter object.
         """
@@ -1829,7 +1826,7 @@ class HtmlToPdfClient:
     def setKeywords(self, keywords):
         """
         Associate keywords with the document.
-        
+
         keywords - The string with the keywords.
         return - The converter object.
         """
@@ -1839,7 +1836,7 @@ class HtmlToPdfClient:
     def setPageLayout(self, page_layout):
         """
         Specify the page layout to be used when the document is opened.
-        
+
         page_layout - Allowed values are single-page, one-column, two-column-left, two-column-right.
         return - The converter object.
         """
@@ -1852,7 +1849,7 @@ class HtmlToPdfClient:
     def setPageMode(self, page_mode):
         """
         Specify how the document should be displayed when opened.
-        
+
         page_mode - Allowed values are full-screen, thumbnails, outlines.
         return - The converter object.
         """
@@ -1865,7 +1862,7 @@ class HtmlToPdfClient:
     def setInitialZoomType(self, initial_zoom_type):
         """
         Specify how the page should be displayed when opened.
-        
+
         initial_zoom_type - Allowed values are fit-width, fit-height, fit-page.
         return - The converter object.
         """
@@ -1878,7 +1875,7 @@ class HtmlToPdfClient:
     def setInitialPage(self, initial_page):
         """
         Display the specified page when the document is opened.
-        
+
         initial_page - Must be a positive integer number.
         return - The converter object.
         """
@@ -1891,7 +1888,7 @@ class HtmlToPdfClient:
     def setInitialZoom(self, initial_zoom):
         """
         Specify the initial page zoom in percents when the document is opened.
-        
+
         initial_zoom - Must be a positive integer number.
         return - The converter object.
         """
@@ -1904,7 +1901,7 @@ class HtmlToPdfClient:
     def setHideToolbar(self, hide_toolbar):
         """
         Specify whether to hide the viewer application's tool bars when the document is active.
-        
+
         hide_toolbar - Set to True to hide tool bars.
         return - The converter object.
         """
@@ -1914,7 +1911,7 @@ class HtmlToPdfClient:
     def setHideMenubar(self, hide_menubar):
         """
         Specify whether to hide the viewer application's menu bar when the document is active.
-        
+
         hide_menubar - Set to True to hide the menu bar.
         return - The converter object.
         """
@@ -1924,7 +1921,7 @@ class HtmlToPdfClient:
     def setHideWindowUi(self, hide_window_ui):
         """
         Specify whether to hide user interface elements in the document's window (such as scroll bars and navigation controls), leaving only the document's contents displayed.
-        
+
         hide_window_ui - Set to True to hide ui elements.
         return - The converter object.
         """
@@ -1934,7 +1931,7 @@ class HtmlToPdfClient:
     def setFitWindow(self, fit_window):
         """
         Specify whether to resize the document's window to fit the size of the first displayed page.
-        
+
         fit_window - Set to True to resize the window.
         return - The converter object.
         """
@@ -1944,7 +1941,7 @@ class HtmlToPdfClient:
     def setCenterWindow(self, center_window):
         """
         Specify whether to position the document's window in the center of the screen.
-        
+
         center_window - Set to True to center the window.
         return - The converter object.
         """
@@ -1954,7 +1951,7 @@ class HtmlToPdfClient:
     def setDisplayTitle(self, display_title):
         """
         Specify whether the window's title bar should display the document title. If false , the title bar should instead display the name of the PDF file containing the document.
-        
+
         display_title - Set to True to display the title.
         return - The converter object.
         """
@@ -1964,7 +1961,7 @@ class HtmlToPdfClient:
     def setRightToLeft(self, right_to_left):
         """
         Set the predominant reading order for text to right-to-left. This option has no direct effect on the document's contents or page numbering but can be used to determine the relative positioning of pages when displayed side by side or printed n-up
-        
+
         right_to_left - Set to True to set right-to-left reading order.
         return - The converter object.
         """
@@ -1973,8 +1970,8 @@ class HtmlToPdfClient:
 
     def setDebugLog(self, debug_log):
         """
-        Turn on the debug logging. Details about the conversion are stored in the debug log. The URL of the log can be obtained from the getDebugLogUrl method.
-        
+        Turn on the debug logging. Details about the conversion are stored in the debug log. The URL of the log can be obtained from the getDebugLogUrl method or available in conversion statistics.
+
         debug_log - Set to True to enable the debug logging.
         return - The converter object.
         """
@@ -2028,7 +2025,7 @@ class HtmlToPdfClient:
     def setTag(self, tag):
         """
         Tag the conversion with a custom value. The tag is used in conversion statistics. A value longer than 32 characters is cut off.
-        
+
         tag - A string with the custom tag.
         return - The converter object.
         """
@@ -2038,7 +2035,7 @@ class HtmlToPdfClient:
     def setUseHttp(self, use_http):
         """
         Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API.
-        
+
         use_http - Set to True to use HTTP.
         return - The converter object.
         """
@@ -2048,7 +2045,7 @@ class HtmlToPdfClient:
     def setUserAgent(self, user_agent):
         """
         Set a custom user agent HTTP header. It can be usefull if you are behind some proxy or firewall.
-        
+
         user_agent - The user agent string.
         return - The converter object.
         """
@@ -2058,7 +2055,7 @@ class HtmlToPdfClient:
     def setProxy(self, host, port, user_name, password):
         """
         Specifies an HTTP proxy that the API client library will use to connect to the internet.
-        
+
         host - The proxy hostname.
         port - The proxy port.
         user_name - The username.
@@ -2071,7 +2068,7 @@ class HtmlToPdfClient:
     def setRetryCount(self, retry_count):
         """
         Specifies the number of retries when the 502 HTTP status code is received. The 502 status code indicates a temporary network issue. This feature can be disabled by setting to 0.
-        
+
         retry_count - Number of retries wanted.
         return - The converter object.
         """
@@ -2086,7 +2083,7 @@ class HtmlToImageClient:
     def __init__(self, user_name, api_key):
         """
         Constructor for the Pdfcrowd API client.
-        
+
         user_name - Your username at Pdfcrowd.
         api_key - Your API key.
         """
@@ -2102,7 +2099,7 @@ class HtmlToImageClient:
     def setOutputFormat(self, output_format):
         """
         The format of the output file.
-        
+
         output_format - Allowed values are png, jpg, gif, tiff, bmp, ico, ppm, pgm, pbm, pnm, psb, pct, ras, tga, sgi, sun, webp.
         return - The converter object.
         """
@@ -2115,7 +2112,7 @@ class HtmlToImageClient:
     def convertUrl(self, url):
         """
         Convert a web page.
-        
+
         url - The address of the web page to convert. The supported protocols are http:// and https://.
         return - Byte array containing the conversion output.
         """
@@ -2128,7 +2125,7 @@ class HtmlToImageClient:
     def convertUrlToStream(self, url, out_stream):
         """
         Convert a web page and write the result to an output stream.
-        
+
         url - The address of the web page to convert. The supported protocols are http:// and https://.
         out_stream - The output stream that will contain the conversion output.
         """
@@ -2141,7 +2138,7 @@ class HtmlToImageClient:
     def convertUrlToFile(self, url, file_path):
         """
         Convert a web page and write the result to a local file.
-        
+
         url - The address of the web page to convert. The supported protocols are http:// and https://.
         file_path - The output file path. The string must not be empty.
         """
@@ -2160,7 +2157,7 @@ class HtmlToImageClient:
     def convertFile(self, file):
         """
         Convert a local file.
-        
+
         file - The path to a local file to convert. The file can be either a single file or an archive (.tar.gz, .tar.bz2, or .zip). If the HTML document refers to local external assets (images, style sheets, javascript), zip the document together with the assets. The file must exist and not be empty. The file name must have a valid extension.
         return - Byte array containing the conversion output.
         """
@@ -2176,7 +2173,7 @@ class HtmlToImageClient:
     def convertFileToStream(self, file, out_stream):
         """
         Convert a local file and write the result to an output stream.
-        
+
         file - The path to a local file to convert. The file can be either a single file or an archive (.tar.gz, .tar.bz2, or .zip). If the HTML document refers to local external assets (images, style sheets, javascript), zip the document together with the assets. The file must exist and not be empty. The file name must have a valid extension.
         out_stream - The output stream that will contain the conversion output.
         """
@@ -2192,7 +2189,7 @@ class HtmlToImageClient:
     def convertFileToFile(self, file, file_path):
         """
         Convert a local file and write the result to a local file.
-        
+
         file - The path to a local file to convert. The file can be either a single file or an archive (.tar.gz, .tar.bz2, or .zip). If the HTML document refers to local external assets (images, style sheets, javascript), zip the document together with the assets. The file must exist and not be empty. The file name must have a valid extension.
         file_path - The output file path. The string must not be empty.
         """
@@ -2211,7 +2208,7 @@ class HtmlToImageClient:
     def convertString(self, text):
         """
         Convert a string.
-        
+
         text - The string content to convert. The string must not be empty.
         return - Byte array containing the conversion output.
         """
@@ -2224,7 +2221,7 @@ class HtmlToImageClient:
     def convertStringToStream(self, text, out_stream):
         """
         Convert a string and write the output to an output stream.
-        
+
         text - The string content to convert. The string must not be empty.
         out_stream - The output stream that will contain the conversion output.
         """
@@ -2237,7 +2234,7 @@ class HtmlToImageClient:
     def convertStringToFile(self, text, file_path):
         """
         Convert a string and write the output to a file.
-        
+
         text - The string content to convert. The string must not be empty.
         file_path - The output file path. The string must not be empty.
         """
@@ -2256,7 +2253,7 @@ class HtmlToImageClient:
     def setNoBackground(self, no_background):
         """
         Do not print the background graphics.
-        
+
         no_background - Set to True to disable the background graphics.
         return - The converter object.
         """
@@ -2266,7 +2263,7 @@ class HtmlToImageClient:
     def setDisableJavascript(self, disable_javascript):
         """
         Do not execute JavaScript.
-        
+
         disable_javascript - Set to True to disable JavaScript in web pages.
         return - The converter object.
         """
@@ -2276,7 +2273,7 @@ class HtmlToImageClient:
     def setDisableImageLoading(self, disable_image_loading):
         """
         Do not load images.
-        
+
         disable_image_loading - Set to True to disable loading of images.
         return - The converter object.
         """
@@ -2286,7 +2283,7 @@ class HtmlToImageClient:
     def setDisableRemoteFonts(self, disable_remote_fonts):
         """
         Disable loading fonts from remote sources.
-        
+
         disable_remote_fonts - Set to True disable loading remote fonts.
         return - The converter object.
         """
@@ -2296,7 +2293,7 @@ class HtmlToImageClient:
     def setBlockAds(self, block_ads):
         """
         Try to block ads. Enabling this option can produce smaller output and speed up the conversion.
-        
+
         block_ads - Set to True to block ads in web pages.
         return - The converter object.
         """
@@ -2306,7 +2303,7 @@ class HtmlToImageClient:
     def setDefaultEncoding(self, default_encoding):
         """
         Set the default HTML content text encoding.
-        
+
         default_encoding - The text encoding of the HTML content.
         return - The converter object.
         """
@@ -2316,7 +2313,7 @@ class HtmlToImageClient:
     def setHttpAuthUserName(self, user_name):
         """
         Set the HTTP authentication user name.
-        
+
         user_name - The user name.
         return - The converter object.
         """
@@ -2326,7 +2323,7 @@ class HtmlToImageClient:
     def setHttpAuthPassword(self, password):
         """
         Set the HTTP authentication password.
-        
+
         password - The password.
         return - The converter object.
         """
@@ -2336,7 +2333,7 @@ class HtmlToImageClient:
     def setHttpAuth(self, user_name, password):
         """
         Set credentials to access HTTP base authentication protected websites.
-        
+
         user_name - Set the HTTP authentication user name.
         password - Set the HTTP authentication password.
         return - The converter object.
@@ -2348,7 +2345,7 @@ class HtmlToImageClient:
     def setUsePrintMedia(self, use_print_media):
         """
         Use the print version of the page if available (@media print).
-        
+
         use_print_media - Set to True to use the print version of the page.
         return - The converter object.
         """
@@ -2358,7 +2355,7 @@ class HtmlToImageClient:
     def setNoXpdfcrowdHeader(self, no_xpdfcrowd_header):
         """
         Do not send the X-Pdfcrowd HTTP header in Pdfcrowd HTTP requests.
-        
+
         no_xpdfcrowd_header - Set to True to disable sending X-Pdfcrowd HTTP header.
         return - The converter object.
         """
@@ -2368,7 +2365,7 @@ class HtmlToImageClient:
     def setCookies(self, cookies):
         """
         Set cookies that are sent in Pdfcrowd HTTP requests.
-        
+
         cookies - The cookie string.
         return - The converter object.
         """
@@ -2378,7 +2375,7 @@ class HtmlToImageClient:
     def setVerifySslCertificates(self, verify_ssl_certificates):
         """
         Do not allow insecure HTTPS connections.
-        
+
         verify_ssl_certificates - Set to True to enable SSL certificate verification.
         return - The converter object.
         """
@@ -2388,7 +2385,7 @@ class HtmlToImageClient:
     def setFailOnMainUrlError(self, fail_on_error):
         """
         Abort the conversion if the main URL HTTP status code is greater than or equal to 400.
-        
+
         fail_on_error - Set to True to abort the conversion.
         return - The converter object.
         """
@@ -2397,8 +2394,8 @@ class HtmlToImageClient:
 
     def setFailOnAnyUrlError(self, fail_on_error):
         """
-        Abort the conversion if any of the sub-request HTTP status code is greater than or equal to 400.
-        
+        Abort the conversion if any of the sub-request HTTP status code is greater than or equal to 400 or if some sub-requests are still pending. See details in a debug log.
+
         fail_on_error - Set to True to abort the conversion.
         return - The converter object.
         """
@@ -2408,7 +2405,7 @@ class HtmlToImageClient:
     def setCustomJavascript(self, custom_javascript):
         """
         Run a custom JavaScript after the document is loaded. The script is intended for post-load DOM manipulation (add/remove elements, update CSS, ...).
-        
+
         custom_javascript - String containing a JavaScript code. The string must not be empty.
         return - The converter object.
         """
@@ -2421,7 +2418,7 @@ class HtmlToImageClient:
     def setCustomHttpHeader(self, custom_http_header):
         """
         Set a custom HTTP header that is sent in Pdfcrowd HTTP requests.
-        
+
         custom_http_header - A string containing the header name and value separated by a colon.
         return - The converter object.
         """
@@ -2434,7 +2431,7 @@ class HtmlToImageClient:
     def setJavascriptDelay(self, javascript_delay):
         """
         Wait the specified number of milliseconds to finish all JavaScript after the document is loaded. The maximum value is determined by your API license.
-        
+
         javascript_delay - The number of milliseconds to wait. Must be a positive integer number or 0.
         return - The converter object.
         """
@@ -2447,7 +2444,7 @@ class HtmlToImageClient:
     def setElementToConvert(self, selectors):
         """
         Convert only the specified element from the main document and its children. The element is specified by one or more CSS selectors. If the element is not found, the conversion fails. If multiple elements are found, the first one is used.
-        
+
         selectors - One or more CSS selectors separated by commas. The string must not be empty.
         return - The converter object.
         """
@@ -2460,7 +2457,7 @@ class HtmlToImageClient:
     def setElementToConvertMode(self, mode):
         """
         Specify the DOM handling when only a part of the document is converted.
-        
+
         mode - Allowed values are cut-out, remove-siblings, hide-siblings.
         return - The converter object.
         """
@@ -2472,8 +2469,8 @@ class HtmlToImageClient:
 
     def setWaitForElement(self, selectors):
         """
-        Wait for the specified element in a source document. The element is specified by one or more CSS selectors. The element is searched for in the main document and all iframes. If the element is not found, the conversion fails.
-        
+        Wait for the specified element in a source document. The element is specified by one or more CSS selectors. The element is searched for in the main document and all iframes. If the element is not found, the conversion fails. Your API license defines the maximum wait time by "Max Delay" parameter.
+
         selectors - One or more CSS selectors separated by commas. The string must not be empty.
         return - The converter object.
         """
@@ -2486,7 +2483,7 @@ class HtmlToImageClient:
     def setScreenshotWidth(self, screenshot_width):
         """
         Set the output image width in pixels.
-        
+
         screenshot_width - The value must be in a range 96-7680.
         return - The converter object.
         """
@@ -2499,7 +2496,7 @@ class HtmlToImageClient:
     def setScreenshotHeight(self, screenshot_height):
         """
         Set the output image height in pixels. If it's not specified, actual document height is used.
-        
+
         screenshot_height - Must be a positive integer number.
         return - The converter object.
         """
@@ -2511,8 +2508,8 @@ class HtmlToImageClient:
 
     def setDebugLog(self, debug_log):
         """
-        Turn on the debug logging. Details about the conversion are stored in the debug log. The URL of the log can be obtained from the getDebugLogUrl method.
-        
+        Turn on the debug logging. Details about the conversion are stored in the debug log. The URL of the log can be obtained from the getDebugLogUrl method or available in conversion statistics.
+
         debug_log - Set to True to enable the debug logging.
         return - The converter object.
         """
@@ -2559,7 +2556,7 @@ class HtmlToImageClient:
     def setTag(self, tag):
         """
         Tag the conversion with a custom value. The tag is used in conversion statistics. A value longer than 32 characters is cut off.
-        
+
         tag - A string with the custom tag.
         return - The converter object.
         """
@@ -2569,7 +2566,7 @@ class HtmlToImageClient:
     def setUseHttp(self, use_http):
         """
         Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API.
-        
+
         use_http - Set to True to use HTTP.
         return - The converter object.
         """
@@ -2579,7 +2576,7 @@ class HtmlToImageClient:
     def setUserAgent(self, user_agent):
         """
         Set a custom user agent HTTP header. It can be usefull if you are behind some proxy or firewall.
-        
+
         user_agent - The user agent string.
         return - The converter object.
         """
@@ -2589,7 +2586,7 @@ class HtmlToImageClient:
     def setProxy(self, host, port, user_name, password):
         """
         Specifies an HTTP proxy that the API client library will use to connect to the internet.
-        
+
         host - The proxy hostname.
         port - The proxy port.
         user_name - The username.
@@ -2602,7 +2599,7 @@ class HtmlToImageClient:
     def setRetryCount(self, retry_count):
         """
         Specifies the number of retries when the 502 HTTP status code is received. The 502 status code indicates a temporary network issue. This feature can be disabled by setting to 0.
-        
+
         retry_count - Number of retries wanted.
         return - The converter object.
         """
@@ -2617,7 +2614,7 @@ class ImageToImageClient:
     def __init__(self, user_name, api_key):
         """
         Constructor for the Pdfcrowd API client.
-        
+
         user_name - Your username at Pdfcrowd.
         api_key - Your API key.
         """
@@ -2633,7 +2630,7 @@ class ImageToImageClient:
     def convertUrl(self, url):
         """
         Convert an image.
-        
+
         url - The address of the image to convert. The supported protocols are http:// and https://.
         return - Byte array containing the conversion output.
         """
@@ -2646,7 +2643,7 @@ class ImageToImageClient:
     def convertUrlToStream(self, url, out_stream):
         """
         Convert an image and write the result to an output stream.
-        
+
         url - The address of the image to convert. The supported protocols are http:// and https://.
         out_stream - The output stream that will contain the conversion output.
         """
@@ -2659,7 +2656,7 @@ class ImageToImageClient:
     def convertUrlToFile(self, url, file_path):
         """
         Convert an image and write the result to a local file.
-        
+
         url - The address of the image to convert. The supported protocols are http:// and https://.
         file_path - The output file path. The string must not be empty.
         """
@@ -2678,7 +2675,7 @@ class ImageToImageClient:
     def convertFile(self, file):
         """
         Convert a local file.
-        
+
         file - The path to a local file to convert. The file can be either a single file or an archive (.tar.gz, .tar.bz2, or .zip). The file must exist and not be empty.
         return - Byte array containing the conversion output.
         """
@@ -2691,7 +2688,7 @@ class ImageToImageClient:
     def convertFileToStream(self, file, out_stream):
         """
         Convert a local file and write the result to an output stream.
-        
+
         file - The path to a local file to convert. The file can be either a single file or an archive (.tar.gz, .tar.bz2, or .zip). The file must exist and not be empty.
         out_stream - The output stream that will contain the conversion output.
         """
@@ -2704,7 +2701,7 @@ class ImageToImageClient:
     def convertFileToFile(self, file, file_path):
         """
         Convert a local file and write the result to a local file.
-        
+
         file - The path to a local file to convert. The file can be either a single file or an archive (.tar.gz, .tar.bz2, or .zip). The file must exist and not be empty.
         file_path - The output file path. The string must not be empty.
         """
@@ -2723,7 +2720,7 @@ class ImageToImageClient:
     def convertRawData(self, data):
         """
         Convert raw data.
-        
+
         data - The raw content to be converted.
         return - Byte array with the output.
         """
@@ -2733,7 +2730,7 @@ class ImageToImageClient:
     def convertRawDataToStream(self, data, out_stream):
         """
         Convert raw data and write the result to an output stream.
-        
+
         data - The raw content to be converted.
         out_stream - The output stream that will contain the conversion output.
         """
@@ -2743,7 +2740,7 @@ class ImageToImageClient:
     def convertRawDataToFile(self, data, file_path):
         """
         Convert raw data to a file.
-        
+
         data - The raw content to be converted.
         file_path - The output file path. The string must not be empty.
         """
@@ -2762,7 +2759,7 @@ class ImageToImageClient:
     def setOutputFormat(self, output_format):
         """
         The format of the output file.
-        
+
         output_format - Allowed values are png, jpg, gif, tiff, bmp, ico, ppm, pgm, pbm, pnm, psb, pct, ras, tga, sgi, sun, webp.
         return - The converter object.
         """
@@ -2775,7 +2772,7 @@ class ImageToImageClient:
     def setResize(self, resize):
         """
         Resize the image.
-        
+
         resize - The resize percentage or new image dimensions.
         return - The converter object.
         """
@@ -2785,7 +2782,7 @@ class ImageToImageClient:
     def setRotate(self, rotate):
         """
         Rotate the image.
-        
+
         rotate - The rotation specified in degrees.
         return - The converter object.
         """
@@ -2794,8 +2791,8 @@ class ImageToImageClient:
 
     def setDebugLog(self, debug_log):
         """
-        Turn on the debug logging. Details about the conversion are stored in the debug log. The URL of the log can be obtained from the getDebugLogUrl method.
-        
+        Turn on the debug logging. Details about the conversion are stored in the debug log. The URL of the log can be obtained from the getDebugLogUrl method or available in conversion statistics.
+
         debug_log - Set to True to enable the debug logging.
         return - The converter object.
         """
@@ -2842,7 +2839,7 @@ class ImageToImageClient:
     def setTag(self, tag):
         """
         Tag the conversion with a custom value. The tag is used in conversion statistics. A value longer than 32 characters is cut off.
-        
+
         tag - A string with the custom tag.
         return - The converter object.
         """
@@ -2852,7 +2849,7 @@ class ImageToImageClient:
     def setUseHttp(self, use_http):
         """
         Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API.
-        
+
         use_http - Set to True to use HTTP.
         return - The converter object.
         """
@@ -2862,7 +2859,7 @@ class ImageToImageClient:
     def setUserAgent(self, user_agent):
         """
         Set a custom user agent HTTP header. It can be usefull if you are behind some proxy or firewall.
-        
+
         user_agent - The user agent string.
         return - The converter object.
         """
@@ -2872,7 +2869,7 @@ class ImageToImageClient:
     def setProxy(self, host, port, user_name, password):
         """
         Specifies an HTTP proxy that the API client library will use to connect to the internet.
-        
+
         host - The proxy hostname.
         port - The proxy port.
         user_name - The username.
@@ -2885,7 +2882,7 @@ class ImageToImageClient:
     def setRetryCount(self, retry_count):
         """
         Specifies the number of retries when the 502 HTTP status code is received. The 502 status code indicates a temporary network issue. This feature can be disabled by setting to 0.
-        
+
         retry_count - Number of retries wanted.
         return - The converter object.
         """
@@ -2900,7 +2897,7 @@ class PdfToPdfClient:
     def __init__(self, user_name, api_key):
         """
         Constructor for the Pdfcrowd API client.
-        
+
         user_name - Your username at Pdfcrowd.
         api_key - Your API key.
         """
@@ -2916,7 +2913,7 @@ class PdfToPdfClient:
     def setAction(self, action):
         """
         Specifies the action to be performed on the input PDFs.
-        
+
         action - Allowed values are join, shuffle.
         return - The converter object.
         """
@@ -2936,7 +2933,7 @@ class PdfToPdfClient:
     def convertToStream(self, out_stream):
         """
         Perform an action on the input files and write the output PDF to an output stream.
-        
+
         out_stream - The output stream that will contain the output PDF.
         """
         self.helper.post(self.fields, self.files, self.raw_data, out_stream)
@@ -2944,7 +2941,7 @@ class PdfToPdfClient:
     def convertToFile(self, file_path):
         """
         Perform an action on the input files and write the output PDF to a file.
-        
+
         file_path - The output file path. The string must not be empty.
         """
         if not (file_path):
@@ -2957,7 +2954,7 @@ class PdfToPdfClient:
     def addPdfFile(self, file_path):
         """
         Add a PDF file to the list of the input PDFs.
-        
+
         file_path - The file path to a local PDF file. The file must exist and not be empty.
         return - The converter object.
         """
@@ -2971,7 +2968,7 @@ class PdfToPdfClient:
     def addPdfRawData(self, pdf_raw_data):
         """
         Add in-memory raw PDF data to the list of the input PDFs.Typical usage is for adding PDF created by another Pdfcrowd converter. Example in PHP: $clientPdf2Pdf->addPdfRawData($clientHtml2Pdf->convertUrl('http://www.example.com'));
-        
+
         pdf_raw_data - The raw PDF data. The input data must be PDF content.
         return - The converter object.
         """
@@ -2984,8 +2981,8 @@ class PdfToPdfClient:
 
     def setDebugLog(self, debug_log):
         """
-        Turn on the debug logging. Details about the conversion are stored in the debug log. The URL of the log can be obtained from the getDebugLogUrl method.
-        
+        Turn on the debug logging. Details about the conversion are stored in the debug log. The URL of the log can be obtained from the getDebugLogUrl method or available in conversion statistics.
+
         debug_log - Set to True to enable the debug logging.
         return - The converter object.
         """
@@ -3039,7 +3036,7 @@ class PdfToPdfClient:
     def setTag(self, tag):
         """
         Tag the conversion with a custom value. The tag is used in conversion statistics. A value longer than 32 characters is cut off.
-        
+
         tag - A string with the custom tag.
         return - The converter object.
         """
@@ -3049,7 +3046,7 @@ class PdfToPdfClient:
     def setUseHttp(self, use_http):
         """
         Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API.
-        
+
         use_http - Set to True to use HTTP.
         return - The converter object.
         """
@@ -3059,7 +3056,7 @@ class PdfToPdfClient:
     def setUserAgent(self, user_agent):
         """
         Set a custom user agent HTTP header. It can be usefull if you are behind some proxy or firewall.
-        
+
         user_agent - The user agent string.
         return - The converter object.
         """
@@ -3069,7 +3066,7 @@ class PdfToPdfClient:
     def setProxy(self, host, port, user_name, password):
         """
         Specifies an HTTP proxy that the API client library will use to connect to the internet.
-        
+
         host - The proxy hostname.
         port - The proxy port.
         user_name - The username.
@@ -3082,7 +3079,7 @@ class PdfToPdfClient:
     def setRetryCount(self, retry_count):
         """
         Specifies the number of retries when the 502 HTTP status code is received. The 502 status code indicates a temporary network issue. This feature can be disabled by setting to 0.
-        
+
         retry_count - Number of retries wanted.
         return - The converter object.
         """
@@ -3097,7 +3094,7 @@ class ImageToPdfClient:
     def __init__(self, user_name, api_key):
         """
         Constructor for the Pdfcrowd API client.
-        
+
         user_name - Your username at Pdfcrowd.
         api_key - Your API key.
         """
@@ -3113,7 +3110,7 @@ class ImageToPdfClient:
     def convertUrl(self, url):
         """
         Convert an image.
-        
+
         url - The address of the image to convert. The supported protocols are http:// and https://.
         return - Byte array containing the conversion output.
         """
@@ -3126,7 +3123,7 @@ class ImageToPdfClient:
     def convertUrlToStream(self, url, out_stream):
         """
         Convert an image and write the result to an output stream.
-        
+
         url - The address of the image to convert. The supported protocols are http:// and https://.
         out_stream - The output stream that will contain the conversion output.
         """
@@ -3139,7 +3136,7 @@ class ImageToPdfClient:
     def convertUrlToFile(self, url, file_path):
         """
         Convert an image and write the result to a local file.
-        
+
         url - The address of the image to convert. The supported protocols are http:// and https://.
         file_path - The output file path. The string must not be empty.
         """
@@ -3158,7 +3155,7 @@ class ImageToPdfClient:
     def convertFile(self, file):
         """
         Convert a local file.
-        
+
         file - The path to a local file to convert. The file can be either a single file or an archive (.tar.gz, .tar.bz2, or .zip). The file must exist and not be empty.
         return - Byte array containing the conversion output.
         """
@@ -3171,7 +3168,7 @@ class ImageToPdfClient:
     def convertFileToStream(self, file, out_stream):
         """
         Convert a local file and write the result to an output stream.
-        
+
         file - The path to a local file to convert. The file can be either a single file or an archive (.tar.gz, .tar.bz2, or .zip). The file must exist and not be empty.
         out_stream - The output stream that will contain the conversion output.
         """
@@ -3184,7 +3181,7 @@ class ImageToPdfClient:
     def convertFileToFile(self, file, file_path):
         """
         Convert a local file and write the result to a local file.
-        
+
         file - The path to a local file to convert. The file can be either a single file or an archive (.tar.gz, .tar.bz2, or .zip). The file must exist and not be empty.
         file_path - The output file path. The string must not be empty.
         """
@@ -3203,7 +3200,7 @@ class ImageToPdfClient:
     def convertRawData(self, data):
         """
         Convert raw data.
-        
+
         data - The raw content to be converted.
         return - Byte array with the output.
         """
@@ -3213,7 +3210,7 @@ class ImageToPdfClient:
     def convertRawDataToStream(self, data, out_stream):
         """
         Convert raw data and write the result to an output stream.
-        
+
         data - The raw content to be converted.
         out_stream - The output stream that will contain the conversion output.
         """
@@ -3223,7 +3220,7 @@ class ImageToPdfClient:
     def convertRawDataToFile(self, data, file_path):
         """
         Convert raw data to a file.
-        
+
         data - The raw content to be converted.
         file_path - The output file path. The string must not be empty.
         """
@@ -3242,7 +3239,7 @@ class ImageToPdfClient:
     def setResize(self, resize):
         """
         Resize the image.
-        
+
         resize - The resize percentage or new image dimensions.
         return - The converter object.
         """
@@ -3252,7 +3249,7 @@ class ImageToPdfClient:
     def setRotate(self, rotate):
         """
         Rotate the image.
-        
+
         rotate - The rotation specified in degrees.
         return - The converter object.
         """
@@ -3261,8 +3258,8 @@ class ImageToPdfClient:
 
     def setDebugLog(self, debug_log):
         """
-        Turn on the debug logging. Details about the conversion are stored in the debug log. The URL of the log can be obtained from the getDebugLogUrl method.
-        
+        Turn on the debug logging. Details about the conversion are stored in the debug log. The URL of the log can be obtained from the getDebugLogUrl method or available in conversion statistics.
+
         debug_log - Set to True to enable the debug logging.
         return - The converter object.
         """
@@ -3309,7 +3306,7 @@ class ImageToPdfClient:
     def setTag(self, tag):
         """
         Tag the conversion with a custom value. The tag is used in conversion statistics. A value longer than 32 characters is cut off.
-        
+
         tag - A string with the custom tag.
         return - The converter object.
         """
@@ -3319,7 +3316,7 @@ class ImageToPdfClient:
     def setUseHttp(self, use_http):
         """
         Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API.
-        
+
         use_http - Set to True to use HTTP.
         return - The converter object.
         """
@@ -3329,7 +3326,7 @@ class ImageToPdfClient:
     def setUserAgent(self, user_agent):
         """
         Set a custom user agent HTTP header. It can be usefull if you are behind some proxy or firewall.
-        
+
         user_agent - The user agent string.
         return - The converter object.
         """
@@ -3339,7 +3336,7 @@ class ImageToPdfClient:
     def setProxy(self, host, port, user_name, password):
         """
         Specifies an HTTP proxy that the API client library will use to connect to the internet.
-        
+
         host - The proxy hostname.
         port - The proxy port.
         user_name - The username.
@@ -3352,7 +3349,7 @@ class ImageToPdfClient:
     def setRetryCount(self, retry_count):
         """
         Specifies the number of retries when the 502 HTTP status code is received. The 502 status code indicates a temporary network issue. This feature can be disabled by setting to 0.
-        
+
         retry_count - Number of retries wanted.
         return - The converter object.
         """
@@ -3552,7 +3549,7 @@ available converters:
 )
         parser.add_argument('-fail-on-any-url-error',
                             action = 'store_true',
-                            help = 'Abort the conversion if any of the sub-request HTTP status code is greater than or equal to 400.'
+                            help = 'Abort the conversion if any of the sub-request HTTP status code is greater than or equal to 400 or if some sub-requests are still pending. See details in a debug log.'
 )
         parser.add_argument('-custom-javascript',
                             help = 'Run a custom JavaScript after the document is loaded. The script is intended for post-load DOM manipulation (add/remove elements, update CSS, ...). String containing a JavaScript code. The string must not be empty.'
@@ -3570,7 +3567,7 @@ available converters:
                             help = 'Specify the DOM handling when only a part of the document is converted. Allowed values are cut-out, remove-siblings, hide-siblings.'
 )
         parser.add_argument('-wait-for-element',
-                            help = 'Wait for the specified element in a source document. The element is specified by one or more CSS selectors. The element is searched for in the main document and all iframes. If the element is not found, the conversion fails. One or more CSS selectors separated by commas. The string must not be empty.'
+                            help = 'Wait for the specified element in a source document. The element is specified by one or more CSS selectors. The element is searched for in the main document and all iframes. If the element is not found, the conversion fails. Your API license defines the maximum wait time by "Max Delay" parameter. One or more CSS selectors separated by commas. The string must not be empty.'
 )
         parser.add_argument('-viewport-width',
                             help = argparse.SUPPRESS
@@ -3765,7 +3762,7 @@ available converters:
 )
         parser.add_argument('-fail-on-any-url-error',
                             action = 'store_true',
-                            help = 'Abort the conversion if any of the sub-request HTTP status code is greater than or equal to 400.'
+                            help = 'Abort the conversion if any of the sub-request HTTP status code is greater than or equal to 400 or if some sub-requests are still pending. See details in a debug log.'
 )
         parser.add_argument('-custom-javascript',
                             help = 'Run a custom JavaScript after the document is loaded. The script is intended for post-load DOM manipulation (add/remove elements, update CSS, ...). String containing a JavaScript code. The string must not be empty.'
@@ -3783,7 +3780,7 @@ available converters:
                             help = 'Specify the DOM handling when only a part of the document is converted. Allowed values are cut-out, remove-siblings, hide-siblings.'
 )
         parser.add_argument('-wait-for-element',
-                            help = 'Wait for the specified element in a source document. The element is specified by one or more CSS selectors. The element is searched for in the main document and all iframes. If the element is not found, the conversion fails. One or more CSS selectors separated by commas. The string must not be empty.'
+                            help = 'Wait for the specified element in a source document. The element is specified by one or more CSS selectors. The element is searched for in the main document and all iframes. If the element is not found, the conversion fails. Your API license defines the maximum wait time by "Max Delay" parameter. One or more CSS selectors separated by commas. The string must not be empty.'
 )
         parser.add_argument('-screenshot-width',
                             help = 'Set the output image width in pixels. The value must be in a range 96-7680.'
