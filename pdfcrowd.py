@@ -43,7 +43,7 @@ import os
 import ssl
 import time
 
-__version__ = '4.3.5'
+__version__ = '4.3.6'
 
 # ======================================
 # === PDFCrowd legacy version client ===
@@ -446,7 +446,7 @@ else:
                           StringIO, etc.; if None then the return value is a string
                           containing the PDF.
             """
-            if type(html) == unicode:
+            if isinstance(html, unicode):
                 html = html.encode('utf-8')
             body = urlencode(self._prepare_fields(dict(src=html)))
             content_type = 'application/x-www-form-urlencoded'
@@ -698,10 +698,10 @@ else:
 
 HOST = os.environ.get('PDFCROWD_HOST', 'api.pdfcrowd.com')
 MULTIPART_BOUNDARY = '----------ThIs_Is_tHe_bOUnDary_$'
-CLIENT_VERSION = '4.3.5'
+CLIENT_VERSION = '4.3.6'
 
 def get_utf8_string(string):
-    if not PYTHON_3 and type(string) == unicode:
+    if not PYTHON_3 and isinstance(string, unicode):
         return string.encode('utf-8')
     return string
 
@@ -779,7 +779,7 @@ class ConnectionHelper:
         self._reset_response_data()
         self.setProxy(None, None, None, None)
         self.setUseHttp(False)
-        self.setUserAgent('pdfcrowd_python_client/4.3.5 (http://pdfcrowd.com)')
+        self.setUserAgent('pdfcrowd_python_client/4.3.6 (http://pdfcrowd.com)')
 
         self.retry_count = 1
 
