@@ -27,4 +27,4 @@ Or you can download/clone the client and run
 
 ## License
 
-This project is licensed under the MIT License.
+This client library is licensed under the MIT License.
