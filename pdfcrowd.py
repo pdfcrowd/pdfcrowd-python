@@ -43,7 +43,7 @@ import os
 import ssl
 import time
 
-__version__ = '4.3.6'
+__version__ = '4.4.1'
 
 # ======================================
 # === PDFCrowd legacy version client ===
@@ -698,7 +698,7 @@ else:
 
 HOST = os.environ.get('PDFCROWD_HOST', 'api.pdfcrowd.com')
 MULTIPART_BOUNDARY = '----------ThIs_Is_tHe_bOUnDary_$'
-CLIENT_VERSION = '4.3.6'
+CLIENT_VERSION = '4.4.1'
 
 def get_utf8_string(string):
     if not PYTHON_3 and isinstance(string, unicode):
@@ -779,7 +779,7 @@ class ConnectionHelper:
         self._reset_response_data()
         self.setProxy(None, None, None, None)
         self.setUseHttp(False)
-        self.setUserAgent('pdfcrowd_python_client/4.3.6 (http://pdfcrowd.com)')
+        self.setUserAgent('pdfcrowd_python_client/4.4.1 (http://pdfcrowd.com)')
 
         self.retry_count = 1
 
@@ -1316,6 +1316,19 @@ class HtmlToPdfClient:
             raise Error(create_invalid_value_message(pages, "pages", "html-to-pdf", "A comma seperated list of page numbers or ranges.", "set_print_page_range"), 470);
         
         self.fields['print_page_range'] = get_utf8_string(pages)
+        return self
+
+    def setPageBackgroundColor(self, page_background_color):
+        """
+        The page background color in RGB or RGBA hexadecimal format. The color fills the entire page regardless of the margins.
+
+        page_background_color - The value must be in RRGGBB or RRGGBBAA hexadecimal format.
+        return - The converter object.
+        """
+        if not re.match('^[0-9a-fA-F]{6,8}$', page_background_color):
+            raise Error(create_invalid_value_message(page_background_color, "page_background_color", "html-to-pdf", "The value must be in RRGGBB or RRGGBBAA hexadecimal format.", "set_page_background_color"), 470);
+        
+        self.fields['page_background_color'] = get_utf8_string(page_background_color)
         return self
 
     def setPageWatermark(self, page_watermark):
@@ -2032,6 +2045,55 @@ class HtmlToPdfClient:
         self.fields['tag'] = get_utf8_string(tag)
         return self
 
+    def setHttpProxy(self, http_proxy):
+        """
+        A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTP scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
+
+        http_proxy - The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
+        return - The converter object.
+        """
+        if not re.match('(?i)^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z0-9]{1,}:\d+$', http_proxy):
+            raise Error(create_invalid_value_message(http_proxy, "http_proxy", "html-to-pdf", "The value must have format DOMAIN_OR_IP_ADDRESS:PORT.", "set_http_proxy"), 470);
+        
+        self.fields['http_proxy'] = get_utf8_string(http_proxy)
+        return self
+
+    def setHttpsProxy(self, https_proxy):
+        """
+        A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTPS scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
+
+        https_proxy - The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
+        return - The converter object.
+        """
+        if not re.match('(?i)^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z0-9]{1,}:\d+$', https_proxy):
+            raise Error(create_invalid_value_message(https_proxy, "https_proxy", "html-to-pdf", "The value must have format DOMAIN_OR_IP_ADDRESS:PORT.", "set_https_proxy"), 470);
+        
+        self.fields['https_proxy'] = get_utf8_string(https_proxy)
+        return self
+
+    def setClientCertificate(self, client_certificate):
+        """
+        A client certificate to authenticate Pdfcrowd converter on your web server. The certificate is used for two-way SSL/TLS authentication and adds extra security.
+
+        client_certificate - The file must be in PKCS12 format. The file must exist and not be empty.
+        return - The converter object.
+        """
+        if not (os.path.isfile(client_certificate) and os.path.getsize(client_certificate)):
+            raise Error(create_invalid_value_message(client_certificate, "client_certificate", "html-to-pdf", "The file must exist and not be empty.", "set_client_certificate"), 470);
+        
+        self.files['client_certificate'] = get_utf8_string(client_certificate)
+        return self
+
+    def setClientCertificatePassword(self, client_certificate_password):
+        """
+        A password for PKCS12 file with a client certificate if it's needed.
+
+        client_certificate_password -
+        return - The converter object.
+        """
+        self.fields['client_certificate_password'] = get_utf8_string(client_certificate_password)
+        return self
+
     def setUseHttp(self, use_http):
         """
         Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API.
@@ -2563,6 +2625,55 @@ class HtmlToImageClient:
         self.fields['tag'] = get_utf8_string(tag)
         return self
 
+    def setHttpProxy(self, http_proxy):
+        """
+        A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTP scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
+
+        http_proxy - The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
+        return - The converter object.
+        """
+        if not re.match('(?i)^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z0-9]{1,}:\d+$', http_proxy):
+            raise Error(create_invalid_value_message(http_proxy, "http_proxy", "html-to-image", "The value must have format DOMAIN_OR_IP_ADDRESS:PORT.", "set_http_proxy"), 470);
+        
+        self.fields['http_proxy'] = get_utf8_string(http_proxy)
+        return self
+
+    def setHttpsProxy(self, https_proxy):
+        """
+        A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTPS scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
+
+        https_proxy - The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
+        return - The converter object.
+        """
+        if not re.match('(?i)^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z0-9]{1,}:\d+$', https_proxy):
+            raise Error(create_invalid_value_message(https_proxy, "https_proxy", "html-to-image", "The value must have format DOMAIN_OR_IP_ADDRESS:PORT.", "set_https_proxy"), 470);
+        
+        self.fields['https_proxy'] = get_utf8_string(https_proxy)
+        return self
+
+    def setClientCertificate(self, client_certificate):
+        """
+        A client certificate to authenticate Pdfcrowd converter on your web server. The certificate is used for two-way SSL/TLS authentication and adds extra security.
+
+        client_certificate - The file must be in PKCS12 format. The file must exist and not be empty.
+        return - The converter object.
+        """
+        if not (os.path.isfile(client_certificate) and os.path.getsize(client_certificate)):
+            raise Error(create_invalid_value_message(client_certificate, "client_certificate", "html-to-image", "The file must exist and not be empty.", "set_client_certificate"), 470);
+        
+        self.files['client_certificate'] = get_utf8_string(client_certificate)
+        return self
+
+    def setClientCertificatePassword(self, client_certificate_password):
+        """
+        A password for PKCS12 file with a client certificate if it's needed.
+
+        client_certificate_password -
+        return - The converter object.
+        """
+        self.fields['client_certificate_password'] = get_utf8_string(client_certificate_password)
+        return self
+
     def setUseHttp(self, use_http):
         """
         Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API.
@@ -2844,6 +2955,32 @@ class ImageToImageClient:
         return - The converter object.
         """
         self.fields['tag'] = get_utf8_string(tag)
+        return self
+
+    def setHttpProxy(self, http_proxy):
+        """
+        A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTP scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
+
+        http_proxy - The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
+        return - The converter object.
+        """
+        if not re.match('(?i)^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z0-9]{1,}:\d+$', http_proxy):
+            raise Error(create_invalid_value_message(http_proxy, "http_proxy", "image-to-image", "The value must have format DOMAIN_OR_IP_ADDRESS:PORT.", "set_http_proxy"), 470);
+        
+        self.fields['http_proxy'] = get_utf8_string(http_proxy)
+        return self
+
+    def setHttpsProxy(self, https_proxy):
+        """
+        A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTPS scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
+
+        https_proxy - The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
+        return - The converter object.
+        """
+        if not re.match('(?i)^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z0-9]{1,}:\d+$', https_proxy):
+            raise Error(create_invalid_value_message(https_proxy, "https_proxy", "image-to-image", "The value must have format DOMAIN_OR_IP_ADDRESS:PORT.", "set_https_proxy"), 470);
+        
+        self.fields['https_proxy'] = get_utf8_string(https_proxy)
         return self
 
     def setUseHttp(self, use_http):
@@ -3313,6 +3450,32 @@ class ImageToPdfClient:
         self.fields['tag'] = get_utf8_string(tag)
         return self
 
+    def setHttpProxy(self, http_proxy):
+        """
+        A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTP scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
+
+        http_proxy - The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
+        return - The converter object.
+        """
+        if not re.match('(?i)^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z0-9]{1,}:\d+$', http_proxy):
+            raise Error(create_invalid_value_message(http_proxy, "http_proxy", "image-to-pdf", "The value must have format DOMAIN_OR_IP_ADDRESS:PORT.", "set_http_proxy"), 470);
+        
+        self.fields['http_proxy'] = get_utf8_string(http_proxy)
+        return self
+
+    def setHttpsProxy(self, https_proxy):
+        """
+        A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTPS scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
+
+        https_proxy - The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
+        return - The converter object.
+        """
+        if not re.match('(?i)^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z0-9]{1,}:\d+$', https_proxy):
+            raise Error(create_invalid_value_message(https_proxy, "https_proxy", "image-to-pdf", "The value must have format DOMAIN_OR_IP_ADDRESS:PORT.", "set_https_proxy"), 470);
+        
+        self.fields['https_proxy'] = get_utf8_string(https_proxy)
+        return self
+
     def setUseHttp(self, use_http):
         """
         Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API.
@@ -3473,6 +3636,9 @@ available converters:
 )
         parser.add_argument('-print-page-range',
                             help = 'Set the page range to print. A comma seperated list of page numbers or ranges.'
+)
+        parser.add_argument('-page-background-color',
+                            help = 'The page background color in RGB or RGBA hexadecimal format. The color fills the entire page regardless of the margins. The value must be in RRGGBB or RRGGBBAA hexadecimal format.'
 )
         parser.add_argument('-page-watermark',
                             help = 'Apply the first page of the watermark PDF to every page of the output PDF. The file path to a local watermark PDF file. The file must exist and not be empty.'
@@ -3680,6 +3846,18 @@ available converters:
         parser.add_argument('-tag',
                             help = 'Tag the conversion with a custom value. The tag is used in conversion statistics. A value longer than 32 characters is cut off. A string with the custom tag.'
 )
+        parser.add_argument('-http-proxy',
+                            help = 'A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTP scheme. It can help to circumvent regional restrictions or provide limited access to your intranet. The value must have format DOMAIN_OR_IP_ADDRESS:PORT.'
+)
+        parser.add_argument('-https-proxy',
+                            help = 'A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTPS scheme. It can help to circumvent regional restrictions or provide limited access to your intranet. The value must have format DOMAIN_OR_IP_ADDRESS:PORT.'
+)
+        parser.add_argument('-client-certificate',
+                            help = 'A client certificate to authenticate Pdfcrowd converter on your web server. The certificate is used for two-way SSL/TLS authentication and adds extra security. The file must be in PKCS12 format. The file must exist and not be empty.'
+)
+        parser.add_argument('-client-certificate-password',
+                            help = 'A password for PKCS12 file with a client certificate if it\'s needed.'
+)
         parser.add_argument('-use-http',
                             action = 'store_true',
                             help = 'Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API.'
@@ -3795,6 +3973,18 @@ available converters:
         parser.add_argument('-tag',
                             help = 'Tag the conversion with a custom value. The tag is used in conversion statistics. A value longer than 32 characters is cut off. A string with the custom tag.'
 )
+        parser.add_argument('-http-proxy',
+                            help = 'A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTP scheme. It can help to circumvent regional restrictions or provide limited access to your intranet. The value must have format DOMAIN_OR_IP_ADDRESS:PORT.'
+)
+        parser.add_argument('-https-proxy',
+                            help = 'A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTPS scheme. It can help to circumvent regional restrictions or provide limited access to your intranet. The value must have format DOMAIN_OR_IP_ADDRESS:PORT.'
+)
+        parser.add_argument('-client-certificate',
+                            help = 'A client certificate to authenticate Pdfcrowd converter on your web server. The certificate is used for two-way SSL/TLS authentication and adds extra security. The file must be in PKCS12 format. The file must exist and not be empty.'
+)
+        parser.add_argument('-client-certificate-password',
+                            help = 'A password for PKCS12 file with a client certificate if it\'s needed.'
+)
         parser.add_argument('-use-http',
                             action = 'store_true',
                             help = 'Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API.'
@@ -3835,6 +4025,12 @@ available converters:
 )
         parser.add_argument('-tag',
                             help = 'Tag the conversion with a custom value. The tag is used in conversion statistics. A value longer than 32 characters is cut off. A string with the custom tag.'
+)
+        parser.add_argument('-http-proxy',
+                            help = 'A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTP scheme. It can help to circumvent regional restrictions or provide limited access to your intranet. The value must have format DOMAIN_OR_IP_ADDRESS:PORT.'
+)
+        parser.add_argument('-https-proxy',
+                            help = 'A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTPS scheme. It can help to circumvent regional restrictions or provide limited access to your intranet. The value must have format DOMAIN_OR_IP_ADDRESS:PORT.'
 )
         parser.add_argument('-use-http',
                             action = 'store_true',
@@ -3908,6 +4104,12 @@ available converters:
 )
         parser.add_argument('-tag',
                             help = 'Tag the conversion with a custom value. The tag is used in conversion statistics. A value longer than 32 characters is cut off. A string with the custom tag.'
+)
+        parser.add_argument('-http-proxy',
+                            help = 'A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTP scheme. It can help to circumvent regional restrictions or provide limited access to your intranet. The value must have format DOMAIN_OR_IP_ADDRESS:PORT.'
+)
+        parser.add_argument('-https-proxy',
+                            help = 'A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTPS scheme. It can help to circumvent regional restrictions or provide limited access to your intranet. The value must have format DOMAIN_OR_IP_ADDRESS:PORT.'
 )
         parser.add_argument('-use-http',
                             action = 'store_true',
