@@ -43,7 +43,7 @@ import os
 import ssl
 import time
 
-__version__ = '4.4.1'
+__version__ = '4.4.2'
 
 # ======================================
 # === PDFCrowd legacy version client ===
@@ -698,7 +698,7 @@ else:
 
 HOST = os.environ.get('PDFCROWD_HOST', 'api.pdfcrowd.com')
 MULTIPART_BOUNDARY = '----------ThIs_Is_tHe_bOUnDary_$'
-CLIENT_VERSION = '4.4.1'
+CLIENT_VERSION = '4.4.2'
 
 def get_utf8_string(string):
     if not PYTHON_3 and isinstance(string, unicode):
@@ -779,7 +779,7 @@ class ConnectionHelper:
         self._reset_response_data()
         self.setProxy(None, None, None, None)
         self.setUseHttp(False)
-        self.setUserAgent('pdfcrowd_python_client/4.4.1 (http://pdfcrowd.com)')
+        self.setUserAgent('pdfcrowd_python_client/4.4.2 (http://pdfcrowd.com)')
 
         self.retry_count = 1
 
@@ -1653,11 +1653,11 @@ class HtmlToPdfClient:
         """
         Set the viewport width in pixels. The viewport is the user's visible area of the page.
 
-        viewport_width - The value must be in a range 96-7680.
+        viewport_width - The value must be in the range 96-7680.
         return - The converter object.
         """
         if not (int(viewport_width) >= 96 and int(viewport_width) <= 7680):
-            raise Error(create_invalid_value_message(viewport_width, "viewport_width", "html-to-pdf", "The value must be in a range 96-7680.", "set_viewport_width"), 470);
+            raise Error(create_invalid_value_message(viewport_width, "viewport_width", "html-to-pdf", "The value must be in the range 96-7680.", "set_viewport_width"), 470);
         
         self.fields['viewport_width'] = viewport_width
         return self
@@ -1679,7 +1679,7 @@ class HtmlToPdfClient:
         """
         Set the viewport size. The viewport is the user's visible area of the page.
 
-        width - Set the viewport width in pixels. The viewport is the user's visible area of the page. The value must be in a range 96-7680.
+        width - Set the viewport width in pixels. The viewport is the user's visible area of the page. The value must be in the range 96-7680.
         height - Set the viewport height in pixels. The viewport is the user's visible area of the page. Must be a positive integer number.
         return - The converter object.
         """
@@ -1689,7 +1689,7 @@ class HtmlToPdfClient:
 
     def setRenderingMode(self, rendering_mode):
         """
-        Sets the rendering mode.
+        Set the rendering mode.
 
         rendering_mode - The rendering mode. Allowed values are default, viewport.
         return - The converter object.
@@ -1704,11 +1704,11 @@ class HtmlToPdfClient:
         """
         Set the scaling factor (zoom) for the main page area.
 
-        scale_factor - The scale factor. The value must be in a range 10-500.
+        scale_factor - The percentage value. The value must be in the range 10-500.
         return - The converter object.
         """
         if not (int(scale_factor) >= 10 and int(scale_factor) <= 500):
-            raise Error(create_invalid_value_message(scale_factor, "scale_factor", "html-to-pdf", "The value must be in a range 10-500.", "set_scale_factor"), 470);
+            raise Error(create_invalid_value_message(scale_factor, "scale_factor", "html-to-pdf", "The value must be in the range 10-500.", "set_scale_factor"), 470);
         
         self.fields['scale_factor'] = scale_factor
         return self
@@ -1717,11 +1717,11 @@ class HtmlToPdfClient:
         """
         Set the scaling factor (zoom) for the header and footer.
 
-        header_footer_scale_factor - The scale factor. The value must be in a range 10-500.
+        header_footer_scale_factor - The percentage value. The value must be in the range 10-500.
         return - The converter object.
         """
         if not (int(header_footer_scale_factor) >= 10 and int(header_footer_scale_factor) <= 500):
-            raise Error(create_invalid_value_message(header_footer_scale_factor, "header_footer_scale_factor", "html-to-pdf", "The value must be in a range 10-500.", "set_header_footer_scale_factor"), 470);
+            raise Error(create_invalid_value_message(header_footer_scale_factor, "header_footer_scale_factor", "html-to-pdf", "The value must be in the range 10-500.", "set_header_footer_scale_factor"), 470);
         
         self.fields['header_footer_scale_factor'] = header_footer_scale_factor
         return self
@@ -1734,6 +1734,45 @@ class HtmlToPdfClient:
         return - The converter object.
         """
         self.fields['disable_smart_shrinking'] = disable_smart_shrinking
+        return self
+
+    def setJpegQuality(self, jpeg_quality):
+        """
+        Set the quality of embedded JPEG images. Lower quality results in smaller PDF file. Lower quality affects printing or zooming in a PDF viewer.
+
+        jpeg_quality - The percentage value. The value must be in the range 1-100.
+        return - The converter object.
+        """
+        if not (int(jpeg_quality) >= 1 and int(jpeg_quality) <= 100):
+            raise Error(create_invalid_value_message(jpeg_quality, "jpeg_quality", "html-to-pdf", "The value must be in the range 1-100.", "set_jpeg_quality"), 470);
+        
+        self.fields['jpeg_quality'] = jpeg_quality
+        return self
+
+    def setConvertImagesToJpeg(self, convert_images_to_jpeg):
+        """
+        Set image categories to be converted into embedded JPEG images. The conversion into JPEG may result in smaller PDF file.
+
+        convert_images_to_jpeg - The image category. Allowed values are none, opaque, all.
+        return - The converter object.
+        """
+        if not re.match('(?i)^(none|opaque|all)$', convert_images_to_jpeg):
+            raise Error(create_invalid_value_message(convert_images_to_jpeg, "convert_images_to_jpeg", "html-to-pdf", "Allowed values are none, opaque, all.", "set_convert_images_to_jpeg"), 470);
+        
+        self.fields['convert_images_to_jpeg'] = get_utf8_string(convert_images_to_jpeg)
+        return self
+
+    def setImageDpi(self, image_dpi):
+        """
+        Set the DPI when embedded image is scaled down. Lower DPI may result in smaller PDF file. Lower DPI affects printing or zooming in a PDF viewer. Use 0 for no scaling down.
+
+        image_dpi - The DPI value. Must be a positive integer number or 0.
+        return - The converter object.
+        """
+        if not (int(image_dpi) >= 0):
+            raise Error(create_invalid_value_message(image_dpi, "image_dpi", "html-to-pdf", "Must be a positive integer number or 0.", "set_image_dpi"), 470);
+        
+        self.fields['image_dpi'] = image_dpi
         return self
 
     def setLinearize(self, linearize):
@@ -2001,6 +2040,7 @@ class HtmlToPdfClient:
     def getRemainingCreditCount(self):
         """
         Get the number of conversion credits available in your account.
+        The number is available after calling the conversion. So use the method after convertXYZ method.
         The returned value can differ from the actual count if you run parallel conversions.
         The special value 999999 is returned if the information is not available.
         return - The number of credits.
@@ -2546,11 +2586,11 @@ class HtmlToImageClient:
         """
         Set the output image width in pixels.
 
-        screenshot_width - The value must be in a range 96-7680.
+        screenshot_width - The value must be in the range 96-7680.
         return - The converter object.
         """
         if not (int(screenshot_width) >= 96 and int(screenshot_width) <= 7680):
-            raise Error(create_invalid_value_message(screenshot_width, "screenshot_width", "html-to-image", "The value must be in a range 96-7680.", "set_screenshot_width"), 470);
+            raise Error(create_invalid_value_message(screenshot_width, "screenshot_width", "html-to-image", "The value must be in the range 96-7680.", "set_screenshot_width"), 470);
         
         self.fields['screenshot_width'] = screenshot_width
         return self
@@ -2588,6 +2628,7 @@ class HtmlToImageClient:
     def getRemainingCreditCount(self):
         """
         Get the number of conversion credits available in your account.
+        The number is available after calling the conversion. So use the method after convertXYZ method.
         The returned value can differ from the actual count if you run parallel conversions.
         The special value 999999 is returned if the information is not available.
         return - The number of credits.
@@ -2920,6 +2961,7 @@ class ImageToImageClient:
     def getRemainingCreditCount(self):
         """
         Get the number of conversion credits available in your account.
+        The number is available after calling the conversion. So use the method after convertXYZ method.
         The returned value can differ from the actual count if you run parallel conversions.
         The special value 999999 is returned if the information is not available.
         return - The number of credits.
@@ -3136,6 +3178,7 @@ class PdfToPdfClient:
     def getRemainingCreditCount(self):
         """
         Get the number of conversion credits available in your account.
+        The number is available after calling the conversion. So use the method after convertXYZ method.
         The returned value can differ from the actual count if you run parallel conversions.
         The special value 999999 is returned if the information is not available.
         return - The number of credits.
@@ -3413,6 +3456,7 @@ class ImageToPdfClient:
     def getRemainingCreditCount(self):
         """
         Get the number of conversion credits available in your account.
+        The number is available after calling the conversion. So use the method after convertXYZ method.
         The returned value can differ from the actual count if you run parallel conversions.
         The special value 999999 is returned if the information is not available.
         return - The number of credits.
@@ -3743,20 +3787,29 @@ available converters:
 )
         multi_args['viewport'] = 2
         parser.add_argument('-viewport',
-                            help = 'Set the viewport size. The viewport is the user\'s visible area of the page. VIEWPORT must contain 2 values separated by a semicolon. Set the viewport width in pixels. The viewport is the user\'s visible area of the page. The value must be in a range 96-7680. Set the viewport height in pixels. The viewport is the user\'s visible area of the page. Must be a positive integer number.'
+                            help = 'Set the viewport size. The viewport is the user\'s visible area of the page. VIEWPORT must contain 2 values separated by a semicolon. Set the viewport width in pixels. The viewport is the user\'s visible area of the page. The value must be in the range 96-7680. Set the viewport height in pixels. The viewport is the user\'s visible area of the page. Must be a positive integer number.'
 )
         parser.add_argument('-rendering-mode',
-                            help = 'Sets the rendering mode. The rendering mode. Allowed values are default, viewport.'
+                            help = 'Set the rendering mode. The rendering mode. Allowed values are default, viewport.'
 )
         parser.add_argument('-scale-factor',
-                            help = 'Set the scaling factor (zoom) for the main page area. The scale factor. The value must be in a range 10-500.'
+                            help = 'Set the scaling factor (zoom) for the main page area. The percentage value. The value must be in the range 10-500.'
 )
         parser.add_argument('-header-footer-scale-factor',
-                            help = 'Set the scaling factor (zoom) for the header and footer. The scale factor. The value must be in a range 10-500.'
+                            help = 'Set the scaling factor (zoom) for the header and footer. The percentage value. The value must be in the range 10-500.'
 )
         parser.add_argument('-disable-smart-shrinking',
                             action = 'store_true',
                             help = 'Disable the intelligent shrinking strategy that tries to optimally fit the HTML contents to a PDF page.'
+)
+        parser.add_argument('-jpeg-quality',
+                            help = 'Set the quality of embedded JPEG images. Lower quality results in smaller PDF file. Lower quality affects printing or zooming in a PDF viewer. The percentage value. The value must be in the range 1-100.'
+)
+        parser.add_argument('-convert-images-to-jpeg',
+                            help = 'Set image categories to be converted into embedded JPEG images. The conversion into JPEG may result in smaller PDF file. The image category. Allowed values are none, opaque, all.'
+)
+        parser.add_argument('-image-dpi',
+                            help = 'Set the DPI when embedded image is scaled down. Lower DPI may result in smaller PDF file. Lower DPI affects printing or zooming in a PDF viewer. Use 0 for no scaling down. The DPI value. Must be a positive integer number or 0.'
 )
         parser.add_argument('-linearize',
                             action = 'store_true',
@@ -3961,7 +4014,7 @@ available converters:
                             help = 'Wait for the specified element in a source document. The element is specified by one or more CSS selectors. The element is searched for in the main document and all iframes. If the element is not found, the conversion fails. Your API license defines the maximum wait time by "Max Delay" parameter. One or more CSS selectors separated by commas. The string must not be empty.'
 )
         parser.add_argument('-screenshot-width',
-                            help = 'Set the output image width in pixels. The value must be in a range 96-7680.'
+                            help = 'Set the output image width in pixels. The value must be in the range 96-7680.'
 )
         parser.add_argument('-screenshot-height',
                             help = 'Set the output image height in pixels. If it\'s not specified, actual document height is used. Must be a positive integer number.'
