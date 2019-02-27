@@ -43,7 +43,7 @@ import os
 import ssl
 import time
 
-__version__ = '4.4.2'
+__version__ = '4.5.0'
 
 # ======================================
 # === PDFCrowd legacy version client ===
@@ -698,7 +698,7 @@ else:
 
 HOST = os.environ.get('PDFCROWD_HOST', 'api.pdfcrowd.com')
 MULTIPART_BOUNDARY = '----------ThIs_Is_tHe_bOUnDary_$'
-CLIENT_VERSION = '4.4.2'
+CLIENT_VERSION = '4.5.0'
 
 def get_utf8_string(string):
     if not PYTHON_3 and isinstance(string, unicode):
@@ -779,7 +779,7 @@ class ConnectionHelper:
         self._reset_response_data()
         self.setProxy(None, None, None, None)
         self.setUseHttp(False)
-        self.setUserAgent('pdfcrowd_python_client/4.4.2 (http://pdfcrowd.com)')
+        self.setUserAgent('pdfcrowd_python_client/4.5.0 (http://pdfcrowd.com)')
 
         self.retry_count = 1
 
@@ -1573,15 +1573,28 @@ class HtmlToPdfClient:
 
     def setCustomJavascript(self, custom_javascript):
         """
-        Run a custom JavaScript after the document is loaded. The script is intended for post-load DOM manipulation (add/remove elements, update CSS, ...).
+        Run a custom JavaScript after the document is loaded and ready to print. The script is intended for post-load DOM manipulation (add/remove elements, update CSS, ...). The custom JavaScript can use helper functions from our JavaScript library.
 
-        custom_javascript - String containing a JavaScript code. The string must not be empty.
+        custom_javascript - A string containing a JavaScript code. The string must not be empty.
         return - The converter object.
         """
         if not (custom_javascript):
             raise Error(create_invalid_value_message(custom_javascript, "custom_javascript", "html-to-pdf", "The string must not be empty.", "set_custom_javascript"), 470);
         
         self.fields['custom_javascript'] = get_utf8_string(custom_javascript)
+        return self
+
+    def setOnLoadJavascript(self, on_load_javascript):
+        """
+        Run a custom JavaScript right after the document is loaded. The script is intended for early DOM manipulation. The custom JavaScript can use helper functions from our JavaScript library.
+
+        on_load_javascript - A string containing a JavaScript code. The string must not be empty.
+        return - The converter object.
+        """
+        if not (on_load_javascript):
+            raise Error(create_invalid_value_message(on_load_javascript, "on_load_javascript", "html-to-pdf", "The string must not be empty.", "set_on_load_javascript"), 470);
+        
+        self.fields['on_load_javascript'] = get_utf8_string(on_load_javascript)
         return self
 
     def setCustomHttpHeader(self, custom_http_header):
@@ -1738,7 +1751,7 @@ class HtmlToPdfClient:
 
     def setJpegQuality(self, jpeg_quality):
         """
-        Set the quality of embedded JPEG images. Lower quality results in smaller PDF file. Lower quality affects printing or zooming in a PDF viewer.
+        Set the quality of embedded JPEG images. A lower quality results in a smaller PDF file but can lead to compression artifacts.
 
         jpeg_quality - The percentage value. The value must be in the range 1-100.
         return - The converter object.
@@ -1751,7 +1764,7 @@ class HtmlToPdfClient:
 
     def setConvertImagesToJpeg(self, convert_images_to_jpeg):
         """
-        Set image categories to be converted into embedded JPEG images. The conversion into JPEG may result in smaller PDF file.
+        Specify which image types will be converted to JPEG. Converting lossless compression image formats (PNG, GIF, ...) to JPEG may result in a smaller PDF file.
 
         convert_images_to_jpeg - The image category. Allowed values are none, opaque, all.
         return - The converter object.
@@ -1764,7 +1777,7 @@ class HtmlToPdfClient:
 
     def setImageDpi(self, image_dpi):
         """
-        Set the DPI when embedded image is scaled down. Lower DPI may result in smaller PDF file. Lower DPI affects printing or zooming in a PDF viewer. Use 0 for no scaling down.
+        Set the DPI of images in PDF. A lower DPI may result in a smaller PDF file. If the specified DPI is higher than the actual image DPI, the original image DPI is retained (no upscaling is performed). Use 0 to leave the images unaltered.
 
         image_dpi - The DPI value. Must be a positive integer number or 0.
         return - The converter object.
@@ -2040,7 +2053,7 @@ class HtmlToPdfClient:
     def getRemainingCreditCount(self):
         """
         Get the number of conversion credits available in your account.
-        The number is available after calling the conversion. So use the method after convertXYZ method.
+        This method can only be called after a call to one of the convertXYZ methods.
         The returned value can differ from the actual count if you run parallel conversions.
         The special value 999999 is returned if the information is not available.
         return - The number of credits.
@@ -2506,15 +2519,28 @@ class HtmlToImageClient:
 
     def setCustomJavascript(self, custom_javascript):
         """
-        Run a custom JavaScript after the document is loaded. The script is intended for post-load DOM manipulation (add/remove elements, update CSS, ...).
+        Run a custom JavaScript after the document is loaded and ready to print. The script is intended for post-load DOM manipulation (add/remove elements, update CSS, ...). The custom JavaScript can use helper functions from our JavaScript library.
 
-        custom_javascript - String containing a JavaScript code. The string must not be empty.
+        custom_javascript - A string containing a JavaScript code. The string must not be empty.
         return - The converter object.
         """
         if not (custom_javascript):
             raise Error(create_invalid_value_message(custom_javascript, "custom_javascript", "html-to-image", "The string must not be empty.", "set_custom_javascript"), 470);
         
         self.fields['custom_javascript'] = get_utf8_string(custom_javascript)
+        return self
+
+    def setOnLoadJavascript(self, on_load_javascript):
+        """
+        Run a custom JavaScript right after the document is loaded. The script is intended for early DOM manipulation. The custom JavaScript can use helper functions from our JavaScript library.
+
+        on_load_javascript - A string containing a JavaScript code. The string must not be empty.
+        return - The converter object.
+        """
+        if not (on_load_javascript):
+            raise Error(create_invalid_value_message(on_load_javascript, "on_load_javascript", "html-to-image", "The string must not be empty.", "set_on_load_javascript"), 470);
+        
+        self.fields['on_load_javascript'] = get_utf8_string(on_load_javascript)
         return self
 
     def setCustomHttpHeader(self, custom_http_header):
@@ -2628,7 +2654,7 @@ class HtmlToImageClient:
     def getRemainingCreditCount(self):
         """
         Get the number of conversion credits available in your account.
-        The number is available after calling the conversion. So use the method after convertXYZ method.
+        This method can only be called after a call to one of the convertXYZ methods.
         The returned value can differ from the actual count if you run parallel conversions.
         The special value 999999 is returned if the information is not available.
         return - The number of credits.
@@ -2961,7 +2987,7 @@ class ImageToImageClient:
     def getRemainingCreditCount(self):
         """
         Get the number of conversion credits available in your account.
-        The number is available after calling the conversion. So use the method after convertXYZ method.
+        This method can only be called after a call to one of the convertXYZ methods.
         The returned value can differ from the actual count if you run parallel conversions.
         The special value 999999 is returned if the information is not available.
         return - The number of credits.
@@ -3178,7 +3204,7 @@ class PdfToPdfClient:
     def getRemainingCreditCount(self):
         """
         Get the number of conversion credits available in your account.
-        The number is available after calling the conversion. So use the method after convertXYZ method.
+        This method can only be called after a call to one of the convertXYZ methods.
         The returned value can differ from the actual count if you run parallel conversions.
         The special value 999999 is returned if the information is not available.
         return - The number of credits.
@@ -3456,7 +3482,7 @@ class ImageToPdfClient:
     def getRemainingCreditCount(self):
         """
         Get the number of conversion credits available in your account.
-        The number is available after calling the conversion. So use the method after convertXYZ method.
+        This method can only be called after a call to one of the convertXYZ methods.
         The returned value can differ from the actual count if you run parallel conversions.
         The special value 999999 is returned if the information is not available.
         return - The number of credits.
@@ -3762,7 +3788,10 @@ available converters:
                             help = 'Abort the conversion if any of the sub-request HTTP status code is greater than or equal to 400 or if some sub-requests are still pending. See details in a debug log.'
 )
         parser.add_argument('-custom-javascript',
-                            help = 'Run a custom JavaScript after the document is loaded. The script is intended for post-load DOM manipulation (add/remove elements, update CSS, ...). String containing a JavaScript code. The string must not be empty.'
+                            help = 'Run a custom JavaScript after the document is loaded and ready to print. The script is intended for post-load DOM manipulation (add/remove elements, update CSS, ...). The custom JavaScript can use helper functions from our JavaScript library. A string containing a JavaScript code. The string must not be empty.'
+)
+        parser.add_argument('-on-load-javascript',
+                            help = 'Run a custom JavaScript right after the document is loaded. The script is intended for early DOM manipulation. The custom JavaScript can use helper functions from our JavaScript library. A string containing a JavaScript code. The string must not be empty.'
 )
         parser.add_argument('-custom-http-header',
                             help = 'Set a custom HTTP header that is sent in Pdfcrowd HTTP requests. A string containing the header name and value separated by a colon.'
@@ -3803,13 +3832,13 @@ available converters:
                             help = 'Disable the intelligent shrinking strategy that tries to optimally fit the HTML contents to a PDF page.'
 )
         parser.add_argument('-jpeg-quality',
-                            help = 'Set the quality of embedded JPEG images. Lower quality results in smaller PDF file. Lower quality affects printing or zooming in a PDF viewer. The percentage value. The value must be in the range 1-100.'
+                            help = 'Set the quality of embedded JPEG images. A lower quality results in a smaller PDF file but can lead to compression artifacts. The percentage value. The value must be in the range 1-100.'
 )
         parser.add_argument('-convert-images-to-jpeg',
-                            help = 'Set image categories to be converted into embedded JPEG images. The conversion into JPEG may result in smaller PDF file. The image category. Allowed values are none, opaque, all.'
+                            help = 'Specify which image types will be converted to JPEG. Converting lossless compression image formats (PNG, GIF, ...) to JPEG may result in a smaller PDF file. The image category. Allowed values are none, opaque, all.'
 )
         parser.add_argument('-image-dpi',
-                            help = 'Set the DPI when embedded image is scaled down. Lower DPI may result in smaller PDF file. Lower DPI affects printing or zooming in a PDF viewer. Use 0 for no scaling down. The DPI value. Must be a positive integer number or 0.'
+                            help = 'Set the DPI of images in PDF. A lower DPI may result in a smaller PDF file. If the specified DPI is higher than the actual image DPI, the original image DPI is retained (no upscaling is performed). Use 0 to leave the images unaltered. The DPI value. Must be a positive integer number or 0.'
 )
         parser.add_argument('-linearize',
                             action = 'store_true',
@@ -3996,7 +4025,10 @@ available converters:
                             help = 'Abort the conversion if any of the sub-request HTTP status code is greater than or equal to 400 or if some sub-requests are still pending. See details in a debug log.'
 )
         parser.add_argument('-custom-javascript',
-                            help = 'Run a custom JavaScript after the document is loaded. The script is intended for post-load DOM manipulation (add/remove elements, update CSS, ...). String containing a JavaScript code. The string must not be empty.'
+                            help = 'Run a custom JavaScript after the document is loaded and ready to print. The script is intended for post-load DOM manipulation (add/remove elements, update CSS, ...). The custom JavaScript can use helper functions from our JavaScript library. A string containing a JavaScript code. The string must not be empty.'
+)
+        parser.add_argument('-on-load-javascript',
+                            help = 'Run a custom JavaScript right after the document is loaded. The script is intended for early DOM manipulation. The custom JavaScript can use helper functions from our JavaScript library. A string containing a JavaScript code. The string must not be empty.'
 )
         parser.add_argument('-custom-http-header',
                             help = 'Set a custom HTTP header that is sent in Pdfcrowd HTTP requests. A string containing the header name and value separated by a colon.'
