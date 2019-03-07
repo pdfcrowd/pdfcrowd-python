@@ -43,7 +43,7 @@ import os
 import ssl
 import time
 
-__version__ = '4.5.0'
+__version__ = '4.6.0'
 
 # ======================================
 # === PDFCrowd legacy version client ===
@@ -698,7 +698,7 @@ else:
 
 HOST = os.environ.get('PDFCROWD_HOST', 'api.pdfcrowd.com')
 MULTIPART_BOUNDARY = '----------ThIs_Is_tHe_bOUnDary_$'
-CLIENT_VERSION = '4.5.0'
+CLIENT_VERSION = '4.6.0'
 
 def get_utf8_string(string):
     if not PYTHON_3 and isinstance(string, unicode):
@@ -779,7 +779,7 @@ class ConnectionHelper:
         self._reset_response_data()
         self.setProxy(None, None, None, None)
         self.setUseHttp(False)
-        self.setUserAgent('pdfcrowd_python_client/4.5.0 (http://pdfcrowd.com)')
+        self.setUserAgent('pdfcrowd_python_client/4.6.0 (http://pdfcrowd.com)')
 
         self.retry_count = 1
 
@@ -2634,6 +2634,19 @@ class HtmlToImageClient:
         self.fields['screenshot_height'] = screenshot_height
         return self
 
+    def setScaleFactor(self, scale_factor):
+        """
+        Set the scaling factor (zoom) for the output image.
+
+        scale_factor - The percentage value. Must be a positive integer number.
+        return - The converter object.
+        """
+        if not (int(scale_factor) > 0):
+            raise Error(create_invalid_value_message(scale_factor, "scale_factor", "html-to-image", "Must be a positive integer number.", "set_scale_factor"), 470);
+        
+        self.fields['scale_factor'] = scale_factor
+        return self
+
     def setDebugLog(self, debug_log):
         """
         Turn on the debug logging. Details about the conversion are stored in the debug log. The URL of the log can be obtained from the getDebugLogUrl method or available in conversion statistics.
@@ -4050,6 +4063,9 @@ available converters:
 )
         parser.add_argument('-screenshot-height',
                             help = 'Set the output image height in pixels. If it\'s not specified, actual document height is used. Must be a positive integer number.'
+)
+        parser.add_argument('-scale-factor',
+                            help = 'Set the scaling factor (zoom) for the output image. The percentage value. Must be a positive integer number.'
 )
         parser.add_argument('-debug-log',
                             action = 'store_true',
