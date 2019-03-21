@@ -43,7 +43,7 @@ import os
 import ssl
 import time
 
-__version__ = '4.6.0'
+__version__ = '4.7.0'
 
 # ======================================
 # === PDFCrowd legacy version client ===
@@ -698,7 +698,7 @@ else:
 
 HOST = os.environ.get('PDFCROWD_HOST', 'api.pdfcrowd.com')
 MULTIPART_BOUNDARY = '----------ThIs_Is_tHe_bOUnDary_$'
-CLIENT_VERSION = '4.6.0'
+CLIENT_VERSION = '4.7.0'
 
 def get_utf8_string(string):
     if not PYTHON_3 and isinstance(string, unicode):
@@ -779,7 +779,7 @@ class ConnectionHelper:
         self._reset_response_data()
         self.setProxy(None, None, None, None)
         self.setUseHttp(False)
-        self.setUserAgent('pdfcrowd_python_client/4.6.0 (http://pdfcrowd.com)')
+        self.setUserAgent('pdfcrowd_python_client/4.7.0 (http://pdfcrowd.com)')
 
         self.retry_count = 1
 
@@ -1711,6 +1711,19 @@ class HtmlToPdfClient:
             raise Error(create_invalid_value_message(rendering_mode, "rendering_mode", "html-to-pdf", "Allowed values are default, viewport.", "set_rendering_mode"), 470);
         
         self.fields['rendering_mode'] = get_utf8_string(rendering_mode)
+        return self
+
+    def setSmartScalingMode(self, smart_scaling_mode):
+        """
+        Specifies the scaling mode used for fitting the HTML contents to the print area.
+
+        smart_scaling_mode - The smart scaling mode. Allowed values are default, disabled, viewport-fit, content-fit, single-page-fit.
+        return - The converter object.
+        """
+        if not re.match('(?i)^(default|disabled|viewport-fit|content-fit|single-page-fit)$', smart_scaling_mode):
+            raise Error(create_invalid_value_message(smart_scaling_mode, "smart_scaling_mode", "html-to-pdf", "Allowed values are default, disabled, viewport-fit, content-fit, single-page-fit.", "set_smart_scaling_mode"), 470);
+        
+        self.fields['smart_scaling_mode'] = get_utf8_string(smart_scaling_mode)
         return self
 
     def setScaleFactor(self, scale_factor):
@@ -3833,6 +3846,9 @@ available converters:
 )
         parser.add_argument('-rendering-mode',
                             help = 'Set the rendering mode. The rendering mode. Allowed values are default, viewport.'
+)
+        parser.add_argument('-smart-scaling-mode',
+                            help = 'Specifies the scaling mode used for fitting the HTML contents to the print area. The smart scaling mode. Allowed values are default, disabled, viewport-fit, content-fit, single-page-fit.'
 )
         parser.add_argument('-scale-factor',
                             help = 'Set the scaling factor (zoom) for the main page area. The percentage value. The value must be in the range 10-500.'
