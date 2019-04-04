@@ -43,7 +43,7 @@ import os
 import ssl
 import time
 
-__version__ = '4.7.0'
+__version__ = '4.8.0'
 
 # ======================================
 # === PDFCrowd legacy version client ===
@@ -698,7 +698,7 @@ else:
 
 HOST = os.environ.get('PDFCROWD_HOST', 'api.pdfcrowd.com')
 MULTIPART_BOUNDARY = '----------ThIs_Is_tHe_bOUnDary_$'
-CLIENT_VERSION = '4.7.0'
+CLIENT_VERSION = '4.8.0'
 
 def get_utf8_string(string):
     if not PYTHON_3 and isinstance(string, unicode):
@@ -779,7 +779,7 @@ class ConnectionHelper:
         self._reset_response_data()
         self.setProxy(None, None, None, None)
         self.setUseHttp(False)
-        self.setUserAgent('pdfcrowd_python_client/4.7.0 (http://pdfcrowd.com)')
+        self.setUserAgent('pdfcrowd_python_client/4.8.0 (http://pdfcrowd.com)')
 
         self.retry_count = 1
 
@@ -1419,6 +1419,74 @@ class HtmlToPdfClient:
         self.fields['page_numbering_offset'] = offset
         return self
 
+    def setContentAreaX(self, content_area_x):
+        """
+        Set the top left X coordinate of the content area.
+
+        content_area_x - Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt). It may contain a negative value.
+        return - The converter object.
+        """
+        if not re.match('(?i)^\-?[0-9]*(\.[0-9]+)?(pt|px|mm|cm|in)$', content_area_x):
+            raise Error(create_invalid_value_message(content_area_x, "content_area_x", "html-to-pdf", "Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt). It may contain a negative value.", "set_content_area_x"), 470);
+        
+        self.fields['content_area_x'] = get_utf8_string(content_area_x)
+        return self
+
+    def setContentAreaY(self, content_area_y):
+        """
+        Set the top left Y coordinate of the content area.
+
+        content_area_y - Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt). It may contain a negative value.
+        return - The converter object.
+        """
+        if not re.match('(?i)^\-?[0-9]*(\.[0-9]+)?(pt|px|mm|cm|in)$', content_area_y):
+            raise Error(create_invalid_value_message(content_area_y, "content_area_y", "html-to-pdf", "Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt). It may contain a negative value.", "set_content_area_y"), 470);
+        
+        self.fields['content_area_y'] = get_utf8_string(content_area_y)
+        return self
+
+    def setContentAreaWidth(self, content_area_width):
+        """
+        Set the width of the content area. It should be at least 1 inch.
+
+        content_area_width - Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
+        return - The converter object.
+        """
+        if not re.match('(?i)^[0-9]*(\.[0-9]+)?(pt|px|mm|cm|in)$', content_area_width):
+            raise Error(create_invalid_value_message(content_area_width, "content_area_width", "html-to-pdf", "Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).", "set_content_area_width"), 470);
+        
+        self.fields['content_area_width'] = get_utf8_string(content_area_width)
+        return self
+
+    def setContentAreaHeight(self, content_area_height):
+        """
+        Set the height of the content area. It should be at least 1 inch.
+
+        content_area_height - Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
+        return - The converter object.
+        """
+        if not re.match('(?i)^[0-9]*(\.[0-9]+)?(pt|px|mm|cm|in)$', content_area_height):
+            raise Error(create_invalid_value_message(content_area_height, "content_area_height", "html-to-pdf", "Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).", "set_content_area_height"), 470);
+        
+        self.fields['content_area_height'] = get_utf8_string(content_area_height)
+        return self
+
+    def setContentArea(self, x, y, width, height):
+        """
+        Set the content area position and size. The content area enables to specify a web page area to be converted.
+
+        x - Set the top left X coordinate of the content area. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt). It may contain a negative value.
+        y - Set the top left Y coordinate of the content area. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt). It may contain a negative value.
+        width - Set the width of the content area. It should be at least 1 inch. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
+        height - Set the height of the content area. It should be at least 1 inch. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
+        return - The converter object.
+        """
+        self.setContentAreaX(x)
+        self.setContentAreaY(y)
+        self.setContentAreaWidth(width)
+        self.setContentAreaHeight(height)
+        return self
+
     def setNoBackground(self, no_background):
         """
         Do not print the background graphics.
@@ -1573,7 +1641,7 @@ class HtmlToPdfClient:
 
     def setCustomJavascript(self, custom_javascript):
         """
-        Run a custom JavaScript after the document is loaded and ready to print. The script is intended for post-load DOM manipulation (add/remove elements, update CSS, ...). The custom JavaScript can use helper functions from our JavaScript library.
+        Run a custom JavaScript after the document is loaded and ready to print. The script is intended for post-load DOM manipulation (add/remove elements, update CSS, ...). In addition to the standard browser APIs, the custom JavaScript code can use helper functions from our JavaScript library.
 
         custom_javascript - A string containing a JavaScript code. The string must not be empty.
         return - The converter object.
@@ -1586,7 +1654,7 @@ class HtmlToPdfClient:
 
     def setOnLoadJavascript(self, on_load_javascript):
         """
-        Run a custom JavaScript right after the document is loaded. The script is intended for early DOM manipulation. The custom JavaScript can use helper functions from our JavaScript library.
+        Run a custom JavaScript right after the document is loaded. The script is intended for early DOM manipulation. In addition to the standard browser APIs, the custom JavaScript code can use helper functions from our JavaScript library.
 
         on_load_javascript - A string containing a JavaScript code. The string must not be empty.
         return - The converter object.
@@ -2532,7 +2600,7 @@ class HtmlToImageClient:
 
     def setCustomJavascript(self, custom_javascript):
         """
-        Run a custom JavaScript after the document is loaded and ready to print. The script is intended for post-load DOM manipulation (add/remove elements, update CSS, ...). The custom JavaScript can use helper functions from our JavaScript library.
+        Run a custom JavaScript after the document is loaded and ready to print. The script is intended for post-load DOM manipulation (add/remove elements, update CSS, ...). In addition to the standard browser APIs, the custom JavaScript code can use helper functions from our JavaScript library.
 
         custom_javascript - A string containing a JavaScript code. The string must not be empty.
         return - The converter object.
@@ -2545,7 +2613,7 @@ class HtmlToImageClient:
 
     def setOnLoadJavascript(self, on_load_javascript):
         """
-        Run a custom JavaScript right after the document is loaded. The script is intended for early DOM manipulation. The custom JavaScript can use helper functions from our JavaScript library.
+        Run a custom JavaScript right after the document is loaded. The script is intended for early DOM manipulation. In addition to the standard browser APIs, the custom JavaScript code can use helper functions from our JavaScript library.
 
         on_load_javascript - A string containing a JavaScript code. The string must not be empty.
         return - The converter object.
@@ -3757,6 +3825,22 @@ available converters:
         parser.add_argument('-page-numbering-offset',
                             help = 'Set an offset between physical and logical page numbers. Integer specifying page offset.'
 )
+        parser.add_argument('-content-area-x',
+                            help = 'Set the top left X coordinate of the content area. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt). It may contain a negative value.'
+)
+        parser.add_argument('-content-area-y',
+                            help = 'Set the top left Y coordinate of the content area. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt). It may contain a negative value.'
+)
+        parser.add_argument('-content-area-width',
+                            help = 'Set the width of the content area. It should be at least 1 inch. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).'
+)
+        parser.add_argument('-content-area-height',
+                            help = 'Set the height of the content area. It should be at least 1 inch. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).'
+)
+        multi_args['content_area'] = 4
+        parser.add_argument('-content-area',
+                            help = 'Set the content area position and size. The content area enables to specify a web page area to be converted. CONTENT_AREA must contain 4 values separated by a semicolon. Set the top left X coordinate of the content area. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt). It may contain a negative value. Set the top left Y coordinate of the content area. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt). It may contain a negative value. Set the width of the content area. It should be at least 1 inch. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt). Set the height of the content area. It should be at least 1 inch. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).'
+)
         parser.add_argument('-no-background',
                             action = 'store_true',
                             help = 'Do not print the background graphics.'
@@ -3814,10 +3898,10 @@ available converters:
                             help = 'Abort the conversion if any of the sub-request HTTP status code is greater than or equal to 400 or if some sub-requests are still pending. See details in a debug log.'
 )
         parser.add_argument('-custom-javascript',
-                            help = 'Run a custom JavaScript after the document is loaded and ready to print. The script is intended for post-load DOM manipulation (add/remove elements, update CSS, ...). The custom JavaScript can use helper functions from our JavaScript library. A string containing a JavaScript code. The string must not be empty.'
+                            help = 'Run a custom JavaScript after the document is loaded and ready to print. The script is intended for post-load DOM manipulation (add/remove elements, update CSS, ...). In addition to the standard browser APIs, the custom JavaScript code can use helper functions from our JavaScript library. A string containing a JavaScript code. The string must not be empty.'
 )
         parser.add_argument('-on-load-javascript',
-                            help = 'Run a custom JavaScript right after the document is loaded. The script is intended for early DOM manipulation. The custom JavaScript can use helper functions from our JavaScript library. A string containing a JavaScript code. The string must not be empty.'
+                            help = 'Run a custom JavaScript right after the document is loaded. The script is intended for early DOM manipulation. In addition to the standard browser APIs, the custom JavaScript code can use helper functions from our JavaScript library. A string containing a JavaScript code. The string must not be empty.'
 )
         parser.add_argument('-custom-http-header',
                             help = 'Set a custom HTTP header that is sent in Pdfcrowd HTTP requests. A string containing the header name and value separated by a colon.'
@@ -4054,10 +4138,10 @@ available converters:
                             help = 'Abort the conversion if any of the sub-request HTTP status code is greater than or equal to 400 or if some sub-requests are still pending. See details in a debug log.'
 )
         parser.add_argument('-custom-javascript',
-                            help = 'Run a custom JavaScript after the document is loaded and ready to print. The script is intended for post-load DOM manipulation (add/remove elements, update CSS, ...). The custom JavaScript can use helper functions from our JavaScript library. A string containing a JavaScript code. The string must not be empty.'
+                            help = 'Run a custom JavaScript after the document is loaded and ready to print. The script is intended for post-load DOM manipulation (add/remove elements, update CSS, ...). In addition to the standard browser APIs, the custom JavaScript code can use helper functions from our JavaScript library. A string containing a JavaScript code. The string must not be empty.'
 )
         parser.add_argument('-on-load-javascript',
-                            help = 'Run a custom JavaScript right after the document is loaded. The script is intended for early DOM manipulation. The custom JavaScript can use helper functions from our JavaScript library. A string containing a JavaScript code. The string must not be empty.'
+                            help = 'Run a custom JavaScript right after the document is loaded. The script is intended for early DOM manipulation. In addition to the standard browser APIs, the custom JavaScript code can use helper functions from our JavaScript library. A string containing a JavaScript code. The string must not be empty.'
 )
         parser.add_argument('-custom-http-header',
                             help = 'Set a custom HTTP header that is sent in Pdfcrowd HTTP requests. A string containing the header name and value separated by a colon.'
