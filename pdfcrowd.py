@@ -1421,7 +1421,7 @@ class HtmlToPdfClient:
 
     def setContentAreaX(self, content_area_x):
         """
-        Set the top left X coordinate of the content area.
+        Set the top left X coordinate of the content area. It's relative to the top left X coordinate of the print area.
 
         content_area_x - Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt). It may contain a negative value.
         return - The converter object.
@@ -1434,7 +1434,7 @@ class HtmlToPdfClient:
 
     def setContentAreaY(self, content_area_y):
         """
-        Set the top left Y coordinate of the content area.
+        Set the top left Y coordinate of the content area. It's relative to the top left Y coordinate of the print area.
 
         content_area_y - Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt). It may contain a negative value.
         return - The converter object.
@@ -1475,8 +1475,8 @@ class HtmlToPdfClient:
         """
         Set the content area position and size. The content area enables to specify a web page area to be converted.
 
-        x - Set the top left X coordinate of the content area. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt). It may contain a negative value.
-        y - Set the top left Y coordinate of the content area. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt). It may contain a negative value.
+        x - Set the top left X coordinate of the content area. It's relative to the top left X coordinate of the print area. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt). It may contain a negative value.
+        y - Set the top left Y coordinate of the content area. It's relative to the top left Y coordinate of the print area. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt). It may contain a negative value.
         width - Set the width of the content area. It should be at least 1 inch. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
         height - Set the height of the content area. It should be at least 1 inch. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
         return - The converter object.
@@ -3826,10 +3826,10 @@ available converters:
                             help = 'Set an offset between physical and logical page numbers. Integer specifying page offset.'
 )
         parser.add_argument('-content-area-x',
-                            help = 'Set the top left X coordinate of the content area. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt). It may contain a negative value.'
+                            help = 'Set the top left X coordinate of the content area. It\'s relative to the top left X coordinate of the print area. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt). It may contain a negative value.'
 )
         parser.add_argument('-content-area-y',
-                            help = 'Set the top left Y coordinate of the content area. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt). It may contain a negative value.'
+                            help = 'Set the top left Y coordinate of the content area. It\'s relative to the top left Y coordinate of the print area. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt). It may contain a negative value.'
 )
         parser.add_argument('-content-area-width',
                             help = 'Set the width of the content area. It should be at least 1 inch. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).'
@@ -3839,7 +3839,7 @@ available converters:
 )
         multi_args['content_area'] = 4
         parser.add_argument('-content-area',
-                            help = 'Set the content area position and size. The content area enables to specify a web page area to be converted. CONTENT_AREA must contain 4 values separated by a semicolon. Set the top left X coordinate of the content area. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt). It may contain a negative value. Set the top left Y coordinate of the content area. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt). It may contain a negative value. Set the width of the content area. It should be at least 1 inch. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt). Set the height of the content area. It should be at least 1 inch. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).'
+                            help = 'Set the content area position and size. The content area enables to specify a web page area to be converted. CONTENT_AREA must contain 4 values separated by a semicolon. Set the top left X coordinate of the content area. It\'s relative to the top left X coordinate of the print area. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt). It may contain a negative value. Set the top left Y coordinate of the content area. It\'s relative to the top left Y coordinate of the print area. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt). It may contain a negative value. Set the width of the content area. It should be at least 1 inch. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt). Set the height of the content area. It should be at least 1 inch. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).'
 )
         parser.add_argument('-no-background',
                             action = 'store_true',
