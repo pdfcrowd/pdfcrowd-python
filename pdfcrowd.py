@@ -43,7 +43,7 @@ import os
 import ssl
 import time
 
-__version__ = '4.8.0'
+__version__ = '4.9.0'
 
 # ======================================
 # === PDFCrowd legacy version client ===
@@ -698,7 +698,7 @@ else:
 
 HOST = os.environ.get('PDFCROWD_HOST', 'api.pdfcrowd.com')
 MULTIPART_BOUNDARY = '----------ThIs_Is_tHe_bOUnDary_$'
-CLIENT_VERSION = '4.8.0'
+CLIENT_VERSION = '4.9.0'
 
 def get_utf8_string(string):
     if not PYTHON_3 and isinstance(string, unicode):
@@ -779,7 +779,7 @@ class ConnectionHelper:
         self._reset_response_data()
         self.setProxy(None, None, None, None)
         self.setUseHttp(False)
-        self.setUserAgent('pdfcrowd_python_client/4.8.0 (http://pdfcrowd.com)')
+        self.setUserAgent('pdfcrowd_python_client/4.9.0 (http://pdfcrowd.com)')
 
         self.retry_count = 1
 
@@ -1318,71 +1318,6 @@ class HtmlToPdfClient:
         self.fields['print_page_range'] = get_utf8_string(pages)
         return self
 
-    def setPageBackgroundColor(self, page_background_color):
-        """
-        The page background color in RGB or RGBA hexadecimal format. The color fills the entire page regardless of the margins.
-
-        page_background_color - The value must be in RRGGBB or RRGGBBAA hexadecimal format.
-        return - The converter object.
-        """
-        if not re.match('^[0-9a-fA-F]{6,8}$', page_background_color):
-            raise Error(create_invalid_value_message(page_background_color, "page_background_color", "html-to-pdf", "The value must be in RRGGBB or RRGGBBAA hexadecimal format.", "set_page_background_color"), 470);
-        
-        self.fields['page_background_color'] = get_utf8_string(page_background_color)
-        return self
-
-    def setPageWatermark(self, page_watermark):
-        """
-        Apply the first page of the watermark PDF to every page of the output PDF.
-
-        page_watermark - The file path to a local watermark PDF file. The file must exist and not be empty.
-        return - The converter object.
-        """
-        if not (os.path.isfile(page_watermark) and os.path.getsize(page_watermark)):
-            raise Error(create_invalid_value_message(page_watermark, "page_watermark", "html-to-pdf", "The file must exist and not be empty.", "set_page_watermark"), 470);
-        
-        self.files['page_watermark'] = get_utf8_string(page_watermark)
-        return self
-
-    def setMultipageWatermark(self, multipage_watermark):
-        """
-        Apply each page of the specified watermark PDF to the corresponding page of the output PDF.
-
-        multipage_watermark - The file path to a local watermark PDF file. The file must exist and not be empty.
-        return - The converter object.
-        """
-        if not (os.path.isfile(multipage_watermark) and os.path.getsize(multipage_watermark)):
-            raise Error(create_invalid_value_message(multipage_watermark, "multipage_watermark", "html-to-pdf", "The file must exist and not be empty.", "set_multipage_watermark"), 470);
-        
-        self.files['multipage_watermark'] = get_utf8_string(multipage_watermark)
-        return self
-
-    def setPageBackground(self, page_background):
-        """
-        Apply the first page of the specified PDF to the background of every page of the output PDF.
-
-        page_background - The file path to a local background PDF file. The file must exist and not be empty.
-        return - The converter object.
-        """
-        if not (os.path.isfile(page_background) and os.path.getsize(page_background)):
-            raise Error(create_invalid_value_message(page_background, "page_background", "html-to-pdf", "The file must exist and not be empty.", "set_page_background"), 470);
-        
-        self.files['page_background'] = get_utf8_string(page_background)
-        return self
-
-    def setMultipageBackground(self, multipage_background):
-        """
-        Apply each page of the specified PDF to the background of the corresponding page of the output PDF.
-
-        multipage_background - The file path to a local background PDF file. The file must exist and not be empty.
-        return - The converter object.
-        """
-        if not (os.path.isfile(multipage_background) and os.path.getsize(multipage_background)):
-            raise Error(create_invalid_value_message(multipage_background, "multipage_background", "html-to-pdf", "The file must exist and not be empty.", "set_multipage_background"), 470);
-        
-        self.files['multipage_background'] = get_utf8_string(multipage_background)
-        return self
-
     def setExcludeHeaderOnPages(self, pages):
         """
         The page header is not printed on the specified pages.
@@ -1485,6 +1420,71 @@ class HtmlToPdfClient:
         self.setContentAreaY(y)
         self.setContentAreaWidth(width)
         self.setContentAreaHeight(height)
+        return self
+
+    def setPageWatermark(self, page_watermark):
+        """
+        Apply the first page of the watermark PDF to every page of the output PDF.
+
+        page_watermark - The file path to a local watermark PDF file. The file must exist and not be empty.
+        return - The converter object.
+        """
+        if not (os.path.isfile(page_watermark) and os.path.getsize(page_watermark)):
+            raise Error(create_invalid_value_message(page_watermark, "page_watermark", "html-to-pdf", "The file must exist and not be empty.", "set_page_watermark"), 470);
+        
+        self.files['page_watermark'] = get_utf8_string(page_watermark)
+        return self
+
+    def setMultipageWatermark(self, multipage_watermark):
+        """
+        Apply each page of the specified watermark PDF to the corresponding page of the output PDF.
+
+        multipage_watermark - The file path to a local watermark PDF file. The file must exist and not be empty.
+        return - The converter object.
+        """
+        if not (os.path.isfile(multipage_watermark) and os.path.getsize(multipage_watermark)):
+            raise Error(create_invalid_value_message(multipage_watermark, "multipage_watermark", "html-to-pdf", "The file must exist and not be empty.", "set_multipage_watermark"), 470);
+        
+        self.files['multipage_watermark'] = get_utf8_string(multipage_watermark)
+        return self
+
+    def setPageBackground(self, page_background):
+        """
+        Apply the first page of the specified PDF to the background of every page of the output PDF.
+
+        page_background - The file path to a local background PDF file. The file must exist and not be empty.
+        return - The converter object.
+        """
+        if not (os.path.isfile(page_background) and os.path.getsize(page_background)):
+            raise Error(create_invalid_value_message(page_background, "page_background", "html-to-pdf", "The file must exist and not be empty.", "set_page_background"), 470);
+        
+        self.files['page_background'] = get_utf8_string(page_background)
+        return self
+
+    def setMultipageBackground(self, multipage_background):
+        """
+        Apply each page of the specified PDF to the background of the corresponding page of the output PDF.
+
+        multipage_background - The file path to a local background PDF file. The file must exist and not be empty.
+        return - The converter object.
+        """
+        if not (os.path.isfile(multipage_background) and os.path.getsize(multipage_background)):
+            raise Error(create_invalid_value_message(multipage_background, "multipage_background", "html-to-pdf", "The file must exist and not be empty.", "set_multipage_background"), 470);
+        
+        self.files['multipage_background'] = get_utf8_string(multipage_background)
+        return self
+
+    def setPageBackgroundColor(self, page_background_color):
+        """
+        The page background color in RGB or RGBA hexadecimal format. The color fills the entire page regardless of the margins.
+
+        page_background_color - The value must be in RRGGBB or RRGGBBAA hexadecimal format.
+        return - The converter object.
+        """
+        if not re.match('^[0-9a-fA-F]{6,8}$', page_background_color):
+            raise Error(create_invalid_value_message(page_background_color, "page_background_color", "html-to-pdf", "The value must be in RRGGBB or RRGGBBAA hexadecimal format.", "set_page_background_color"), 470);
+        
+        self.fields['page_background_color'] = get_utf8_string(page_background_color)
         return self
 
     def setNoBackground(self, no_background):
@@ -1654,7 +1654,7 @@ class HtmlToPdfClient:
 
     def setOnLoadJavascript(self, on_load_javascript):
         """
-        Run a custom JavaScript right after the document is loaded. The script is intended for early DOM manipulation. In addition to the standard browser APIs, the custom JavaScript code can use helper functions from our JavaScript library.
+        Run a custom JavaScript right after the document is loaded. The script is intended for early DOM manipulation (add/remove elements, update CSS, ...). In addition to the standard browser APIs, the custom JavaScript code can use helper functions from our JavaScript library.
 
         on_load_javascript - A string containing a JavaScript code. The string must not be empty.
         return - The converter object.
@@ -2613,7 +2613,7 @@ class HtmlToImageClient:
 
     def setOnLoadJavascript(self, on_load_javascript):
         """
-        Run a custom JavaScript right after the document is loaded. The script is intended for early DOM manipulation. In addition to the standard browser APIs, the custom JavaScript code can use helper functions from our JavaScript library.
+        Run a custom JavaScript right after the document is loaded. The script is intended for early DOM manipulation (add/remove elements, update CSS, ...). In addition to the standard browser APIs, the custom JavaScript code can use helper functions from our JavaScript library.
 
         on_load_javascript - A string containing a JavaScript code. The string must not be empty.
         return - The converter object.
@@ -3278,6 +3278,263 @@ class PdfToPdfClient:
         self.file_id += 1
         return self
 
+    def setPageWatermark(self, page_watermark):
+        """
+        Apply the first page of the watermark PDF to every page of the output PDF.
+
+        page_watermark - The file path to a local watermark PDF file. The file must exist and not be empty.
+        return - The converter object.
+        """
+        if not (os.path.isfile(page_watermark) and os.path.getsize(page_watermark)):
+            raise Error(create_invalid_value_message(page_watermark, "page_watermark", "pdf-to-pdf", "The file must exist and not be empty.", "set_page_watermark"), 470);
+        
+        self.files['page_watermark'] = get_utf8_string(page_watermark)
+        return self
+
+    def setMultipageWatermark(self, multipage_watermark):
+        """
+        Apply each page of the specified watermark PDF to the corresponding page of the output PDF.
+
+        multipage_watermark - The file path to a local watermark PDF file. The file must exist and not be empty.
+        return - The converter object.
+        """
+        if not (os.path.isfile(multipage_watermark) and os.path.getsize(multipage_watermark)):
+            raise Error(create_invalid_value_message(multipage_watermark, "multipage_watermark", "pdf-to-pdf", "The file must exist and not be empty.", "set_multipage_watermark"), 470);
+        
+        self.files['multipage_watermark'] = get_utf8_string(multipage_watermark)
+        return self
+
+    def setPageBackground(self, page_background):
+        """
+        Apply the first page of the specified PDF to the background of every page of the output PDF.
+
+        page_background - The file path to a local background PDF file. The file must exist and not be empty.
+        return - The converter object.
+        """
+        if not (os.path.isfile(page_background) and os.path.getsize(page_background)):
+            raise Error(create_invalid_value_message(page_background, "page_background", "pdf-to-pdf", "The file must exist and not be empty.", "set_page_background"), 470);
+        
+        self.files['page_background'] = get_utf8_string(page_background)
+        return self
+
+    def setMultipageBackground(self, multipage_background):
+        """
+        Apply each page of the specified PDF to the background of the corresponding page of the output PDF.
+
+        multipage_background - The file path to a local background PDF file. The file must exist and not be empty.
+        return - The converter object.
+        """
+        if not (os.path.isfile(multipage_background) and os.path.getsize(multipage_background)):
+            raise Error(create_invalid_value_message(multipage_background, "multipage_background", "pdf-to-pdf", "The file must exist and not be empty.", "set_multipage_background"), 470);
+        
+        self.files['multipage_background'] = get_utf8_string(multipage_background)
+        return self
+
+    def setLinearize(self, linearize):
+        """
+        Create linearized PDF. This is also known as Fast Web View.
+
+        linearize - Set to True to create linearized PDF.
+        return - The converter object.
+        """
+        self.fields['linearize'] = linearize
+        return self
+
+    def setEncrypt(self, encrypt):
+        """
+        Encrypt the PDF. This prevents search engines from indexing the contents.
+
+        encrypt - Set to True to enable PDF encryption.
+        return - The converter object.
+        """
+        self.fields['encrypt'] = encrypt
+        return self
+
+    def setUserPassword(self, user_password):
+        """
+        Protect the PDF with a user password. When a PDF has a user password, it must be supplied in order to view the document and to perform operations allowed by the access permissions.
+
+        user_password - The user password.
+        return - The converter object.
+        """
+        self.fields['user_password'] = get_utf8_string(user_password)
+        return self
+
+    def setOwnerPassword(self, owner_password):
+        """
+        Protect the PDF with an owner password. Supplying an owner password grants unlimited access to the PDF including changing the passwords and access permissions.
+
+        owner_password - The owner password.
+        return - The converter object.
+        """
+        self.fields['owner_password'] = get_utf8_string(owner_password)
+        return self
+
+    def setNoPrint(self, no_print):
+        """
+        Disallow printing of the output PDF.
+
+        no_print - Set to True to set the no-print flag in the output PDF.
+        return - The converter object.
+        """
+        self.fields['no_print'] = no_print
+        return self
+
+    def setNoModify(self, no_modify):
+        """
+        Disallow modification of the ouput PDF.
+
+        no_modify - Set to True to set the read-only only flag in the output PDF.
+        return - The converter object.
+        """
+        self.fields['no_modify'] = no_modify
+        return self
+
+    def setNoCopy(self, no_copy):
+        """
+        Disallow text and graphics extraction from the output PDF.
+
+        no_copy - Set to True to set the no-copy flag in the output PDF.
+        return - The converter object.
+        """
+        self.fields['no_copy'] = no_copy
+        return self
+
+    def setPageLayout(self, page_layout):
+        """
+        Specify the page layout to be used when the document is opened.
+
+        page_layout - Allowed values are single-page, one-column, two-column-left, two-column-right.
+        return - The converter object.
+        """
+        if not re.match('(?i)^(single-page|one-column|two-column-left|two-column-right)$', page_layout):
+            raise Error(create_invalid_value_message(page_layout, "page_layout", "pdf-to-pdf", "Allowed values are single-page, one-column, two-column-left, two-column-right.", "set_page_layout"), 470);
+        
+        self.fields['page_layout'] = get_utf8_string(page_layout)
+        return self
+
+    def setPageMode(self, page_mode):
+        """
+        Specify how the document should be displayed when opened.
+
+        page_mode - Allowed values are full-screen, thumbnails, outlines.
+        return - The converter object.
+        """
+        if not re.match('(?i)^(full-screen|thumbnails|outlines)$', page_mode):
+            raise Error(create_invalid_value_message(page_mode, "page_mode", "pdf-to-pdf", "Allowed values are full-screen, thumbnails, outlines.", "set_page_mode"), 470);
+        
+        self.fields['page_mode'] = get_utf8_string(page_mode)
+        return self
+
+    def setInitialZoomType(self, initial_zoom_type):
+        """
+        Specify how the page should be displayed when opened.
+
+        initial_zoom_type - Allowed values are fit-width, fit-height, fit-page.
+        return - The converter object.
+        """
+        if not re.match('(?i)^(fit-width|fit-height|fit-page)$', initial_zoom_type):
+            raise Error(create_invalid_value_message(initial_zoom_type, "initial_zoom_type", "pdf-to-pdf", "Allowed values are fit-width, fit-height, fit-page.", "set_initial_zoom_type"), 470);
+        
+        self.fields['initial_zoom_type'] = get_utf8_string(initial_zoom_type)
+        return self
+
+    def setInitialPage(self, initial_page):
+        """
+        Display the specified page when the document is opened.
+
+        initial_page - Must be a positive integer number.
+        return - The converter object.
+        """
+        if not (int(initial_page) > 0):
+            raise Error(create_invalid_value_message(initial_page, "initial_page", "pdf-to-pdf", "Must be a positive integer number.", "set_initial_page"), 470);
+        
+        self.fields['initial_page'] = initial_page
+        return self
+
+    def setInitialZoom(self, initial_zoom):
+        """
+        Specify the initial page zoom in percents when the document is opened.
+
+        initial_zoom - Must be a positive integer number.
+        return - The converter object.
+        """
+        if not (int(initial_zoom) > 0):
+            raise Error(create_invalid_value_message(initial_zoom, "initial_zoom", "pdf-to-pdf", "Must be a positive integer number.", "set_initial_zoom"), 470);
+        
+        self.fields['initial_zoom'] = initial_zoom
+        return self
+
+    def setHideToolbar(self, hide_toolbar):
+        """
+        Specify whether to hide the viewer application's tool bars when the document is active.
+
+        hide_toolbar - Set to True to hide tool bars.
+        return - The converter object.
+        """
+        self.fields['hide_toolbar'] = hide_toolbar
+        return self
+
+    def setHideMenubar(self, hide_menubar):
+        """
+        Specify whether to hide the viewer application's menu bar when the document is active.
+
+        hide_menubar - Set to True to hide the menu bar.
+        return - The converter object.
+        """
+        self.fields['hide_menubar'] = hide_menubar
+        return self
+
+    def setHideWindowUi(self, hide_window_ui):
+        """
+        Specify whether to hide user interface elements in the document's window (such as scroll bars and navigation controls), leaving only the document's contents displayed.
+
+        hide_window_ui - Set to True to hide ui elements.
+        return - The converter object.
+        """
+        self.fields['hide_window_ui'] = hide_window_ui
+        return self
+
+    def setFitWindow(self, fit_window):
+        """
+        Specify whether to resize the document's window to fit the size of the first displayed page.
+
+        fit_window - Set to True to resize the window.
+        return - The converter object.
+        """
+        self.fields['fit_window'] = fit_window
+        return self
+
+    def setCenterWindow(self, center_window):
+        """
+        Specify whether to position the document's window in the center of the screen.
+
+        center_window - Set to True to center the window.
+        return - The converter object.
+        """
+        self.fields['center_window'] = center_window
+        return self
+
+    def setDisplayTitle(self, display_title):
+        """
+        Specify whether the window's title bar should display the document title. If false , the title bar should instead display the name of the PDF file containing the document.
+
+        display_title - Set to True to display the title.
+        return - The converter object.
+        """
+        self.fields['display_title'] = display_title
+        return self
+
+    def setRightToLeft(self, right_to_left):
+        """
+        Set the predominant reading order for text to right-to-left. This option has no direct effect on the document's contents or page numbering but can be used to determine the relative positioning of pages when displayed side by side or printed n-up
+
+        right_to_left - Set to True to set right-to-left reading order.
+        return - The converter object.
+        """
+        self.fields['right_to_left'] = right_to_left
+        return self
+
     def setDebugLog(self, debug_log):
         """
         Turn on the debug logging. Details about the conversion are stored in the debug log. The URL of the log can be obtained from the getDebugLogUrl method or available in conversion statistics.
@@ -3801,21 +4058,6 @@ available converters:
         parser.add_argument('-print-page-range',
                             help = 'Set the page range to print. A comma seperated list of page numbers or ranges.'
 )
-        parser.add_argument('-page-background-color',
-                            help = 'The page background color in RGB or RGBA hexadecimal format. The color fills the entire page regardless of the margins. The value must be in RRGGBB or RRGGBBAA hexadecimal format.'
-)
-        parser.add_argument('-page-watermark',
-                            help = 'Apply the first page of the watermark PDF to every page of the output PDF. The file path to a local watermark PDF file. The file must exist and not be empty.'
-)
-        parser.add_argument('-multipage-watermark',
-                            help = 'Apply each page of the specified watermark PDF to the corresponding page of the output PDF. The file path to a local watermark PDF file. The file must exist and not be empty.'
-)
-        parser.add_argument('-page-background',
-                            help = 'Apply the first page of the specified PDF to the background of every page of the output PDF. The file path to a local background PDF file. The file must exist and not be empty.'
-)
-        parser.add_argument('-multipage-background',
-                            help = 'Apply each page of the specified PDF to the background of the corresponding page of the output PDF. The file path to a local background PDF file. The file must exist and not be empty.'
-)
         parser.add_argument('-exclude-header-on-pages',
                             help = 'The page header is not printed on the specified pages. List of physical page numbers. Negative numbers count backwards from the last page: -1 is the last page, -2 is the last but one page, and so on. A comma seperated list of page numbers.'
 )
@@ -3840,6 +4082,21 @@ available converters:
         multi_args['content_area'] = 4
         parser.add_argument('-content-area',
                             help = 'Set the content area position and size. The content area enables to specify a web page area to be converted. CONTENT_AREA must contain 4 values separated by a semicolon. Set the top left X coordinate of the content area. It\'s relative to the top left X coordinate of the print area. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt). It may contain a negative value. Set the top left Y coordinate of the content area. It\'s relative to the top left Y coordinate of the print area. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt). It may contain a negative value. Set the width of the content area. It should be at least 1 inch. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt). Set the height of the content area. It should be at least 1 inch. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).'
+)
+        parser.add_argument('-page-watermark',
+                            help = 'Apply the first page of the watermark PDF to every page of the output PDF. The file path to a local watermark PDF file. The file must exist and not be empty.'
+)
+        parser.add_argument('-multipage-watermark',
+                            help = 'Apply each page of the specified watermark PDF to the corresponding page of the output PDF. The file path to a local watermark PDF file. The file must exist and not be empty.'
+)
+        parser.add_argument('-page-background',
+                            help = 'Apply the first page of the specified PDF to the background of every page of the output PDF. The file path to a local background PDF file. The file must exist and not be empty.'
+)
+        parser.add_argument('-multipage-background',
+                            help = 'Apply each page of the specified PDF to the background of the corresponding page of the output PDF. The file path to a local background PDF file. The file must exist and not be empty.'
+)
+        parser.add_argument('-page-background-color',
+                            help = 'The page background color in RGB or RGBA hexadecimal format. The color fills the entire page regardless of the margins. The value must be in RRGGBB or RRGGBBAA hexadecimal format.'
 )
         parser.add_argument('-no-background',
                             action = 'store_true',
@@ -3901,7 +4158,7 @@ available converters:
                             help = 'Run a custom JavaScript after the document is loaded and ready to print. The script is intended for post-load DOM manipulation (add/remove elements, update CSS, ...). In addition to the standard browser APIs, the custom JavaScript code can use helper functions from our JavaScript library. A string containing a JavaScript code. The string must not be empty.'
 )
         parser.add_argument('-on-load-javascript',
-                            help = 'Run a custom JavaScript right after the document is loaded. The script is intended for early DOM manipulation. In addition to the standard browser APIs, the custom JavaScript code can use helper functions from our JavaScript library. A string containing a JavaScript code. The string must not be empty.'
+                            help = 'Run a custom JavaScript right after the document is loaded. The script is intended for early DOM manipulation (add/remove elements, update CSS, ...). In addition to the standard browser APIs, the custom JavaScript code can use helper functions from our JavaScript library. A string containing a JavaScript code. The string must not be empty.'
 )
         parser.add_argument('-custom-http-header',
                             help = 'Set a custom HTTP header that is sent in Pdfcrowd HTTP requests. A string containing the header name and value separated by a colon.'
@@ -4141,7 +4398,7 @@ available converters:
                             help = 'Run a custom JavaScript after the document is loaded and ready to print. The script is intended for post-load DOM manipulation (add/remove elements, update CSS, ...). In addition to the standard browser APIs, the custom JavaScript code can use helper functions from our JavaScript library. A string containing a JavaScript code. The string must not be empty.'
 )
         parser.add_argument('-on-load-javascript',
-                            help = 'Run a custom JavaScript right after the document is loaded. The script is intended for early DOM manipulation. In addition to the standard browser APIs, the custom JavaScript code can use helper functions from our JavaScript library. A string containing a JavaScript code. The string must not be empty.'
+                            help = 'Run a custom JavaScript right after the document is loaded. The script is intended for early DOM manipulation (add/remove elements, update CSS, ...). In addition to the standard browser APIs, the custom JavaScript code can use helper functions from our JavaScript library. A string containing a JavaScript code. The string must not be empty.'
 )
         parser.add_argument('-custom-http-header',
                             help = 'Set a custom HTTP header that is sent in Pdfcrowd HTTP requests. A string containing the header name and value separated by a colon.'
@@ -4260,6 +4517,87 @@ available converters:
 
         parser.add_argument('-action',
                             help = 'Specifies the action to be performed on the input PDFs. Allowed values are join, shuffle.'
+)
+        parser.add_argument('-page-watermark',
+                            help = 'Apply the first page of the watermark PDF to every page of the output PDF. The file path to a local watermark PDF file. The file must exist and not be empty.'
+)
+        parser.add_argument('-multipage-watermark',
+                            help = 'Apply each page of the specified watermark PDF to the corresponding page of the output PDF. The file path to a local watermark PDF file. The file must exist and not be empty.'
+)
+        parser.add_argument('-page-background',
+                            help = 'Apply the first page of the specified PDF to the background of every page of the output PDF. The file path to a local background PDF file. The file must exist and not be empty.'
+)
+        parser.add_argument('-multipage-background',
+                            help = 'Apply each page of the specified PDF to the background of the corresponding page of the output PDF. The file path to a local background PDF file. The file must exist and not be empty.'
+)
+        parser.add_argument('-linearize',
+                            action = 'store_true',
+                            help = 'Create linearized PDF. This is also known as Fast Web View.'
+)
+        parser.add_argument('-encrypt',
+                            action = 'store_true',
+                            help = 'Encrypt the PDF. This prevents search engines from indexing the contents.'
+)
+        parser.add_argument('-user-password',
+                            help = 'Protect the PDF with a user password. When a PDF has a user password, it must be supplied in order to view the document and to perform operations allowed by the access permissions. The user password.'
+)
+        parser.add_argument('-owner-password',
+                            help = 'Protect the PDF with an owner password. Supplying an owner password grants unlimited access to the PDF including changing the passwords and access permissions. The owner password.'
+)
+        parser.add_argument('-no-print',
+                            action = 'store_true',
+                            help = 'Disallow printing of the output PDF.'
+)
+        parser.add_argument('-no-modify',
+                            action = 'store_true',
+                            help = 'Disallow modification of the ouput PDF.'
+)
+        parser.add_argument('-no-copy',
+                            action = 'store_true',
+                            help = 'Disallow text and graphics extraction from the output PDF.'
+)
+        parser.add_argument('-page-layout',
+                            help = 'Specify the page layout to be used when the document is opened. Allowed values are single-page, one-column, two-column-left, two-column-right.'
+)
+        parser.add_argument('-page-mode',
+                            help = 'Specify how the document should be displayed when opened. Allowed values are full-screen, thumbnails, outlines.'
+)
+        parser.add_argument('-initial-zoom-type',
+                            help = 'Specify how the page should be displayed when opened. Allowed values are fit-width, fit-height, fit-page.'
+)
+        parser.add_argument('-initial-page',
+                            help = 'Display the specified page when the document is opened. Must be a positive integer number.'
+)
+        parser.add_argument('-initial-zoom',
+                            help = 'Specify the initial page zoom in percents when the document is opened. Must be a positive integer number.'
+)
+        parser.add_argument('-hide-toolbar',
+                            action = 'store_true',
+                            help = 'Specify whether to hide the viewer application\'s tool bars when the document is active.'
+)
+        parser.add_argument('-hide-menubar',
+                            action = 'store_true',
+                            help = 'Specify whether to hide the viewer application\'s menu bar when the document is active.'
+)
+        parser.add_argument('-hide-window-ui',
+                            action = 'store_true',
+                            help = 'Specify whether to hide user interface elements in the document\'s window (such as scroll bars and navigation controls), leaving only the document\'s contents displayed.'
+)
+        parser.add_argument('-fit-window',
+                            action = 'store_true',
+                            help = 'Specify whether to resize the document\'s window to fit the size of the first displayed page.'
+)
+        parser.add_argument('-center-window',
+                            action = 'store_true',
+                            help = 'Specify whether to position the document\'s window in the center of the screen.'
+)
+        parser.add_argument('-display-title',
+                            action = 'store_true',
+                            help = 'Specify whether the window\'s title bar should display the document title. If false , the title bar should instead display the name of the PDF file containing the document.'
+)
+        parser.add_argument('-right-to-left',
+                            action = 'store_true',
+                            help = 'Set the predominant reading order for text to right-to-left. This option has no direct effect on the document\'s contents or page numbering but can be used to determine the relative positioning of pages when displayed side by side or printed n-up'
 )
         parser.add_argument('-debug-log',
                             action = 'store_true',
