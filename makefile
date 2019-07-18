@@ -15,7 +15,8 @@ dist:
 # password=$password-at-pypi
 publish:
 	@rm -rf dist/* build/* python/MANIFEST
-	@python setup.py clean && python setup.py sdist upload -r pypi
+	@python setup.py clean && python setup.py sdist
+	@twine upload dist/*
 
 .PHONY: clean
 clean:
