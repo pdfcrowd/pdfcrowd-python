@@ -43,7 +43,7 @@ import os
 import ssl
 import time
 
-__version__ = '4.9.0'
+__version__ = '4.9.1'
 
 # ======================================
 # === PDFCrowd legacy version client ===
@@ -291,7 +291,7 @@ if PYTHON_3:
         # ----------------------------------------------------------------------
         #
         #                       Private stuff
-        # 
+        #
 
         def _prepare_fields(self, extra_data={}):
             result = extra_data.copy()
@@ -347,7 +347,7 @@ if PYTHON_3:
                     conn.putrequest('POST', API_SELECTOR_BASE + api_path)
 
                 conn.putheader('content-type', content_type)
-                body = body if isinstance(body, bytes) else bytes(body, "utf-8")
+                body = body if isinstance(body, bytes) else body.encode()
                 conn.putheader('content-length', str(len(body)))
                 conn.endheaders()
                 conn.send(body)
@@ -698,11 +698,19 @@ else:
 
 HOST = os.environ.get('PDFCROWD_HOST', 'api.pdfcrowd.com')
 MULTIPART_BOUNDARY = '----------ThIs_Is_tHe_bOUnDary_$'
-CLIENT_VERSION = '4.9.0'
+CLIENT_VERSION = '4.9.1'
 
 def get_utf8_string(string):
-    if not PYTHON_3 and isinstance(string, unicode):
-        return string.encode('utf-8')
+    if PYTHON_3:
+        # get Python3 string
+        try:
+            return string.decode()
+        except AttributeError:
+            pass
+    else:
+        # get Python2 string
+        if isinstance(string, unicode):
+            return string.encode('utf-8')
     return string
 
 def create_invalid_value_message(value, field, converter, hint, id):
@@ -730,7 +738,10 @@ def add_file_field(name, file_name, data, body, mime_type = None):
         mime_type = 'application/octet-stream'
     head.append('Content-Type: {}'.format(mime_type))
     head.append('')
-    body.append('\r\n'.join(head).encode('utf-8'))
+    if PYTHON_3:
+        body.append('\r\n'.join(head).encode('utf-8'))
+    else:
+        body.append('\r\n'.join(head))
     body.append(data)
 
 def encode_multipart_post_data(fields, files, raw_data):
@@ -761,7 +772,8 @@ def encode_multipart_post_data(fields, files, raw_data):
     return b'\r\n'.join(body)
 
 def base64_encode(value):
-    value = value if isinstance(value, bytes) else bytes(value, 'utf-8')
+    if not isinstance(value, bytes):
+        value = value.encode()
     value = base64.b64encode(value)
     if PYTHON_3:
         return value.decode()
@@ -779,7 +791,7 @@ class ConnectionHelper:
         self._reset_response_data()
         self.setProxy(None, None, None, None)
         self.setUseHttp(False)
-        self.setUserAgent('pdfcrowd_python_client/4.9.0 (http://pdfcrowd.com)')
+        self.setUserAgent('pdfcrowd_python_client/4.9.1 (http://pdfcrowd.com)')
 
         self.retry_count = 1
 
@@ -842,7 +854,7 @@ class ConnectionHelper:
             conn.putheader('Authorization',
                            encode_credentials(self.user_name, self.api_key))
             conn.endheaders()
-            body = body if isinstance(body, bytes) else bytes(body, 'utf-8')
+            body = body if isinstance(body, bytes) else body.encode()
             conn.send(body)
             response = conn.getresponse()
 
@@ -999,9 +1011,6 @@ class HtmlToPdfClient:
         if not (os.path.isfile(file) and os.path.getsize(file)):
             raise Error(create_invalid_value_message(file, "file", "html-to-pdf", "The file must exist and not be empty.", "convert_file"), 470);
         
-        if not (os.path.isfile(file) and os.path.getsize(file)):
-            raise Error(create_invalid_value_message(file, "file", "html-to-pdf", "The file name must have a valid extension.", "convert_file"), 470);
-        
         self.files['file'] = get_utf8_string(file)
         return self.helper.post(self.fields, self.files, self.raw_data)
 
@@ -1014,9 +1023,6 @@ class HtmlToPdfClient:
         """
         if not (os.path.isfile(file) and os.path.getsize(file)):
             raise Error(create_invalid_value_message(file, "file", "html-to-pdf", "The file must exist and not be empty.", "convert_file_to_stream"), 470);
-        
-        if not (os.path.isfile(file) and os.path.getsize(file)):
-            raise Error(create_invalid_value_message(file, "file", "html-to-pdf", "The file name must have a valid extension.", "convert_file_to_stream"), 470);
         
         self.files['file'] = get_utf8_string(file)
         self.helper.post(self.fields, self.files, self.raw_data, out_stream)
@@ -1203,7 +1209,7 @@ class HtmlToPdfClient:
 
     def setNoMargins(self, no_margins):
         """
-        Disable margins.
+        Disable page margins.
 
         no_margins - Set to True to disable margins.
         return - The converter object.
@@ -1356,7 +1362,7 @@ class HtmlToPdfClient:
 
     def setContentAreaX(self, content_area_x):
         """
-        Set the top left X coordinate of the content area. It's relative to the top left X coordinate of the print area.
+        Set the top left X coordinate of the content area. It is relative to the top left X coordinate of the print area.
 
         content_area_x - Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt). It may contain a negative value.
         return - The converter object.
@@ -1369,7 +1375,7 @@ class HtmlToPdfClient:
 
     def setContentAreaY(self, content_area_y):
         """
-        Set the top left Y coordinate of the content area. It's relative to the top left Y coordinate of the print area.
+        Set the top left Y coordinate of the content area. It is relative to the top left Y coordinate of the print area.
 
         content_area_y - Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt). It may contain a negative value.
         return - The converter object.
@@ -1410,8 +1416,8 @@ class HtmlToPdfClient:
         """
         Set the content area position and size. The content area enables to specify a web page area to be converted.
 
-        x - Set the top left X coordinate of the content area. It's relative to the top left X coordinate of the print area. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt). It may contain a negative value.
-        y - Set the top left Y coordinate of the content area. It's relative to the top left Y coordinate of the print area. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt). It may contain a negative value.
+        x - Set the top left X coordinate of the content area. It is relative to the top left X coordinate of the print area. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt). It may contain a negative value.
+        y - Set the top left Y coordinate of the content area. It is relative to the top left Y coordinate of the print area. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt). It may contain a negative value.
         width - Set the width of the content area. It should be at least 1 inch. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
         height - Set the height of the content area. It should be at least 1 inch. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
         return - The converter object.
@@ -2220,7 +2226,7 @@ class HtmlToPdfClient:
 
     def setClientCertificatePassword(self, client_certificate_password):
         """
-        A password for PKCS12 file with a client certificate if it's needed.
+        A password for PKCS12 file with a client certificate if it is needed.
 
         client_certificate_password -
         return - The converter object.
@@ -2360,9 +2366,6 @@ class HtmlToImageClient:
         if not (os.path.isfile(file) and os.path.getsize(file)):
             raise Error(create_invalid_value_message(file, "file", "html-to-image", "The file must exist and not be empty.", "convert_file"), 470);
         
-        if not (os.path.isfile(file) and os.path.getsize(file)):
-            raise Error(create_invalid_value_message(file, "file", "html-to-image", "The file name must have a valid extension.", "convert_file"), 470);
-        
         self.files['file'] = get_utf8_string(file)
         return self.helper.post(self.fields, self.files, self.raw_data)
 
@@ -2375,9 +2378,6 @@ class HtmlToImageClient:
         """
         if not (os.path.isfile(file) and os.path.getsize(file)):
             raise Error(create_invalid_value_message(file, "file", "html-to-image", "The file must exist and not be empty.", "convert_file_to_stream"), 470);
-        
-        if not (os.path.isfile(file) and os.path.getsize(file)):
-            raise Error(create_invalid_value_message(file, "file", "html-to-image", "The file name must have a valid extension.", "convert_file_to_stream"), 470);
         
         self.files['file'] = get_utf8_string(file)
         self.helper.post(self.fields, self.files, self.raw_data, out_stream)
@@ -2704,7 +2704,7 @@ class HtmlToImageClient:
 
     def setScreenshotHeight(self, screenshot_height):
         """
-        Set the output image height in pixels. If it's not specified, actual document height is used.
+        Set the output image height in pixels. If it is not specified, actual document height is used.
 
         screenshot_height - Must be a positive integer number.
         return - The converter object.
@@ -2827,7 +2827,7 @@ class HtmlToImageClient:
 
     def setClientCertificatePassword(self, client_certificate_password):
         """
-        A password for PKCS12 file with a client certificate if it's needed.
+        A password for PKCS12 file with a client certificate if it is needed.
 
         client_certificate_password -
         return - The converter object.
@@ -4031,7 +4031,7 @@ available converters:
 )
         parser.add_argument('-no-margins',
                             action = 'store_true',
-                            help = 'Disable margins.'
+                            help = 'Disable page margins.'
 )
         multi_args['page_margins'] = 4
         parser.add_argument('-page-margins',
@@ -4068,10 +4068,10 @@ available converters:
                             help = 'Set an offset between physical and logical page numbers. Integer specifying page offset.'
 )
         parser.add_argument('-content-area-x',
-                            help = 'Set the top left X coordinate of the content area. It\'s relative to the top left X coordinate of the print area. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt). It may contain a negative value.'
+                            help = 'Set the top left X coordinate of the content area. It is relative to the top left X coordinate of the print area. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt). It may contain a negative value.'
 )
         parser.add_argument('-content-area-y',
-                            help = 'Set the top left Y coordinate of the content area. It\'s relative to the top left Y coordinate of the print area. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt). It may contain a negative value.'
+                            help = 'Set the top left Y coordinate of the content area. It is relative to the top left Y coordinate of the print area. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt). It may contain a negative value.'
 )
         parser.add_argument('-content-area-width',
                             help = 'Set the width of the content area. It should be at least 1 inch. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).'
@@ -4081,7 +4081,7 @@ available converters:
 )
         multi_args['content_area'] = 4
         parser.add_argument('-content-area',
-                            help = 'Set the content area position and size. The content area enables to specify a web page area to be converted. CONTENT_AREA must contain 4 values separated by a semicolon. Set the top left X coordinate of the content area. It\'s relative to the top left X coordinate of the print area. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt). It may contain a negative value. Set the top left Y coordinate of the content area. It\'s relative to the top left Y coordinate of the print area. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt). It may contain a negative value. Set the width of the content area. It should be at least 1 inch. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt). Set the height of the content area. It should be at least 1 inch. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).'
+                            help = 'Set the content area position and size. The content area enables to specify a web page area to be converted. CONTENT_AREA must contain 4 values separated by a semicolon. Set the top left X coordinate of the content area. It is relative to the top left X coordinate of the print area. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt). It may contain a negative value. Set the top left Y coordinate of the content area. It is relative to the top left Y coordinate of the print area. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt). It may contain a negative value. Set the width of the content area. It should be at least 1 inch. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt). Set the height of the content area. It should be at least 1 inch. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).'
 )
         parser.add_argument('-page-watermark',
                             help = 'Apply the first page of the watermark PDF to every page of the output PDF. The file path to a local watermark PDF file. The file must exist and not be empty.'
@@ -4308,7 +4308,7 @@ available converters:
                             help = 'A client certificate to authenticate Pdfcrowd converter on your web server. The certificate is used for two-way SSL/TLS authentication and adds extra security. The file must be in PKCS12 format. The file must exist and not be empty.'
 )
         parser.add_argument('-client-certificate-password',
-                            help = 'A password for PKCS12 file with a client certificate if it\'s needed.'
+                            help = 'A password for PKCS12 file with a client certificate if it is needed.'
 )
         parser.add_argument('-use-http',
                             action = 'store_true',
@@ -4419,7 +4419,7 @@ available converters:
                             help = 'Set the output image width in pixels. The value must be in the range 96-7680.'
 )
         parser.add_argument('-screenshot-height',
-                            help = 'Set the output image height in pixels. If it\'s not specified, actual document height is used. Must be a positive integer number.'
+                            help = 'Set the output image height in pixels. If it is not specified, actual document height is used. Must be a positive integer number.'
 )
         parser.add_argument('-scale-factor',
                             help = 'Set the scaling factor (zoom) for the output image. The percentage value. Must be a positive integer number.'
@@ -4441,7 +4441,7 @@ available converters:
                             help = 'A client certificate to authenticate Pdfcrowd converter on your web server. The certificate is used for two-way SSL/TLS authentication and adds extra security. The file must be in PKCS12 format. The file must exist and not be empty.'
 )
         parser.add_argument('-client-certificate-password',
-                            help = 'A password for PKCS12 file with a client certificate if it\'s needed.'
+                            help = 'A password for PKCS12 file with a client certificate if it is needed.'
 )
         parser.add_argument('-use-http',
                             action = 'store_true',
