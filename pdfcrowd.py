@@ -43,7 +43,7 @@ import os
 import ssl
 import time
 
-__version__ = '4.9.1'
+__version__ = '4.10.0'
 
 # ======================================
 # === PDFCrowd legacy version client ===
@@ -367,7 +367,7 @@ if PYTHON_3:
             except httplib.HTTPException as err:
                 raise Error(str(err))
             except socket.gaierror as err:
-                raise Error(err[1])
+                raise Error(str(err))
 
     API_SELECTOR_BASE = '/api/'
     HOST_LEGACY = os.environ.get('PDFCROWD_HOST', 'pdfcrowd.com')
@@ -684,7 +684,7 @@ else:
             except httplib.HTTPException as err:
                 raise Error(str(err))
             except socket.gaierror as err:
-                raise Error(err[1])
+                raise Error(str(err))
 
 
     API_SELECTOR_BASE = '/api/'
@@ -698,7 +698,7 @@ else:
 
 HOST = os.environ.get('PDFCROWD_HOST', 'api.pdfcrowd.com')
 MULTIPART_BOUNDARY = '----------ThIs_Is_tHe_bOUnDary_$'
-CLIENT_VERSION = '4.9.1'
+CLIENT_VERSION = '4.10.0'
 
 def get_utf8_string(string):
     if PYTHON_3:
@@ -791,7 +791,7 @@ class ConnectionHelper:
         self._reset_response_data()
         self.setProxy(None, None, None, None)
         self.setUseHttp(False)
-        self.setUserAgent('pdfcrowd_python_client/4.9.1 (http://pdfcrowd.com)')
+        self.setUserAgent('pdfcrowd_python_client/4.10.0 (http://pdfcrowd.com)')
 
         self.retry_count = 1
 
@@ -890,7 +890,7 @@ class ConnectionHelper:
                         "\nYou can still use the API over HTTP, you just need to add the following line right after Pdfcrowd client initialization:\nclient.setUseHttp(True)",
                         481)
         except socket.gaierror as err:
-            raise Error(err[1])
+            raise Error(str(err))
         except socket.error as err:
             raise Error(str(err))
 
@@ -1740,11 +1740,11 @@ class HtmlToPdfClient:
         """
         Set the viewport width in pixels. The viewport is the user's visible area of the page.
 
-        viewport_width - The value must be in the range 96-7680.
+        viewport_width - The value must be in the range 96-65000.
         return - The converter object.
         """
-        if not (int(viewport_width) >= 96 and int(viewport_width) <= 7680):
-            raise Error(create_invalid_value_message(viewport_width, "viewport_width", "html-to-pdf", "The value must be in the range 96-7680.", "set_viewport_width"), 470);
+        if not (int(viewport_width) >= 96 and int(viewport_width) <= 65000):
+            raise Error(create_invalid_value_message(viewport_width, "viewport_width", "html-to-pdf", "The value must be in the range 96-65000.", "set_viewport_width"), 470);
         
         self.fields['viewport_width'] = viewport_width
         return self
@@ -1766,7 +1766,7 @@ class HtmlToPdfClient:
         """
         Set the viewport size. The viewport is the user's visible area of the page.
 
-        width - Set the viewport width in pixels. The viewport is the user's visible area of the page. The value must be in the range 96-7680.
+        width - Set the viewport width in pixels. The viewport is the user's visible area of the page. The value must be in the range 96-65000.
         height - Set the viewport height in pixels. The viewport is the user's visible area of the page. Must be a positive integer number.
         return - The converter object.
         """
@@ -2693,11 +2693,11 @@ class HtmlToImageClient:
         """
         Set the output image width in pixels.
 
-        screenshot_width - The value must be in the range 96-7680.
+        screenshot_width - The value must be in the range 96-65000.
         return - The converter object.
         """
-        if not (int(screenshot_width) >= 96 and int(screenshot_width) <= 7680):
-            raise Error(create_invalid_value_message(screenshot_width, "screenshot_width", "html-to-image", "The value must be in the range 96-7680.", "set_screenshot_width"), 470);
+        if not (int(screenshot_width) >= 96 and int(screenshot_width) <= 65000):
+            raise Error(create_invalid_value_message(screenshot_width, "screenshot_width", "html-to-image", "The value must be in the range 96-65000.", "set_screenshot_width"), 470);
         
         self.fields['screenshot_width'] = screenshot_width
         return self
@@ -4183,7 +4183,7 @@ available converters:
 )
         multi_args['viewport'] = 2
         parser.add_argument('-viewport',
-                            help = 'Set the viewport size. The viewport is the user\'s visible area of the page. VIEWPORT must contain 2 values separated by a semicolon. Set the viewport width in pixels. The viewport is the user\'s visible area of the page. The value must be in the range 96-7680. Set the viewport height in pixels. The viewport is the user\'s visible area of the page. Must be a positive integer number.'
+                            help = 'Set the viewport size. The viewport is the user\'s visible area of the page. VIEWPORT must contain 2 values separated by a semicolon. Set the viewport width in pixels. The viewport is the user\'s visible area of the page. The value must be in the range 96-65000. Set the viewport height in pixels. The viewport is the user\'s visible area of the page. Must be a positive integer number.'
 )
         parser.add_argument('-rendering-mode',
                             help = 'Set the rendering mode. The rendering mode. Allowed values are default, viewport.'
@@ -4416,7 +4416,7 @@ available converters:
                             help = 'Wait for the specified element in a source document. The element is specified by one or more CSS selectors. The element is searched for in the main document and all iframes. If the element is not found, the conversion fails. Your API license defines the maximum wait time by "Max Delay" parameter. One or more CSS selectors separated by commas. The string must not be empty.'
 )
         parser.add_argument('-screenshot-width',
-                            help = 'Set the output image width in pixels. The value must be in the range 96-7680.'
+                            help = 'Set the output image width in pixels. The value must be in the range 96-65000.'
 )
         parser.add_argument('-screenshot-height',
                             help = 'Set the output image height in pixels. If it is not specified, actual document height is used. Must be a positive integer number.'
