@@ -43,7 +43,7 @@ import os
 import ssl
 import time
 
-__version__ = '4.10.0'
+__version__ = '4.11.0'
 
 # ======================================
 # === PDFCrowd legacy version client ===
@@ -698,7 +698,7 @@ else:
 
 HOST = os.environ.get('PDFCROWD_HOST', 'api.pdfcrowd.com')
 MULTIPART_BOUNDARY = '----------ThIs_Is_tHe_bOUnDary_$'
-CLIENT_VERSION = '4.10.0'
+CLIENT_VERSION = '4.11.0'
 
 def get_utf8_string(string):
     if PYTHON_3:
@@ -791,7 +791,7 @@ class ConnectionHelper:
         self._reset_response_data()
         self.setProxy(None, None, None, None)
         self.setUseHttp(False)
-        self.setUserAgent('pdfcrowd_python_client/4.10.0 (http://pdfcrowd.com)')
+        self.setUserAgent('pdfcrowd_python_client/4.11.0 (http://pdfcrowd.com)')
 
         self.retry_count = 1
 
@@ -1441,6 +1441,19 @@ class HtmlToPdfClient:
         self.files['page_watermark'] = get_utf8_string(page_watermark)
         return self
 
+    def setPageWatermarkUrl(self, page_watermark_url):
+        """
+        Load a watermark PDF from the specified URL and apply the first page of the watermark PDF to every page of the output PDF.
+
+        page_watermark_url - The supported protocols are http:// and https://.
+        return - The converter object.
+        """
+        if not re.match('(?i)^https?://.*$', page_watermark_url):
+            raise Error(create_invalid_value_message(page_watermark_url, "page_watermark_url", "html-to-pdf", "The supported protocols are http:// and https://.", "set_page_watermark_url"), 470);
+        
+        self.fields['page_watermark_url'] = get_utf8_string(page_watermark_url)
+        return self
+
     def setMultipageWatermark(self, multipage_watermark):
         """
         Apply each page of the specified watermark PDF to the corresponding page of the output PDF.
@@ -1452,6 +1465,19 @@ class HtmlToPdfClient:
             raise Error(create_invalid_value_message(multipage_watermark, "multipage_watermark", "html-to-pdf", "The file must exist and not be empty.", "set_multipage_watermark"), 470);
         
         self.files['multipage_watermark'] = get_utf8_string(multipage_watermark)
+        return self
+
+    def setMultipageWatermarkUrl(self, multipage_watermark_url):
+        """
+        Load a watermark PDF from the specified URL and apply each page of the specified watermark PDF to the corresponding page of the output PDF.
+
+        multipage_watermark_url - The supported protocols are http:// and https://.
+        return - The converter object.
+        """
+        if not re.match('(?i)^https?://.*$', multipage_watermark_url):
+            raise Error(create_invalid_value_message(multipage_watermark_url, "multipage_watermark_url", "html-to-pdf", "The supported protocols are http:// and https://.", "set_multipage_watermark_url"), 470);
+        
+        self.fields['multipage_watermark_url'] = get_utf8_string(multipage_watermark_url)
         return self
 
     def setPageBackground(self, page_background):
@@ -1467,6 +1493,19 @@ class HtmlToPdfClient:
         self.files['page_background'] = get_utf8_string(page_background)
         return self
 
+    def setPageBackgroundUrl(self, page_background_url):
+        """
+        Load a background PDF from the specified URL and apply the first page of the background PDF to every page of the output PDF.
+
+        page_background_url - The supported protocols are http:// and https://.
+        return - The converter object.
+        """
+        if not re.match('(?i)^https?://.*$', page_background_url):
+            raise Error(create_invalid_value_message(page_background_url, "page_background_url", "html-to-pdf", "The supported protocols are http:// and https://.", "set_page_background_url"), 470);
+        
+        self.fields['page_background_url'] = get_utf8_string(page_background_url)
+        return self
+
     def setMultipageBackground(self, multipage_background):
         """
         Apply each page of the specified PDF to the background of the corresponding page of the output PDF.
@@ -1478,6 +1517,19 @@ class HtmlToPdfClient:
             raise Error(create_invalid_value_message(multipage_background, "multipage_background", "html-to-pdf", "The file must exist and not be empty.", "set_multipage_background"), 470);
         
         self.files['multipage_background'] = get_utf8_string(multipage_background)
+        return self
+
+    def setMultipageBackgroundUrl(self, multipage_background_url):
+        """
+        Load a background PDF from the specified URL and apply each page of the specified background PDF to the corresponding page of the output PDF.
+
+        multipage_background_url - The supported protocols are http:// and https://.
+        return - The converter object.
+        """
+        if not re.match('(?i)^https?://.*$', multipage_background_url):
+            raise Error(create_invalid_value_message(multipage_background_url, "multipage_background_url", "html-to-pdf", "The supported protocols are http:// and https://.", "set_multipage_background_url"), 470);
+        
+        self.fields['multipage_background_url'] = get_utf8_string(multipage_background_url)
         return self
 
     def setPageBackgroundColor(self, page_background_color):
@@ -3291,6 +3343,19 @@ class PdfToPdfClient:
         self.files['page_watermark'] = get_utf8_string(page_watermark)
         return self
 
+    def setPageWatermarkUrl(self, page_watermark_url):
+        """
+        Load a watermark PDF from the specified URL and apply the first page of the watermark PDF to every page of the output PDF.
+
+        page_watermark_url - The supported protocols are http:// and https://.
+        return - The converter object.
+        """
+        if not re.match('(?i)^https?://.*$', page_watermark_url):
+            raise Error(create_invalid_value_message(page_watermark_url, "page_watermark_url", "pdf-to-pdf", "The supported protocols are http:// and https://.", "set_page_watermark_url"), 470);
+        
+        self.fields['page_watermark_url'] = get_utf8_string(page_watermark_url)
+        return self
+
     def setMultipageWatermark(self, multipage_watermark):
         """
         Apply each page of the specified watermark PDF to the corresponding page of the output PDF.
@@ -3302,6 +3367,19 @@ class PdfToPdfClient:
             raise Error(create_invalid_value_message(multipage_watermark, "multipage_watermark", "pdf-to-pdf", "The file must exist and not be empty.", "set_multipage_watermark"), 470);
         
         self.files['multipage_watermark'] = get_utf8_string(multipage_watermark)
+        return self
+
+    def setMultipageWatermarkUrl(self, multipage_watermark_url):
+        """
+        Load a watermark PDF from the specified URL and apply each page of the specified watermark PDF to the corresponding page of the output PDF.
+
+        multipage_watermark_url - The supported protocols are http:// and https://.
+        return - The converter object.
+        """
+        if not re.match('(?i)^https?://.*$', multipage_watermark_url):
+            raise Error(create_invalid_value_message(multipage_watermark_url, "multipage_watermark_url", "pdf-to-pdf", "The supported protocols are http:// and https://.", "set_multipage_watermark_url"), 470);
+        
+        self.fields['multipage_watermark_url'] = get_utf8_string(multipage_watermark_url)
         return self
 
     def setPageBackground(self, page_background):
@@ -3317,6 +3395,19 @@ class PdfToPdfClient:
         self.files['page_background'] = get_utf8_string(page_background)
         return self
 
+    def setPageBackgroundUrl(self, page_background_url):
+        """
+        Load a background PDF from the specified URL and apply the first page of the background PDF to every page of the output PDF.
+
+        page_background_url - The supported protocols are http:// and https://.
+        return - The converter object.
+        """
+        if not re.match('(?i)^https?://.*$', page_background_url):
+            raise Error(create_invalid_value_message(page_background_url, "page_background_url", "pdf-to-pdf", "The supported protocols are http:// and https://.", "set_page_background_url"), 470);
+        
+        self.fields['page_background_url'] = get_utf8_string(page_background_url)
+        return self
+
     def setMultipageBackground(self, multipage_background):
         """
         Apply each page of the specified PDF to the background of the corresponding page of the output PDF.
@@ -3328,6 +3419,19 @@ class PdfToPdfClient:
             raise Error(create_invalid_value_message(multipage_background, "multipage_background", "pdf-to-pdf", "The file must exist and not be empty.", "set_multipage_background"), 470);
         
         self.files['multipage_background'] = get_utf8_string(multipage_background)
+        return self
+
+    def setMultipageBackgroundUrl(self, multipage_background_url):
+        """
+        Load a background PDF from the specified URL and apply each page of the specified background PDF to the corresponding page of the output PDF.
+
+        multipage_background_url - The supported protocols are http:// and https://.
+        return - The converter object.
+        """
+        if not re.match('(?i)^https?://.*$', multipage_background_url):
+            raise Error(create_invalid_value_message(multipage_background_url, "multipage_background_url", "pdf-to-pdf", "The supported protocols are http:// and https://.", "set_multipage_background_url"), 470);
+        
+        self.fields['multipage_background_url'] = get_utf8_string(multipage_background_url)
         return self
 
     def setLinearize(self, linearize):
@@ -4086,14 +4190,26 @@ available converters:
         parser.add_argument('-page-watermark',
                             help = 'Apply the first page of the watermark PDF to every page of the output PDF. The file path to a local watermark PDF file. The file must exist and not be empty.'
 )
+        parser.add_argument('-page-watermark-url',
+                            help = 'Load a watermark PDF from the specified URL and apply the first page of the watermark PDF to every page of the output PDF. The supported protocols are http:// and https://.'
+)
         parser.add_argument('-multipage-watermark',
                             help = 'Apply each page of the specified watermark PDF to the corresponding page of the output PDF. The file path to a local watermark PDF file. The file must exist and not be empty.'
+)
+        parser.add_argument('-multipage-watermark-url',
+                            help = 'Load a watermark PDF from the specified URL and apply each page of the specified watermark PDF to the corresponding page of the output PDF. The supported protocols are http:// and https://.'
 )
         parser.add_argument('-page-background',
                             help = 'Apply the first page of the specified PDF to the background of every page of the output PDF. The file path to a local background PDF file. The file must exist and not be empty.'
 )
+        parser.add_argument('-page-background-url',
+                            help = 'Load a background PDF from the specified URL and apply the first page of the background PDF to every page of the output PDF. The supported protocols are http:// and https://.'
+)
         parser.add_argument('-multipage-background',
                             help = 'Apply each page of the specified PDF to the background of the corresponding page of the output PDF. The file path to a local background PDF file. The file must exist and not be empty.'
+)
+        parser.add_argument('-multipage-background-url',
+                            help = 'Load a background PDF from the specified URL and apply each page of the specified background PDF to the corresponding page of the output PDF. The supported protocols are http:// and https://.'
 )
         parser.add_argument('-page-background-color',
                             help = 'The page background color in RGB or RGBA hexadecimal format. The color fills the entire page regardless of the margins. The value must be in RRGGBB or RRGGBBAA hexadecimal format.'
@@ -4176,10 +4292,10 @@ available converters:
                             help = 'Wait for the specified element in a source document. The element is specified by one or more CSS selectors. The element is searched for in the main document and all iframes. If the element is not found, the conversion fails. Your API license defines the maximum wait time by "Max Delay" parameter. One or more CSS selectors separated by commas. The string must not be empty.'
 )
         parser.add_argument('-viewport-width',
-                            help = argparse.SUPPRESS
+                            help = 'Set the viewport width in pixels. The viewport is the user\'s visible area of the page. The value must be in the range 96-65000.'
 )
         parser.add_argument('-viewport-height',
-                            help = argparse.SUPPRESS
+                            help = 'Set the viewport height in pixels. The viewport is the user\'s visible area of the page. Must be a positive integer number.'
 )
         multi_args['viewport'] = 2
         parser.add_argument('-viewport',
@@ -4521,14 +4637,26 @@ available converters:
         parser.add_argument('-page-watermark',
                             help = 'Apply the first page of the watermark PDF to every page of the output PDF. The file path to a local watermark PDF file. The file must exist and not be empty.'
 )
+        parser.add_argument('-page-watermark-url',
+                            help = 'Load a watermark PDF from the specified URL and apply the first page of the watermark PDF to every page of the output PDF. The supported protocols are http:// and https://.'
+)
         parser.add_argument('-multipage-watermark',
                             help = 'Apply each page of the specified watermark PDF to the corresponding page of the output PDF. The file path to a local watermark PDF file. The file must exist and not be empty.'
+)
+        parser.add_argument('-multipage-watermark-url',
+                            help = 'Load a watermark PDF from the specified URL and apply each page of the specified watermark PDF to the corresponding page of the output PDF. The supported protocols are http:// and https://.'
 )
         parser.add_argument('-page-background',
                             help = 'Apply the first page of the specified PDF to the background of every page of the output PDF. The file path to a local background PDF file. The file must exist and not be empty.'
 )
+        parser.add_argument('-page-background-url',
+                            help = 'Load a background PDF from the specified URL and apply the first page of the background PDF to every page of the output PDF. The supported protocols are http:// and https://.'
+)
         parser.add_argument('-multipage-background',
                             help = 'Apply each page of the specified PDF to the background of the corresponding page of the output PDF. The file path to a local background PDF file. The file must exist and not be empty.'
+)
+        parser.add_argument('-multipage-background-url',
+                            help = 'Load a background PDF from the specified URL and apply each page of the specified background PDF to the corresponding page of the output PDF. The supported protocols are http:// and https://.'
 )
         parser.add_argument('-linearize',
                             action = 'store_true',
