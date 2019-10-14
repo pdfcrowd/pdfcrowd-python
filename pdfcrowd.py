@@ -1315,11 +1315,11 @@ class HtmlToPdfClient:
         """
         Set the page range to print.
 
-        pages - A comma seperated list of page numbers or ranges.
+        pages - A comma separated list of page numbers or ranges.
         return - The converter object.
         """
         if not re.match('^(?:\s*(?:\d+|(?:\d*\s*\-\s*\d+)|(?:\d+\s*\-\s*\d*))\s*,\s*)*\s*(?:\d+|(?:\d*\s*\-\s*\d+)|(?:\d+\s*\-\s*\d*))\s*$', pages):
-            raise Error(create_invalid_value_message(pages, "pages", "html-to-pdf", "A comma seperated list of page numbers or ranges.", "set_print_page_range"), 470);
+            raise Error(create_invalid_value_message(pages, "pages", "html-to-pdf", "A comma separated list of page numbers or ranges.", "set_print_page_range"), 470);
         
         self.fields['print_page_range'] = get_utf8_string(pages)
         return self
@@ -1328,11 +1328,11 @@ class HtmlToPdfClient:
         """
         The page header is not printed on the specified pages.
 
-        pages - List of physical page numbers. Negative numbers count backwards from the last page: -1 is the last page, -2 is the last but one page, and so on. A comma seperated list of page numbers.
+        pages - List of physical page numbers. Negative numbers count backwards from the last page: -1 is the last page, -2 is the last but one page, and so on. A comma separated list of page numbers.
         return - The converter object.
         """
         if not re.match('^(?:\s*\-?\d+\s*,)*\s*\-?\d+\s*$', pages):
-            raise Error(create_invalid_value_message(pages, "pages", "html-to-pdf", "A comma seperated list of page numbers.", "set_exclude_header_on_pages"), 470);
+            raise Error(create_invalid_value_message(pages, "pages", "html-to-pdf", "A comma separated list of page numbers.", "set_exclude_header_on_pages"), 470);
         
         self.fields['exclude_header_on_pages'] = get_utf8_string(pages)
         return self
@@ -1341,11 +1341,11 @@ class HtmlToPdfClient:
         """
         The page footer is not printed on the specified pages.
 
-        pages - List of physical page numbers. Negative numbers count backwards from the last page: -1 is the last page, -2 is the last but one page, and so on. A comma seperated list of page numbers.
+        pages - List of physical page numbers. Negative numbers count backwards from the last page: -1 is the last page, -2 is the last but one page, and so on. A comma separated list of page numbers.
         return - The converter object.
         """
         if not re.match('^(?:\s*\-?\d+\s*,)*\s*\-?\d+\s*$', pages):
-            raise Error(create_invalid_value_message(pages, "pages", "html-to-pdf", "A comma seperated list of page numbers.", "set_exclude_footer_on_pages"), 470);
+            raise Error(create_invalid_value_message(pages, "pages", "html-to-pdf", "A comma separated list of page numbers.", "set_exclude_footer_on_pages"), 470);
         
         self.fields['exclude_footer_on_pages'] = get_utf8_string(pages)
         return self
@@ -1979,7 +1979,7 @@ class HtmlToPdfClient:
 
     def setNoModify(self, no_modify):
         """
-        Disallow modification of the ouput PDF.
+        Disallow modification of the output PDF.
 
         no_modify - Set to True to set the read-only only flag in the output PDF.
         return - The converter object.
@@ -3486,7 +3486,7 @@ class PdfToPdfClient:
 
     def setNoModify(self, no_modify):
         """
-        Disallow modification of the ouput PDF.
+        Disallow modification of the output PDF.
 
         no_modify - Set to True to set the read-only only flag in the output PDF.
         return - The converter object.
@@ -4160,13 +4160,13 @@ available converters:
                             help = 'Set the footer height. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).'
 )
         parser.add_argument('-print-page-range',
-                            help = 'Set the page range to print. A comma seperated list of page numbers or ranges.'
+                            help = 'Set the page range to print. A comma separated list of page numbers or ranges.'
 )
         parser.add_argument('-exclude-header-on-pages',
-                            help = 'The page header is not printed on the specified pages. List of physical page numbers. Negative numbers count backwards from the last page: -1 is the last page, -2 is the last but one page, and so on. A comma seperated list of page numbers.'
+                            help = 'The page header is not printed on the specified pages. List of physical page numbers. Negative numbers count backwards from the last page: -1 is the last page, -2 is the last but one page, and so on. A comma separated list of page numbers.'
 )
         parser.add_argument('-exclude-footer-on-pages',
-                            help = 'The page footer is not printed on the specified pages. List of physical page numbers. Negative numbers count backwards from the last page: -1 is the last page, -2 is the last but one page, and so on. A comma seperated list of page numbers.'
+                            help = 'The page footer is not printed on the specified pages. List of physical page numbers. Negative numbers count backwards from the last page: -1 is the last page, -2 is the last but one page, and so on. A comma separated list of page numbers.'
 )
         parser.add_argument('-page-numbering-offset',
                             help = 'Set an offset between physical and logical page numbers. Integer specifying page offset.'
@@ -4346,7 +4346,7 @@ available converters:
 )
         parser.add_argument('-no-modify',
                             action = 'store_true',
-                            help = 'Disallow modification of the ouput PDF.'
+                            help = 'Disallow modification of the output PDF.'
 )
         parser.add_argument('-no-copy',
                             action = 'store_true',
@@ -4678,7 +4678,7 @@ available converters:
 )
         parser.add_argument('-no-modify',
                             action = 'store_true',
-                            help = 'Disallow modification of the ouput PDF.'
+                            help = 'Disallow modification of the output PDF.'
 )
         parser.add_argument('-no-copy',
                             action = 'store_true',
