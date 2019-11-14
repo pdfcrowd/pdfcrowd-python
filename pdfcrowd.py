@@ -1738,7 +1738,7 @@ class HtmlToPdfClient:
 
     def setJavascriptDelay(self, javascript_delay):
         """
-        Wait the specified number of milliseconds to finish all JavaScript after the document is loaded. The maximum value is determined by your API license.
+        Wait the specified number of milliseconds to finish all JavaScript after the document is loaded. Your API license defines the maximum wait time by "Max Delay" parameter.
 
         javascript_delay - The number of milliseconds to wait. Must be a positive integer number or 0.
         return - The converter object.
@@ -2691,7 +2691,7 @@ class HtmlToImageClient:
 
     def setJavascriptDelay(self, javascript_delay):
         """
-        Wait the specified number of milliseconds to finish all JavaScript after the document is loaded. The maximum value is determined by your API license.
+        Wait the specified number of milliseconds to finish all JavaScript after the document is loaded. Your API license defines the maximum wait time by "Max Delay" parameter.
 
         javascript_delay - The number of milliseconds to wait. Must be a positive integer number or 0.
         return - The converter object.
@@ -4280,7 +4280,7 @@ available converters:
                             help = 'Set a custom HTTP header that is sent in Pdfcrowd HTTP requests. A string containing the header name and value separated by a colon.'
 )
         parser.add_argument('-javascript-delay',
-                            help = 'Wait the specified number of milliseconds to finish all JavaScript after the document is loaded. The maximum value is determined by your API license. The number of milliseconds to wait. Must be a positive integer number or 0.'
+                            help = 'Wait the specified number of milliseconds to finish all JavaScript after the document is loaded. Your API license defines the maximum wait time by "Max Delay" parameter. The number of milliseconds to wait. Must be a positive integer number or 0.'
 )
         parser.add_argument('-element-to-convert',
                             help = 'Convert only the specified element from the main document and its children. The element is specified by one or more CSS selectors. If the element is not found, the conversion fails. If multiple elements are found, the first one is used. One or more CSS selectors separated by commas. The string must not be empty.'
@@ -4520,7 +4520,7 @@ available converters:
                             help = 'Set a custom HTTP header that is sent in Pdfcrowd HTTP requests. A string containing the header name and value separated by a colon.'
 )
         parser.add_argument('-javascript-delay',
-                            help = 'Wait the specified number of milliseconds to finish all JavaScript after the document is loaded. The maximum value is determined by your API license. The number of milliseconds to wait. Must be a positive integer number or 0.'
+                            help = 'Wait the specified number of milliseconds to finish all JavaScript after the document is loaded. Your API license defines the maximum wait time by "Max Delay" parameter. The number of milliseconds to wait. Must be a positive integer number or 0.'
 )
         parser.add_argument('-element-to-convert',
                             help = 'Convert only the specified element from the main document and its children. The element is specified by one or more CSS selectors. If the element is not found, the conversion fails. If multiple elements are found, the first one is used. One or more CSS selectors separated by commas. The string must not be empty.'
