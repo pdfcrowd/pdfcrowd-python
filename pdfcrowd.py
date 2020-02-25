@@ -2288,7 +2288,7 @@ class HtmlToPdfClient:
 
     def setUseHttp(self, use_http):
         """
-        Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API.
+        Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API. Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.
 
         use_http - Set to True to use HTTP.
         return - The converter object.
@@ -2889,7 +2889,7 @@ class HtmlToImageClient:
 
     def setUseHttp(self, use_http):
         """
-        Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API.
+        Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API. Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.
 
         use_http - Set to True to use HTTP.
         return - The converter object.
@@ -3199,7 +3199,7 @@ class ImageToImageClient:
 
     def setUseHttp(self, use_http):
         """
-        Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API.
+        Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API. Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.
 
         use_http - Set to True to use HTTP.
         return - The converter object.
@@ -3706,7 +3706,7 @@ class PdfToPdfClient:
 
     def setUseHttp(self, use_http):
         """
-        Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API.
+        Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API. Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.
 
         use_http - Set to True to use HTTP.
         return - The converter object.
@@ -4003,7 +4003,7 @@ class ImageToPdfClient:
 
     def setUseHttp(self, use_http):
         """
-        Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API.
+        Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API. Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.
 
         use_http - Set to True to use HTTP.
         return - The converter object.
@@ -4428,7 +4428,7 @@ available converters:
 )
         parser.add_argument('-use-http',
                             action = 'store_true',
-                            help = 'Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API.'
+                            help = 'Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API. Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.'
 )
         parser.add_argument('-user-agent',
                             help = 'Set a custom user agent HTTP header. It can be usefull if you are behind some proxy or firewall. The user agent string.'
@@ -4561,7 +4561,7 @@ available converters:
 )
         parser.add_argument('-use-http',
                             action = 'store_true',
-                            help = 'Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API.'
+                            help = 'Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API. Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.'
 )
         parser.add_argument('-user-agent',
                             help = 'Set a custom user agent HTTP header. It can be usefull if you are behind some proxy or firewall. The user agent string.'
@@ -4608,7 +4608,7 @@ available converters:
 )
         parser.add_argument('-use-http',
                             action = 'store_true',
-                            help = 'Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API.'
+                            help = 'Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API. Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.'
 )
         parser.add_argument('-user-agent',
                             help = 'Set a custom user agent HTTP header. It can be usefull if you are behind some proxy or firewall. The user agent string.'
@@ -4736,7 +4736,7 @@ available converters:
 )
         parser.add_argument('-use-http',
                             action = 'store_true',
-                            help = 'Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API.'
+                            help = 'Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API. Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.'
 )
         parser.add_argument('-user-agent',
                             help = 'Set a custom user agent HTTP header. It can be usefull if you are behind some proxy or firewall. The user agent string.'
@@ -4780,7 +4780,7 @@ available converters:
 )
         parser.add_argument('-use-http',
                             action = 'store_true',
-                            help = 'Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API.'
+                            help = 'Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API. Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.'
 )
         parser.add_argument('-user-agent',
                             help = 'Set a custom user agent HTTP header. It can be usefull if you are behind some proxy or firewall. The user agent string.'
