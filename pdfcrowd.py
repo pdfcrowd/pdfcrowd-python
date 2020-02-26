@@ -2288,7 +2288,8 @@ class HtmlToPdfClient:
 
     def setUseHttp(self, use_http):
         """
-        Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API. Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.
+        Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API.
+        Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.
 
         use_http - Set to True to use HTTP.
         return - The converter object.
@@ -2889,7 +2890,8 @@ class HtmlToImageClient:
 
     def setUseHttp(self, use_http):
         """
-        Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API. Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.
+        Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API.
+        Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.
 
         use_http - Set to True to use HTTP.
         return - The converter object.
@@ -3199,7 +3201,8 @@ class ImageToImageClient:
 
     def setUseHttp(self, use_http):
         """
-        Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API. Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.
+        Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API.
+        Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.
 
         use_http - Set to True to use HTTP.
         return - The converter object.
@@ -3706,7 +3709,8 @@ class PdfToPdfClient:
 
     def setUseHttp(self, use_http):
         """
-        Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API. Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.
+        Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API.
+        Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.
 
         use_http - Set to True to use HTTP.
         return - The converter object.
@@ -4003,7 +4007,8 @@ class ImageToPdfClient:
 
     def setUseHttp(self, use_http):
         """
-        Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API. Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.
+        Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API.
+        Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.
 
         use_http - Set to True to use HTTP.
         return - The converter object.
