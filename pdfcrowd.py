@@ -714,7 +714,7 @@ def get_utf8_string(string):
     return string
 
 def create_invalid_value_message(value, field, converter, hint, id):
-    message = "Invalid value '%s' for a field '%s'." % (value, field)
+    message = "Invalid value '%s' for the field '%s'." % (value, field)
     if hint:
         message += " " + hint
     return message + ' ' + "Details: https://www.pdfcrowd.com/doc/api/%s/python/#%s" % (converter, id)
