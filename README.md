@@ -20,10 +20,14 @@ Or you can download/clone the client and run
     cd pdfcrowd-python/
     python setup.py install
 
-## Documentation
+## Learn more
 
 * API Home:  <https://pdfcrowd.com/doc/api/>
 * API Reference:  <https://pdfcrowd.com/doc/api/html-to-pdf/python/>
+* Interactive API Playground:
+  * Python: <https://pdfcrowd.com/playground/html-to-pdf/?lang=python>
+  * Django: <https://pdfcrowd.com/playground/html-to-pdf/?lang=wf-django>
+  * Flask: <https://pdfcrowd.com/playground/html-to-pdf/?lang=wf-flask>
 
 ## License
 
