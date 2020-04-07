@@ -43,7 +43,7 @@ import os
 import ssl
 import time
 
-__version__ = '4.11.0'
+__version__ = '4.12.0'
 
 # ======================================
 # === PDFCrowd legacy version client ===
@@ -698,7 +698,7 @@ else:
 
 HOST = os.environ.get('PDFCROWD_HOST', 'api.pdfcrowd.com')
 MULTIPART_BOUNDARY = '----------ThIs_Is_tHe_bOUnDary_$'
-CLIENT_VERSION = '4.11.0'
+CLIENT_VERSION = '4.12.0'
 
 def get_utf8_string(string):
     if PYTHON_3:
@@ -791,7 +791,7 @@ class ConnectionHelper:
         self._reset_response_data()
         self.setProxy(None, None, None, None)
         self.setUseHttp(False)
-        self.setUserAgent('pdfcrowd_python_client/4.11.0 (http://pdfcrowd.com)')
+        self.setUserAgent('pdfcrowd_python_client/4.12.0 (http://pdfcrowd.com)')
 
         self.retry_count = 1
 
@@ -1426,6 +1426,89 @@ class HtmlToPdfClient:
         self.setContentAreaY(y)
         self.setContentAreaWidth(width)
         self.setContentAreaHeight(height)
+        return self
+
+    def setDataString(self, data_string):
+        """
+        Set the input data for template rendering. The data format can be JSON, XML, YAML or CSV.
+
+        data_string - The input data string.
+        return - The converter object.
+        """
+        self.fields['data_string'] = get_utf8_string(data_string)
+        return self
+
+    def setDataFile(self, data_file):
+        """
+        Load the input data for template rendering from the specified file. The data format can be JSON, XML, YAML or CSV.
+
+        data_file - The file path to a local file containing the input data.
+        return - The converter object.
+        """
+        self.files['data_file'] = get_utf8_string(data_file)
+        return self
+
+    def setDataFormat(self, data_format):
+        """
+        Specify the input data format.
+
+        data_format - The data format. Allowed values are auto, json, xml, yaml, csv.
+        return - The converter object.
+        """
+        if not re.match('(?i)^(auto|json|xml|yaml|csv)$', data_format):
+            raise Error(create_invalid_value_message(data_format, "data_format", "html-to-pdf", "Allowed values are auto, json, xml, yaml, csv.", "set_data_format"), 470);
+        
+        self.fields['data_format'] = get_utf8_string(data_format)
+        return self
+
+    def setDataEncoding(self, data_encoding):
+        """
+        Set the encoding of the data file set by setDataFile.
+
+        data_encoding - The data file encoding.
+        return - The converter object.
+        """
+        self.fields['data_encoding'] = get_utf8_string(data_encoding)
+        return self
+
+    def setDataIgnoreUndefined(self, data_ignore_undefined):
+        """
+        Ignore undefined variables in the HTML template. The default mode is strict so any undefined variable causes the conversion to fail. You can use {% if variable is defined %} to check if the variable is defined.
+
+        data_ignore_undefined - Set to True to ignore undefined variables.
+        return - The converter object.
+        """
+        self.fields['data_ignore_undefined'] = data_ignore_undefined
+        return self
+
+    def setDataAutoEscape(self, data_auto_escape):
+        """
+        Auto escape HTML symbols in the input data before placing them into the output.
+
+        data_auto_escape - Set to True to turn auto escaping on.
+        return - The converter object.
+        """
+        self.fields['data_auto_escape'] = data_auto_escape
+        return self
+
+    def setDataTrimBlocks(self, data_trim_blocks):
+        """
+        Auto trim whitespace around each template command block.
+
+        data_trim_blocks - Set to True to turn auto trimming on.
+        return - The converter object.
+        """
+        self.fields['data_trim_blocks'] = data_trim_blocks
+        return self
+
+    def setDataOptions(self, data_options):
+        """
+        Set the advanced data options:csv_delimiter - The CSV data delimiter, the default is ,.xml_remove_root - Remove the root XML element from the input data.data_root - The name of the root element inserted into the input data without a root node (e.g. CSV), the default is data.
+
+        data_options - Comma separated list of options.
+        return - The converter object.
+        """
+        self.fields['data_options'] = get_utf8_string(data_options)
         return self
 
     def setPageWatermark(self, page_watermark):
@@ -2498,6 +2581,89 @@ class HtmlToImageClient:
             output_file.close()
             os.remove(file_path)
             raise
+
+    def setDataString(self, data_string):
+        """
+        Set the input data for template rendering. The data format can be JSON, XML, YAML or CSV.
+
+        data_string - The input data string.
+        return - The converter object.
+        """
+        self.fields['data_string'] = get_utf8_string(data_string)
+        return self
+
+    def setDataFile(self, data_file):
+        """
+        Load the input data for template rendering from the specified file. The data format can be JSON, XML, YAML or CSV.
+
+        data_file - The file path to a local file containing the input data.
+        return - The converter object.
+        """
+        self.files['data_file'] = get_utf8_string(data_file)
+        return self
+
+    def setDataFormat(self, data_format):
+        """
+        Specify the input data format.
+
+        data_format - The data format. Allowed values are auto, json, xml, yaml, csv.
+        return - The converter object.
+        """
+        if not re.match('(?i)^(auto|json|xml|yaml|csv)$', data_format):
+            raise Error(create_invalid_value_message(data_format, "data_format", "html-to-image", "Allowed values are auto, json, xml, yaml, csv.", "set_data_format"), 470);
+        
+        self.fields['data_format'] = get_utf8_string(data_format)
+        return self
+
+    def setDataEncoding(self, data_encoding):
+        """
+        Set the encoding of the data file set by setDataFile.
+
+        data_encoding - The data file encoding.
+        return - The converter object.
+        """
+        self.fields['data_encoding'] = get_utf8_string(data_encoding)
+        return self
+
+    def setDataIgnoreUndefined(self, data_ignore_undefined):
+        """
+        Ignore undefined variables in the HTML template. The default mode is strict so any undefined variable causes the conversion to fail. You can use {% if variable is defined %} to check if the variable is defined.
+
+        data_ignore_undefined - Set to True to ignore undefined variables.
+        return - The converter object.
+        """
+        self.fields['data_ignore_undefined'] = data_ignore_undefined
+        return self
+
+    def setDataAutoEscape(self, data_auto_escape):
+        """
+        Auto escape HTML symbols in the input data before placing them into the output.
+
+        data_auto_escape - Set to True to turn auto escaping on.
+        return - The converter object.
+        """
+        self.fields['data_auto_escape'] = data_auto_escape
+        return self
+
+    def setDataTrimBlocks(self, data_trim_blocks):
+        """
+        Auto trim whitespace around each template command block.
+
+        data_trim_blocks - Set to True to turn auto trimming on.
+        return - The converter object.
+        """
+        self.fields['data_trim_blocks'] = data_trim_blocks
+        return self
+
+    def setDataOptions(self, data_options):
+        """
+        Set the advanced data options:csv_delimiter - The CSV data delimiter, the default is ,.xml_remove_root - Remove the root XML element from the input data.data_root - The name of the root element inserted into the input data without a root node (e.g. CSV), the default is data.
+
+        data_options - Comma separated list of options.
+        return - The converter object.
+        """
+        self.fields['data_options'] = get_utf8_string(data_options)
+        return self
 
     def setNoBackground(self, no_background):
         """
@@ -4192,6 +4358,33 @@ available converters:
         parser.add_argument('-content-area',
                             help = 'Set the content area position and size. The content area enables to specify a web page area to be converted. CONTENT_AREA must contain 4 values separated by a semicolon. Set the top left X coordinate of the content area. It is relative to the top left X coordinate of the print area. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt). It may contain a negative value. Set the top left Y coordinate of the content area. It is relative to the top left Y coordinate of the print area. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt). It may contain a negative value. Set the width of the content area. It should be at least 1 inch. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt). Set the height of the content area. It should be at least 1 inch. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).'
 )
+        parser.add_argument('-data-string',
+                            help = 'Set the input data for template rendering. The data format can be JSON, XML, YAML or CSV. The input data string.'
+)
+        parser.add_argument('-data-file',
+                            help = 'Load the input data for template rendering from the specified file. The data format can be JSON, XML, YAML or CSV. The file path to a local file containing the input data.'
+)
+        parser.add_argument('-data-format',
+                            help = 'Specify the input data format. The data format. Allowed values are auto, json, xml, yaml, csv.'
+)
+        parser.add_argument('-data-encoding',
+                            help = 'Set the encoding of the data file set by setDataFile. The data file encoding.'
+)
+        parser.add_argument('-data-ignore-undefined',
+                            action = 'store_true',
+                            help = 'Ignore undefined variables in the HTML template. The default mode is strict so any undefined variable causes the conversion to fail. You can use {%% if variable is defined %%} to check if the variable is defined.'
+)
+        parser.add_argument('-data-auto-escape',
+                            action = 'store_true',
+                            help = 'Auto escape HTML symbols in the input data before placing them into the output.'
+)
+        parser.add_argument('-data-trim-blocks',
+                            action = 'store_true',
+                            help = 'Auto trim whitespace around each template command block.'
+)
+        parser.add_argument('-data-options',
+                            help = 'Set the advanced data options:csv_delimiter - The CSV data delimiter, the default is ,.xml_remove_root - Remove the root XML element from the input data.data_root - The name of the root element inserted into the input data without a root node (e.g. CSV), the default is data. Comma separated list of options.'
+)
         parser.add_argument('-page-watermark',
                             help = 'Apply the first page of the watermark PDF to every page of the output PDF. The file path to a local watermark PDF file. The file must exist and not be empty.'
 )
@@ -4458,6 +4651,33 @@ available converters:
 
         parser.add_argument('-output-format',
                             help = 'The format of the output file. Allowed values are png, jpg, gif, tiff, bmp, ico, ppm, pgm, pbm, pnm, psb, pct, ras, tga, sgi, sun, webp.'
+)
+        parser.add_argument('-data-string',
+                            help = 'Set the input data for template rendering. The data format can be JSON, XML, YAML or CSV. The input data string.'
+)
+        parser.add_argument('-data-file',
+                            help = 'Load the input data for template rendering from the specified file. The data format can be JSON, XML, YAML or CSV. The file path to a local file containing the input data.'
+)
+        parser.add_argument('-data-format',
+                            help = 'Specify the input data format. The data format. Allowed values are auto, json, xml, yaml, csv.'
+)
+        parser.add_argument('-data-encoding',
+                            help = 'Set the encoding of the data file set by setDataFile. The data file encoding.'
+)
+        parser.add_argument('-data-ignore-undefined',
+                            action = 'store_true',
+                            help = 'Ignore undefined variables in the HTML template. The default mode is strict so any undefined variable causes the conversion to fail. You can use {%% if variable is defined %%} to check if the variable is defined.'
+)
+        parser.add_argument('-data-auto-escape',
+                            action = 'store_true',
+                            help = 'Auto escape HTML symbols in the input data before placing them into the output.'
+)
+        parser.add_argument('-data-trim-blocks',
+                            action = 'store_true',
+                            help = 'Auto trim whitespace around each template command block.'
+)
+        parser.add_argument('-data-options',
+                            help = 'Set the advanced data options:csv_delimiter - The CSV data delimiter, the default is ,.xml_remove_root - Remove the root XML element from the input data.data_root - The name of the root element inserted into the input data without a root node (e.g. CSV), the default is data. Comma separated list of options.'
 )
         parser.add_argument('-no-background',
                             action = 'store_true',
