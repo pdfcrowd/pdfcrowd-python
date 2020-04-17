@@ -2382,7 +2382,7 @@ class HtmlToPdfClient:
 
     def setUserAgent(self, user_agent):
         """
-        Set a custom user agent HTTP header. It can be usefull if you are behind some proxy or firewall.
+        Set a custom user agent HTTP header. It can be useful if you are behind some proxy or firewall.
 
         user_agent - The user agent string.
         return - The converter object.
@@ -3067,7 +3067,7 @@ class HtmlToImageClient:
 
     def setUserAgent(self, user_agent):
         """
-        Set a custom user agent HTTP header. It can be usefull if you are behind some proxy or firewall.
+        Set a custom user agent HTTP header. It can be useful if you are behind some proxy or firewall.
 
         user_agent - The user agent string.
         return - The converter object.
@@ -3378,7 +3378,7 @@ class ImageToImageClient:
 
     def setUserAgent(self, user_agent):
         """
-        Set a custom user agent HTTP header. It can be usefull if you are behind some proxy or firewall.
+        Set a custom user agent HTTP header. It can be useful if you are behind some proxy or firewall.
 
         user_agent - The user agent string.
         return - The converter object.
@@ -3886,7 +3886,7 @@ class PdfToPdfClient:
 
     def setUserAgent(self, user_agent):
         """
-        Set a custom user agent HTTP header. It can be usefull if you are behind some proxy or firewall.
+        Set a custom user agent HTTP header. It can be useful if you are behind some proxy or firewall.
 
         user_agent - The user agent string.
         return - The converter object.
@@ -4184,7 +4184,7 @@ class ImageToPdfClient:
 
     def setUserAgent(self, user_agent):
         """
-        Set a custom user agent HTTP header. It can be usefull if you are behind some proxy or firewall.
+        Set a custom user agent HTTP header. It can be useful if you are behind some proxy or firewall.
 
         user_agent - The user agent string.
         return - The converter object.
@@ -4629,7 +4629,7 @@ available converters:
                             help = 'Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API. Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.'
 )
         parser.add_argument('-user-agent',
-                            help = 'Set a custom user agent HTTP header. It can be usefull if you are behind some proxy or firewall. The user agent string.'
+                            help = 'Set a custom user agent HTTP header. It can be useful if you are behind some proxy or firewall. The user agent string.'
 )
         multi_args['proxy'] = 4
         parser.add_argument('-proxy',
@@ -4789,7 +4789,7 @@ available converters:
                             help = 'Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API. Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.'
 )
         parser.add_argument('-user-agent',
-                            help = 'Set a custom user agent HTTP header. It can be usefull if you are behind some proxy or firewall. The user agent string.'
+                            help = 'Set a custom user agent HTTP header. It can be useful if you are behind some proxy or firewall. The user agent string.'
 )
         multi_args['proxy'] = 4
         parser.add_argument('-proxy',
@@ -4836,7 +4836,7 @@ available converters:
                             help = 'Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API. Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.'
 )
         parser.add_argument('-user-agent',
-                            help = 'Set a custom user agent HTTP header. It can be usefull if you are behind some proxy or firewall. The user agent string.'
+                            help = 'Set a custom user agent HTTP header. It can be useful if you are behind some proxy or firewall. The user agent string.'
 )
         multi_args['proxy'] = 4
         parser.add_argument('-proxy',
@@ -4964,7 +4964,7 @@ available converters:
                             help = 'Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API. Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.'
 )
         parser.add_argument('-user-agent',
-                            help = 'Set a custom user agent HTTP header. It can be usefull if you are behind some proxy or firewall. The user agent string.'
+                            help = 'Set a custom user agent HTTP header. It can be useful if you are behind some proxy or firewall. The user agent string.'
 )
         multi_args['proxy'] = 4
         parser.add_argument('-proxy',
@@ -5008,7 +5008,7 @@ available converters:
                             help = 'Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API. Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.'
 )
         parser.add_argument('-user-agent',
-                            help = 'Set a custom user agent HTTP header. It can be usefull if you are behind some proxy or firewall. The user agent string.'
+                            help = 'Set a custom user agent HTTP header. It can be useful if you are behind some proxy or firewall. The user agent string.'
 )
         multi_args['proxy'] = 4
         parser.add_argument('-proxy',
