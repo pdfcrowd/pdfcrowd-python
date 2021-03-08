@@ -43,7 +43,7 @@ import os
 import ssl
 import time
 
-__version__ = '4.12.0'
+__version__ = '5.0.0'
 
 # ======================================
 # === PDFCrowd legacy version client ===
@@ -698,7 +698,7 @@ else:
 
 HOST = os.environ.get('PDFCROWD_HOST', 'api.pdfcrowd.com')
 MULTIPART_BOUNDARY = '----------ThIs_Is_tHe_bOUnDary_$'
-CLIENT_VERSION = '4.12.0'
+CLIENT_VERSION = '5.0.0'
 
 def get_utf8_string(string):
     if PYTHON_3:
@@ -714,7 +714,7 @@ def get_utf8_string(string):
     return string
 
 def create_invalid_value_message(value, field, converter, hint, id):
-    message = "Invalid value '%s' for the field '%s'." % (value, field)
+    message = "Invalid value '%s' for %s." % (value, field)
     if hint:
         message += " " + hint
     return message + ' ' + "Details: https://www.pdfcrowd.com/doc/api/%s/python/#%s" % (converter, id)
@@ -791,9 +791,10 @@ class ConnectionHelper:
         self._reset_response_data()
         self.setProxy(None, None, None, None)
         self.setUseHttp(False)
-        self.setUserAgent('pdfcrowd_python_client/4.12.0 (http://pdfcrowd.com)')
+        self.setUserAgent('pdfcrowd_python_client/5.0.0 (http://pdfcrowd.com)')
 
         self.retry_count = 1
+        self.converter_version = '20.10'
 
     def _reset_response_data(self):
         self.debug_log_url = None
@@ -816,15 +817,18 @@ class ConnectionHelper:
         return self.conn_type(host, port, **kwargs)
 
     def _get_connection(self):
+        conv_selector = '/convert/{}/'.format(self.converter_version)
         if self.proxy_host:
             conn = self._create_connection(self.proxy_host, self.proxy_port)
-            conn.putrequest('POST', 'http://%s:%d%s' % (HOST, self.port, '/convert/'))
+            conn.putrequest('POST', 'http://{}:{}{}'.format(
+                HOST, self.port, conv_selector))
             if self.proxy_user_name:
                 conn.putheader('Proxy-Authorization',
-                               encode_credentials(self.proxy_user_name, self.proxy_password))
+                               encode_credentials(self.proxy_user_name,
+                                                  self.proxy_password))
         else:
             conn = self._create_connection(HOST, self.port)
-            conn.putrequest('POST', '/convert/')
+            conn.putrequest('POST', conv_selector)
         return conn
 
     # sends a POST to the API
@@ -909,6 +913,9 @@ class ConnectionHelper:
     def setRetryCount(self, retry_count):
         self.retry_count = retry_count
 
+    def setConverterVersion(self, converter_version):
+        self.converter_version = converter_version
+
     def setProxy(self, host, port, user_name, password):
         self.proxy_host = host
         self.proxy_port = port
@@ -932,6 +939,9 @@ class ConnectionHelper:
 
     def getOutputSize(self):
         return self.output_size
+
+    def getConverterVersion(self):
+        return self.converter_version
 
 # generated code
 
@@ -964,7 +974,7 @@ class HtmlToPdfClient:
         return - Byte array containing the conversion output.
         """
         if not re.match('(?i)^https?://.*$', url):
-            raise Error(create_invalid_value_message(url, "url", "html-to-pdf", "The supported protocols are http:// and https://.", "convert_url"), 470);
+            raise Error(create_invalid_value_message(url, "convertUrl", "html-to-pdf", "The supported protocols are http:// and https://.", "convert_url"), 470);
         
         self.fields['url'] = get_utf8_string(url)
         return self.helper.post(self.fields, self.files, self.raw_data)
@@ -977,7 +987,7 @@ class HtmlToPdfClient:
         out_stream - The output stream that will contain the conversion output.
         """
         if not re.match('(?i)^https?://.*$', url):
-            raise Error(create_invalid_value_message(url, "url", "html-to-pdf", "The supported protocols are http:// and https://.", "convert_url_to_stream"), 470);
+            raise Error(create_invalid_value_message(url, "convertUrlToStream::url", "html-to-pdf", "The supported protocols are http:// and https://.", "convert_url_to_stream"), 470);
         
         self.fields['url'] = get_utf8_string(url)
         self.helper.post(self.fields, self.files, self.raw_data, out_stream)
@@ -990,7 +1000,7 @@ class HtmlToPdfClient:
         file_path - The output file path. The string must not be empty.
         """
         if not (file_path):
-            raise Error(create_invalid_value_message(file_path, "file_path", "html-to-pdf", "The string must not be empty.", "convert_url_to_file"), 470);
+            raise Error(create_invalid_value_message(file_path, "convertUrlToFile::file_path", "html-to-pdf", "The string must not be empty.", "convert_url_to_file"), 470);
         
         output_file = open(file_path, 'wb')
         try:
@@ -1009,7 +1019,7 @@ class HtmlToPdfClient:
         return - Byte array containing the conversion output.
         """
         if not (os.path.isfile(file) and os.path.getsize(file)):
-            raise Error(create_invalid_value_message(file, "file", "html-to-pdf", "The file must exist and not be empty.", "convert_file"), 470);
+            raise Error(create_invalid_value_message(file, "convertFile", "html-to-pdf", "The file must exist and not be empty.", "convert_file"), 470);
         
         self.files['file'] = get_utf8_string(file)
         return self.helper.post(self.fields, self.files, self.raw_data)
@@ -1022,7 +1032,7 @@ class HtmlToPdfClient:
         out_stream - The output stream that will contain the conversion output.
         """
         if not (os.path.isfile(file) and os.path.getsize(file)):
-            raise Error(create_invalid_value_message(file, "file", "html-to-pdf", "The file must exist and not be empty.", "convert_file_to_stream"), 470);
+            raise Error(create_invalid_value_message(file, "convertFileToStream::file", "html-to-pdf", "The file must exist and not be empty.", "convert_file_to_stream"), 470);
         
         self.files['file'] = get_utf8_string(file)
         self.helper.post(self.fields, self.files, self.raw_data, out_stream)
@@ -1035,7 +1045,7 @@ class HtmlToPdfClient:
         file_path - The output file path. The string must not be empty.
         """
         if not (file_path):
-            raise Error(create_invalid_value_message(file_path, "file_path", "html-to-pdf", "The string must not be empty.", "convert_file_to_file"), 470);
+            raise Error(create_invalid_value_message(file_path, "convertFileToFile::file_path", "html-to-pdf", "The string must not be empty.", "convert_file_to_file"), 470);
         
         output_file = open(file_path, 'wb')
         try:
@@ -1054,7 +1064,7 @@ class HtmlToPdfClient:
         return - Byte array containing the conversion output.
         """
         if not (text):
-            raise Error(create_invalid_value_message(text, "text", "html-to-pdf", "The string must not be empty.", "convert_string"), 470);
+            raise Error(create_invalid_value_message(text, "convertString", "html-to-pdf", "The string must not be empty.", "convert_string"), 470);
         
         self.fields['text'] = get_utf8_string(text)
         return self.helper.post(self.fields, self.files, self.raw_data)
@@ -1067,7 +1077,7 @@ class HtmlToPdfClient:
         out_stream - The output stream that will contain the conversion output.
         """
         if not (text):
-            raise Error(create_invalid_value_message(text, "text", "html-to-pdf", "The string must not be empty.", "convert_string_to_stream"), 470);
+            raise Error(create_invalid_value_message(text, "convertStringToStream::text", "html-to-pdf", "The string must not be empty.", "convert_string_to_stream"), 470);
         
         self.fields['text'] = get_utf8_string(text)
         self.helper.post(self.fields, self.files, self.raw_data, out_stream)
@@ -1080,7 +1090,7 @@ class HtmlToPdfClient:
         file_path - The output file path. The string must not be empty.
         """
         if not (file_path):
-            raise Error(create_invalid_value_message(file_path, "file_path", "html-to-pdf", "The string must not be empty.", "convert_string_to_file"), 470);
+            raise Error(create_invalid_value_message(file_path, "convertStringToFile::file_path", "html-to-pdf", "The string must not be empty.", "convert_string_to_file"), 470);
         
         output_file = open(file_path, 'wb')
         try:
@@ -1091,43 +1101,43 @@ class HtmlToPdfClient:
             os.remove(file_path)
             raise
 
-    def setPageSize(self, page_size):
+    def setPageSize(self, size):
         """
         Set the output page size.
 
-        page_size - Allowed values are A2, A3, A4, A5, A6, Letter.
+        size - Allowed values are A0, A1, A2, A3, A4, A5, A6, Letter.
         return - The converter object.
         """
-        if not re.match('(?i)^(A2|A3|A4|A5|A6|Letter)$', page_size):
-            raise Error(create_invalid_value_message(page_size, "page_size", "html-to-pdf", "Allowed values are A2, A3, A4, A5, A6, Letter.", "set_page_size"), 470);
+        if not re.match('(?i)^(A0|A1|A2|A3|A4|A5|A6|Letter)$', size):
+            raise Error(create_invalid_value_message(size, "setPageSize", "html-to-pdf", "Allowed values are A0, A1, A2, A3, A4, A5, A6, Letter.", "set_page_size"), 470);
         
-        self.fields['page_size'] = get_utf8_string(page_size)
+        self.fields['page_size'] = get_utf8_string(size)
         return self
 
-    def setPageWidth(self, page_width):
+    def setPageWidth(self, width):
         """
         Set the output page width. The safe maximum is 200in otherwise some PDF viewers may be unable to open the PDF.
 
-        page_width - Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
+        width - Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
         return - The converter object.
         """
-        if not re.match('(?i)^[0-9]*(\.[0-9]+)?(pt|px|mm|cm|in)$', page_width):
-            raise Error(create_invalid_value_message(page_width, "page_width", "html-to-pdf", "Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).", "set_page_width"), 470);
+        if not re.match('(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', width):
+            raise Error(create_invalid_value_message(width, "setPageWidth", "html-to-pdf", "Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).", "set_page_width"), 470);
         
-        self.fields['page_width'] = get_utf8_string(page_width)
+        self.fields['page_width'] = get_utf8_string(width)
         return self
 
-    def setPageHeight(self, page_height):
+    def setPageHeight(self, height):
         """
         Set the output page height. Use -1 for a single page PDF. The safe maximum is 200in otherwise some PDF viewers may be unable to open the PDF.
 
-        page_height - Can be -1 or specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
+        height - Can be -1 or specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
         return - The converter object.
         """
-        if not re.match('(?i)^\-1$|^[0-9]*(\.[0-9]+)?(pt|px|mm|cm|in)$', page_height):
-            raise Error(create_invalid_value_message(page_height, "page_height", "html-to-pdf", "Can be -1 or specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).", "set_page_height"), 470);
+        if not re.match('(?i)^0$|^\-1$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', height):
+            raise Error(create_invalid_value_message(height, "setPageHeight", "html-to-pdf", "Can be -1 or specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).", "set_page_height"), 470);
         
-        self.fields['page_height'] = get_utf8_string(page_height)
+        self.fields['page_height'] = get_utf8_string(height)
         return self
 
     def setPageDimensions(self, width, height):
@@ -1150,71 +1160,71 @@ class HtmlToPdfClient:
         return - The converter object.
         """
         if not re.match('(?i)^(landscape|portrait)$', orientation):
-            raise Error(create_invalid_value_message(orientation, "orientation", "html-to-pdf", "Allowed values are landscape, portrait.", "set_orientation"), 470);
+            raise Error(create_invalid_value_message(orientation, "setOrientation", "html-to-pdf", "Allowed values are landscape, portrait.", "set_orientation"), 470);
         
         self.fields['orientation'] = get_utf8_string(orientation)
         return self
 
-    def setMarginTop(self, margin_top):
+    def setMarginTop(self, top):
         """
         Set the output page top margin.
 
-        margin_top - Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
+        top - Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
         return - The converter object.
         """
-        if not re.match('(?i)^[0-9]*(\.[0-9]+)?(pt|px|mm|cm|in)$', margin_top):
-            raise Error(create_invalid_value_message(margin_top, "margin_top", "html-to-pdf", "Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).", "set_margin_top"), 470);
+        if not re.match('(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', top):
+            raise Error(create_invalid_value_message(top, "setMarginTop", "html-to-pdf", "Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).", "set_margin_top"), 470);
         
-        self.fields['margin_top'] = get_utf8_string(margin_top)
+        self.fields['margin_top'] = get_utf8_string(top)
         return self
 
-    def setMarginRight(self, margin_right):
+    def setMarginRight(self, right):
         """
         Set the output page right margin.
 
-        margin_right - Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
+        right - Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
         return - The converter object.
         """
-        if not re.match('(?i)^[0-9]*(\.[0-9]+)?(pt|px|mm|cm|in)$', margin_right):
-            raise Error(create_invalid_value_message(margin_right, "margin_right", "html-to-pdf", "Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).", "set_margin_right"), 470);
+        if not re.match('(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', right):
+            raise Error(create_invalid_value_message(right, "setMarginRight", "html-to-pdf", "Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).", "set_margin_right"), 470);
         
-        self.fields['margin_right'] = get_utf8_string(margin_right)
+        self.fields['margin_right'] = get_utf8_string(right)
         return self
 
-    def setMarginBottom(self, margin_bottom):
+    def setMarginBottom(self, bottom):
         """
         Set the output page bottom margin.
 
-        margin_bottom - Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
+        bottom - Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
         return - The converter object.
         """
-        if not re.match('(?i)^[0-9]*(\.[0-9]+)?(pt|px|mm|cm|in)$', margin_bottom):
-            raise Error(create_invalid_value_message(margin_bottom, "margin_bottom", "html-to-pdf", "Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).", "set_margin_bottom"), 470);
+        if not re.match('(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', bottom):
+            raise Error(create_invalid_value_message(bottom, "setMarginBottom", "html-to-pdf", "Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).", "set_margin_bottom"), 470);
         
-        self.fields['margin_bottom'] = get_utf8_string(margin_bottom)
+        self.fields['margin_bottom'] = get_utf8_string(bottom)
         return self
 
-    def setMarginLeft(self, margin_left):
+    def setMarginLeft(self, left):
         """
         Set the output page left margin.
 
-        margin_left - Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
+        left - Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
         return - The converter object.
         """
-        if not re.match('(?i)^[0-9]*(\.[0-9]+)?(pt|px|mm|cm|in)$', margin_left):
-            raise Error(create_invalid_value_message(margin_left, "margin_left", "html-to-pdf", "Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).", "set_margin_left"), 470);
+        if not re.match('(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', left):
+            raise Error(create_invalid_value_message(left, "setMarginLeft", "html-to-pdf", "Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).", "set_margin_left"), 470);
         
-        self.fields['margin_left'] = get_utf8_string(margin_left)
+        self.fields['margin_left'] = get_utf8_string(left)
         return self
 
-    def setNoMargins(self, no_margins):
+    def setNoMargins(self, value):
         """
         Disable page margins.
 
-        no_margins - Set to True to disable margins.
+        value - Set to True to disable margins.
         return - The converter object.
         """
-        self.fields['no_margins'] = no_margins
+        self.fields['no_margins'] = value
         return self
 
     def setPageMargins(self, top, right, bottom, left):
@@ -1233,82 +1243,92 @@ class HtmlToPdfClient:
         self.setMarginLeft(left)
         return self
 
-    def setHeaderUrl(self, header_url):
+    def setHeaderUrl(self, url):
         """
         Load an HTML code from the specified URL and use it as the page header. The following classes can be used in the HTML. The content of the respective elements will be expanded as follows: pdfcrowd-page-count - the total page count of printed pages pdfcrowd-page-number - the current page number pdfcrowd-source-url - the source URL of a converted document The following attributes can be used: data-pdfcrowd-number-format - specifies the type of the used numerals Arabic numerals are used by default. Roman numerals can be generated by the roman and roman-lowercase values Example: <span class='pdfcrowd-page-number' data-pdfcrowd-number-format='roman'></span> data-pdfcrowd-placement - specifies where to place the source URL, allowed values: The URL is inserted to the content Example: <span class='pdfcrowd-source-url'></span> will produce <span>http://example.com</span> href - the URL is set to the href attribute Example: <a class='pdfcrowd-source-url' data-pdfcrowd-placement='href'>Link to source</a> will produce <a href='http://example.com'>Link to source</a> href-and-content - the URL is set to the href attribute and to the content Example: <a class='pdfcrowd-source-url' data-pdfcrowd-placement='href-and-content'></a> will produce <a href='http://example.com'>http://example.com</a>
 
-        header_url - The supported protocols are http:// and https://.
+        url - The supported protocols are http:// and https://.
         return - The converter object.
         """
-        if not re.match('(?i)^https?://.*$', header_url):
-            raise Error(create_invalid_value_message(header_url, "header_url", "html-to-pdf", "The supported protocols are http:// and https://.", "set_header_url"), 470);
+        if not re.match('(?i)^https?://.*$', url):
+            raise Error(create_invalid_value_message(url, "setHeaderUrl", "html-to-pdf", "The supported protocols are http:// and https://.", "set_header_url"), 470);
         
-        self.fields['header_url'] = get_utf8_string(header_url)
+        self.fields['header_url'] = get_utf8_string(url)
         return self
 
-    def setHeaderHtml(self, header_html):
+    def setHeaderHtml(self, html):
         """
         Use the specified HTML code as the page header. The following classes can be used in the HTML. The content of the respective elements will be expanded as follows: pdfcrowd-page-count - the total page count of printed pages pdfcrowd-page-number - the current page number pdfcrowd-source-url - the source URL of a converted document The following attributes can be used: data-pdfcrowd-number-format - specifies the type of the used numerals Arabic numerals are used by default. Roman numerals can be generated by the roman and roman-lowercase values Example: <span class='pdfcrowd-page-number' data-pdfcrowd-number-format='roman'></span> data-pdfcrowd-placement - specifies where to place the source URL, allowed values: The URL is inserted to the content Example: <span class='pdfcrowd-source-url'></span> will produce <span>http://example.com</span> href - the URL is set to the href attribute Example: <a class='pdfcrowd-source-url' data-pdfcrowd-placement='href'>Link to source</a> will produce <a href='http://example.com'>Link to source</a> href-and-content - the URL is set to the href attribute and to the content Example: <a class='pdfcrowd-source-url' data-pdfcrowd-placement='href-and-content'></a> will produce <a href='http://example.com'>http://example.com</a>
 
-        header_html - The string must not be empty.
+        html - The string must not be empty.
         return - The converter object.
         """
-        if not (header_html):
-            raise Error(create_invalid_value_message(header_html, "header_html", "html-to-pdf", "The string must not be empty.", "set_header_html"), 470);
+        if not (html):
+            raise Error(create_invalid_value_message(html, "setHeaderHtml", "html-to-pdf", "The string must not be empty.", "set_header_html"), 470);
         
-        self.fields['header_html'] = get_utf8_string(header_html)
+        self.fields['header_html'] = get_utf8_string(html)
         return self
 
-    def setHeaderHeight(self, header_height):
+    def setHeaderHeight(self, height):
         """
         Set the header height.
 
-        header_height - Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
+        height - Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
         return - The converter object.
         """
-        if not re.match('(?i)^[0-9]*(\.[0-9]+)?(pt|px|mm|cm|in)$', header_height):
-            raise Error(create_invalid_value_message(header_height, "header_height", "html-to-pdf", "Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).", "set_header_height"), 470);
+        if not re.match('(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', height):
+            raise Error(create_invalid_value_message(height, "setHeaderHeight", "html-to-pdf", "Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).", "set_header_height"), 470);
         
-        self.fields['header_height'] = get_utf8_string(header_height)
+        self.fields['header_height'] = get_utf8_string(height)
         return self
 
-    def setFooterUrl(self, footer_url):
+    def setFooterUrl(self, url):
         """
         Load an HTML code from the specified URL and use it as the page footer. The following classes can be used in the HTML. The content of the respective elements will be expanded as follows: pdfcrowd-page-count - the total page count of printed pages pdfcrowd-page-number - the current page number pdfcrowd-source-url - the source URL of a converted document The following attributes can be used: data-pdfcrowd-number-format - specifies the type of the used numerals Arabic numerals are used by default. Roman numerals can be generated by the roman and roman-lowercase values Example: <span class='pdfcrowd-page-number' data-pdfcrowd-number-format='roman'></span> data-pdfcrowd-placement - specifies where to place the source URL, allowed values: The URL is inserted to the content Example: <span class='pdfcrowd-source-url'></span> will produce <span>http://example.com</span> href - the URL is set to the href attribute Example: <a class='pdfcrowd-source-url' data-pdfcrowd-placement='href'>Link to source</a> will produce <a href='http://example.com'>Link to source</a> href-and-content - the URL is set to the href attribute and to the content Example: <a class='pdfcrowd-source-url' data-pdfcrowd-placement='href-and-content'></a> will produce <a href='http://example.com'>http://example.com</a>
 
-        footer_url - The supported protocols are http:// and https://.
+        url - The supported protocols are http:// and https://.
         return - The converter object.
         """
-        if not re.match('(?i)^https?://.*$', footer_url):
-            raise Error(create_invalid_value_message(footer_url, "footer_url", "html-to-pdf", "The supported protocols are http:// and https://.", "set_footer_url"), 470);
+        if not re.match('(?i)^https?://.*$', url):
+            raise Error(create_invalid_value_message(url, "setFooterUrl", "html-to-pdf", "The supported protocols are http:// and https://.", "set_footer_url"), 470);
         
-        self.fields['footer_url'] = get_utf8_string(footer_url)
+        self.fields['footer_url'] = get_utf8_string(url)
         return self
 
-    def setFooterHtml(self, footer_html):
+    def setFooterHtml(self, html):
         """
         Use the specified HTML as the page footer. The following classes can be used in the HTML. The content of the respective elements will be expanded as follows: pdfcrowd-page-count - the total page count of printed pages pdfcrowd-page-number - the current page number pdfcrowd-source-url - the source URL of a converted document The following attributes can be used: data-pdfcrowd-number-format - specifies the type of the used numerals Arabic numerals are used by default. Roman numerals can be generated by the roman and roman-lowercase values Example: <span class='pdfcrowd-page-number' data-pdfcrowd-number-format='roman'></span> data-pdfcrowd-placement - specifies where to place the source URL, allowed values: The URL is inserted to the content Example: <span class='pdfcrowd-source-url'></span> will produce <span>http://example.com</span> href - the URL is set to the href attribute Example: <a class='pdfcrowd-source-url' data-pdfcrowd-placement='href'>Link to source</a> will produce <a href='http://example.com'>Link to source</a> href-and-content - the URL is set to the href attribute and to the content Example: <a class='pdfcrowd-source-url' data-pdfcrowd-placement='href-and-content'></a> will produce <a href='http://example.com'>http://example.com</a>
 
-        footer_html - The string must not be empty.
+        html - The string must not be empty.
         return - The converter object.
         """
-        if not (footer_html):
-            raise Error(create_invalid_value_message(footer_html, "footer_html", "html-to-pdf", "The string must not be empty.", "set_footer_html"), 470);
+        if not (html):
+            raise Error(create_invalid_value_message(html, "setFooterHtml", "html-to-pdf", "The string must not be empty.", "set_footer_html"), 470);
         
-        self.fields['footer_html'] = get_utf8_string(footer_html)
+        self.fields['footer_html'] = get_utf8_string(html)
         return self
 
-    def setFooterHeight(self, footer_height):
+    def setFooterHeight(self, height):
         """
         Set the footer height.
 
-        footer_height - Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
+        height - Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
         return - The converter object.
         """
-        if not re.match('(?i)^[0-9]*(\.[0-9]+)?(pt|px|mm|cm|in)$', footer_height):
-            raise Error(create_invalid_value_message(footer_height, "footer_height", "html-to-pdf", "Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).", "set_footer_height"), 470);
+        if not re.match('(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', height):
+            raise Error(create_invalid_value_message(height, "setFooterHeight", "html-to-pdf", "Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).", "set_footer_height"), 470);
         
-        self.fields['footer_height'] = get_utf8_string(footer_height)
+        self.fields['footer_height'] = get_utf8_string(height)
+        return self
+
+    def setNoHeaderFooterHorizontalMargins(self, value):
+        """
+        Disable horizontal page margins for header and footer. The header/footer contents width will be equal to the physical page width.
+
+        value - Set to True to disable horizontal margins for header and footer.
+        return - The converter object.
+        """
+        self.fields['no_header_footer_horizontal_margins'] = value
         return self
 
     def setPrintPageRange(self, pages):
@@ -1319,7 +1339,7 @@ class HtmlToPdfClient:
         return - The converter object.
         """
         if not re.match('^(?:\s*(?:\d+|(?:\d*\s*\-\s*\d+)|(?:\d+\s*\-\s*\d*))\s*,\s*)*\s*(?:\d+|(?:\d*\s*\-\s*\d+)|(?:\d+\s*\-\s*\d*))\s*$', pages):
-            raise Error(create_invalid_value_message(pages, "pages", "html-to-pdf", "A comma separated list of page numbers or ranges.", "set_print_page_range"), 470);
+            raise Error(create_invalid_value_message(pages, "setPrintPageRange", "html-to-pdf", "A comma separated list of page numbers or ranges.", "set_print_page_range"), 470);
         
         self.fields['print_page_range'] = get_utf8_string(pages)
         return self
@@ -1332,7 +1352,7 @@ class HtmlToPdfClient:
         return - The converter object.
         """
         if not re.match('^(?:\s*\-?\d+\s*,)*\s*\-?\d+\s*$', pages):
-            raise Error(create_invalid_value_message(pages, "pages", "html-to-pdf", "A comma separated list of page numbers.", "set_exclude_header_on_pages"), 470);
+            raise Error(create_invalid_value_message(pages, "setExcludeHeaderOnPages", "html-to-pdf", "A comma separated list of page numbers.", "set_exclude_header_on_pages"), 470);
         
         self.fields['exclude_header_on_pages'] = get_utf8_string(pages)
         return self
@@ -1345,7 +1365,7 @@ class HtmlToPdfClient:
         return - The converter object.
         """
         if not re.match('^(?:\s*\-?\d+\s*,)*\s*\-?\d+\s*$', pages):
-            raise Error(create_invalid_value_message(pages, "pages", "html-to-pdf", "A comma separated list of page numbers.", "set_exclude_footer_on_pages"), 470);
+            raise Error(create_invalid_value_message(pages, "setExcludeFooterOnPages", "html-to-pdf", "A comma separated list of page numbers.", "set_exclude_footer_on_pages"), 470);
         
         self.fields['exclude_footer_on_pages'] = get_utf8_string(pages)
         return self
@@ -1360,56 +1380,56 @@ class HtmlToPdfClient:
         self.fields['page_numbering_offset'] = offset
         return self
 
-    def setContentAreaX(self, content_area_x):
+    def setContentAreaX(self, x):
         """
         Set the top left X coordinate of the content area. It is relative to the top left X coordinate of the print area.
 
-        content_area_x - Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt). It may contain a negative value.
+        x - Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt). It may contain a negative value.
         return - The converter object.
         """
-        if not re.match('(?i)^\-?[0-9]*(\.[0-9]+)?(pt|px|mm|cm|in)$', content_area_x):
-            raise Error(create_invalid_value_message(content_area_x, "content_area_x", "html-to-pdf", "Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt). It may contain a negative value.", "set_content_area_x"), 470);
+        if not re.match('(?i)^0$|^\-?[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', x):
+            raise Error(create_invalid_value_message(x, "setContentAreaX", "html-to-pdf", "Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt). It may contain a negative value.", "set_content_area_x"), 470);
         
-        self.fields['content_area_x'] = get_utf8_string(content_area_x)
+        self.fields['content_area_x'] = get_utf8_string(x)
         return self
 
-    def setContentAreaY(self, content_area_y):
+    def setContentAreaY(self, y):
         """
         Set the top left Y coordinate of the content area. It is relative to the top left Y coordinate of the print area.
 
-        content_area_y - Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt). It may contain a negative value.
+        y - Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt). It may contain a negative value.
         return - The converter object.
         """
-        if not re.match('(?i)^\-?[0-9]*(\.[0-9]+)?(pt|px|mm|cm|in)$', content_area_y):
-            raise Error(create_invalid_value_message(content_area_y, "content_area_y", "html-to-pdf", "Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt). It may contain a negative value.", "set_content_area_y"), 470);
+        if not re.match('(?i)^0$|^\-?[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', y):
+            raise Error(create_invalid_value_message(y, "setContentAreaY", "html-to-pdf", "Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt). It may contain a negative value.", "set_content_area_y"), 470);
         
-        self.fields['content_area_y'] = get_utf8_string(content_area_y)
+        self.fields['content_area_y'] = get_utf8_string(y)
         return self
 
-    def setContentAreaWidth(self, content_area_width):
+    def setContentAreaWidth(self, width):
         """
         Set the width of the content area. It should be at least 1 inch.
 
-        content_area_width - Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
+        width - Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
         return - The converter object.
         """
-        if not re.match('(?i)^[0-9]*(\.[0-9]+)?(pt|px|mm|cm|in)$', content_area_width):
-            raise Error(create_invalid_value_message(content_area_width, "content_area_width", "html-to-pdf", "Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).", "set_content_area_width"), 470);
+        if not re.match('(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', width):
+            raise Error(create_invalid_value_message(width, "setContentAreaWidth", "html-to-pdf", "Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).", "set_content_area_width"), 470);
         
-        self.fields['content_area_width'] = get_utf8_string(content_area_width)
+        self.fields['content_area_width'] = get_utf8_string(width)
         return self
 
-    def setContentAreaHeight(self, content_area_height):
+    def setContentAreaHeight(self, height):
         """
         Set the height of the content area. It should be at least 1 inch.
 
-        content_area_height - Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
+        height - Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
         return - The converter object.
         """
-        if not re.match('(?i)^[0-9]*(\.[0-9]+)?(pt|px|mm|cm|in)$', content_area_height):
-            raise Error(create_invalid_value_message(content_area_height, "content_area_height", "html-to-pdf", "Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).", "set_content_area_height"), 470);
+        if not re.match('(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', height):
+            raise Error(create_invalid_value_message(height, "setContentAreaHeight", "html-to-pdf", "Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).", "set_content_area_height"), 470);
         
-        self.fields['content_area_height'] = get_utf8_string(content_area_height)
+        self.fields['content_area_height'] = get_utf8_string(height)
         return self
 
     def setContentArea(self, x, y, width, height):
@@ -1426,6 +1446,19 @@ class HtmlToPdfClient:
         self.setContentAreaY(y)
         self.setContentAreaWidth(width)
         self.setContentAreaHeight(height)
+        return self
+
+    def setCssPageRuleMode(self, mode):
+        """
+        Specifies behavior in presence of CSS @page rules. It may affect the page size, margins and orientation.
+
+        mode - The page rule mode. Allowed values are default, mode1, mode2.
+        return - The converter object.
+        """
+        if not re.match('(?i)^(default|mode1|mode2)$', mode):
+            raise Error(create_invalid_value_message(mode, "setCssPageRuleMode", "html-to-pdf", "Allowed values are default, mode1, mode2.", "set_css_page_rule_mode"), 470);
+        
+        self.fields['css_page_rule_mode'] = get_utf8_string(mode)
         return self
 
     def setDataString(self, data_string):
@@ -1456,236 +1489,269 @@ class HtmlToPdfClient:
         return - The converter object.
         """
         if not re.match('(?i)^(auto|json|xml|yaml|csv)$', data_format):
-            raise Error(create_invalid_value_message(data_format, "data_format", "html-to-pdf", "Allowed values are auto, json, xml, yaml, csv.", "set_data_format"), 470);
+            raise Error(create_invalid_value_message(data_format, "setDataFormat", "html-to-pdf", "Allowed values are auto, json, xml, yaml, csv.", "set_data_format"), 470);
         
         self.fields['data_format'] = get_utf8_string(data_format)
         return self
 
-    def setDataEncoding(self, data_encoding):
+    def setDataEncoding(self, encoding):
         """
         Set the encoding of the data file set by setDataFile.
 
-        data_encoding - The data file encoding.
+        encoding - The data file encoding.
         return - The converter object.
         """
-        self.fields['data_encoding'] = get_utf8_string(data_encoding)
+        self.fields['data_encoding'] = get_utf8_string(encoding)
         return self
 
-    def setDataIgnoreUndefined(self, data_ignore_undefined):
+    def setDataIgnoreUndefined(self, value):
         """
         Ignore undefined variables in the HTML template. The default mode is strict so any undefined variable causes the conversion to fail. You can use {% if variable is defined %} to check if the variable is defined.
 
-        data_ignore_undefined - Set to True to ignore undefined variables.
+        value - Set to True to ignore undefined variables.
         return - The converter object.
         """
-        self.fields['data_ignore_undefined'] = data_ignore_undefined
+        self.fields['data_ignore_undefined'] = value
         return self
 
-    def setDataAutoEscape(self, data_auto_escape):
+    def setDataAutoEscape(self, value):
         """
         Auto escape HTML symbols in the input data before placing them into the output.
 
-        data_auto_escape - Set to True to turn auto escaping on.
+        value - Set to True to turn auto escaping on.
         return - The converter object.
         """
-        self.fields['data_auto_escape'] = data_auto_escape
+        self.fields['data_auto_escape'] = value
         return self
 
-    def setDataTrimBlocks(self, data_trim_blocks):
+    def setDataTrimBlocks(self, value):
         """
         Auto trim whitespace around each template command block.
 
-        data_trim_blocks - Set to True to turn auto trimming on.
+        value - Set to True to turn auto trimming on.
         return - The converter object.
         """
-        self.fields['data_trim_blocks'] = data_trim_blocks
+        self.fields['data_trim_blocks'] = value
         return self
 
-    def setDataOptions(self, data_options):
+    def setDataOptions(self, options):
         """
         Set the advanced data options:csv_delimiter - The CSV data delimiter, the default is ,.xml_remove_root - Remove the root XML element from the input data.data_root - The name of the root element inserted into the input data without a root node (e.g. CSV), the default is data.
 
-        data_options - Comma separated list of options.
+        options - Comma separated list of options.
         return - The converter object.
         """
-        self.fields['data_options'] = get_utf8_string(data_options)
+        self.fields['data_options'] = get_utf8_string(options)
         return self
 
-    def setPageWatermark(self, page_watermark):
+    def setPageWatermark(self, watermark):
         """
         Apply the first page of the watermark PDF to every page of the output PDF.
 
-        page_watermark - The file path to a local watermark PDF file. The file must exist and not be empty.
+        watermark - The file path to a local watermark PDF file. The file must exist and not be empty.
         return - The converter object.
         """
-        if not (os.path.isfile(page_watermark) and os.path.getsize(page_watermark)):
-            raise Error(create_invalid_value_message(page_watermark, "page_watermark", "html-to-pdf", "The file must exist and not be empty.", "set_page_watermark"), 470);
+        if not (os.path.isfile(watermark) and os.path.getsize(watermark)):
+            raise Error(create_invalid_value_message(watermark, "setPageWatermark", "html-to-pdf", "The file must exist and not be empty.", "set_page_watermark"), 470);
         
-        self.files['page_watermark'] = get_utf8_string(page_watermark)
+        self.files['page_watermark'] = get_utf8_string(watermark)
         return self
 
-    def setPageWatermarkUrl(self, page_watermark_url):
+    def setPageWatermarkUrl(self, url):
         """
         Load a watermark PDF from the specified URL and apply the first page of the watermark PDF to every page of the output PDF.
 
-        page_watermark_url - The supported protocols are http:// and https://.
+        url - The supported protocols are http:// and https://.
         return - The converter object.
         """
-        if not re.match('(?i)^https?://.*$', page_watermark_url):
-            raise Error(create_invalid_value_message(page_watermark_url, "page_watermark_url", "html-to-pdf", "The supported protocols are http:// and https://.", "set_page_watermark_url"), 470);
+        if not re.match('(?i)^https?://.*$', url):
+            raise Error(create_invalid_value_message(url, "setPageWatermarkUrl", "html-to-pdf", "The supported protocols are http:// and https://.", "set_page_watermark_url"), 470);
         
-        self.fields['page_watermark_url'] = get_utf8_string(page_watermark_url)
+        self.fields['page_watermark_url'] = get_utf8_string(url)
         return self
 
-    def setMultipageWatermark(self, multipage_watermark):
+    def setMultipageWatermark(self, watermark):
         """
         Apply each page of the specified watermark PDF to the corresponding page of the output PDF.
 
-        multipage_watermark - The file path to a local watermark PDF file. The file must exist and not be empty.
+        watermark - The file path to a local watermark PDF file. The file must exist and not be empty.
         return - The converter object.
         """
-        if not (os.path.isfile(multipage_watermark) and os.path.getsize(multipage_watermark)):
-            raise Error(create_invalid_value_message(multipage_watermark, "multipage_watermark", "html-to-pdf", "The file must exist and not be empty.", "set_multipage_watermark"), 470);
+        if not (os.path.isfile(watermark) and os.path.getsize(watermark)):
+            raise Error(create_invalid_value_message(watermark, "setMultipageWatermark", "html-to-pdf", "The file must exist and not be empty.", "set_multipage_watermark"), 470);
         
-        self.files['multipage_watermark'] = get_utf8_string(multipage_watermark)
+        self.files['multipage_watermark'] = get_utf8_string(watermark)
         return self
 
-    def setMultipageWatermarkUrl(self, multipage_watermark_url):
+    def setMultipageWatermarkUrl(self, url):
         """
         Load a watermark PDF from the specified URL and apply each page of the specified watermark PDF to the corresponding page of the output PDF.
 
-        multipage_watermark_url - The supported protocols are http:// and https://.
+        url - The supported protocols are http:// and https://.
         return - The converter object.
         """
-        if not re.match('(?i)^https?://.*$', multipage_watermark_url):
-            raise Error(create_invalid_value_message(multipage_watermark_url, "multipage_watermark_url", "html-to-pdf", "The supported protocols are http:// and https://.", "set_multipage_watermark_url"), 470);
+        if not re.match('(?i)^https?://.*$', url):
+            raise Error(create_invalid_value_message(url, "setMultipageWatermarkUrl", "html-to-pdf", "The supported protocols are http:// and https://.", "set_multipage_watermark_url"), 470);
         
-        self.fields['multipage_watermark_url'] = get_utf8_string(multipage_watermark_url)
+        self.fields['multipage_watermark_url'] = get_utf8_string(url)
         return self
 
-    def setPageBackground(self, page_background):
+    def setPageBackground(self, background):
         """
         Apply the first page of the specified PDF to the background of every page of the output PDF.
 
-        page_background - The file path to a local background PDF file. The file must exist and not be empty.
+        background - The file path to a local background PDF file. The file must exist and not be empty.
         return - The converter object.
         """
-        if not (os.path.isfile(page_background) and os.path.getsize(page_background)):
-            raise Error(create_invalid_value_message(page_background, "page_background", "html-to-pdf", "The file must exist and not be empty.", "set_page_background"), 470);
+        if not (os.path.isfile(background) and os.path.getsize(background)):
+            raise Error(create_invalid_value_message(background, "setPageBackground", "html-to-pdf", "The file must exist and not be empty.", "set_page_background"), 470);
         
-        self.files['page_background'] = get_utf8_string(page_background)
+        self.files['page_background'] = get_utf8_string(background)
         return self
 
-    def setPageBackgroundUrl(self, page_background_url):
+    def setPageBackgroundUrl(self, url):
         """
         Load a background PDF from the specified URL and apply the first page of the background PDF to every page of the output PDF.
 
-        page_background_url - The supported protocols are http:// and https://.
+        url - The supported protocols are http:// and https://.
         return - The converter object.
         """
-        if not re.match('(?i)^https?://.*$', page_background_url):
-            raise Error(create_invalid_value_message(page_background_url, "page_background_url", "html-to-pdf", "The supported protocols are http:// and https://.", "set_page_background_url"), 470);
+        if not re.match('(?i)^https?://.*$', url):
+            raise Error(create_invalid_value_message(url, "setPageBackgroundUrl", "html-to-pdf", "The supported protocols are http:// and https://.", "set_page_background_url"), 470);
         
-        self.fields['page_background_url'] = get_utf8_string(page_background_url)
+        self.fields['page_background_url'] = get_utf8_string(url)
         return self
 
-    def setMultipageBackground(self, multipage_background):
+    def setMultipageBackground(self, background):
         """
         Apply each page of the specified PDF to the background of the corresponding page of the output PDF.
 
-        multipage_background - The file path to a local background PDF file. The file must exist and not be empty.
+        background - The file path to a local background PDF file. The file must exist and not be empty.
         return - The converter object.
         """
-        if not (os.path.isfile(multipage_background) and os.path.getsize(multipage_background)):
-            raise Error(create_invalid_value_message(multipage_background, "multipage_background", "html-to-pdf", "The file must exist and not be empty.", "set_multipage_background"), 470);
+        if not (os.path.isfile(background) and os.path.getsize(background)):
+            raise Error(create_invalid_value_message(background, "setMultipageBackground", "html-to-pdf", "The file must exist and not be empty.", "set_multipage_background"), 470);
         
-        self.files['multipage_background'] = get_utf8_string(multipage_background)
+        self.files['multipage_background'] = get_utf8_string(background)
         return self
 
-    def setMultipageBackgroundUrl(self, multipage_background_url):
+    def setMultipageBackgroundUrl(self, url):
         """
         Load a background PDF from the specified URL and apply each page of the specified background PDF to the corresponding page of the output PDF.
 
-        multipage_background_url - The supported protocols are http:// and https://.
+        url - The supported protocols are http:// and https://.
         return - The converter object.
         """
-        if not re.match('(?i)^https?://.*$', multipage_background_url):
-            raise Error(create_invalid_value_message(multipage_background_url, "multipage_background_url", "html-to-pdf", "The supported protocols are http:// and https://.", "set_multipage_background_url"), 470);
+        if not re.match('(?i)^https?://.*$', url):
+            raise Error(create_invalid_value_message(url, "setMultipageBackgroundUrl", "html-to-pdf", "The supported protocols are http:// and https://.", "set_multipage_background_url"), 470);
         
-        self.fields['multipage_background_url'] = get_utf8_string(multipage_background_url)
+        self.fields['multipage_background_url'] = get_utf8_string(url)
         return self
 
-    def setPageBackgroundColor(self, page_background_color):
+    def setPageBackgroundColor(self, color):
         """
         The page background color in RGB or RGBA hexadecimal format. The color fills the entire page regardless of the margins.
 
-        page_background_color - The value must be in RRGGBB or RRGGBBAA hexadecimal format.
+        color - The value must be in RRGGBB or RRGGBBAA hexadecimal format.
         return - The converter object.
         """
-        if not re.match('^[0-9a-fA-F]{6,8}$', page_background_color):
-            raise Error(create_invalid_value_message(page_background_color, "page_background_color", "html-to-pdf", "The value must be in RRGGBB or RRGGBBAA hexadecimal format.", "set_page_background_color"), 470);
+        if not re.match('^[0-9a-fA-F]{6,8}$', color):
+            raise Error(create_invalid_value_message(color, "setPageBackgroundColor", "html-to-pdf", "The value must be in RRGGBB or RRGGBBAA hexadecimal format.", "set_page_background_color"), 470);
         
-        self.fields['page_background_color'] = get_utf8_string(page_background_color)
+        self.fields['page_background_color'] = get_utf8_string(color)
         return self
 
-    def setNoBackground(self, no_background):
+    def setUsePrintMedia(self, value):
+        """
+        Use the print version of the page if available (@media print).
+
+        value - Set to True to use the print version of the page.
+        return - The converter object.
+        """
+        self.fields['use_print_media'] = value
+        return self
+
+    def setNoBackground(self, value):
         """
         Do not print the background graphics.
 
-        no_background - Set to True to disable the background graphics.
+        value - Set to True to disable the background graphics.
         return - The converter object.
         """
-        self.fields['no_background'] = no_background
+        self.fields['no_background'] = value
         return self
 
-    def setDisableJavascript(self, disable_javascript):
+    def setDisableJavascript(self, value):
         """
         Do not execute JavaScript.
 
-        disable_javascript - Set to True to disable JavaScript in web pages.
+        value - Set to True to disable JavaScript in web pages.
         return - The converter object.
         """
-        self.fields['disable_javascript'] = disable_javascript
+        self.fields['disable_javascript'] = value
         return self
 
-    def setDisableImageLoading(self, disable_image_loading):
+    def setDisableImageLoading(self, value):
         """
         Do not load images.
 
-        disable_image_loading - Set to True to disable loading of images.
+        value - Set to True to disable loading of images.
         return - The converter object.
         """
-        self.fields['disable_image_loading'] = disable_image_loading
+        self.fields['disable_image_loading'] = value
         return self
 
-    def setDisableRemoteFonts(self, disable_remote_fonts):
+    def setDisableRemoteFonts(self, value):
         """
         Disable loading fonts from remote sources.
 
-        disable_remote_fonts - Set to True disable loading remote fonts.
+        value - Set to True disable loading remote fonts.
         return - The converter object.
         """
-        self.fields['disable_remote_fonts'] = disable_remote_fonts
+        self.fields['disable_remote_fonts'] = value
         return self
 
-    def setBlockAds(self, block_ads):
+    def setLoadIframes(self, iframes):
+        """
+        Specifies how iframes are handled.
+
+        iframes - Allowed values are all, same-origin, none.
+        return - The converter object.
+        """
+        if not re.match('(?i)^(all|same-origin|none)$', iframes):
+            raise Error(create_invalid_value_message(iframes, "setLoadIframes", "html-to-pdf", "Allowed values are all, same-origin, none.", "set_load_iframes"), 470);
+        
+        self.fields['load_iframes'] = get_utf8_string(iframes)
+        return self
+
+    def setBlockAds(self, value):
         """
         Try to block ads. Enabling this option can produce smaller output and speed up the conversion.
 
-        block_ads - Set to True to block ads in web pages.
+        value - Set to True to block ads in web pages.
         return - The converter object.
         """
-        self.fields['block_ads'] = block_ads
+        self.fields['block_ads'] = value
         return self
 
-    def setDefaultEncoding(self, default_encoding):
+    def setDefaultEncoding(self, encoding):
         """
         Set the default HTML content text encoding.
 
-        default_encoding - The text encoding of the HTML content.
+        encoding - The text encoding of the HTML content.
         return - The converter object.
         """
-        self.fields['default_encoding'] = get_utf8_string(default_encoding)
+        self.fields['default_encoding'] = get_utf8_string(encoding)
+        return self
+
+    def setLocale(self, locale):
+        """
+        Set the locale for the conversion. This may affect the output format of dates, times and numbers.
+
+        locale - The locale code according to ISO 639.
+        return - The converter object.
+        """
+        self.fields['locale'] = get_utf8_string(locale)
         return self
 
     def setHttpAuthUserName(self, user_name):
@@ -1720,26 +1786,6 @@ class HtmlToPdfClient:
         self.setHttpAuthPassword(password)
         return self
 
-    def setUsePrintMedia(self, use_print_media):
-        """
-        Use the print version of the page if available (@media print).
-
-        use_print_media - Set to True to use the print version of the page.
-        return - The converter object.
-        """
-        self.fields['use_print_media'] = use_print_media
-        return self
-
-    def setNoXpdfcrowdHeader(self, no_xpdfcrowd_header):
-        """
-        Do not send the X-Pdfcrowd HTTP header in Pdfcrowd HTTP requests.
-
-        no_xpdfcrowd_header - Set to True to disable sending X-Pdfcrowd HTTP header.
-        return - The converter object.
-        """
-        self.fields['no_xpdfcrowd_header'] = no_xpdfcrowd_header
-        return self
-
     def setCookies(self, cookies):
         """
         Set cookies that are sent in Pdfcrowd HTTP requests.
@@ -1750,14 +1796,14 @@ class HtmlToPdfClient:
         self.fields['cookies'] = get_utf8_string(cookies)
         return self
 
-    def setVerifySslCertificates(self, verify_ssl_certificates):
+    def setVerifySslCertificates(self, value):
         """
         Do not allow insecure HTTPS connections.
 
-        verify_ssl_certificates - Set to True to enable SSL certificate verification.
+        value - Set to True to enable SSL certificate verification.
         return - The converter object.
         """
-        self.fields['verify_ssl_certificates'] = verify_ssl_certificates
+        self.fields['verify_ssl_certificates'] = value
         return self
 
     def setFailOnMainUrlError(self, fail_on_error):
@@ -1780,56 +1826,66 @@ class HtmlToPdfClient:
         self.fields['fail_on_any_url_error'] = fail_on_error
         return self
 
-    def setCustomJavascript(self, custom_javascript):
+    def setNoXpdfcrowdHeader(self, value):
+        """
+        Do not send the X-Pdfcrowd HTTP header in Pdfcrowd HTTP requests.
+
+        value - Set to True to disable sending X-Pdfcrowd HTTP header.
+        return - The converter object.
+        """
+        self.fields['no_xpdfcrowd_header'] = value
+        return self
+
+    def setCustomJavascript(self, javascript):
         """
         Run a custom JavaScript after the document is loaded and ready to print. The script is intended for post-load DOM manipulation (add/remove elements, update CSS, ...). In addition to the standard browser APIs, the custom JavaScript code can use helper functions from our JavaScript library.
 
-        custom_javascript - A string containing a JavaScript code. The string must not be empty.
+        javascript - A string containing a JavaScript code. The string must not be empty.
         return - The converter object.
         """
-        if not (custom_javascript):
-            raise Error(create_invalid_value_message(custom_javascript, "custom_javascript", "html-to-pdf", "The string must not be empty.", "set_custom_javascript"), 470);
+        if not (javascript):
+            raise Error(create_invalid_value_message(javascript, "setCustomJavascript", "html-to-pdf", "The string must not be empty.", "set_custom_javascript"), 470);
         
-        self.fields['custom_javascript'] = get_utf8_string(custom_javascript)
+        self.fields['custom_javascript'] = get_utf8_string(javascript)
         return self
 
-    def setOnLoadJavascript(self, on_load_javascript):
+    def setOnLoadJavascript(self, javascript):
         """
         Run a custom JavaScript right after the document is loaded. The script is intended for early DOM manipulation (add/remove elements, update CSS, ...). In addition to the standard browser APIs, the custom JavaScript code can use helper functions from our JavaScript library.
 
-        on_load_javascript - A string containing a JavaScript code. The string must not be empty.
+        javascript - A string containing a JavaScript code. The string must not be empty.
         return - The converter object.
         """
-        if not (on_load_javascript):
-            raise Error(create_invalid_value_message(on_load_javascript, "on_load_javascript", "html-to-pdf", "The string must not be empty.", "set_on_load_javascript"), 470);
+        if not (javascript):
+            raise Error(create_invalid_value_message(javascript, "setOnLoadJavascript", "html-to-pdf", "The string must not be empty.", "set_on_load_javascript"), 470);
         
-        self.fields['on_load_javascript'] = get_utf8_string(on_load_javascript)
+        self.fields['on_load_javascript'] = get_utf8_string(javascript)
         return self
 
-    def setCustomHttpHeader(self, custom_http_header):
+    def setCustomHttpHeader(self, header):
         """
         Set a custom HTTP header that is sent in Pdfcrowd HTTP requests.
 
-        custom_http_header - A string containing the header name and value separated by a colon.
+        header - A string containing the header name and value separated by a colon.
         return - The converter object.
         """
-        if not re.match('^.+:.+$', custom_http_header):
-            raise Error(create_invalid_value_message(custom_http_header, "custom_http_header", "html-to-pdf", "A string containing the header name and value separated by a colon.", "set_custom_http_header"), 470);
+        if not re.match('^.+:.+$', header):
+            raise Error(create_invalid_value_message(header, "setCustomHttpHeader", "html-to-pdf", "A string containing the header name and value separated by a colon.", "set_custom_http_header"), 470);
         
-        self.fields['custom_http_header'] = get_utf8_string(custom_http_header)
+        self.fields['custom_http_header'] = get_utf8_string(header)
         return self
 
-    def setJavascriptDelay(self, javascript_delay):
+    def setJavascriptDelay(self, delay):
         """
         Wait the specified number of milliseconds to finish all JavaScript after the document is loaded. Your API license defines the maximum wait time by "Max Delay" parameter.
 
-        javascript_delay - The number of milliseconds to wait. Must be a positive integer number or 0.
+        delay - The number of milliseconds to wait. Must be a positive integer number or 0.
         return - The converter object.
         """
-        if not (int(javascript_delay) >= 0):
-            raise Error(create_invalid_value_message(javascript_delay, "javascript_delay", "html-to-pdf", "Must be a positive integer number or 0.", "set_javascript_delay"), 470);
+        if not (int(delay) >= 0):
+            raise Error(create_invalid_value_message(delay, "setJavascriptDelay", "html-to-pdf", "Must be a positive integer number or 0.", "set_javascript_delay"), 470);
         
-        self.fields['javascript_delay'] = javascript_delay
+        self.fields['javascript_delay'] = delay
         return self
 
     def setElementToConvert(self, selectors):
@@ -1840,7 +1896,7 @@ class HtmlToPdfClient:
         return - The converter object.
         """
         if not (selectors):
-            raise Error(create_invalid_value_message(selectors, "selectors", "html-to-pdf", "The string must not be empty.", "set_element_to_convert"), 470);
+            raise Error(create_invalid_value_message(selectors, "setElementToConvert", "html-to-pdf", "The string must not be empty.", "set_element_to_convert"), 470);
         
         self.fields['element_to_convert'] = get_utf8_string(selectors)
         return self
@@ -1853,7 +1909,7 @@ class HtmlToPdfClient:
         return - The converter object.
         """
         if not re.match('(?i)^(cut-out|remove-siblings|hide-siblings)$', mode):
-            raise Error(create_invalid_value_message(mode, "mode", "html-to-pdf", "Allowed values are cut-out, remove-siblings, hide-siblings.", "set_element_to_convert_mode"), 470);
+            raise Error(create_invalid_value_message(mode, "setElementToConvertMode", "html-to-pdf", "Allowed values are cut-out, remove-siblings, hide-siblings.", "set_element_to_convert_mode"), 470);
         
         self.fields['element_to_convert_mode'] = get_utf8_string(mode)
         return self
@@ -1866,35 +1922,35 @@ class HtmlToPdfClient:
         return - The converter object.
         """
         if not (selectors):
-            raise Error(create_invalid_value_message(selectors, "selectors", "html-to-pdf", "The string must not be empty.", "set_wait_for_element"), 470);
+            raise Error(create_invalid_value_message(selectors, "setWaitForElement", "html-to-pdf", "The string must not be empty.", "set_wait_for_element"), 470);
         
         self.fields['wait_for_element'] = get_utf8_string(selectors)
         return self
 
-    def setViewportWidth(self, viewport_width):
+    def setViewportWidth(self, width):
         """
         Set the viewport width in pixels. The viewport is the user's visible area of the page.
 
-        viewport_width - The value must be in the range 96-65000.
+        width - The value must be in the range 96-65000.
         return - The converter object.
         """
-        if not (int(viewport_width) >= 96 and int(viewport_width) <= 65000):
-            raise Error(create_invalid_value_message(viewport_width, "viewport_width", "html-to-pdf", "The value must be in the range 96-65000.", "set_viewport_width"), 470);
+        if not (int(width) >= 96 and int(width) <= 65000):
+            raise Error(create_invalid_value_message(width, "setViewportWidth", "html-to-pdf", "The value must be in the range 96-65000.", "set_viewport_width"), 470);
         
-        self.fields['viewport_width'] = viewport_width
+        self.fields['viewport_width'] = width
         return self
 
-    def setViewportHeight(self, viewport_height):
+    def setViewportHeight(self, height):
         """
         Set the viewport height in pixels. The viewport is the user's visible area of the page.
 
-        viewport_height - Must be a positive integer number.
+        height - Must be a positive integer number.
         return - The converter object.
         """
-        if not (int(viewport_height) > 0):
-            raise Error(create_invalid_value_message(viewport_height, "viewport_height", "html-to-pdf", "Must be a positive integer number.", "set_viewport_height"), 470);
+        if not (int(height) > 0):
+            raise Error(create_invalid_value_message(height, "setViewportHeight", "html-to-pdf", "Must be a positive integer number.", "set_viewport_height"), 470);
         
-        self.fields['viewport_height'] = viewport_height
+        self.fields['viewport_height'] = height
         return self
 
     def setViewport(self, width, height):
@@ -1909,175 +1965,165 @@ class HtmlToPdfClient:
         self.setViewportHeight(height)
         return self
 
-    def setRenderingMode(self, rendering_mode):
+    def setRenderingMode(self, mode):
         """
         Set the rendering mode.
 
-        rendering_mode - The rendering mode. Allowed values are default, viewport.
+        mode - The rendering mode. Allowed values are default, viewport.
         return - The converter object.
         """
-        if not re.match('(?i)^(default|viewport)$', rendering_mode):
-            raise Error(create_invalid_value_message(rendering_mode, "rendering_mode", "html-to-pdf", "Allowed values are default, viewport.", "set_rendering_mode"), 470);
+        if not re.match('(?i)^(default|viewport)$', mode):
+            raise Error(create_invalid_value_message(mode, "setRenderingMode", "html-to-pdf", "Allowed values are default, viewport.", "set_rendering_mode"), 470);
         
-        self.fields['rendering_mode'] = get_utf8_string(rendering_mode)
+        self.fields['rendering_mode'] = get_utf8_string(mode)
         return self
 
-    def setSmartScalingMode(self, smart_scaling_mode):
+    def setSmartScalingMode(self, mode):
         """
         Specifies the scaling mode used for fitting the HTML contents to the print area.
 
-        smart_scaling_mode - The smart scaling mode. Allowed values are default, disabled, viewport-fit, content-fit, single-page-fit.
+        mode - The smart scaling mode. Allowed values are default, disabled, viewport-fit, content-fit, single-page-fit, mode1.
         return - The converter object.
         """
-        if not re.match('(?i)^(default|disabled|viewport-fit|content-fit|single-page-fit)$', smart_scaling_mode):
-            raise Error(create_invalid_value_message(smart_scaling_mode, "smart_scaling_mode", "html-to-pdf", "Allowed values are default, disabled, viewport-fit, content-fit, single-page-fit.", "set_smart_scaling_mode"), 470);
+        if not re.match('(?i)^(default|disabled|viewport-fit|content-fit|single-page-fit|mode1)$', mode):
+            raise Error(create_invalid_value_message(mode, "setSmartScalingMode", "html-to-pdf", "Allowed values are default, disabled, viewport-fit, content-fit, single-page-fit, mode1.", "set_smart_scaling_mode"), 470);
         
-        self.fields['smart_scaling_mode'] = get_utf8_string(smart_scaling_mode)
+        self.fields['smart_scaling_mode'] = get_utf8_string(mode)
         return self
 
-    def setScaleFactor(self, scale_factor):
+    def setScaleFactor(self, factor):
         """
         Set the scaling factor (zoom) for the main page area.
 
-        scale_factor - The percentage value. The value must be in the range 10-500.
+        factor - The percentage value. The value must be in the range 10-500.
         return - The converter object.
         """
-        if not (int(scale_factor) >= 10 and int(scale_factor) <= 500):
-            raise Error(create_invalid_value_message(scale_factor, "scale_factor", "html-to-pdf", "The value must be in the range 10-500.", "set_scale_factor"), 470);
+        if not (int(factor) >= 10 and int(factor) <= 500):
+            raise Error(create_invalid_value_message(factor, "setScaleFactor", "html-to-pdf", "The value must be in the range 10-500.", "set_scale_factor"), 470);
         
-        self.fields['scale_factor'] = scale_factor
+        self.fields['scale_factor'] = factor
         return self
 
-    def setHeaderFooterScaleFactor(self, header_footer_scale_factor):
+    def setHeaderFooterScaleFactor(self, factor):
         """
         Set the scaling factor (zoom) for the header and footer.
 
-        header_footer_scale_factor - The percentage value. The value must be in the range 10-500.
+        factor - The percentage value. The value must be in the range 10-500.
         return - The converter object.
         """
-        if not (int(header_footer_scale_factor) >= 10 and int(header_footer_scale_factor) <= 500):
-            raise Error(create_invalid_value_message(header_footer_scale_factor, "header_footer_scale_factor", "html-to-pdf", "The value must be in the range 10-500.", "set_header_footer_scale_factor"), 470);
+        if not (int(factor) >= 10 and int(factor) <= 500):
+            raise Error(create_invalid_value_message(factor, "setHeaderFooterScaleFactor", "html-to-pdf", "The value must be in the range 10-500.", "set_header_footer_scale_factor"), 470);
         
-        self.fields['header_footer_scale_factor'] = header_footer_scale_factor
+        self.fields['header_footer_scale_factor'] = factor
         return self
 
-    def setDisableSmartShrinking(self, disable_smart_shrinking):
-        """
-        Disable the intelligent shrinking strategy that tries to optimally fit the HTML contents to a PDF page.
-
-        disable_smart_shrinking - Set to True to disable the intelligent shrinking strategy.
-        return - The converter object.
-        """
-        self.fields['disable_smart_shrinking'] = disable_smart_shrinking
-        return self
-
-    def setJpegQuality(self, jpeg_quality):
+    def setJpegQuality(self, quality):
         """
         Set the quality of embedded JPEG images. A lower quality results in a smaller PDF file but can lead to compression artifacts.
 
-        jpeg_quality - The percentage value. The value must be in the range 1-100.
+        quality - The percentage value. The value must be in the range 1-100.
         return - The converter object.
         """
-        if not (int(jpeg_quality) >= 1 and int(jpeg_quality) <= 100):
-            raise Error(create_invalid_value_message(jpeg_quality, "jpeg_quality", "html-to-pdf", "The value must be in the range 1-100.", "set_jpeg_quality"), 470);
+        if not (int(quality) >= 1 and int(quality) <= 100):
+            raise Error(create_invalid_value_message(quality, "setJpegQuality", "html-to-pdf", "The value must be in the range 1-100.", "set_jpeg_quality"), 470);
         
-        self.fields['jpeg_quality'] = jpeg_quality
+        self.fields['jpeg_quality'] = quality
         return self
 
-    def setConvertImagesToJpeg(self, convert_images_to_jpeg):
+    def setConvertImagesToJpeg(self, images):
         """
         Specify which image types will be converted to JPEG. Converting lossless compression image formats (PNG, GIF, ...) to JPEG may result in a smaller PDF file.
 
-        convert_images_to_jpeg - The image category. Allowed values are none, opaque, all.
+        images - The image category. Allowed values are none, opaque, all.
         return - The converter object.
         """
-        if not re.match('(?i)^(none|opaque|all)$', convert_images_to_jpeg):
-            raise Error(create_invalid_value_message(convert_images_to_jpeg, "convert_images_to_jpeg", "html-to-pdf", "Allowed values are none, opaque, all.", "set_convert_images_to_jpeg"), 470);
+        if not re.match('(?i)^(none|opaque|all)$', images):
+            raise Error(create_invalid_value_message(images, "setConvertImagesToJpeg", "html-to-pdf", "Allowed values are none, opaque, all.", "set_convert_images_to_jpeg"), 470);
         
-        self.fields['convert_images_to_jpeg'] = get_utf8_string(convert_images_to_jpeg)
+        self.fields['convert_images_to_jpeg'] = get_utf8_string(images)
         return self
 
-    def setImageDpi(self, image_dpi):
+    def setImageDpi(self, dpi):
         """
         Set the DPI of images in PDF. A lower DPI may result in a smaller PDF file. If the specified DPI is higher than the actual image DPI, the original image DPI is retained (no upscaling is performed). Use 0 to leave the images unaltered.
 
-        image_dpi - The DPI value. Must be a positive integer number or 0.
+        dpi - The DPI value. Must be a positive integer number or 0.
         return - The converter object.
         """
-        if not (int(image_dpi) >= 0):
-            raise Error(create_invalid_value_message(image_dpi, "image_dpi", "html-to-pdf", "Must be a positive integer number or 0.", "set_image_dpi"), 470);
+        if not (int(dpi) >= 0):
+            raise Error(create_invalid_value_message(dpi, "setImageDpi", "html-to-pdf", "Must be a positive integer number or 0.", "set_image_dpi"), 470);
         
-        self.fields['image_dpi'] = image_dpi
+        self.fields['image_dpi'] = dpi
         return self
 
-    def setLinearize(self, linearize):
+    def setLinearize(self, value):
         """
         Create linearized PDF. This is also known as Fast Web View.
 
-        linearize - Set to True to create linearized PDF.
+        value - Set to True to create linearized PDF.
         return - The converter object.
         """
-        self.fields['linearize'] = linearize
+        self.fields['linearize'] = value
         return self
 
-    def setEncrypt(self, encrypt):
+    def setEncrypt(self, value):
         """
         Encrypt the PDF. This prevents search engines from indexing the contents.
 
-        encrypt - Set to True to enable PDF encryption.
+        value - Set to True to enable PDF encryption.
         return - The converter object.
         """
-        self.fields['encrypt'] = encrypt
+        self.fields['encrypt'] = value
         return self
 
-    def setUserPassword(self, user_password):
+    def setUserPassword(self, password):
         """
         Protect the PDF with a user password. When a PDF has a user password, it must be supplied in order to view the document and to perform operations allowed by the access permissions.
 
-        user_password - The user password.
+        password - The user password.
         return - The converter object.
         """
-        self.fields['user_password'] = get_utf8_string(user_password)
+        self.fields['user_password'] = get_utf8_string(password)
         return self
 
-    def setOwnerPassword(self, owner_password):
+    def setOwnerPassword(self, password):
         """
         Protect the PDF with an owner password. Supplying an owner password grants unlimited access to the PDF including changing the passwords and access permissions.
 
-        owner_password - The owner password.
+        password - The owner password.
         return - The converter object.
         """
-        self.fields['owner_password'] = get_utf8_string(owner_password)
+        self.fields['owner_password'] = get_utf8_string(password)
         return self
 
-    def setNoPrint(self, no_print):
+    def setNoPrint(self, value):
         """
         Disallow printing of the output PDF.
 
-        no_print - Set to True to set the no-print flag in the output PDF.
+        value - Set to True to set the no-print flag in the output PDF.
         return - The converter object.
         """
-        self.fields['no_print'] = no_print
+        self.fields['no_print'] = value
         return self
 
-    def setNoModify(self, no_modify):
+    def setNoModify(self, value):
         """
         Disallow modification of the output PDF.
 
-        no_modify - Set to True to set the read-only only flag in the output PDF.
+        value - Set to True to set the read-only only flag in the output PDF.
         return - The converter object.
         """
-        self.fields['no_modify'] = no_modify
+        self.fields['no_modify'] = value
         return self
 
-    def setNoCopy(self, no_copy):
+    def setNoCopy(self, value):
         """
         Disallow text and graphics extraction from the output PDF.
 
-        no_copy - Set to True to set the no-copy flag in the output PDF.
+        value - Set to True to set the no-copy flag in the output PDF.
         return - The converter object.
         """
-        self.fields['no_copy'] = no_copy
+        self.fields['no_copy'] = value
         return self
 
     def setTitle(self, title):
@@ -2120,149 +2166,149 @@ class HtmlToPdfClient:
         self.fields['keywords'] = get_utf8_string(keywords)
         return self
 
-    def setPageLayout(self, page_layout):
+    def setPageLayout(self, layout):
         """
         Specify the page layout to be used when the document is opened.
 
-        page_layout - Allowed values are single-page, one-column, two-column-left, two-column-right.
+        layout - Allowed values are single-page, one-column, two-column-left, two-column-right.
         return - The converter object.
         """
-        if not re.match('(?i)^(single-page|one-column|two-column-left|two-column-right)$', page_layout):
-            raise Error(create_invalid_value_message(page_layout, "page_layout", "html-to-pdf", "Allowed values are single-page, one-column, two-column-left, two-column-right.", "set_page_layout"), 470);
+        if not re.match('(?i)^(single-page|one-column|two-column-left|two-column-right)$', layout):
+            raise Error(create_invalid_value_message(layout, "setPageLayout", "html-to-pdf", "Allowed values are single-page, one-column, two-column-left, two-column-right.", "set_page_layout"), 470);
         
-        self.fields['page_layout'] = get_utf8_string(page_layout)
+        self.fields['page_layout'] = get_utf8_string(layout)
         return self
 
-    def setPageMode(self, page_mode):
+    def setPageMode(self, mode):
         """
         Specify how the document should be displayed when opened.
 
-        page_mode - Allowed values are full-screen, thumbnails, outlines.
+        mode - Allowed values are full-screen, thumbnails, outlines.
         return - The converter object.
         """
-        if not re.match('(?i)^(full-screen|thumbnails|outlines)$', page_mode):
-            raise Error(create_invalid_value_message(page_mode, "page_mode", "html-to-pdf", "Allowed values are full-screen, thumbnails, outlines.", "set_page_mode"), 470);
+        if not re.match('(?i)^(full-screen|thumbnails|outlines)$', mode):
+            raise Error(create_invalid_value_message(mode, "setPageMode", "html-to-pdf", "Allowed values are full-screen, thumbnails, outlines.", "set_page_mode"), 470);
         
-        self.fields['page_mode'] = get_utf8_string(page_mode)
+        self.fields['page_mode'] = get_utf8_string(mode)
         return self
 
-    def setInitialZoomType(self, initial_zoom_type):
+    def setInitialZoomType(self, zoom_type):
         """
         Specify how the page should be displayed when opened.
 
-        initial_zoom_type - Allowed values are fit-width, fit-height, fit-page.
+        zoom_type - Allowed values are fit-width, fit-height, fit-page.
         return - The converter object.
         """
-        if not re.match('(?i)^(fit-width|fit-height|fit-page)$', initial_zoom_type):
-            raise Error(create_invalid_value_message(initial_zoom_type, "initial_zoom_type", "html-to-pdf", "Allowed values are fit-width, fit-height, fit-page.", "set_initial_zoom_type"), 470);
+        if not re.match('(?i)^(fit-width|fit-height|fit-page)$', zoom_type):
+            raise Error(create_invalid_value_message(zoom_type, "setInitialZoomType", "html-to-pdf", "Allowed values are fit-width, fit-height, fit-page.", "set_initial_zoom_type"), 470);
         
-        self.fields['initial_zoom_type'] = get_utf8_string(initial_zoom_type)
+        self.fields['initial_zoom_type'] = get_utf8_string(zoom_type)
         return self
 
-    def setInitialPage(self, initial_page):
+    def setInitialPage(self, page):
         """
         Display the specified page when the document is opened.
 
-        initial_page - Must be a positive integer number.
+        page - Must be a positive integer number.
         return - The converter object.
         """
-        if not (int(initial_page) > 0):
-            raise Error(create_invalid_value_message(initial_page, "initial_page", "html-to-pdf", "Must be a positive integer number.", "set_initial_page"), 470);
+        if not (int(page) > 0):
+            raise Error(create_invalid_value_message(page, "setInitialPage", "html-to-pdf", "Must be a positive integer number.", "set_initial_page"), 470);
         
-        self.fields['initial_page'] = initial_page
+        self.fields['initial_page'] = page
         return self
 
-    def setInitialZoom(self, initial_zoom):
+    def setInitialZoom(self, zoom):
         """
         Specify the initial page zoom in percents when the document is opened.
 
-        initial_zoom - Must be a positive integer number.
+        zoom - Must be a positive integer number.
         return - The converter object.
         """
-        if not (int(initial_zoom) > 0):
-            raise Error(create_invalid_value_message(initial_zoom, "initial_zoom", "html-to-pdf", "Must be a positive integer number.", "set_initial_zoom"), 470);
+        if not (int(zoom) > 0):
+            raise Error(create_invalid_value_message(zoom, "setInitialZoom", "html-to-pdf", "Must be a positive integer number.", "set_initial_zoom"), 470);
         
-        self.fields['initial_zoom'] = initial_zoom
+        self.fields['initial_zoom'] = zoom
         return self
 
-    def setHideToolbar(self, hide_toolbar):
+    def setHideToolbar(self, value):
         """
         Specify whether to hide the viewer application's tool bars when the document is active.
 
-        hide_toolbar - Set to True to hide tool bars.
+        value - Set to True to hide tool bars.
         return - The converter object.
         """
-        self.fields['hide_toolbar'] = hide_toolbar
+        self.fields['hide_toolbar'] = value
         return self
 
-    def setHideMenubar(self, hide_menubar):
+    def setHideMenubar(self, value):
         """
         Specify whether to hide the viewer application's menu bar when the document is active.
 
-        hide_menubar - Set to True to hide the menu bar.
+        value - Set to True to hide the menu bar.
         return - The converter object.
         """
-        self.fields['hide_menubar'] = hide_menubar
+        self.fields['hide_menubar'] = value
         return self
 
-    def setHideWindowUi(self, hide_window_ui):
+    def setHideWindowUi(self, value):
         """
         Specify whether to hide user interface elements in the document's window (such as scroll bars and navigation controls), leaving only the document's contents displayed.
 
-        hide_window_ui - Set to True to hide ui elements.
+        value - Set to True to hide ui elements.
         return - The converter object.
         """
-        self.fields['hide_window_ui'] = hide_window_ui
+        self.fields['hide_window_ui'] = value
         return self
 
-    def setFitWindow(self, fit_window):
+    def setFitWindow(self, value):
         """
         Specify whether to resize the document's window to fit the size of the first displayed page.
 
-        fit_window - Set to True to resize the window.
+        value - Set to True to resize the window.
         return - The converter object.
         """
-        self.fields['fit_window'] = fit_window
+        self.fields['fit_window'] = value
         return self
 
-    def setCenterWindow(self, center_window):
+    def setCenterWindow(self, value):
         """
         Specify whether to position the document's window in the center of the screen.
 
-        center_window - Set to True to center the window.
+        value - Set to True to center the window.
         return - The converter object.
         """
-        self.fields['center_window'] = center_window
+        self.fields['center_window'] = value
         return self
 
-    def setDisplayTitle(self, display_title):
+    def setDisplayTitle(self, value):
         """
         Specify whether the window's title bar should display the document title. If false , the title bar should instead display the name of the PDF file containing the document.
 
-        display_title - Set to True to display the title.
+        value - Set to True to display the title.
         return - The converter object.
         """
-        self.fields['display_title'] = display_title
+        self.fields['display_title'] = value
         return self
 
-    def setRightToLeft(self, right_to_left):
+    def setRightToLeft(self, value):
         """
         Set the predominant reading order for text to right-to-left. This option has no direct effect on the document's contents or page numbering but can be used to determine the relative positioning of pages when displayed side by side or printed n-up
 
-        right_to_left - Set to True to set right-to-left reading order.
+        value - Set to True to set right-to-left reading order.
         return - The converter object.
         """
-        self.fields['right_to_left'] = right_to_left
+        self.fields['right_to_left'] = value
         return self
 
-    def setDebugLog(self, debug_log):
+    def setDebugLog(self, value):
         """
         Turn on the debug logging. Details about the conversion are stored in the debug log. The URL of the log can be obtained from the getDebugLogUrl method or available in conversion statistics.
 
-        debug_log - Set to True to enable the debug logging.
+        value - Set to True to enable the debug logging.
         return - The converter object.
         """
-        self.fields['debug_log'] = debug_log
+        self.fields['debug_log'] = value
         return self
 
     def getDebugLogUrl(self):
@@ -2310,6 +2356,13 @@ class HtmlToPdfClient:
         """
         return self.helper.getOutputSize()
 
+    def getVersion(self):
+        """
+        Get the version details.
+        return - API version, converter version, and client version.
+        """
+        return 'client {}, API v2, converter {}'.format(CLIENT_VERSION, self.helper.getConverterVersion())
+
     def setTag(self, tag):
         """
         Tag the conversion with a custom value. The tag is used in conversion statistics. A value longer than 32 characters is cut off.
@@ -2320,74 +2373,161 @@ class HtmlToPdfClient:
         self.fields['tag'] = get_utf8_string(tag)
         return self
 
-    def setHttpProxy(self, http_proxy):
+    def setHttpProxy(self, proxy):
         """
         A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTP scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
 
-        http_proxy - The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
+        proxy - The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
         return - The converter object.
         """
-        if not re.match('(?i)^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z0-9]{1,}:\d+$', http_proxy):
-            raise Error(create_invalid_value_message(http_proxy, "http_proxy", "html-to-pdf", "The value must have format DOMAIN_OR_IP_ADDRESS:PORT.", "set_http_proxy"), 470);
+        if not re.match('(?i)^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z0-9]{1,}:\d+$', proxy):
+            raise Error(create_invalid_value_message(proxy, "setHttpProxy", "html-to-pdf", "The value must have format DOMAIN_OR_IP_ADDRESS:PORT.", "set_http_proxy"), 470);
         
-        self.fields['http_proxy'] = get_utf8_string(http_proxy)
+        self.fields['http_proxy'] = get_utf8_string(proxy)
         return self
 
-    def setHttpsProxy(self, https_proxy):
+    def setHttpsProxy(self, proxy):
         """
         A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTPS scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
 
-        https_proxy - The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
+        proxy - The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
         return - The converter object.
         """
-        if not re.match('(?i)^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z0-9]{1,}:\d+$', https_proxy):
-            raise Error(create_invalid_value_message(https_proxy, "https_proxy", "html-to-pdf", "The value must have format DOMAIN_OR_IP_ADDRESS:PORT.", "set_https_proxy"), 470);
+        if not re.match('(?i)^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z0-9]{1,}:\d+$', proxy):
+            raise Error(create_invalid_value_message(proxy, "setHttpsProxy", "html-to-pdf", "The value must have format DOMAIN_OR_IP_ADDRESS:PORT.", "set_https_proxy"), 470);
         
-        self.fields['https_proxy'] = get_utf8_string(https_proxy)
+        self.fields['https_proxy'] = get_utf8_string(proxy)
         return self
 
-    def setClientCertificate(self, client_certificate):
+    def setClientCertificate(self, certificate):
         """
         A client certificate to authenticate Pdfcrowd converter on your web server. The certificate is used for two-way SSL/TLS authentication and adds extra security.
 
-        client_certificate - The file must be in PKCS12 format. The file must exist and not be empty.
+        certificate - The file must be in PKCS12 format. The file must exist and not be empty.
         return - The converter object.
         """
-        if not (os.path.isfile(client_certificate) and os.path.getsize(client_certificate)):
-            raise Error(create_invalid_value_message(client_certificate, "client_certificate", "html-to-pdf", "The file must exist and not be empty.", "set_client_certificate"), 470);
+        if not (os.path.isfile(certificate) and os.path.getsize(certificate)):
+            raise Error(create_invalid_value_message(certificate, "setClientCertificate", "html-to-pdf", "The file must exist and not be empty.", "set_client_certificate"), 470);
         
-        self.files['client_certificate'] = get_utf8_string(client_certificate)
+        self.files['client_certificate'] = get_utf8_string(certificate)
         return self
 
-    def setClientCertificatePassword(self, client_certificate_password):
+    def setClientCertificatePassword(self, password):
         """
         A password for PKCS12 file with a client certificate if it is needed.
 
-        client_certificate_password -
+        password -
         return - The converter object.
         """
-        self.fields['client_certificate_password'] = get_utf8_string(client_certificate_password)
+        self.fields['client_certificate_password'] = get_utf8_string(password)
         return self
 
-    def setUseHttp(self, use_http):
+    def setLayoutDpi(self, dpi):
+        """
+        Set the internal DPI resolution used for positioning of PDF contents. It can help in situations when there are small inaccuracies in the PDF. It is recommended to use values that are a multiple of 72, such as 288 or 360.
+
+        dpi - The DPI value. The value must be in the range of 72-600.
+        return - The converter object.
+        """
+        if not (int(dpi) >= 72 and int(dpi) <= 600):
+            raise Error(create_invalid_value_message(dpi, "setLayoutDpi", "html-to-pdf", "The value must be in the range of 72-600.", "set_layout_dpi"), 470);
+        
+        self.fields['layout_dpi'] = dpi
+        return self
+
+    def setContentsMatrix(self, matrix):
+        """
+        A 2D transformation matrix applied to the main contents on each page. The origin [0,0] is located at the top-left corner of the contents. The resolution is 72 dpi.
+
+        matrix - A comma separated string of matrix elements: "scaleX,skewX,transX,skewY,scaleY,transY"
+        return - The converter object.
+        """
+        self.fields['contents_matrix'] = get_utf8_string(matrix)
+        return self
+
+    def setHeaderMatrix(self, matrix):
+        """
+        A 2D transformation matrix applied to the page header contents. The origin [0,0] is located at the top-left corner of the header. The resolution is 72 dpi.
+
+        matrix - A comma separated string of matrix elements: "scaleX,skewX,transX,skewY,scaleY,transY"
+        return - The converter object.
+        """
+        self.fields['header_matrix'] = get_utf8_string(matrix)
+        return self
+
+    def setFooterMatrix(self, matrix):
+        """
+        A 2D transformation matrix applied to the page footer contents. The origin [0,0] is located at the top-left corner of the footer. The resolution is 72 dpi.
+
+        matrix - A comma separated string of matrix elements: "scaleX,skewX,transX,skewY,scaleY,transY"
+        return - The converter object.
+        """
+        self.fields['footer_matrix'] = get_utf8_string(matrix)
+        return self
+
+    def setDisablePageHeightOptimization(self, value):
+        """
+        Disable automatic height adjustment that compensates for pixel to point rounding errors.
+
+        value - Set to True to disable automatic height scale.
+        return - The converter object.
+        """
+        self.fields['disable_page_height_optimization'] = value
+        return self
+
+    def setMainDocumentCssAnnotation(self, value):
+        """
+        Add special CSS classes to the main document's body element. This allows applying custom styling based on these classes: pdfcrowd-page-X - where X is the current page number pdfcrowd-page-odd - odd page pdfcrowd-page-even - even page
+        Warning: If your custom styling affects the contents area size (e.g. by using different margins, padding, border width), the resulting PDF may contain duplicit contents or some contents may be missing.
+
+        value - Set to True to add the special CSS classes.
+        return - The converter object.
+        """
+        self.fields['main_document_css_annotation'] = value
+        return self
+
+    def setHeaderFooterCssAnnotation(self, value):
+        """
+        Add special CSS classes to the header/footer's body element. This allows applying custom styling based on these classes: pdfcrowd-page-X - where X is the current page number pdfcrowd-page-count-X - where X is the total page count pdfcrowd-page-first - the first page pdfcrowd-page-last - the last page pdfcrowd-page-odd - odd page pdfcrowd-page-even - even page
+
+        value - Set to True to add the special CSS classes.
+        return - The converter object.
+        """
+        self.fields['header_footer_css_annotation'] = value
+        return self
+
+    def setConverterVersion(self, version):
+        """
+        Set the converter version. Different versions may produce different output. Choose which one provides the best output for your case.
+
+        version - The version identifier. Allowed values are latest, 20.10, 18.10.
+        return - The converter object.
+        """
+        if not re.match('(?i)^(latest|20.10|18.10)$', version):
+            raise Error(create_invalid_value_message(version, "setConverterVersion", "html-to-pdf", "Allowed values are latest, 20.10, 18.10.", "set_converter_version"), 470);
+        
+        self.helper.setConverterVersion(version)
+        return self
+
+    def setUseHttp(self, value):
         """
         Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API.
         Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.
 
-        use_http - Set to True to use HTTP.
+        value - Set to True to use HTTP.
         return - The converter object.
         """
-        self.helper.setUseHttp(use_http)
+        self.helper.setUseHttp(value)
         return self
 
-    def setUserAgent(self, user_agent):
+    def setUserAgent(self, agent):
         """
         Set a custom user agent HTTP header. It can be useful if you are behind some proxy or firewall.
 
-        user_agent - The user agent string.
+        agent - The user agent string.
         return - The converter object.
         """
-        self.helper.setUserAgent(user_agent)
+        self.helper.setUserAgent(agent)
         return self
 
     def setProxy(self, host, port, user_name, password):
@@ -2403,14 +2543,14 @@ class HtmlToPdfClient:
         self.helper.setProxy(host, port, user_name, password)
         return self
 
-    def setRetryCount(self, retry_count):
+    def setRetryCount(self, count):
         """
         Specifies the number of retries when the 502 HTTP status code is received. The 502 status code indicates a temporary network issue. This feature can be disabled by setting to 0.
 
-        retry_count - Number of retries wanted.
+        count - Number of retries wanted.
         return - The converter object.
         """
-        self.helper.setRetryCount(retry_count)
+        self.helper.setRetryCount(count)
         return self
 
 class HtmlToImageClient:
@@ -2442,7 +2582,7 @@ class HtmlToImageClient:
         return - The converter object.
         """
         if not re.match('(?i)^(png|jpg|gif|tiff|bmp|ico|ppm|pgm|pbm|pnm|psb|pct|ras|tga|sgi|sun|webp)$', output_format):
-            raise Error(create_invalid_value_message(output_format, "output_format", "html-to-image", "Allowed values are png, jpg, gif, tiff, bmp, ico, ppm, pgm, pbm, pnm, psb, pct, ras, tga, sgi, sun, webp.", "set_output_format"), 470);
+            raise Error(create_invalid_value_message(output_format, "setOutputFormat", "html-to-image", "Allowed values are png, jpg, gif, tiff, bmp, ico, ppm, pgm, pbm, pnm, psb, pct, ras, tga, sgi, sun, webp.", "set_output_format"), 470);
         
         self.fields['output_format'] = get_utf8_string(output_format)
         return self
@@ -2455,7 +2595,7 @@ class HtmlToImageClient:
         return - Byte array containing the conversion output.
         """
         if not re.match('(?i)^https?://.*$', url):
-            raise Error(create_invalid_value_message(url, "url", "html-to-image", "The supported protocols are http:// and https://.", "convert_url"), 470);
+            raise Error(create_invalid_value_message(url, "convertUrl", "html-to-image", "The supported protocols are http:// and https://.", "convert_url"), 470);
         
         self.fields['url'] = get_utf8_string(url)
         return self.helper.post(self.fields, self.files, self.raw_data)
@@ -2468,7 +2608,7 @@ class HtmlToImageClient:
         out_stream - The output stream that will contain the conversion output.
         """
         if not re.match('(?i)^https?://.*$', url):
-            raise Error(create_invalid_value_message(url, "url", "html-to-image", "The supported protocols are http:// and https://.", "convert_url_to_stream"), 470);
+            raise Error(create_invalid_value_message(url, "convertUrlToStream::url", "html-to-image", "The supported protocols are http:// and https://.", "convert_url_to_stream"), 470);
         
         self.fields['url'] = get_utf8_string(url)
         self.helper.post(self.fields, self.files, self.raw_data, out_stream)
@@ -2481,7 +2621,7 @@ class HtmlToImageClient:
         file_path - The output file path. The string must not be empty.
         """
         if not (file_path):
-            raise Error(create_invalid_value_message(file_path, "file_path", "html-to-image", "The string must not be empty.", "convert_url_to_file"), 470);
+            raise Error(create_invalid_value_message(file_path, "convertUrlToFile::file_path", "html-to-image", "The string must not be empty.", "convert_url_to_file"), 470);
         
         output_file = open(file_path, 'wb')
         try:
@@ -2500,7 +2640,7 @@ class HtmlToImageClient:
         return - Byte array containing the conversion output.
         """
         if not (os.path.isfile(file) and os.path.getsize(file)):
-            raise Error(create_invalid_value_message(file, "file", "html-to-image", "The file must exist and not be empty.", "convert_file"), 470);
+            raise Error(create_invalid_value_message(file, "convertFile", "html-to-image", "The file must exist and not be empty.", "convert_file"), 470);
         
         self.files['file'] = get_utf8_string(file)
         return self.helper.post(self.fields, self.files, self.raw_data)
@@ -2513,7 +2653,7 @@ class HtmlToImageClient:
         out_stream - The output stream that will contain the conversion output.
         """
         if not (os.path.isfile(file) and os.path.getsize(file)):
-            raise Error(create_invalid_value_message(file, "file", "html-to-image", "The file must exist and not be empty.", "convert_file_to_stream"), 470);
+            raise Error(create_invalid_value_message(file, "convertFileToStream::file", "html-to-image", "The file must exist and not be empty.", "convert_file_to_stream"), 470);
         
         self.files['file'] = get_utf8_string(file)
         self.helper.post(self.fields, self.files, self.raw_data, out_stream)
@@ -2526,7 +2666,7 @@ class HtmlToImageClient:
         file_path - The output file path. The string must not be empty.
         """
         if not (file_path):
-            raise Error(create_invalid_value_message(file_path, "file_path", "html-to-image", "The string must not be empty.", "convert_file_to_file"), 470);
+            raise Error(create_invalid_value_message(file_path, "convertFileToFile::file_path", "html-to-image", "The string must not be empty.", "convert_file_to_file"), 470);
         
         output_file = open(file_path, 'wb')
         try:
@@ -2545,7 +2685,7 @@ class HtmlToImageClient:
         return - Byte array containing the conversion output.
         """
         if not (text):
-            raise Error(create_invalid_value_message(text, "text", "html-to-image", "The string must not be empty.", "convert_string"), 470);
+            raise Error(create_invalid_value_message(text, "convertString", "html-to-image", "The string must not be empty.", "convert_string"), 470);
         
         self.fields['text'] = get_utf8_string(text)
         return self.helper.post(self.fields, self.files, self.raw_data)
@@ -2558,7 +2698,7 @@ class HtmlToImageClient:
         out_stream - The output stream that will contain the conversion output.
         """
         if not (text):
-            raise Error(create_invalid_value_message(text, "text", "html-to-image", "The string must not be empty.", "convert_string_to_stream"), 470);
+            raise Error(create_invalid_value_message(text, "convertStringToStream::text", "html-to-image", "The string must not be empty.", "convert_string_to_stream"), 470);
         
         self.fields['text'] = get_utf8_string(text)
         self.helper.post(self.fields, self.files, self.raw_data, out_stream)
@@ -2571,7 +2711,7 @@ class HtmlToImageClient:
         file_path - The output file path. The string must not be empty.
         """
         if not (file_path):
-            raise Error(create_invalid_value_message(file_path, "file_path", "html-to-image", "The string must not be empty.", "convert_string_to_file"), 470);
+            raise Error(create_invalid_value_message(file_path, "convertStringToFile::file_path", "html-to-image", "The string must not be empty.", "convert_string_to_file"), 470);
         
         output_file = open(file_path, 'wb')
         try:
@@ -2610,119 +2750,152 @@ class HtmlToImageClient:
         return - The converter object.
         """
         if not re.match('(?i)^(auto|json|xml|yaml|csv)$', data_format):
-            raise Error(create_invalid_value_message(data_format, "data_format", "html-to-image", "Allowed values are auto, json, xml, yaml, csv.", "set_data_format"), 470);
+            raise Error(create_invalid_value_message(data_format, "setDataFormat", "html-to-image", "Allowed values are auto, json, xml, yaml, csv.", "set_data_format"), 470);
         
         self.fields['data_format'] = get_utf8_string(data_format)
         return self
 
-    def setDataEncoding(self, data_encoding):
+    def setDataEncoding(self, encoding):
         """
         Set the encoding of the data file set by setDataFile.
 
-        data_encoding - The data file encoding.
+        encoding - The data file encoding.
         return - The converter object.
         """
-        self.fields['data_encoding'] = get_utf8_string(data_encoding)
+        self.fields['data_encoding'] = get_utf8_string(encoding)
         return self
 
-    def setDataIgnoreUndefined(self, data_ignore_undefined):
+    def setDataIgnoreUndefined(self, value):
         """
         Ignore undefined variables in the HTML template. The default mode is strict so any undefined variable causes the conversion to fail. You can use {% if variable is defined %} to check if the variable is defined.
 
-        data_ignore_undefined - Set to True to ignore undefined variables.
+        value - Set to True to ignore undefined variables.
         return - The converter object.
         """
-        self.fields['data_ignore_undefined'] = data_ignore_undefined
+        self.fields['data_ignore_undefined'] = value
         return self
 
-    def setDataAutoEscape(self, data_auto_escape):
+    def setDataAutoEscape(self, value):
         """
         Auto escape HTML symbols in the input data before placing them into the output.
 
-        data_auto_escape - Set to True to turn auto escaping on.
+        value - Set to True to turn auto escaping on.
         return - The converter object.
         """
-        self.fields['data_auto_escape'] = data_auto_escape
+        self.fields['data_auto_escape'] = value
         return self
 
-    def setDataTrimBlocks(self, data_trim_blocks):
+    def setDataTrimBlocks(self, value):
         """
         Auto trim whitespace around each template command block.
 
-        data_trim_blocks - Set to True to turn auto trimming on.
+        value - Set to True to turn auto trimming on.
         return - The converter object.
         """
-        self.fields['data_trim_blocks'] = data_trim_blocks
+        self.fields['data_trim_blocks'] = value
         return self
 
-    def setDataOptions(self, data_options):
+    def setDataOptions(self, options):
         """
         Set the advanced data options:csv_delimiter - The CSV data delimiter, the default is ,.xml_remove_root - Remove the root XML element from the input data.data_root - The name of the root element inserted into the input data without a root node (e.g. CSV), the default is data.
 
-        data_options - Comma separated list of options.
+        options - Comma separated list of options.
         return - The converter object.
         """
-        self.fields['data_options'] = get_utf8_string(data_options)
+        self.fields['data_options'] = get_utf8_string(options)
         return self
 
-    def setNoBackground(self, no_background):
+    def setUsePrintMedia(self, value):
+        """
+        Use the print version of the page if available (@media print).
+
+        value - Set to True to use the print version of the page.
+        return - The converter object.
+        """
+        self.fields['use_print_media'] = value
+        return self
+
+    def setNoBackground(self, value):
         """
         Do not print the background graphics.
 
-        no_background - Set to True to disable the background graphics.
+        value - Set to True to disable the background graphics.
         return - The converter object.
         """
-        self.fields['no_background'] = no_background
+        self.fields['no_background'] = value
         return self
 
-    def setDisableJavascript(self, disable_javascript):
+    def setDisableJavascript(self, value):
         """
         Do not execute JavaScript.
 
-        disable_javascript - Set to True to disable JavaScript in web pages.
+        value - Set to True to disable JavaScript in web pages.
         return - The converter object.
         """
-        self.fields['disable_javascript'] = disable_javascript
+        self.fields['disable_javascript'] = value
         return self
 
-    def setDisableImageLoading(self, disable_image_loading):
+    def setDisableImageLoading(self, value):
         """
         Do not load images.
 
-        disable_image_loading - Set to True to disable loading of images.
+        value - Set to True to disable loading of images.
         return - The converter object.
         """
-        self.fields['disable_image_loading'] = disable_image_loading
+        self.fields['disable_image_loading'] = value
         return self
 
-    def setDisableRemoteFonts(self, disable_remote_fonts):
+    def setDisableRemoteFonts(self, value):
         """
         Disable loading fonts from remote sources.
 
-        disable_remote_fonts - Set to True disable loading remote fonts.
+        value - Set to True disable loading remote fonts.
         return - The converter object.
         """
-        self.fields['disable_remote_fonts'] = disable_remote_fonts
+        self.fields['disable_remote_fonts'] = value
         return self
 
-    def setBlockAds(self, block_ads):
+    def setLoadIframes(self, iframes):
+        """
+        Specifies how iframes are handled.
+
+        iframes - Allowed values are all, same-origin, none.
+        return - The converter object.
+        """
+        if not re.match('(?i)^(all|same-origin|none)$', iframes):
+            raise Error(create_invalid_value_message(iframes, "setLoadIframes", "html-to-image", "Allowed values are all, same-origin, none.", "set_load_iframes"), 470);
+        
+        self.fields['load_iframes'] = get_utf8_string(iframes)
+        return self
+
+    def setBlockAds(self, value):
         """
         Try to block ads. Enabling this option can produce smaller output and speed up the conversion.
 
-        block_ads - Set to True to block ads in web pages.
+        value - Set to True to block ads in web pages.
         return - The converter object.
         """
-        self.fields['block_ads'] = block_ads
+        self.fields['block_ads'] = value
         return self
 
-    def setDefaultEncoding(self, default_encoding):
+    def setDefaultEncoding(self, encoding):
         """
         Set the default HTML content text encoding.
 
-        default_encoding - The text encoding of the HTML content.
+        encoding - The text encoding of the HTML content.
         return - The converter object.
         """
-        self.fields['default_encoding'] = get_utf8_string(default_encoding)
+        self.fields['default_encoding'] = get_utf8_string(encoding)
+        return self
+
+    def setLocale(self, locale):
+        """
+        Set the locale for the conversion. This may affect the output format of dates, times and numbers.
+
+        locale - The locale code according to ISO 639.
+        return - The converter object.
+        """
+        self.fields['locale'] = get_utf8_string(locale)
         return self
 
     def setHttpAuthUserName(self, user_name):
@@ -2757,26 +2930,6 @@ class HtmlToImageClient:
         self.setHttpAuthPassword(password)
         return self
 
-    def setUsePrintMedia(self, use_print_media):
-        """
-        Use the print version of the page if available (@media print).
-
-        use_print_media - Set to True to use the print version of the page.
-        return - The converter object.
-        """
-        self.fields['use_print_media'] = use_print_media
-        return self
-
-    def setNoXpdfcrowdHeader(self, no_xpdfcrowd_header):
-        """
-        Do not send the X-Pdfcrowd HTTP header in Pdfcrowd HTTP requests.
-
-        no_xpdfcrowd_header - Set to True to disable sending X-Pdfcrowd HTTP header.
-        return - The converter object.
-        """
-        self.fields['no_xpdfcrowd_header'] = no_xpdfcrowd_header
-        return self
-
     def setCookies(self, cookies):
         """
         Set cookies that are sent in Pdfcrowd HTTP requests.
@@ -2787,14 +2940,14 @@ class HtmlToImageClient:
         self.fields['cookies'] = get_utf8_string(cookies)
         return self
 
-    def setVerifySslCertificates(self, verify_ssl_certificates):
+    def setVerifySslCertificates(self, value):
         """
         Do not allow insecure HTTPS connections.
 
-        verify_ssl_certificates - Set to True to enable SSL certificate verification.
+        value - Set to True to enable SSL certificate verification.
         return - The converter object.
         """
-        self.fields['verify_ssl_certificates'] = verify_ssl_certificates
+        self.fields['verify_ssl_certificates'] = value
         return self
 
     def setFailOnMainUrlError(self, fail_on_error):
@@ -2817,56 +2970,66 @@ class HtmlToImageClient:
         self.fields['fail_on_any_url_error'] = fail_on_error
         return self
 
-    def setCustomJavascript(self, custom_javascript):
+    def setNoXpdfcrowdHeader(self, value):
+        """
+        Do not send the X-Pdfcrowd HTTP header in Pdfcrowd HTTP requests.
+
+        value - Set to True to disable sending X-Pdfcrowd HTTP header.
+        return - The converter object.
+        """
+        self.fields['no_xpdfcrowd_header'] = value
+        return self
+
+    def setCustomJavascript(self, javascript):
         """
         Run a custom JavaScript after the document is loaded and ready to print. The script is intended for post-load DOM manipulation (add/remove elements, update CSS, ...). In addition to the standard browser APIs, the custom JavaScript code can use helper functions from our JavaScript library.
 
-        custom_javascript - A string containing a JavaScript code. The string must not be empty.
+        javascript - A string containing a JavaScript code. The string must not be empty.
         return - The converter object.
         """
-        if not (custom_javascript):
-            raise Error(create_invalid_value_message(custom_javascript, "custom_javascript", "html-to-image", "The string must not be empty.", "set_custom_javascript"), 470);
+        if not (javascript):
+            raise Error(create_invalid_value_message(javascript, "setCustomJavascript", "html-to-image", "The string must not be empty.", "set_custom_javascript"), 470);
         
-        self.fields['custom_javascript'] = get_utf8_string(custom_javascript)
+        self.fields['custom_javascript'] = get_utf8_string(javascript)
         return self
 
-    def setOnLoadJavascript(self, on_load_javascript):
+    def setOnLoadJavascript(self, javascript):
         """
         Run a custom JavaScript right after the document is loaded. The script is intended for early DOM manipulation (add/remove elements, update CSS, ...). In addition to the standard browser APIs, the custom JavaScript code can use helper functions from our JavaScript library.
 
-        on_load_javascript - A string containing a JavaScript code. The string must not be empty.
+        javascript - A string containing a JavaScript code. The string must not be empty.
         return - The converter object.
         """
-        if not (on_load_javascript):
-            raise Error(create_invalid_value_message(on_load_javascript, "on_load_javascript", "html-to-image", "The string must not be empty.", "set_on_load_javascript"), 470);
+        if not (javascript):
+            raise Error(create_invalid_value_message(javascript, "setOnLoadJavascript", "html-to-image", "The string must not be empty.", "set_on_load_javascript"), 470);
         
-        self.fields['on_load_javascript'] = get_utf8_string(on_load_javascript)
+        self.fields['on_load_javascript'] = get_utf8_string(javascript)
         return self
 
-    def setCustomHttpHeader(self, custom_http_header):
+    def setCustomHttpHeader(self, header):
         """
         Set a custom HTTP header that is sent in Pdfcrowd HTTP requests.
 
-        custom_http_header - A string containing the header name and value separated by a colon.
+        header - A string containing the header name and value separated by a colon.
         return - The converter object.
         """
-        if not re.match('^.+:.+$', custom_http_header):
-            raise Error(create_invalid_value_message(custom_http_header, "custom_http_header", "html-to-image", "A string containing the header name and value separated by a colon.", "set_custom_http_header"), 470);
+        if not re.match('^.+:.+$', header):
+            raise Error(create_invalid_value_message(header, "setCustomHttpHeader", "html-to-image", "A string containing the header name and value separated by a colon.", "set_custom_http_header"), 470);
         
-        self.fields['custom_http_header'] = get_utf8_string(custom_http_header)
+        self.fields['custom_http_header'] = get_utf8_string(header)
         return self
 
-    def setJavascriptDelay(self, javascript_delay):
+    def setJavascriptDelay(self, delay):
         """
         Wait the specified number of milliseconds to finish all JavaScript after the document is loaded. Your API license defines the maximum wait time by "Max Delay" parameter.
 
-        javascript_delay - The number of milliseconds to wait. Must be a positive integer number or 0.
+        delay - The number of milliseconds to wait. Must be a positive integer number or 0.
         return - The converter object.
         """
-        if not (int(javascript_delay) >= 0):
-            raise Error(create_invalid_value_message(javascript_delay, "javascript_delay", "html-to-image", "Must be a positive integer number or 0.", "set_javascript_delay"), 470);
+        if not (int(delay) >= 0):
+            raise Error(create_invalid_value_message(delay, "setJavascriptDelay", "html-to-image", "Must be a positive integer number or 0.", "set_javascript_delay"), 470);
         
-        self.fields['javascript_delay'] = javascript_delay
+        self.fields['javascript_delay'] = delay
         return self
 
     def setElementToConvert(self, selectors):
@@ -2877,7 +3040,7 @@ class HtmlToImageClient:
         return - The converter object.
         """
         if not (selectors):
-            raise Error(create_invalid_value_message(selectors, "selectors", "html-to-image", "The string must not be empty.", "set_element_to_convert"), 470);
+            raise Error(create_invalid_value_message(selectors, "setElementToConvert", "html-to-image", "The string must not be empty.", "set_element_to_convert"), 470);
         
         self.fields['element_to_convert'] = get_utf8_string(selectors)
         return self
@@ -2890,7 +3053,7 @@ class HtmlToImageClient:
         return - The converter object.
         """
         if not re.match('(?i)^(cut-out|remove-siblings|hide-siblings)$', mode):
-            raise Error(create_invalid_value_message(mode, "mode", "html-to-image", "Allowed values are cut-out, remove-siblings, hide-siblings.", "set_element_to_convert_mode"), 470);
+            raise Error(create_invalid_value_message(mode, "setElementToConvertMode", "html-to-image", "Allowed values are cut-out, remove-siblings, hide-siblings.", "set_element_to_convert_mode"), 470);
         
         self.fields['element_to_convert_mode'] = get_utf8_string(mode)
         return self
@@ -2903,58 +3066,71 @@ class HtmlToImageClient:
         return - The converter object.
         """
         if not (selectors):
-            raise Error(create_invalid_value_message(selectors, "selectors", "html-to-image", "The string must not be empty.", "set_wait_for_element"), 470);
+            raise Error(create_invalid_value_message(selectors, "setWaitForElement", "html-to-image", "The string must not be empty.", "set_wait_for_element"), 470);
         
         self.fields['wait_for_element'] = get_utf8_string(selectors)
         return self
 
-    def setScreenshotWidth(self, screenshot_width):
+    def setScreenshotWidth(self, width):
         """
         Set the output image width in pixels.
 
-        screenshot_width - The value must be in the range 96-65000.
+        width - The value must be in the range 96-65000.
         return - The converter object.
         """
-        if not (int(screenshot_width) >= 96 and int(screenshot_width) <= 65000):
-            raise Error(create_invalid_value_message(screenshot_width, "screenshot_width", "html-to-image", "The value must be in the range 96-65000.", "set_screenshot_width"), 470);
+        if not (int(width) >= 96 and int(width) <= 65000):
+            raise Error(create_invalid_value_message(width, "setScreenshotWidth", "html-to-image", "The value must be in the range 96-65000.", "set_screenshot_width"), 470);
         
-        self.fields['screenshot_width'] = screenshot_width
+        self.fields['screenshot_width'] = width
         return self
 
-    def setScreenshotHeight(self, screenshot_height):
+    def setScreenshotHeight(self, height):
         """
         Set the output image height in pixels. If it is not specified, actual document height is used.
 
-        screenshot_height - Must be a positive integer number.
+        height - Must be a positive integer number.
         return - The converter object.
         """
-        if not (int(screenshot_height) > 0):
-            raise Error(create_invalid_value_message(screenshot_height, "screenshot_height", "html-to-image", "Must be a positive integer number.", "set_screenshot_height"), 470);
+        if not (int(height) > 0):
+            raise Error(create_invalid_value_message(height, "setScreenshotHeight", "html-to-image", "Must be a positive integer number.", "set_screenshot_height"), 470);
         
-        self.fields['screenshot_height'] = screenshot_height
+        self.fields['screenshot_height'] = height
         return self
 
-    def setScaleFactor(self, scale_factor):
+    def setScaleFactor(self, factor):
         """
         Set the scaling factor (zoom) for the output image.
 
-        scale_factor - The percentage value. Must be a positive integer number.
+        factor - The percentage value. Must be a positive integer number.
         return - The converter object.
         """
-        if not (int(scale_factor) > 0):
-            raise Error(create_invalid_value_message(scale_factor, "scale_factor", "html-to-image", "Must be a positive integer number.", "set_scale_factor"), 470);
+        if not (int(factor) > 0):
+            raise Error(create_invalid_value_message(factor, "setScaleFactor", "html-to-image", "Must be a positive integer number.", "set_scale_factor"), 470);
         
-        self.fields['scale_factor'] = scale_factor
+        self.fields['scale_factor'] = factor
         return self
 
-    def setDebugLog(self, debug_log):
+    def setBackgroundColor(self, color):
+        """
+        The output image background color.
+
+        color - The value must be in RRGGBB or RRGGBBAA hexadecimal format.
+        return - The converter object.
+        """
+        if not re.match('^[0-9a-fA-F]{6,8}$', color):
+            raise Error(create_invalid_value_message(color, "setBackgroundColor", "html-to-image", "The value must be in RRGGBB or RRGGBBAA hexadecimal format.", "set_background_color"), 470);
+        
+        self.fields['background_color'] = get_utf8_string(color)
+        return self
+
+    def setDebugLog(self, value):
         """
         Turn on the debug logging. Details about the conversion are stored in the debug log. The URL of the log can be obtained from the getDebugLogUrl method or available in conversion statistics.
 
-        debug_log - Set to True to enable the debug logging.
+        value - Set to True to enable the debug logging.
         return - The converter object.
         """
-        self.fields['debug_log'] = debug_log
+        self.fields['debug_log'] = value
         return self
 
     def getDebugLogUrl(self):
@@ -2995,6 +3171,13 @@ class HtmlToImageClient:
         """
         return self.helper.getOutputSize()
 
+    def getVersion(self):
+        """
+        Get the version details.
+        return - API version, converter version, and client version.
+        """
+        return 'client {}, API v2, converter {}'.format(CLIENT_VERSION, self.helper.getConverterVersion())
+
     def setTag(self, tag):
         """
         Tag the conversion with a custom value. The tag is used in conversion statistics. A value longer than 32 characters is cut off.
@@ -3005,74 +3188,87 @@ class HtmlToImageClient:
         self.fields['tag'] = get_utf8_string(tag)
         return self
 
-    def setHttpProxy(self, http_proxy):
+    def setHttpProxy(self, proxy):
         """
         A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTP scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
 
-        http_proxy - The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
+        proxy - The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
         return - The converter object.
         """
-        if not re.match('(?i)^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z0-9]{1,}:\d+$', http_proxy):
-            raise Error(create_invalid_value_message(http_proxy, "http_proxy", "html-to-image", "The value must have format DOMAIN_OR_IP_ADDRESS:PORT.", "set_http_proxy"), 470);
+        if not re.match('(?i)^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z0-9]{1,}:\d+$', proxy):
+            raise Error(create_invalid_value_message(proxy, "setHttpProxy", "html-to-image", "The value must have format DOMAIN_OR_IP_ADDRESS:PORT.", "set_http_proxy"), 470);
         
-        self.fields['http_proxy'] = get_utf8_string(http_proxy)
+        self.fields['http_proxy'] = get_utf8_string(proxy)
         return self
 
-    def setHttpsProxy(self, https_proxy):
+    def setHttpsProxy(self, proxy):
         """
         A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTPS scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
 
-        https_proxy - The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
+        proxy - The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
         return - The converter object.
         """
-        if not re.match('(?i)^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z0-9]{1,}:\d+$', https_proxy):
-            raise Error(create_invalid_value_message(https_proxy, "https_proxy", "html-to-image", "The value must have format DOMAIN_OR_IP_ADDRESS:PORT.", "set_https_proxy"), 470);
+        if not re.match('(?i)^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z0-9]{1,}:\d+$', proxy):
+            raise Error(create_invalid_value_message(proxy, "setHttpsProxy", "html-to-image", "The value must have format DOMAIN_OR_IP_ADDRESS:PORT.", "set_https_proxy"), 470);
         
-        self.fields['https_proxy'] = get_utf8_string(https_proxy)
+        self.fields['https_proxy'] = get_utf8_string(proxy)
         return self
 
-    def setClientCertificate(self, client_certificate):
+    def setClientCertificate(self, certificate):
         """
         A client certificate to authenticate Pdfcrowd converter on your web server. The certificate is used for two-way SSL/TLS authentication and adds extra security.
 
-        client_certificate - The file must be in PKCS12 format. The file must exist and not be empty.
+        certificate - The file must be in PKCS12 format. The file must exist and not be empty.
         return - The converter object.
         """
-        if not (os.path.isfile(client_certificate) and os.path.getsize(client_certificate)):
-            raise Error(create_invalid_value_message(client_certificate, "client_certificate", "html-to-image", "The file must exist and not be empty.", "set_client_certificate"), 470);
+        if not (os.path.isfile(certificate) and os.path.getsize(certificate)):
+            raise Error(create_invalid_value_message(certificate, "setClientCertificate", "html-to-image", "The file must exist and not be empty.", "set_client_certificate"), 470);
         
-        self.files['client_certificate'] = get_utf8_string(client_certificate)
+        self.files['client_certificate'] = get_utf8_string(certificate)
         return self
 
-    def setClientCertificatePassword(self, client_certificate_password):
+    def setClientCertificatePassword(self, password):
         """
         A password for PKCS12 file with a client certificate if it is needed.
 
-        client_certificate_password -
+        password -
         return - The converter object.
         """
-        self.fields['client_certificate_password'] = get_utf8_string(client_certificate_password)
+        self.fields['client_certificate_password'] = get_utf8_string(password)
         return self
 
-    def setUseHttp(self, use_http):
+    def setConverterVersion(self, version):
+        """
+        Set the converter version. Different versions may produce different output. Choose which one provides the best output for your case.
+
+        version - The version identifier. Allowed values are latest, 20.10, 18.10.
+        return - The converter object.
+        """
+        if not re.match('(?i)^(latest|20.10|18.10)$', version):
+            raise Error(create_invalid_value_message(version, "setConverterVersion", "html-to-image", "Allowed values are latest, 20.10, 18.10.", "set_converter_version"), 470);
+        
+        self.helper.setConverterVersion(version)
+        return self
+
+    def setUseHttp(self, value):
         """
         Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API.
         Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.
 
-        use_http - Set to True to use HTTP.
+        value - Set to True to use HTTP.
         return - The converter object.
         """
-        self.helper.setUseHttp(use_http)
+        self.helper.setUseHttp(value)
         return self
 
-    def setUserAgent(self, user_agent):
+    def setUserAgent(self, agent):
         """
         Set a custom user agent HTTP header. It can be useful if you are behind some proxy or firewall.
 
-        user_agent - The user agent string.
+        agent - The user agent string.
         return - The converter object.
         """
-        self.helper.setUserAgent(user_agent)
+        self.helper.setUserAgent(agent)
         return self
 
     def setProxy(self, host, port, user_name, password):
@@ -3088,14 +3284,14 @@ class HtmlToImageClient:
         self.helper.setProxy(host, port, user_name, password)
         return self
 
-    def setRetryCount(self, retry_count):
+    def setRetryCount(self, count):
         """
         Specifies the number of retries when the 502 HTTP status code is received. The 502 status code indicates a temporary network issue. This feature can be disabled by setting to 0.
 
-        retry_count - Number of retries wanted.
+        count - Number of retries wanted.
         return - The converter object.
         """
-        self.helper.setRetryCount(retry_count)
+        self.helper.setRetryCount(count)
         return self
 
 class ImageToImageClient:
@@ -3127,7 +3323,7 @@ class ImageToImageClient:
         return - Byte array containing the conversion output.
         """
         if not re.match('(?i)^https?://.*$', url):
-            raise Error(create_invalid_value_message(url, "url", "image-to-image", "The supported protocols are http:// and https://.", "convert_url"), 470);
+            raise Error(create_invalid_value_message(url, "convertUrl", "image-to-image", "The supported protocols are http:// and https://.", "convert_url"), 470);
         
         self.fields['url'] = get_utf8_string(url)
         return self.helper.post(self.fields, self.files, self.raw_data)
@@ -3140,7 +3336,7 @@ class ImageToImageClient:
         out_stream - The output stream that will contain the conversion output.
         """
         if not re.match('(?i)^https?://.*$', url):
-            raise Error(create_invalid_value_message(url, "url", "image-to-image", "The supported protocols are http:// and https://.", "convert_url_to_stream"), 470);
+            raise Error(create_invalid_value_message(url, "convertUrlToStream::url", "image-to-image", "The supported protocols are http:// and https://.", "convert_url_to_stream"), 470);
         
         self.fields['url'] = get_utf8_string(url)
         self.helper.post(self.fields, self.files, self.raw_data, out_stream)
@@ -3153,7 +3349,7 @@ class ImageToImageClient:
         file_path - The output file path. The string must not be empty.
         """
         if not (file_path):
-            raise Error(create_invalid_value_message(file_path, "file_path", "image-to-image", "The string must not be empty.", "convert_url_to_file"), 470);
+            raise Error(create_invalid_value_message(file_path, "convertUrlToFile::file_path", "image-to-image", "The string must not be empty.", "convert_url_to_file"), 470);
         
         output_file = open(file_path, 'wb')
         try:
@@ -3168,11 +3364,11 @@ class ImageToImageClient:
         """
         Convert a local file.
 
-        file - The path to a local file to convert. The file can be either a single file or an archive (.tar.gz, .tar.bz2, or .zip). The file must exist and not be empty.
+        file - The path to a local file to convert. The file must exist and not be empty.
         return - Byte array containing the conversion output.
         """
         if not (os.path.isfile(file) and os.path.getsize(file)):
-            raise Error(create_invalid_value_message(file, "file", "image-to-image", "The file must exist and not be empty.", "convert_file"), 470);
+            raise Error(create_invalid_value_message(file, "convertFile", "image-to-image", "The file must exist and not be empty.", "convert_file"), 470);
         
         self.files['file'] = get_utf8_string(file)
         return self.helper.post(self.fields, self.files, self.raw_data)
@@ -3181,11 +3377,11 @@ class ImageToImageClient:
         """
         Convert a local file and write the result to an output stream.
 
-        file - The path to a local file to convert. The file can be either a single file or an archive (.tar.gz, .tar.bz2, or .zip). The file must exist and not be empty.
+        file - The path to a local file to convert. The file must exist and not be empty.
         out_stream - The output stream that will contain the conversion output.
         """
         if not (os.path.isfile(file) and os.path.getsize(file)):
-            raise Error(create_invalid_value_message(file, "file", "image-to-image", "The file must exist and not be empty.", "convert_file_to_stream"), 470);
+            raise Error(create_invalid_value_message(file, "convertFileToStream::file", "image-to-image", "The file must exist and not be empty.", "convert_file_to_stream"), 470);
         
         self.files['file'] = get_utf8_string(file)
         self.helper.post(self.fields, self.files, self.raw_data, out_stream)
@@ -3194,11 +3390,11 @@ class ImageToImageClient:
         """
         Convert a local file and write the result to a local file.
 
-        file - The path to a local file to convert. The file can be either a single file or an archive (.tar.gz, .tar.bz2, or .zip). The file must exist and not be empty.
+        file - The path to a local file to convert. The file must exist and not be empty.
         file_path - The output file path. The string must not be empty.
         """
         if not (file_path):
-            raise Error(create_invalid_value_message(file_path, "file_path", "image-to-image", "The string must not be empty.", "convert_file_to_file"), 470);
+            raise Error(create_invalid_value_message(file_path, "convertFileToFile::file_path", "image-to-image", "The string must not be empty.", "convert_file_to_file"), 470);
         
         output_file = open(file_path, 'wb')
         try:
@@ -3237,7 +3433,7 @@ class ImageToImageClient:
         file_path - The output file path. The string must not be empty.
         """
         if not (file_path):
-            raise Error(create_invalid_value_message(file_path, "file_path", "image-to-image", "The string must not be empty.", "convert_raw_data_to_file"), 470);
+            raise Error(create_invalid_value_message(file_path, "convertRawDataToFile::file_path", "image-to-image", "The string must not be empty.", "convert_raw_data_to_file"), 470);
         
         output_file = open(file_path, 'wb')
         try:
@@ -3256,7 +3452,7 @@ class ImageToImageClient:
         return - The converter object.
         """
         if not re.match('(?i)^(png|jpg|gif|tiff|bmp|ico|ppm|pgm|pbm|pnm|psb|pct|ras|tga|sgi|sun|webp)$', output_format):
-            raise Error(create_invalid_value_message(output_format, "output_format", "image-to-image", "Allowed values are png, jpg, gif, tiff, bmp, ico, ppm, pgm, pbm, pnm, psb, pct, ras, tga, sgi, sun, webp.", "set_output_format"), 470);
+            raise Error(create_invalid_value_message(output_format, "setOutputFormat", "image-to-image", "Allowed values are png, jpg, gif, tiff, bmp, ico, ppm, pgm, pbm, pnm, psb, pct, ras, tga, sgi, sun, webp.", "set_output_format"), 470);
         
         self.fields['output_format'] = get_utf8_string(output_format)
         return self
@@ -3281,14 +3477,14 @@ class ImageToImageClient:
         self.fields['rotate'] = get_utf8_string(rotate)
         return self
 
-    def setDebugLog(self, debug_log):
+    def setDebugLog(self, value):
         """
         Turn on the debug logging. Details about the conversion are stored in the debug log. The URL of the log can be obtained from the getDebugLogUrl method or available in conversion statistics.
 
-        debug_log - Set to True to enable the debug logging.
+        value - Set to True to enable the debug logging.
         return - The converter object.
         """
-        self.fields['debug_log'] = debug_log
+        self.fields['debug_log'] = value
         return self
 
     def getDebugLogUrl(self):
@@ -3329,6 +3525,13 @@ class ImageToImageClient:
         """
         return self.helper.getOutputSize()
 
+    def getVersion(self):
+        """
+        Get the version details.
+        return - API version, converter version, and client version.
+        """
+        return 'client {}, API v2, converter {}'.format(CLIENT_VERSION, self.helper.getConverterVersion())
+
     def setTag(self, tag):
         """
         Tag the conversion with a custom value. The tag is used in conversion statistics. A value longer than 32 characters is cut off.
@@ -3339,51 +3542,64 @@ class ImageToImageClient:
         self.fields['tag'] = get_utf8_string(tag)
         return self
 
-    def setHttpProxy(self, http_proxy):
+    def setHttpProxy(self, proxy):
         """
         A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTP scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
 
-        http_proxy - The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
+        proxy - The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
         return - The converter object.
         """
-        if not re.match('(?i)^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z0-9]{1,}:\d+$', http_proxy):
-            raise Error(create_invalid_value_message(http_proxy, "http_proxy", "image-to-image", "The value must have format DOMAIN_OR_IP_ADDRESS:PORT.", "set_http_proxy"), 470);
+        if not re.match('(?i)^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z0-9]{1,}:\d+$', proxy):
+            raise Error(create_invalid_value_message(proxy, "setHttpProxy", "image-to-image", "The value must have format DOMAIN_OR_IP_ADDRESS:PORT.", "set_http_proxy"), 470);
         
-        self.fields['http_proxy'] = get_utf8_string(http_proxy)
+        self.fields['http_proxy'] = get_utf8_string(proxy)
         return self
 
-    def setHttpsProxy(self, https_proxy):
+    def setHttpsProxy(self, proxy):
         """
         A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTPS scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
 
-        https_proxy - The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
+        proxy - The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
         return - The converter object.
         """
-        if not re.match('(?i)^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z0-9]{1,}:\d+$', https_proxy):
-            raise Error(create_invalid_value_message(https_proxy, "https_proxy", "image-to-image", "The value must have format DOMAIN_OR_IP_ADDRESS:PORT.", "set_https_proxy"), 470);
+        if not re.match('(?i)^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z0-9]{1,}:\d+$', proxy):
+            raise Error(create_invalid_value_message(proxy, "setHttpsProxy", "image-to-image", "The value must have format DOMAIN_OR_IP_ADDRESS:PORT.", "set_https_proxy"), 470);
         
-        self.fields['https_proxy'] = get_utf8_string(https_proxy)
+        self.fields['https_proxy'] = get_utf8_string(proxy)
         return self
 
-    def setUseHttp(self, use_http):
+    def setConverterVersion(self, version):
+        """
+        Set the converter version. Different versions may produce different output. Choose which one provides the best output for your case.
+
+        version - The version identifier. Allowed values are latest, 20.10, 18.10.
+        return - The converter object.
+        """
+        if not re.match('(?i)^(latest|20.10|18.10)$', version):
+            raise Error(create_invalid_value_message(version, "setConverterVersion", "image-to-image", "Allowed values are latest, 20.10, 18.10.", "set_converter_version"), 470);
+        
+        self.helper.setConverterVersion(version)
+        return self
+
+    def setUseHttp(self, value):
         """
         Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API.
         Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.
 
-        use_http - Set to True to use HTTP.
+        value - Set to True to use HTTP.
         return - The converter object.
         """
-        self.helper.setUseHttp(use_http)
+        self.helper.setUseHttp(value)
         return self
 
-    def setUserAgent(self, user_agent):
+    def setUserAgent(self, agent):
         """
         Set a custom user agent HTTP header. It can be useful if you are behind some proxy or firewall.
 
-        user_agent - The user agent string.
+        agent - The user agent string.
         return - The converter object.
         """
-        self.helper.setUserAgent(user_agent)
+        self.helper.setUserAgent(agent)
         return self
 
     def setProxy(self, host, port, user_name, password):
@@ -3399,14 +3615,14 @@ class ImageToImageClient:
         self.helper.setProxy(host, port, user_name, password)
         return self
 
-    def setRetryCount(self, retry_count):
+    def setRetryCount(self, count):
         """
         Specifies the number of retries when the 502 HTTP status code is received. The 502 status code indicates a temporary network issue. This feature can be disabled by setting to 0.
 
-        retry_count - Number of retries wanted.
+        count - Number of retries wanted.
         return - The converter object.
         """
-        self.helper.setRetryCount(retry_count)
+        self.helper.setRetryCount(count)
         return self
 
 class PdfToPdfClient:
@@ -3438,7 +3654,7 @@ class PdfToPdfClient:
         return - The converter object.
         """
         if not re.match('(?i)^(join|shuffle)$', action):
-            raise Error(create_invalid_value_message(action, "action", "pdf-to-pdf", "Allowed values are join, shuffle.", "set_action"), 470);
+            raise Error(create_invalid_value_message(action, "setAction", "pdf-to-pdf", "Allowed values are join, shuffle.", "set_action"), 470);
         
         self.fields['action'] = get_utf8_string(action)
         return self
@@ -3465,7 +3681,7 @@ class PdfToPdfClient:
         file_path - The output file path. The string must not be empty.
         """
         if not (file_path):
-            raise Error(create_invalid_value_message(file_path, "file_path", "pdf-to-pdf", "The string must not be empty.", "convert_to_file"), 470);
+            raise Error(create_invalid_value_message(file_path, "convertToFile", "pdf-to-pdf", "The string must not be empty.", "convert_to_file"), 470);
         
         output_file = open(file_path, 'wb')
         self.convertToStream(output_file)
@@ -3479,343 +3695,343 @@ class PdfToPdfClient:
         return - The converter object.
         """
         if not (os.path.isfile(file_path) and os.path.getsize(file_path)):
-            raise Error(create_invalid_value_message(file_path, "file_path", "pdf-to-pdf", "The file must exist and not be empty.", "add_pdf_file"), 470);
+            raise Error(create_invalid_value_message(file_path, "addPdfFile", "pdf-to-pdf", "The file must exist and not be empty.", "add_pdf_file"), 470);
         
         self.files['f_{}'.format(self.file_id)] = file_path
         self.file_id += 1
         return self
 
-    def addPdfRawData(self, pdf_raw_data):
+    def addPdfRawData(self, data):
         """
         Add in-memory raw PDF data to the list of the input PDFs.Typical usage is for adding PDF created by another Pdfcrowd converter. Example in PHP: $clientPdf2Pdf->addPdfRawData($clientHtml2Pdf->convertUrl('http://www.example.com'));
 
-        pdf_raw_data - The raw PDF data. The input data must be PDF content.
+        data - The raw PDF data. The input data must be PDF content.
         return - The converter object.
         """
-        if not (pdf_raw_data and len(pdf_raw_data) > 300 and (pdf_raw_data[0:4] == '%PDF' or pdf_raw_data[0:4] == u'%PDF' or pdf_raw_data[0:4] == b'%PDF')):
-            raise Error(create_invalid_value_message("raw PDF data", "pdf_raw_data", "pdf-to-pdf", "The input data must be PDF content.", "add_pdf_raw_data"), 470);
+        if not (data and len(data) > 300 and (data[0:4] == '%PDF' or data[0:4] == u'%PDF' or data[0:4] == b'%PDF')):
+            raise Error(create_invalid_value_message("raw PDF data", "addPdfRawData", "pdf-to-pdf", "The input data must be PDF content.", "add_pdf_raw_data"), 470);
         
-        self.raw_data['f_{}'.format(self.file_id)] = pdf_raw_data
+        self.raw_data['f_{}'.format(self.file_id)] = data
         self.file_id += 1
         return self
 
-    def setPageWatermark(self, page_watermark):
+    def setPageWatermark(self, watermark):
         """
         Apply the first page of the watermark PDF to every page of the output PDF.
 
-        page_watermark - The file path to a local watermark PDF file. The file must exist and not be empty.
+        watermark - The file path to a local watermark PDF file. The file must exist and not be empty.
         return - The converter object.
         """
-        if not (os.path.isfile(page_watermark) and os.path.getsize(page_watermark)):
-            raise Error(create_invalid_value_message(page_watermark, "page_watermark", "pdf-to-pdf", "The file must exist and not be empty.", "set_page_watermark"), 470);
+        if not (os.path.isfile(watermark) and os.path.getsize(watermark)):
+            raise Error(create_invalid_value_message(watermark, "setPageWatermark", "pdf-to-pdf", "The file must exist and not be empty.", "set_page_watermark"), 470);
         
-        self.files['page_watermark'] = get_utf8_string(page_watermark)
+        self.files['page_watermark'] = get_utf8_string(watermark)
         return self
 
-    def setPageWatermarkUrl(self, page_watermark_url):
+    def setPageWatermarkUrl(self, url):
         """
         Load a watermark PDF from the specified URL and apply the first page of the watermark PDF to every page of the output PDF.
 
-        page_watermark_url - The supported protocols are http:// and https://.
+        url - The supported protocols are http:// and https://.
         return - The converter object.
         """
-        if not re.match('(?i)^https?://.*$', page_watermark_url):
-            raise Error(create_invalid_value_message(page_watermark_url, "page_watermark_url", "pdf-to-pdf", "The supported protocols are http:// and https://.", "set_page_watermark_url"), 470);
+        if not re.match('(?i)^https?://.*$', url):
+            raise Error(create_invalid_value_message(url, "setPageWatermarkUrl", "pdf-to-pdf", "The supported protocols are http:// and https://.", "set_page_watermark_url"), 470);
         
-        self.fields['page_watermark_url'] = get_utf8_string(page_watermark_url)
+        self.fields['page_watermark_url'] = get_utf8_string(url)
         return self
 
-    def setMultipageWatermark(self, multipage_watermark):
+    def setMultipageWatermark(self, watermark):
         """
         Apply each page of the specified watermark PDF to the corresponding page of the output PDF.
 
-        multipage_watermark - The file path to a local watermark PDF file. The file must exist and not be empty.
+        watermark - The file path to a local watermark PDF file. The file must exist and not be empty.
         return - The converter object.
         """
-        if not (os.path.isfile(multipage_watermark) and os.path.getsize(multipage_watermark)):
-            raise Error(create_invalid_value_message(multipage_watermark, "multipage_watermark", "pdf-to-pdf", "The file must exist and not be empty.", "set_multipage_watermark"), 470);
+        if not (os.path.isfile(watermark) and os.path.getsize(watermark)):
+            raise Error(create_invalid_value_message(watermark, "setMultipageWatermark", "pdf-to-pdf", "The file must exist and not be empty.", "set_multipage_watermark"), 470);
         
-        self.files['multipage_watermark'] = get_utf8_string(multipage_watermark)
+        self.files['multipage_watermark'] = get_utf8_string(watermark)
         return self
 
-    def setMultipageWatermarkUrl(self, multipage_watermark_url):
+    def setMultipageWatermarkUrl(self, url):
         """
         Load a watermark PDF from the specified URL and apply each page of the specified watermark PDF to the corresponding page of the output PDF.
 
-        multipage_watermark_url - The supported protocols are http:// and https://.
+        url - The supported protocols are http:// and https://.
         return - The converter object.
         """
-        if not re.match('(?i)^https?://.*$', multipage_watermark_url):
-            raise Error(create_invalid_value_message(multipage_watermark_url, "multipage_watermark_url", "pdf-to-pdf", "The supported protocols are http:// and https://.", "set_multipage_watermark_url"), 470);
+        if not re.match('(?i)^https?://.*$', url):
+            raise Error(create_invalid_value_message(url, "setMultipageWatermarkUrl", "pdf-to-pdf", "The supported protocols are http:// and https://.", "set_multipage_watermark_url"), 470);
         
-        self.fields['multipage_watermark_url'] = get_utf8_string(multipage_watermark_url)
+        self.fields['multipage_watermark_url'] = get_utf8_string(url)
         return self
 
-    def setPageBackground(self, page_background):
+    def setPageBackground(self, background):
         """
         Apply the first page of the specified PDF to the background of every page of the output PDF.
 
-        page_background - The file path to a local background PDF file. The file must exist and not be empty.
+        background - The file path to a local background PDF file. The file must exist and not be empty.
         return - The converter object.
         """
-        if not (os.path.isfile(page_background) and os.path.getsize(page_background)):
-            raise Error(create_invalid_value_message(page_background, "page_background", "pdf-to-pdf", "The file must exist and not be empty.", "set_page_background"), 470);
+        if not (os.path.isfile(background) and os.path.getsize(background)):
+            raise Error(create_invalid_value_message(background, "setPageBackground", "pdf-to-pdf", "The file must exist and not be empty.", "set_page_background"), 470);
         
-        self.files['page_background'] = get_utf8_string(page_background)
+        self.files['page_background'] = get_utf8_string(background)
         return self
 
-    def setPageBackgroundUrl(self, page_background_url):
+    def setPageBackgroundUrl(self, url):
         """
         Load a background PDF from the specified URL and apply the first page of the background PDF to every page of the output PDF.
 
-        page_background_url - The supported protocols are http:// and https://.
+        url - The supported protocols are http:// and https://.
         return - The converter object.
         """
-        if not re.match('(?i)^https?://.*$', page_background_url):
-            raise Error(create_invalid_value_message(page_background_url, "page_background_url", "pdf-to-pdf", "The supported protocols are http:// and https://.", "set_page_background_url"), 470);
+        if not re.match('(?i)^https?://.*$', url):
+            raise Error(create_invalid_value_message(url, "setPageBackgroundUrl", "pdf-to-pdf", "The supported protocols are http:// and https://.", "set_page_background_url"), 470);
         
-        self.fields['page_background_url'] = get_utf8_string(page_background_url)
+        self.fields['page_background_url'] = get_utf8_string(url)
         return self
 
-    def setMultipageBackground(self, multipage_background):
+    def setMultipageBackground(self, background):
         """
         Apply each page of the specified PDF to the background of the corresponding page of the output PDF.
 
-        multipage_background - The file path to a local background PDF file. The file must exist and not be empty.
+        background - The file path to a local background PDF file. The file must exist and not be empty.
         return - The converter object.
         """
-        if not (os.path.isfile(multipage_background) and os.path.getsize(multipage_background)):
-            raise Error(create_invalid_value_message(multipage_background, "multipage_background", "pdf-to-pdf", "The file must exist and not be empty.", "set_multipage_background"), 470);
+        if not (os.path.isfile(background) and os.path.getsize(background)):
+            raise Error(create_invalid_value_message(background, "setMultipageBackground", "pdf-to-pdf", "The file must exist and not be empty.", "set_multipage_background"), 470);
         
-        self.files['multipage_background'] = get_utf8_string(multipage_background)
+        self.files['multipage_background'] = get_utf8_string(background)
         return self
 
-    def setMultipageBackgroundUrl(self, multipage_background_url):
+    def setMultipageBackgroundUrl(self, url):
         """
         Load a background PDF from the specified URL and apply each page of the specified background PDF to the corresponding page of the output PDF.
 
-        multipage_background_url - The supported protocols are http:// and https://.
+        url - The supported protocols are http:// and https://.
         return - The converter object.
         """
-        if not re.match('(?i)^https?://.*$', multipage_background_url):
-            raise Error(create_invalid_value_message(multipage_background_url, "multipage_background_url", "pdf-to-pdf", "The supported protocols are http:// and https://.", "set_multipage_background_url"), 470);
+        if not re.match('(?i)^https?://.*$', url):
+            raise Error(create_invalid_value_message(url, "setMultipageBackgroundUrl", "pdf-to-pdf", "The supported protocols are http:// and https://.", "set_multipage_background_url"), 470);
         
-        self.fields['multipage_background_url'] = get_utf8_string(multipage_background_url)
+        self.fields['multipage_background_url'] = get_utf8_string(url)
         return self
 
-    def setLinearize(self, linearize):
+    def setLinearize(self, value):
         """
         Create linearized PDF. This is also known as Fast Web View.
 
-        linearize - Set to True to create linearized PDF.
+        value - Set to True to create linearized PDF.
         return - The converter object.
         """
-        self.fields['linearize'] = linearize
+        self.fields['linearize'] = value
         return self
 
-    def setEncrypt(self, encrypt):
+    def setEncrypt(self, value):
         """
         Encrypt the PDF. This prevents search engines from indexing the contents.
 
-        encrypt - Set to True to enable PDF encryption.
+        value - Set to True to enable PDF encryption.
         return - The converter object.
         """
-        self.fields['encrypt'] = encrypt
+        self.fields['encrypt'] = value
         return self
 
-    def setUserPassword(self, user_password):
+    def setUserPassword(self, password):
         """
         Protect the PDF with a user password. When a PDF has a user password, it must be supplied in order to view the document and to perform operations allowed by the access permissions.
 
-        user_password - The user password.
+        password - The user password.
         return - The converter object.
         """
-        self.fields['user_password'] = get_utf8_string(user_password)
+        self.fields['user_password'] = get_utf8_string(password)
         return self
 
-    def setOwnerPassword(self, owner_password):
+    def setOwnerPassword(self, password):
         """
         Protect the PDF with an owner password. Supplying an owner password grants unlimited access to the PDF including changing the passwords and access permissions.
 
-        owner_password - The owner password.
+        password - The owner password.
         return - The converter object.
         """
-        self.fields['owner_password'] = get_utf8_string(owner_password)
+        self.fields['owner_password'] = get_utf8_string(password)
         return self
 
-    def setNoPrint(self, no_print):
+    def setNoPrint(self, value):
         """
         Disallow printing of the output PDF.
 
-        no_print - Set to True to set the no-print flag in the output PDF.
+        value - Set to True to set the no-print flag in the output PDF.
         return - The converter object.
         """
-        self.fields['no_print'] = no_print
+        self.fields['no_print'] = value
         return self
 
-    def setNoModify(self, no_modify):
+    def setNoModify(self, value):
         """
         Disallow modification of the output PDF.
 
-        no_modify - Set to True to set the read-only only flag in the output PDF.
+        value - Set to True to set the read-only only flag in the output PDF.
         return - The converter object.
         """
-        self.fields['no_modify'] = no_modify
+        self.fields['no_modify'] = value
         return self
 
-    def setNoCopy(self, no_copy):
+    def setNoCopy(self, value):
         """
         Disallow text and graphics extraction from the output PDF.
 
-        no_copy - Set to True to set the no-copy flag in the output PDF.
+        value - Set to True to set the no-copy flag in the output PDF.
         return - The converter object.
         """
-        self.fields['no_copy'] = no_copy
+        self.fields['no_copy'] = value
         return self
 
-    def setPageLayout(self, page_layout):
+    def setPageLayout(self, layout):
         """
         Specify the page layout to be used when the document is opened.
 
-        page_layout - Allowed values are single-page, one-column, two-column-left, two-column-right.
+        layout - Allowed values are single-page, one-column, two-column-left, two-column-right.
         return - The converter object.
         """
-        if not re.match('(?i)^(single-page|one-column|two-column-left|two-column-right)$', page_layout):
-            raise Error(create_invalid_value_message(page_layout, "page_layout", "pdf-to-pdf", "Allowed values are single-page, one-column, two-column-left, two-column-right.", "set_page_layout"), 470);
+        if not re.match('(?i)^(single-page|one-column|two-column-left|two-column-right)$', layout):
+            raise Error(create_invalid_value_message(layout, "setPageLayout", "pdf-to-pdf", "Allowed values are single-page, one-column, two-column-left, two-column-right.", "set_page_layout"), 470);
         
-        self.fields['page_layout'] = get_utf8_string(page_layout)
+        self.fields['page_layout'] = get_utf8_string(layout)
         return self
 
-    def setPageMode(self, page_mode):
+    def setPageMode(self, mode):
         """
         Specify how the document should be displayed when opened.
 
-        page_mode - Allowed values are full-screen, thumbnails, outlines.
+        mode - Allowed values are full-screen, thumbnails, outlines.
         return - The converter object.
         """
-        if not re.match('(?i)^(full-screen|thumbnails|outlines)$', page_mode):
-            raise Error(create_invalid_value_message(page_mode, "page_mode", "pdf-to-pdf", "Allowed values are full-screen, thumbnails, outlines.", "set_page_mode"), 470);
+        if not re.match('(?i)^(full-screen|thumbnails|outlines)$', mode):
+            raise Error(create_invalid_value_message(mode, "setPageMode", "pdf-to-pdf", "Allowed values are full-screen, thumbnails, outlines.", "set_page_mode"), 470);
         
-        self.fields['page_mode'] = get_utf8_string(page_mode)
+        self.fields['page_mode'] = get_utf8_string(mode)
         return self
 
-    def setInitialZoomType(self, initial_zoom_type):
+    def setInitialZoomType(self, zoom_type):
         """
         Specify how the page should be displayed when opened.
 
-        initial_zoom_type - Allowed values are fit-width, fit-height, fit-page.
+        zoom_type - Allowed values are fit-width, fit-height, fit-page.
         return - The converter object.
         """
-        if not re.match('(?i)^(fit-width|fit-height|fit-page)$', initial_zoom_type):
-            raise Error(create_invalid_value_message(initial_zoom_type, "initial_zoom_type", "pdf-to-pdf", "Allowed values are fit-width, fit-height, fit-page.", "set_initial_zoom_type"), 470);
+        if not re.match('(?i)^(fit-width|fit-height|fit-page)$', zoom_type):
+            raise Error(create_invalid_value_message(zoom_type, "setInitialZoomType", "pdf-to-pdf", "Allowed values are fit-width, fit-height, fit-page.", "set_initial_zoom_type"), 470);
         
-        self.fields['initial_zoom_type'] = get_utf8_string(initial_zoom_type)
+        self.fields['initial_zoom_type'] = get_utf8_string(zoom_type)
         return self
 
-    def setInitialPage(self, initial_page):
+    def setInitialPage(self, page):
         """
         Display the specified page when the document is opened.
 
-        initial_page - Must be a positive integer number.
+        page - Must be a positive integer number.
         return - The converter object.
         """
-        if not (int(initial_page) > 0):
-            raise Error(create_invalid_value_message(initial_page, "initial_page", "pdf-to-pdf", "Must be a positive integer number.", "set_initial_page"), 470);
+        if not (int(page) > 0):
+            raise Error(create_invalid_value_message(page, "setInitialPage", "pdf-to-pdf", "Must be a positive integer number.", "set_initial_page"), 470);
         
-        self.fields['initial_page'] = initial_page
+        self.fields['initial_page'] = page
         return self
 
-    def setInitialZoom(self, initial_zoom):
+    def setInitialZoom(self, zoom):
         """
         Specify the initial page zoom in percents when the document is opened.
 
-        initial_zoom - Must be a positive integer number.
+        zoom - Must be a positive integer number.
         return - The converter object.
         """
-        if not (int(initial_zoom) > 0):
-            raise Error(create_invalid_value_message(initial_zoom, "initial_zoom", "pdf-to-pdf", "Must be a positive integer number.", "set_initial_zoom"), 470);
+        if not (int(zoom) > 0):
+            raise Error(create_invalid_value_message(zoom, "setInitialZoom", "pdf-to-pdf", "Must be a positive integer number.", "set_initial_zoom"), 470);
         
-        self.fields['initial_zoom'] = initial_zoom
+        self.fields['initial_zoom'] = zoom
         return self
 
-    def setHideToolbar(self, hide_toolbar):
+    def setHideToolbar(self, value):
         """
         Specify whether to hide the viewer application's tool bars when the document is active.
 
-        hide_toolbar - Set to True to hide tool bars.
+        value - Set to True to hide tool bars.
         return - The converter object.
         """
-        self.fields['hide_toolbar'] = hide_toolbar
+        self.fields['hide_toolbar'] = value
         return self
 
-    def setHideMenubar(self, hide_menubar):
+    def setHideMenubar(self, value):
         """
         Specify whether to hide the viewer application's menu bar when the document is active.
 
-        hide_menubar - Set to True to hide the menu bar.
+        value - Set to True to hide the menu bar.
         return - The converter object.
         """
-        self.fields['hide_menubar'] = hide_menubar
+        self.fields['hide_menubar'] = value
         return self
 
-    def setHideWindowUi(self, hide_window_ui):
+    def setHideWindowUi(self, value):
         """
         Specify whether to hide user interface elements in the document's window (such as scroll bars and navigation controls), leaving only the document's contents displayed.
 
-        hide_window_ui - Set to True to hide ui elements.
+        value - Set to True to hide ui elements.
         return - The converter object.
         """
-        self.fields['hide_window_ui'] = hide_window_ui
+        self.fields['hide_window_ui'] = value
         return self
 
-    def setFitWindow(self, fit_window):
+    def setFitWindow(self, value):
         """
         Specify whether to resize the document's window to fit the size of the first displayed page.
 
-        fit_window - Set to True to resize the window.
+        value - Set to True to resize the window.
         return - The converter object.
         """
-        self.fields['fit_window'] = fit_window
+        self.fields['fit_window'] = value
         return self
 
-    def setCenterWindow(self, center_window):
+    def setCenterWindow(self, value):
         """
         Specify whether to position the document's window in the center of the screen.
 
-        center_window - Set to True to center the window.
+        value - Set to True to center the window.
         return - The converter object.
         """
-        self.fields['center_window'] = center_window
+        self.fields['center_window'] = value
         return self
 
-    def setDisplayTitle(self, display_title):
+    def setDisplayTitle(self, value):
         """
         Specify whether the window's title bar should display the document title. If false , the title bar should instead display the name of the PDF file containing the document.
 
-        display_title - Set to True to display the title.
+        value - Set to True to display the title.
         return - The converter object.
         """
-        self.fields['display_title'] = display_title
+        self.fields['display_title'] = value
         return self
 
-    def setRightToLeft(self, right_to_left):
+    def setRightToLeft(self, value):
         """
         Set the predominant reading order for text to right-to-left. This option has no direct effect on the document's contents or page numbering but can be used to determine the relative positioning of pages when displayed side by side or printed n-up
 
-        right_to_left - Set to True to set right-to-left reading order.
+        value - Set to True to set right-to-left reading order.
         return - The converter object.
         """
-        self.fields['right_to_left'] = right_to_left
+        self.fields['right_to_left'] = value
         return self
 
-    def setDebugLog(self, debug_log):
+    def setDebugLog(self, value):
         """
         Turn on the debug logging. Details about the conversion are stored in the debug log. The URL of the log can be obtained from the getDebugLogUrl method or available in conversion statistics.
 
-        debug_log - Set to True to enable the debug logging.
+        value - Set to True to enable the debug logging.
         return - The converter object.
         """
-        self.fields['debug_log'] = debug_log
+        self.fields['debug_log'] = value
         return self
 
     def getDebugLogUrl(self):
@@ -3863,6 +4079,13 @@ class PdfToPdfClient:
         """
         return self.helper.getOutputSize()
 
+    def getVersion(self):
+        """
+        Get the version details.
+        return - API version, converter version, and client version.
+        """
+        return 'client {}, API v2, converter {}'.format(CLIENT_VERSION, self.helper.getConverterVersion())
+
     def setTag(self, tag):
         """
         Tag the conversion with a custom value. The tag is used in conversion statistics. A value longer than 32 characters is cut off.
@@ -3873,25 +4096,38 @@ class PdfToPdfClient:
         self.fields['tag'] = get_utf8_string(tag)
         return self
 
-    def setUseHttp(self, use_http):
+    def setConverterVersion(self, version):
+        """
+        Set the converter version. Different versions may produce different output. Choose which one provides the best output for your case.
+
+        version - The version identifier. Allowed values are latest, 20.10, 18.10.
+        return - The converter object.
+        """
+        if not re.match('(?i)^(latest|20.10|18.10)$', version):
+            raise Error(create_invalid_value_message(version, "setConverterVersion", "pdf-to-pdf", "Allowed values are latest, 20.10, 18.10.", "set_converter_version"), 470);
+        
+        self.helper.setConverterVersion(version)
+        return self
+
+    def setUseHttp(self, value):
         """
         Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API.
         Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.
 
-        use_http - Set to True to use HTTP.
+        value - Set to True to use HTTP.
         return - The converter object.
         """
-        self.helper.setUseHttp(use_http)
+        self.helper.setUseHttp(value)
         return self
 
-    def setUserAgent(self, user_agent):
+    def setUserAgent(self, agent):
         """
         Set a custom user agent HTTP header. It can be useful if you are behind some proxy or firewall.
 
-        user_agent - The user agent string.
+        agent - The user agent string.
         return - The converter object.
         """
-        self.helper.setUserAgent(user_agent)
+        self.helper.setUserAgent(agent)
         return self
 
     def setProxy(self, host, port, user_name, password):
@@ -3907,14 +4143,14 @@ class PdfToPdfClient:
         self.helper.setProxy(host, port, user_name, password)
         return self
 
-    def setRetryCount(self, retry_count):
+    def setRetryCount(self, count):
         """
         Specifies the number of retries when the 502 HTTP status code is received. The 502 status code indicates a temporary network issue. This feature can be disabled by setting to 0.
 
-        retry_count - Number of retries wanted.
+        count - Number of retries wanted.
         return - The converter object.
         """
-        self.helper.setRetryCount(retry_count)
+        self.helper.setRetryCount(count)
         return self
 
 class ImageToPdfClient:
@@ -3946,7 +4182,7 @@ class ImageToPdfClient:
         return - Byte array containing the conversion output.
         """
         if not re.match('(?i)^https?://.*$', url):
-            raise Error(create_invalid_value_message(url, "url", "image-to-pdf", "The supported protocols are http:// and https://.", "convert_url"), 470);
+            raise Error(create_invalid_value_message(url, "convertUrl", "image-to-pdf", "The supported protocols are http:// and https://.", "convert_url"), 470);
         
         self.fields['url'] = get_utf8_string(url)
         return self.helper.post(self.fields, self.files, self.raw_data)
@@ -3959,7 +4195,7 @@ class ImageToPdfClient:
         out_stream - The output stream that will contain the conversion output.
         """
         if not re.match('(?i)^https?://.*$', url):
-            raise Error(create_invalid_value_message(url, "url", "image-to-pdf", "The supported protocols are http:// and https://.", "convert_url_to_stream"), 470);
+            raise Error(create_invalid_value_message(url, "convertUrlToStream::url", "image-to-pdf", "The supported protocols are http:// and https://.", "convert_url_to_stream"), 470);
         
         self.fields['url'] = get_utf8_string(url)
         self.helper.post(self.fields, self.files, self.raw_data, out_stream)
@@ -3972,7 +4208,7 @@ class ImageToPdfClient:
         file_path - The output file path. The string must not be empty.
         """
         if not (file_path):
-            raise Error(create_invalid_value_message(file_path, "file_path", "image-to-pdf", "The string must not be empty.", "convert_url_to_file"), 470);
+            raise Error(create_invalid_value_message(file_path, "convertUrlToFile::file_path", "image-to-pdf", "The string must not be empty.", "convert_url_to_file"), 470);
         
         output_file = open(file_path, 'wb')
         try:
@@ -3987,11 +4223,11 @@ class ImageToPdfClient:
         """
         Convert a local file.
 
-        file - The path to a local file to convert. The file can be either a single file or an archive (.tar.gz, .tar.bz2, or .zip). The file must exist and not be empty.
+        file - The path to a local file to convert. The file must exist and not be empty.
         return - Byte array containing the conversion output.
         """
         if not (os.path.isfile(file) and os.path.getsize(file)):
-            raise Error(create_invalid_value_message(file, "file", "image-to-pdf", "The file must exist and not be empty.", "convert_file"), 470);
+            raise Error(create_invalid_value_message(file, "convertFile", "image-to-pdf", "The file must exist and not be empty.", "convert_file"), 470);
         
         self.files['file'] = get_utf8_string(file)
         return self.helper.post(self.fields, self.files, self.raw_data)
@@ -4000,11 +4236,11 @@ class ImageToPdfClient:
         """
         Convert a local file and write the result to an output stream.
 
-        file - The path to a local file to convert. The file can be either a single file or an archive (.tar.gz, .tar.bz2, or .zip). The file must exist and not be empty.
+        file - The path to a local file to convert. The file must exist and not be empty.
         out_stream - The output stream that will contain the conversion output.
         """
         if not (os.path.isfile(file) and os.path.getsize(file)):
-            raise Error(create_invalid_value_message(file, "file", "image-to-pdf", "The file must exist and not be empty.", "convert_file_to_stream"), 470);
+            raise Error(create_invalid_value_message(file, "convertFileToStream::file", "image-to-pdf", "The file must exist and not be empty.", "convert_file_to_stream"), 470);
         
         self.files['file'] = get_utf8_string(file)
         self.helper.post(self.fields, self.files, self.raw_data, out_stream)
@@ -4013,11 +4249,11 @@ class ImageToPdfClient:
         """
         Convert a local file and write the result to a local file.
 
-        file - The path to a local file to convert. The file can be either a single file or an archive (.tar.gz, .tar.bz2, or .zip). The file must exist and not be empty.
+        file - The path to a local file to convert. The file must exist and not be empty.
         file_path - The output file path. The string must not be empty.
         """
         if not (file_path):
-            raise Error(create_invalid_value_message(file_path, "file_path", "image-to-pdf", "The string must not be empty.", "convert_file_to_file"), 470);
+            raise Error(create_invalid_value_message(file_path, "convertFileToFile::file_path", "image-to-pdf", "The string must not be empty.", "convert_file_to_file"), 470);
         
         output_file = open(file_path, 'wb')
         try:
@@ -4056,7 +4292,7 @@ class ImageToPdfClient:
         file_path - The output file path. The string must not be empty.
         """
         if not (file_path):
-            raise Error(create_invalid_value_message(file_path, "file_path", "image-to-pdf", "The string must not be empty.", "convert_raw_data_to_file"), 470);
+            raise Error(create_invalid_value_message(file_path, "convertRawDataToFile::file_path", "image-to-pdf", "The string must not be empty.", "convert_raw_data_to_file"), 470);
         
         output_file = open(file_path, 'wb')
         try:
@@ -4087,14 +4323,14 @@ class ImageToPdfClient:
         self.fields['rotate'] = get_utf8_string(rotate)
         return self
 
-    def setDebugLog(self, debug_log):
+    def setDebugLog(self, value):
         """
         Turn on the debug logging. Details about the conversion are stored in the debug log. The URL of the log can be obtained from the getDebugLogUrl method or available in conversion statistics.
 
-        debug_log - Set to True to enable the debug logging.
+        value - Set to True to enable the debug logging.
         return - The converter object.
         """
-        self.fields['debug_log'] = debug_log
+        self.fields['debug_log'] = value
         return self
 
     def getDebugLogUrl(self):
@@ -4135,6 +4371,13 @@ class ImageToPdfClient:
         """
         return self.helper.getOutputSize()
 
+    def getVersion(self):
+        """
+        Get the version details.
+        return - API version, converter version, and client version.
+        """
+        return 'client {}, API v2, converter {}'.format(CLIENT_VERSION, self.helper.getConverterVersion())
+
     def setTag(self, tag):
         """
         Tag the conversion with a custom value. The tag is used in conversion statistics. A value longer than 32 characters is cut off.
@@ -4145,51 +4388,64 @@ class ImageToPdfClient:
         self.fields['tag'] = get_utf8_string(tag)
         return self
 
-    def setHttpProxy(self, http_proxy):
+    def setHttpProxy(self, proxy):
         """
         A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTP scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
 
-        http_proxy - The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
+        proxy - The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
         return - The converter object.
         """
-        if not re.match('(?i)^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z0-9]{1,}:\d+$', http_proxy):
-            raise Error(create_invalid_value_message(http_proxy, "http_proxy", "image-to-pdf", "The value must have format DOMAIN_OR_IP_ADDRESS:PORT.", "set_http_proxy"), 470);
+        if not re.match('(?i)^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z0-9]{1,}:\d+$', proxy):
+            raise Error(create_invalid_value_message(proxy, "setHttpProxy", "image-to-pdf", "The value must have format DOMAIN_OR_IP_ADDRESS:PORT.", "set_http_proxy"), 470);
         
-        self.fields['http_proxy'] = get_utf8_string(http_proxy)
+        self.fields['http_proxy'] = get_utf8_string(proxy)
         return self
 
-    def setHttpsProxy(self, https_proxy):
+    def setHttpsProxy(self, proxy):
         """
         A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTPS scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
 
-        https_proxy - The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
+        proxy - The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
         return - The converter object.
         """
-        if not re.match('(?i)^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z0-9]{1,}:\d+$', https_proxy):
-            raise Error(create_invalid_value_message(https_proxy, "https_proxy", "image-to-pdf", "The value must have format DOMAIN_OR_IP_ADDRESS:PORT.", "set_https_proxy"), 470);
+        if not re.match('(?i)^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z0-9]{1,}:\d+$', proxy):
+            raise Error(create_invalid_value_message(proxy, "setHttpsProxy", "image-to-pdf", "The value must have format DOMAIN_OR_IP_ADDRESS:PORT.", "set_https_proxy"), 470);
         
-        self.fields['https_proxy'] = get_utf8_string(https_proxy)
+        self.fields['https_proxy'] = get_utf8_string(proxy)
         return self
 
-    def setUseHttp(self, use_http):
+    def setConverterVersion(self, version):
+        """
+        Set the converter version. Different versions may produce different output. Choose which one provides the best output for your case.
+
+        version - The version identifier. Allowed values are latest, 20.10, 18.10.
+        return - The converter object.
+        """
+        if not re.match('(?i)^(latest|20.10|18.10)$', version):
+            raise Error(create_invalid_value_message(version, "setConverterVersion", "image-to-pdf", "Allowed values are latest, 20.10, 18.10.", "set_converter_version"), 470);
+        
+        self.helper.setConverterVersion(version)
+        return self
+
+    def setUseHttp(self, value):
         """
         Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API.
         Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.
 
-        use_http - Set to True to use HTTP.
+        value - Set to True to use HTTP.
         return - The converter object.
         """
-        self.helper.setUseHttp(use_http)
+        self.helper.setUseHttp(value)
         return self
 
-    def setUserAgent(self, user_agent):
+    def setUserAgent(self, agent):
         """
         Set a custom user agent HTTP header. It can be useful if you are behind some proxy or firewall.
 
-        user_agent - The user agent string.
+        agent - The user agent string.
         return - The converter object.
         """
-        self.helper.setUserAgent(user_agent)
+        self.helper.setUserAgent(agent)
         return self
 
     def setProxy(self, host, port, user_name, password):
@@ -4205,14 +4461,14 @@ class ImageToPdfClient:
         self.helper.setProxy(host, port, user_name, password)
         return self
 
-    def setRetryCount(self, retry_count):
+    def setRetryCount(self, count):
         """
         Specifies the number of retries when the 502 HTTP status code is received. The 502 status code indicates a temporary network issue. This feature can be disabled by setting to 0.
 
-        retry_count - Number of retries wanted.
+        count - Number of retries wanted.
         return - The converter object.
         """
-        self.helper.setRetryCount(retry_count)
+        self.helper.setRetryCount(count)
         return self
 
 
@@ -4277,7 +4533,7 @@ available converters:
         add_generic_args(parser)
 
         parser.add_argument('-page-size',
-                            help = 'Set the output page size. Allowed values are A2, A3, A4, A5, A6, Letter. Default is A4.'
+                            help = 'Set the output page size. Allowed values are A0, A1, A2, A3, A4, A5, A6, Letter. Default is A4.'
 )
         parser.add_argument('-page-width',
                             help = 'Set the output page width. The safe maximum is 200in otherwise some PDF viewers may be unable to open the PDF. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt). Default is 8.27in.'
@@ -4330,6 +4586,10 @@ available converters:
         parser.add_argument('-footer-height',
                             help = 'Set the footer height. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt). Default is 0.5in.'
 )
+        parser.add_argument('-no-header-footer-horizontal-margins',
+                            action = 'store_true',
+                            help = 'Disable horizontal page margins for header and footer. The header/footer contents width will be equal to the physical page width.'
+)
         parser.add_argument('-print-page-range',
                             help = 'Set the page range to print. A comma separated list of page numbers or ranges.'
 )
@@ -4357,6 +4617,9 @@ available converters:
         multi_args['content_area'] = 4
         parser.add_argument('-content-area',
                             help = 'Set the content area position and size. The content area enables to specify a web page area to be converted. CONTENT_AREA must contain 4 values separated by a semicolon. Set the top left X coordinate of the content area. It is relative to the top left X coordinate of the print area. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt). It may contain a negative value. Set the top left Y coordinate of the content area. It is relative to the top left Y coordinate of the print area. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt). It may contain a negative value. Set the width of the content area. It should be at least 1 inch. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt). Set the height of the content area. It should be at least 1 inch. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).'
+)
+        parser.add_argument('-css-page-rule-mode',
+                            help = 'Specifies behavior in presence of CSS @page rules. It may affect the page size, margins and orientation. The page rule mode. Allowed values are default, mode1, mode2. Default is default.'
 )
         parser.add_argument('-data-string',
                             help = 'Set the input data for template rendering. The data format can be JSON, XML, YAML or CSV. The input data string.'
@@ -4412,6 +4675,10 @@ available converters:
         parser.add_argument('-page-background-color',
                             help = 'The page background color in RGB or RGBA hexadecimal format. The color fills the entire page regardless of the margins. The value must be in RRGGBB or RRGGBBAA hexadecimal format.'
 )
+        parser.add_argument('-use-print-media',
+                            action = 'store_true',
+                            help = 'Use the print version of the page if available (@media print).'
+)
         parser.add_argument('-no-background',
                             action = 'store_true',
                             help = 'Do not print the background graphics.'
@@ -4428,12 +4695,18 @@ available converters:
                             action = 'store_true',
                             help = 'Disable loading fonts from remote sources.'
 )
+        parser.add_argument('-load-iframes',
+                            help = 'Specifies how iframes are handled. Allowed values are all, same-origin, none. Default is all.'
+)
         parser.add_argument('-block-ads',
                             action = 'store_true',
                             help = 'Try to block ads. Enabling this option can produce smaller output and speed up the conversion.'
 )
         parser.add_argument('-default-encoding',
                             help = 'Set the default HTML content text encoding. The text encoding of the HTML content. Default is auto detect.'
+)
+        parser.add_argument('-locale',
+                            help = 'Set the locale for the conversion. This may affect the output format of dates, times and numbers. The locale code according to ISO 639. Default is en-US.'
 )
         parser.add_argument('-http-auth-user-name',
                             help = argparse.SUPPRESS
@@ -4444,14 +4717,6 @@ available converters:
         multi_args['http_auth'] = 2
         parser.add_argument('-http-auth',
                             help = 'Set credentials to access HTTP base authentication protected websites. HTTP_AUTH must contain 2 values separated by a semicolon. Set the HTTP authentication user name. Set the HTTP authentication password.'
-)
-        parser.add_argument('-use-print-media',
-                            action = 'store_true',
-                            help = 'Use the print version of the page if available (@media print).'
-)
-        parser.add_argument('-no-xpdfcrowd-header',
-                            action = 'store_true',
-                            help = 'Do not send the X-Pdfcrowd HTTP header in Pdfcrowd HTTP requests.'
 )
         parser.add_argument('-cookies',
                             help = 'Set cookies that are sent in Pdfcrowd HTTP requests. The cookie string.'
@@ -4467,6 +4732,10 @@ available converters:
         parser.add_argument('-fail-on-any-url-error',
                             action = 'store_true',
                             help = 'Abort the conversion if any of the sub-request HTTP status code is greater than or equal to 400 or if some sub-requests are still pending. See details in a debug log.'
+)
+        parser.add_argument('-no-xpdfcrowd-header',
+                            action = 'store_true',
+                            help = 'Do not send the X-Pdfcrowd HTTP header in Pdfcrowd HTTP requests.'
 )
         parser.add_argument('-custom-javascript',
                             help = 'Run a custom JavaScript after the document is loaded and ready to print. The script is intended for post-load DOM manipulation (add/remove elements, update CSS, ...). In addition to the standard browser APIs, the custom JavaScript code can use helper functions from our JavaScript library. A string containing a JavaScript code. The string must not be empty.'
@@ -4503,17 +4772,13 @@ available converters:
                             help = 'Set the rendering mode. The rendering mode. Allowed values are default, viewport. Default is default.'
 )
         parser.add_argument('-smart-scaling-mode',
-                            help = 'Specifies the scaling mode used for fitting the HTML contents to the print area. The smart scaling mode. Allowed values are default, disabled, viewport-fit, content-fit, single-page-fit. Default is default.'
+                            help = 'Specifies the scaling mode used for fitting the HTML contents to the print area. The smart scaling mode. Allowed values are default, disabled, viewport-fit, content-fit, single-page-fit, mode1. Default is default.'
 )
         parser.add_argument('-scale-factor',
                             help = 'Set the scaling factor (zoom) for the main page area. The percentage value. The value must be in the range 10-500. Default is 100.'
 )
         parser.add_argument('-header-footer-scale-factor',
                             help = 'Set the scaling factor (zoom) for the header and footer. The percentage value. The value must be in the range 10-500. Default is 100.'
-)
-        parser.add_argument('-disable-smart-shrinking',
-                            action = 'store_true',
-                            help = 'Disable the intelligent shrinking strategy that tries to optimally fit the HTML contents to a PDF page.'
 )
         parser.add_argument('-jpeg-quality',
                             help = 'Set the quality of embedded JPEG images. A lower quality results in a smaller PDF file but can lead to compression artifacts. The percentage value. The value must be in the range 1-100. Default is 100.'
@@ -4624,6 +4889,33 @@ available converters:
         parser.add_argument('-client-certificate-password',
                             help = 'A password for PKCS12 file with a client certificate if it is needed.'
 )
+        parser.add_argument('-layout-dpi',
+                            help = 'Set the internal DPI resolution used for positioning of PDF contents. It can help in situations when there are small inaccuracies in the PDF. It is recommended to use values that are a multiple of 72, such as 288 or 360. The DPI value. The value must be in the range of 72-600. Default is 300.'
+)
+        parser.add_argument('-contents-matrix',
+                            help = 'A 2D transformation matrix applied to the main contents on each page. The origin [0,0] is located at the top-left corner of the contents. The resolution is 72 dpi. A comma separated string of matrix elements: "scaleX,skewX,transX,skewY,scaleY,transY" Default is 1,0,0,0,1,0.'
+)
+        parser.add_argument('-header-matrix',
+                            help = 'A 2D transformation matrix applied to the page header contents. The origin [0,0] is located at the top-left corner of the header. The resolution is 72 dpi. A comma separated string of matrix elements: "scaleX,skewX,transX,skewY,scaleY,transY" Default is 1,0,0,0,1,0.'
+)
+        parser.add_argument('-footer-matrix',
+                            help = 'A 2D transformation matrix applied to the page footer contents. The origin [0,0] is located at the top-left corner of the footer. The resolution is 72 dpi. A comma separated string of matrix elements: "scaleX,skewX,transX,skewY,scaleY,transY" Default is 1,0,0,0,1,0.'
+)
+        parser.add_argument('-disable-page-height-optimization',
+                            action = 'store_true',
+                            help = 'Disable automatic height adjustment that compensates for pixel to point rounding errors.'
+)
+        parser.add_argument('-main-document-css-annotation',
+                            action = 'store_true',
+                            help = 'Add special CSS classes to the main document\'s body element. This allows applying custom styling based on these classes: pdfcrowd-page-X - where X is the current page number pdfcrowd-page-odd - odd page pdfcrowd-page-even - even page Warning: If your custom styling affects the contents area size (e.g. by using different margins, padding, border width), the resulting PDF may contain duplicit contents or some contents may be missing.'
+)
+        parser.add_argument('-header-footer-css-annotation',
+                            action = 'store_true',
+                            help = 'Add special CSS classes to the header/footer\'s body element. This allows applying custom styling based on these classes: pdfcrowd-page-X - where X is the current page number pdfcrowd-page-count-X - where X is the total page count pdfcrowd-page-first - the first page pdfcrowd-page-last - the last page pdfcrowd-page-odd - odd page pdfcrowd-page-even - even page'
+)
+        parser.add_argument('-converter-version',
+                            help = 'Set the converter version. Different versions may produce different output. Choose which one provides the best output for your case. The version identifier. Allowed values are latest, 20.10, 18.10. Default is 20.10.'
+)
         parser.add_argument('-use-http',
                             action = 'store_true',
                             help = 'Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API. Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.'
@@ -4679,6 +4971,10 @@ available converters:
         parser.add_argument('-data-options',
                             help = 'Set the advanced data options:csv_delimiter - The CSV data delimiter, the default is ,.xml_remove_root - Remove the root XML element from the input data.data_root - The name of the root element inserted into the input data without a root node (e.g. CSV), the default is data. Comma separated list of options.'
 )
+        parser.add_argument('-use-print-media',
+                            action = 'store_true',
+                            help = 'Use the print version of the page if available (@media print).'
+)
         parser.add_argument('-no-background',
                             action = 'store_true',
                             help = 'Do not print the background graphics.'
@@ -4695,12 +4991,18 @@ available converters:
                             action = 'store_true',
                             help = 'Disable loading fonts from remote sources.'
 )
+        parser.add_argument('-load-iframes',
+                            help = 'Specifies how iframes are handled. Allowed values are all, same-origin, none. Default is all.'
+)
         parser.add_argument('-block-ads',
                             action = 'store_true',
                             help = 'Try to block ads. Enabling this option can produce smaller output and speed up the conversion.'
 )
         parser.add_argument('-default-encoding',
                             help = 'Set the default HTML content text encoding. The text encoding of the HTML content. Default is auto detect.'
+)
+        parser.add_argument('-locale',
+                            help = 'Set the locale for the conversion. This may affect the output format of dates, times and numbers. The locale code according to ISO 639. Default is en-US.'
 )
         parser.add_argument('-http-auth-user-name',
                             help = argparse.SUPPRESS
@@ -4711,14 +5013,6 @@ available converters:
         multi_args['http_auth'] = 2
         parser.add_argument('-http-auth',
                             help = 'Set credentials to access HTTP base authentication protected websites. HTTP_AUTH must contain 2 values separated by a semicolon. Set the HTTP authentication user name. Set the HTTP authentication password.'
-)
-        parser.add_argument('-use-print-media',
-                            action = 'store_true',
-                            help = 'Use the print version of the page if available (@media print).'
-)
-        parser.add_argument('-no-xpdfcrowd-header',
-                            action = 'store_true',
-                            help = 'Do not send the X-Pdfcrowd HTTP header in Pdfcrowd HTTP requests.'
 )
         parser.add_argument('-cookies',
                             help = 'Set cookies that are sent in Pdfcrowd HTTP requests. The cookie string.'
@@ -4734,6 +5028,10 @@ available converters:
         parser.add_argument('-fail-on-any-url-error',
                             action = 'store_true',
                             help = 'Abort the conversion if any of the sub-request HTTP status code is greater than or equal to 400 or if some sub-requests are still pending. See details in a debug log.'
+)
+        parser.add_argument('-no-xpdfcrowd-header',
+                            action = 'store_true',
+                            help = 'Do not send the X-Pdfcrowd HTTP header in Pdfcrowd HTTP requests.'
 )
         parser.add_argument('-custom-javascript',
                             help = 'Run a custom JavaScript after the document is loaded and ready to print. The script is intended for post-load DOM manipulation (add/remove elements, update CSS, ...). In addition to the standard browser APIs, the custom JavaScript code can use helper functions from our JavaScript library. A string containing a JavaScript code. The string must not be empty.'
@@ -4765,6 +5063,9 @@ available converters:
         parser.add_argument('-scale-factor',
                             help = 'Set the scaling factor (zoom) for the output image. The percentage value. Must be a positive integer number. Default is 100.'
 )
+        parser.add_argument('-background-color',
+                            help = 'The output image background color. The value must be in RRGGBB or RRGGBBAA hexadecimal format.'
+)
         parser.add_argument('-debug-log',
                             action = 'store_true',
                             help = 'Turn on the debug logging. Details about the conversion are stored in the debug log.'
@@ -4783,6 +5084,9 @@ available converters:
 )
         parser.add_argument('-client-certificate-password',
                             help = 'A password for PKCS12 file with a client certificate if it is needed.'
+)
+        parser.add_argument('-converter-version',
+                            help = 'Set the converter version. Different versions may produce different output. Choose which one provides the best output for your case. The version identifier. Allowed values are latest, 20.10, 18.10. Default is 20.10.'
 )
         parser.add_argument('-use-http',
                             action = 'store_true',
@@ -4830,6 +5134,9 @@ available converters:
 )
         parser.add_argument('-https-proxy',
                             help = 'A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTPS scheme. It can help to circumvent regional restrictions or provide limited access to your intranet. The value must have format DOMAIN_OR_IP_ADDRESS:PORT.'
+)
+        parser.add_argument('-converter-version',
+                            help = 'Set the converter version. Different versions may produce different output. Choose which one provides the best output for your case. The version identifier. Allowed values are latest, 20.10, 18.10. Default is 20.10.'
 )
         parser.add_argument('-use-http',
                             action = 'store_true',
@@ -4959,6 +5266,9 @@ available converters:
         parser.add_argument('-tag',
                             help = 'Tag the conversion with a custom value. The tag is used in conversion statistics. A value longer than 32 characters is cut off. A string with the custom tag.'
 )
+        parser.add_argument('-converter-version',
+                            help = 'Set the converter version. Different versions may produce different output. Choose which one provides the best output for your case. The version identifier. Allowed values are latest, 20.10, 18.10. Default is 20.10.'
+)
         parser.add_argument('-use-http',
                             action = 'store_true',
                             help = 'Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API. Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.'
@@ -5002,6 +5312,9 @@ available converters:
 )
         parser.add_argument('-https-proxy',
                             help = 'A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTPS scheme. It can help to circumvent regional restrictions or provide limited access to your intranet. The value must have format DOMAIN_OR_IP_ADDRESS:PORT.'
+)
+        parser.add_argument('-converter-version',
+                            help = 'Set the converter version. Different versions may produce different output. Choose which one provides the best output for your case. The version identifier. Allowed values are latest, 20.10, 18.10. Default is 20.10.'
 )
         parser.add_argument('-use-http',
                             action = 'store_true',
