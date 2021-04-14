@@ -43,7 +43,7 @@ import os
 import ssl
 import time
 
-__version__ = '5.0.0'
+__version__ = '5.1.0'
 
 # ======================================
 # === PDFCrowd legacy version client ===
@@ -698,7 +698,7 @@ else:
 
 HOST = os.environ.get('PDFCROWD_HOST', 'api.pdfcrowd.com')
 MULTIPART_BOUNDARY = '----------ThIs_Is_tHe_bOUnDary_$'
-CLIENT_VERSION = '5.0.0'
+CLIENT_VERSION = '5.1.0'
 
 def get_utf8_string(string):
     if PYTHON_3:
@@ -791,7 +791,7 @@ class ConnectionHelper:
         self._reset_response_data()
         self.setProxy(None, None, None, None)
         self.setUseHttp(False)
-        self.setUserAgent('pdfcrowd_python_client/5.0.0 (http://pdfcrowd.com)')
+        self.setUserAgent('pdfcrowd_python_client/5.1.0 (https://pdfcrowd.com)')
 
         self.retry_count = 1
         self.converter_version = '20.10'
@@ -1095,6 +1095,45 @@ class HtmlToPdfClient:
         output_file = open(file_path, 'wb')
         try:
             self.convertStringToStream(text, output_file)
+            output_file.close()
+        except Error:
+            output_file.close()
+            os.remove(file_path)
+            raise
+
+    def convertStream(self, in_stream):
+        """
+        Convert an input stream.
+
+        in_stream - The input stream with the source data.
+        return - Byte array containing the conversion output.
+        """
+        self.raw_data['stream'] = in_stream.read()
+        return self.helper.post(self.fields, self.files, self.raw_data)
+
+    def convertStreamToStream(self, in_stream, out_stream):
+        """
+        Convert an input stream and write the result to an output stream.
+
+        in_stream - The input stream with the source data.
+        out_stream - The output stream that will contain the conversion output.
+        """
+        self.raw_data['stream'] = in_stream.read()
+        self.helper.post(self.fields, self.files, self.raw_data, out_stream)
+
+    def convertStreamToFile(self, in_stream, file_path):
+        """
+        Convert an input stream and write the result to a local file.
+
+        in_stream - The input stream with the source data.
+        file_path - The output file path. The string must not be empty.
+        """
+        if not (file_path):
+            raise Error(create_invalid_value_message(file_path, "convertStreamToFile::file_path", "html-to-pdf", "The string must not be empty.", "convert_stream_to_file"), 470);
+        
+        output_file = open(file_path, 'wb')
+        try:
+            self.convertStreamToStream(in_stream, output_file)
             output_file.close()
         except Error:
             output_file.close()
@@ -2722,6 +2761,45 @@ class HtmlToImageClient:
             os.remove(file_path)
             raise
 
+    def convertStream(self, in_stream):
+        """
+        Convert an input stream.
+
+        in_stream - The input stream with the source data.
+        return - Byte array containing the conversion output.
+        """
+        self.raw_data['stream'] = in_stream.read()
+        return self.helper.post(self.fields, self.files, self.raw_data)
+
+    def convertStreamToStream(self, in_stream, out_stream):
+        """
+        Convert an input stream and write the result to an output stream.
+
+        in_stream - The input stream with the source data.
+        out_stream - The output stream that will contain the conversion output.
+        """
+        self.raw_data['stream'] = in_stream.read()
+        self.helper.post(self.fields, self.files, self.raw_data, out_stream)
+
+    def convertStreamToFile(self, in_stream, file_path):
+        """
+        Convert an input stream and write the result to a local file.
+
+        in_stream - The input stream with the source data.
+        file_path - The output file path. The string must not be empty.
+        """
+        if not (file_path):
+            raise Error(create_invalid_value_message(file_path, "convertStreamToFile::file_path", "html-to-image", "The string must not be empty.", "convert_stream_to_file"), 470);
+        
+        output_file = open(file_path, 'wb')
+        try:
+            self.convertStreamToStream(in_stream, output_file)
+            output_file.close()
+        except Error:
+            output_file.close()
+            os.remove(file_path)
+            raise
+
     def setDataString(self, data_string):
         """
         Set the input data for template rendering. The data format can be JSON, XML, YAML or CSV.
@@ -3438,6 +3516,45 @@ class ImageToImageClient:
         output_file = open(file_path, 'wb')
         try:
             self.convertRawDataToStream(data, output_file)
+            output_file.close()
+        except Error:
+            output_file.close()
+            os.remove(file_path)
+            raise
+
+    def convertStream(self, in_stream):
+        """
+        Convert an input stream.
+
+        in_stream - The input stream with the source data.
+        return - Byte array containing the conversion output.
+        """
+        self.raw_data['stream'] = in_stream.read()
+        return self.helper.post(self.fields, self.files, self.raw_data)
+
+    def convertStreamToStream(self, in_stream, out_stream):
+        """
+        Convert an input stream and write the result to an output stream.
+
+        in_stream - The input stream with the source data.
+        out_stream - The output stream that will contain the conversion output.
+        """
+        self.raw_data['stream'] = in_stream.read()
+        self.helper.post(self.fields, self.files, self.raw_data, out_stream)
+
+    def convertStreamToFile(self, in_stream, file_path):
+        """
+        Convert an input stream and write the result to a local file.
+
+        in_stream - The input stream with the source data.
+        file_path - The output file path. The string must not be empty.
+        """
+        if not (file_path):
+            raise Error(create_invalid_value_message(file_path, "convertStreamToFile::file_path", "image-to-image", "The string must not be empty.", "convert_stream_to_file"), 470);
+        
+        output_file = open(file_path, 'wb')
+        try:
+            self.convertStreamToStream(in_stream, output_file)
             output_file.close()
         except Error:
             output_file.close()
@@ -4297,6 +4414,45 @@ class ImageToPdfClient:
         output_file = open(file_path, 'wb')
         try:
             self.convertRawDataToStream(data, output_file)
+            output_file.close()
+        except Error:
+            output_file.close()
+            os.remove(file_path)
+            raise
+
+    def convertStream(self, in_stream):
+        """
+        Convert an input stream.
+
+        in_stream - The input stream with the source data.
+        return - Byte array containing the conversion output.
+        """
+        self.raw_data['stream'] = in_stream.read()
+        return self.helper.post(self.fields, self.files, self.raw_data)
+
+    def convertStreamToStream(self, in_stream, out_stream):
+        """
+        Convert an input stream and write the result to an output stream.
+
+        in_stream - The input stream with the source data.
+        out_stream - The output stream that will contain the conversion output.
+        """
+        self.raw_data['stream'] = in_stream.read()
+        self.helper.post(self.fields, self.files, self.raw_data, out_stream)
+
+    def convertStreamToFile(self, in_stream, file_path):
+        """
+        Convert an input stream and write the result to a local file.
+
+        in_stream - The input stream with the source data.
+        file_path - The output file path. The string must not be empty.
+        """
+        if not (file_path):
+            raise Error(create_invalid_value_message(file_path, "convertStreamToFile::file_path", "image-to-pdf", "The string must not be empty.", "convert_stream_to_file"), 470);
+        
+        output_file = open(file_path, 'wb')
+        try:
+            self.convertStreamToStream(in_stream, output_file)
             output_file.close()
         except Error:
             output_file.close()
