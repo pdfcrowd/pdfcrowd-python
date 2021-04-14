@@ -23,12 +23,15 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 # OTHER DEALINGS IN THE SOFTWARE.
 
-from distutils.core import setup
+try:
+    from setuptools import setup
+except ImportError:
+    from distutils.core import setup
 
 py_modules=['pdfcrowd']
 
 setup(name='pdfcrowd',
-      version='5.1.0',
+      version='5.1.1',
       description="A client library for the Pdfcrowd API.",
       url='https://pdfcrowd.com/doc/api/',
       license="License :: OSI Approved :: MIT License",
