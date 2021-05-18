@@ -1872,7 +1872,7 @@ class HtmlToPdfClient:
 
     def setElementToConvertMode(self, mode):
         """
-        Specify the DOM handling when only a part of the document is converted.
+        Specify the DOM handling when only a part of the document is converted. This can affect the CSS rules used.
 
         mode - Allowed values are cut-out, remove-siblings, hide-siblings.
         return - The converter object.
@@ -3042,7 +3042,7 @@ class HtmlToImageClient:
 
     def setElementToConvertMode(self, mode):
         """
-        Specify the DOM handling when only a part of the document is converted.
+        Specify the DOM handling when only a part of the document is converted. This can affect the CSS rules used.
 
         mode - Allowed values are cut-out, remove-siblings, hide-siblings.
         return - The converter object.
@@ -4885,7 +4885,7 @@ available converters:
                             help = 'Convert only the specified element from the main document and its children. The element is specified by one or more CSS selectors. If the element is not found, the conversion fails. If multiple elements are found, the first one is used. One or more CSS selectors separated by commas. The string must not be empty.'
 )
         parser.add_argument('-element-to-convert-mode',
-                            help = 'Specify the DOM handling when only a part of the document is converted. Allowed values are cut-out, remove-siblings, hide-siblings. Default is cut-out.'
+                            help = 'Specify the DOM handling when only a part of the document is converted. This can affect the CSS rules used. Allowed values are cut-out, remove-siblings, hide-siblings. Default is cut-out.'
 )
         parser.add_argument('-wait-for-element',
                             help = 'Wait for the specified element in a source document. The element is specified by one or more CSS selectors. The element is searched for in the main document and all iframes. If the element is not found, the conversion fails. Your API license defines the maximum wait time by "Max Delay" parameter. One or more CSS selectors separated by commas. The string must not be empty.'
@@ -5178,7 +5178,7 @@ available converters:
                             help = 'Convert only the specified element from the main document and its children. The element is specified by one or more CSS selectors. If the element is not found, the conversion fails. If multiple elements are found, the first one is used. One or more CSS selectors separated by commas. The string must not be empty.'
 )
         parser.add_argument('-element-to-convert-mode',
-                            help = 'Specify the DOM handling when only a part of the document is converted. Allowed values are cut-out, remove-siblings, hide-siblings. Default is cut-out.'
+                            help = 'Specify the DOM handling when only a part of the document is converted. This can affect the CSS rules used. Allowed values are cut-out, remove-siblings, hide-siblings. Default is cut-out.'
 )
         parser.add_argument('-wait-for-element',
                             help = 'Wait for the specified element in a source document. The element is specified by one or more CSS selectors. The element is searched for in the main document and all iframes. If the element is not found, the conversion fails. Your API license defines the maximum wait time by "Max Delay" parameter. One or more CSS selectors separated by commas. The string must not be empty.'
