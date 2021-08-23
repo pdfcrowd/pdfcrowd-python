@@ -1,8 +1,10 @@
 .PHONY: dist clean publish test-publish build
 
+PYTHON=python3
+
 dist:
 	@rm -rf dist/* build/* python/MANIFEST
-	@python setup.py clean && python setup.py sdist --formats=zip
+	@$(PYTHON) setup.py clean && $(PYTHON) setup.py sdist --formats=zip
 	@for fname in dist/* ; do mv $$fname "$${fname%.*}-python.$${fname##*.}" ; done
 
 # cat ~/.pypirc
@@ -23,7 +25,7 @@ dist:
 
 build:
 	@rm -rf dist/* build/* python/MANIFEST
-	@python setup.py clean && python setup.py sdist bdist_wheel
+	@$(PYTHON) setup.py clean && $(PYTHON) setup.py sdist bdist_wheel
 
 publish: build
 	@twine upload dist/*
