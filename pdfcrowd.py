@@ -43,7 +43,7 @@ import os
 import ssl
 import time
 
-__version__ = '5.1.3'
+__version__ = '5.2.0'
 
 # ======================================
 # === PDFCrowd legacy version client ===
@@ -698,7 +698,7 @@ else:
 
 HOST = os.environ.get('PDFCROWD_HOST', 'api.pdfcrowd.com')
 MULTIPART_BOUNDARY = '----------ThIs_Is_tHe_bOUnDary_$'
-CLIENT_VERSION = '5.1.3'
+CLIENT_VERSION = '5.2.0'
 
 def get_utf8_string(string):
     if PYTHON_3:
@@ -791,7 +791,7 @@ class ConnectionHelper:
         self._reset_response_data()
         self.setProxy(None, None, None, None)
         self.setUseHttp(False)
-        self.setUserAgent('pdfcrowd_python_client/5.1.3 (https://pdfcrowd.com)')
+        self.setUserAgent('pdfcrowd_python_client/5.2.0 (https://pdfcrowd.com)')
 
         self.retry_count = 1
         self.converter_version = '20.10'
@@ -1140,6 +1140,16 @@ class HtmlToPdfClient:
             os.remove(file_path)
             raise
 
+    def setZipMainFilename(self, filename):
+        """
+        Set the file name of the main HTML document stored in the input archive. If not specified, the first HTML file in the archive is used for conversion. Use this method if the input archive contains multiple HTML documents.
+
+        filename - The file name.
+        return - The converter object.
+        """
+        self.fields['zip_main_filename'] = get_utf8_string(filename)
+        return self
+
     def setPageSize(self, size):
         """
         Set the output page size.
@@ -1425,6 +1435,16 @@ class HtmlToPdfClient:
         self.fields['header_height'] = get_utf8_string(height)
         return self
 
+    def setZipHeaderFilename(self, filename):
+        """
+        Set the file name of the header HTML document stored in the input archive. Use this method if the input archive contains multiple HTML documents.
+
+        filename - The file name.
+        return - The converter object.
+        """
+        self.fields['zip_header_filename'] = get_utf8_string(filename)
+        return self
+
     def setFooterUrl(self, url):
         """
         Load an HTML code from the specified URL and use it as the page footer. The following classes can be used in the HTML. The content of the respective elements will be expanded as follows: pdfcrowd-page-count - the total page count of printed pages pdfcrowd-page-number - the current page number pdfcrowd-source-url - the source URL of a converted document The following attributes can be used: data-pdfcrowd-number-format - specifies the type of the used numerals. Allowed values: arabic - Arabic numerals, they are used by default roman - Roman numerals eastern-arabic - Eastern Arabic numerals bengali - Bengali numerals devanagari - Devanagari numerals thai - Thai numerals east-asia - Chinese, Vietnamese, Japanese and Korean numerals chinese-formal - Chinese formal numerals Please contact us if you need another type of numerals. Example: <span class='pdfcrowd-page-number' data-pdfcrowd-number-format='roman'></span> data-pdfcrowd-placement - specifies where to place the source URL. Allowed values: The URL is inserted to the content Example: <span class='pdfcrowd-source-url'></span> will produce <span>http://example.com</span> href - the URL is set to the href attribute Example: <a class='pdfcrowd-source-url' data-pdfcrowd-placement='href'>Link to source</a> will produce <a href='http://example.com'>Link to source</a> href-and-content - the URL is set to the href attribute and to the content Example: <a class='pdfcrowd-source-url' data-pdfcrowd-placement='href-and-content'></a> will produce <a href='http://example.com'>http://example.com</a>
@@ -1462,6 +1482,16 @@ class HtmlToPdfClient:
             raise Error(create_invalid_value_message(height, "setFooterHeight", "html-to-pdf", "Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).", "set_footer_height"), 470);
         
         self.fields['footer_height'] = get_utf8_string(height)
+        return self
+
+    def setZipFooterFilename(self, filename):
+        """
+        Set the file name of the footer HTML document stored in the input archive. Use this method if the input archive contains multiple HTML documents.
+
+        filename - The file name.
+        return - The converter object.
+        """
+        self.fields['zip_footer_filename'] = get_utf8_string(filename)
         return self
 
     def setNoHeaderFooterHorizontalMargins(self, value):
@@ -2120,6 +2150,16 @@ class HtmlToPdfClient:
         return - The converter object.
         """
         self.fields['keywords'] = get_utf8_string(keywords)
+        return self
+
+    def setExtractMetaTags(self, value):
+        """
+        Extract meta tags (author, keywords and description) from the input HTML and use them in the output PDF.
+
+        value - Set to True to extract meta tags.
+        return - The converter object.
+        """
+        self.fields['extract_meta_tags'] = value
         return self
 
     def setPageLayout(self, layout):
@@ -2799,6 +2839,16 @@ class HtmlToImageClient:
             output_file.close()
             os.remove(file_path)
             raise
+
+    def setZipMainFilename(self, filename):
+        """
+        Set the file name of the main HTML document stored in the input archive. If not specified, the first HTML file in the archive is used for conversion. Use this method if the input archive contains multiple HTML documents.
+
+        filename - The file name.
+        return - The converter object.
+        """
+        self.fields['zip_main_filename'] = get_utf8_string(filename)
+        return self
 
     def setUsePrintMedia(self, value):
         """
@@ -4006,6 +4056,59 @@ class PdfToPdfClient:
         self.fields['no_copy'] = value
         return self
 
+    def setTitle(self, title):
+        """
+        Set the title of the PDF.
+
+        title - The title.
+        return - The converter object.
+        """
+        self.fields['title'] = get_utf8_string(title)
+        return self
+
+    def setSubject(self, subject):
+        """
+        Set the subject of the PDF.
+
+        subject - The subject.
+        return - The converter object.
+        """
+        self.fields['subject'] = get_utf8_string(subject)
+        return self
+
+    def setAuthor(self, author):
+        """
+        Set the author of the PDF.
+
+        author - The author.
+        return - The converter object.
+        """
+        self.fields['author'] = get_utf8_string(author)
+        return self
+
+    def setKeywords(self, keywords):
+        """
+        Associate keywords with the document.
+
+        keywords - The string with the keywords.
+        return - The converter object.
+        """
+        self.fields['keywords'] = get_utf8_string(keywords)
+        return self
+
+    def setUseMetadataFrom(self, index):
+        """
+        Use metadata (title, subject, author and keywords) from the n-th input PDF.
+
+        index - Set the index of the input PDF file from which to use the metadata. 0 means no metadata. Must be a positive integer number or 0.
+        return - The converter object.
+        """
+        if not (int(index) >= 0):
+            raise Error(create_invalid_value_message(index, "setUseMetadataFrom", "pdf-to-pdf", "Must be a positive integer number or 0.", "set_use_metadata_from"), 470);
+        
+        self.fields['use_metadata_from'] = index
+        return self
+
     def setPageLayout(self, layout):
         """
         Specify the page layout to be used when the document is opened.
@@ -4688,6 +4791,9 @@ available converters:
 
         add_generic_args(parser)
 
+        parser.add_argument('-zip-main-filename',
+                            help = 'Set the file name of the main HTML document stored in the input archive. If not specified, the first HTML file in the archive is used for conversion. Use this method if the input archive contains multiple HTML documents. The file name.'
+)
         parser.add_argument('-page-size',
                             help = 'Set the output page size. Allowed values are A0, A1, A2, A3, A4, A5, A6, Letter. Default is A4.'
 )
@@ -4758,6 +4864,9 @@ available converters:
         parser.add_argument('-header-height',
                             help = 'Set the header height. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt). Default is 0.5in.'
 )
+        parser.add_argument('-zip-header-filename',
+                            help = 'Set the file name of the header HTML document stored in the input archive. Use this method if the input archive contains multiple HTML documents. The file name.'
+)
         parser.add_argument('-footer-url',
                             help = 'Load an HTML code from the specified URL and use it as the page footer. The following classes can be used in the HTML. The content of the respective elements will be expanded as follows: pdfcrowd-page-count - the total page count of printed pages pdfcrowd-page-number - the current page number pdfcrowd-source-url - the source URL of a converted document The following attributes can be used: data-pdfcrowd-number-format - specifies the type of the used numerals. Allowed values: arabic - Arabic numerals, they are used by default roman - Roman numerals eastern-arabic - Eastern Arabic numerals bengali - Bengali numerals devanagari - Devanagari numerals thai - Thai numerals east-asia - Chinese, Vietnamese, Japanese and Korean numerals chinese-formal - Chinese formal numerals Please contact us if you need another type of numerals. Example: <span class=\'pdfcrowd-page-number\' data-pdfcrowd-number-format=\'roman\'></span> data-pdfcrowd-placement - specifies where to place the source URL. Allowed values: The URL is inserted to the content Example: <span class=\'pdfcrowd-source-url\'></span> will produce <span>http://example.com</span> href - the URL is set to the href attribute Example: <a class=\'pdfcrowd-source-url\' data-pdfcrowd-placement=\'href\'>Link to source</a> will produce <a href=\'http://example.com\'>Link to source</a> href-and-content - the URL is set to the href attribute and to the content Example: <a class=\'pdfcrowd-source-url\' data-pdfcrowd-placement=\'href-and-content\'></a> will produce <a href=\'http://example.com\'>http://example.com</a> The supported protocols are http:// and https://.'
 )
@@ -4766,6 +4875,9 @@ available converters:
 )
         parser.add_argument('-footer-height',
                             help = 'Set the footer height. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt). Default is 0.5in.'
+)
+        parser.add_argument('-zip-footer-filename',
+                            help = 'Set the file name of the footer HTML document stored in the input archive. Use this method if the input archive contains multiple HTML documents. The file name.'
 )
         parser.add_argument('-no-header-footer-horizontal-margins',
                             action = 'store_true',
@@ -4956,6 +5068,10 @@ available converters:
         parser.add_argument('-keywords',
                             help = 'Associate keywords with the document. The string with the keywords.'
 )
+        parser.add_argument('-extract-meta-tags',
+                            action = 'store_true',
+                            help = 'Extract meta tags (author, keywords and description) from the input HTML and use them in the output PDF.'
+)
         parser.add_argument('-page-layout',
                             help = 'Specify the page layout to be used when the document is opened. Allowed values are single-page, one-column, two-column-left, two-column-right.'
 )
@@ -5099,6 +5215,9 @@ available converters:
 
         parser.add_argument('-output-format',
                             help = 'The format of the output file. Allowed values are png, jpg, gif, tiff, bmp, ico, ppm, pgm, pbm, pnm, psb, pct, ras, tga, sgi, sun, webp. Default is png.'
+)
+        parser.add_argument('-zip-main-filename',
+                            help = 'Set the file name of the main HTML document stored in the input archive. If not specified, the first HTML file in the archive is used for conversion. Use this method if the input archive contains multiple HTML documents. The file name.'
 )
         parser.add_argument('-use-print-media',
                             action = 'store_true',
@@ -5371,6 +5490,21 @@ available converters:
         parser.add_argument('-no-copy',
                             action = 'store_true',
                             help = 'Disallow text and graphics extraction from the output PDF.'
+)
+        parser.add_argument('-title',
+                            help = 'Set the title of the PDF. The title.'
+)
+        parser.add_argument('-subject',
+                            help = 'Set the subject of the PDF. The subject.'
+)
+        parser.add_argument('-author',
+                            help = 'Set the author of the PDF. The author.'
+)
+        parser.add_argument('-keywords',
+                            help = 'Associate keywords with the document. The string with the keywords.'
+)
+        parser.add_argument('-use-metadata-from',
+                            help = 'Use metadata (title, subject, author and keywords) from the n-th input PDF. Set the index of the input PDF file from which to use the metadata. 0 means no metadata. Must be a positive integer number or 0.'
 )
         parser.add_argument('-page-layout',
                             help = 'Specify the page layout to be used when the document is opened. Allowed values are single-page, one-column, two-column-left, two-column-right.'
