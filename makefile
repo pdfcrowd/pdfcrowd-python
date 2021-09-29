@@ -1,4 +1,4 @@
-.PHONY: dist clean publish test-publish build
+.PHONY: dist clean publish build
 
 PYTHON=python3
 
