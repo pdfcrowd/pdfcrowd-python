@@ -43,7 +43,7 @@ import os
 import ssl
 import time
 
-__version__ = '5.2.2'
+__version__ = '5.3.0'
 
 # ======================================
 # === PDFCrowd legacy version client ===
@@ -698,7 +698,7 @@ else:
 
 HOST = os.environ.get('PDFCROWD_HOST', 'api.pdfcrowd.com')
 MULTIPART_BOUNDARY = '----------ThIs_Is_tHe_bOUnDary_$'
-CLIENT_VERSION = '5.2.2'
+CLIENT_VERSION = '5.3.0'
 
 def get_utf8_string(string):
     if PYTHON_3:
@@ -791,7 +791,7 @@ class ConnectionHelper:
         self._reset_response_data()
         self.setProxy(None, None, None, None)
         self.setUseHttp(False)
-        self.setUserAgent('pdfcrowd_python_client/5.2.2 (https://pdfcrowd.com)')
+        self.setUserAgent('pdfcrowd_python_client/5.3.0 (https://pdfcrowd.com)')
 
         self.retry_count = 1
         self.converter_version = '20.10'
@@ -1708,6 +1708,16 @@ class HtmlToPdfClient:
         return - The converter object.
         """
         self.fields['disable_remote_fonts'] = value
+        return self
+
+    def setUseMobileUserAgent(self, value):
+        """
+        Use a mobile user agent.
+
+        value - Set to True to use a mobile user agent.
+        return - The converter object.
+        """
+        self.fields['use_mobile_user_agent'] = value
         return self
 
     def setLoadIframes(self, iframes):
@@ -2898,6 +2908,16 @@ class HtmlToImageClient:
         return - The converter object.
         """
         self.fields['disable_remote_fonts'] = value
+        return self
+
+    def setUseMobileUserAgent(self, value):
+        """
+        Use a mobile user agent.
+
+        value - Set to True to use a mobile user agent.
+        return - The converter object.
+        """
+        self.fields['use_mobile_user_agent'] = value
         return self
 
     def setLoadIframes(self, iframes):
@@ -4939,6 +4959,10 @@ available converters:
                             action = 'store_true',
                             help = 'Disable loading fonts from remote sources.'
 )
+        parser.add_argument('-use-mobile-user-agent',
+                            action = 'store_true',
+                            help = 'Use a mobile user agent.'
+)
         parser.add_argument('-load-iframes',
                             help = 'Specifies how iframes are handled. Allowed values are all, same-origin, none. Default is all.'
 )
@@ -5238,6 +5262,10 @@ available converters:
         parser.add_argument('-disable-remote-fonts',
                             action = 'store_true',
                             help = 'Disable loading fonts from remote sources.'
+)
+        parser.add_argument('-use-mobile-user-agent',
+                            action = 'store_true',
+                            help = 'Use a mobile user agent.'
 )
         parser.add_argument('-load-iframes',
                             help = 'Specifies how iframes are handled. Allowed values are all, same-origin, none. Default is all.'

@@ -31,7 +31,7 @@ except ImportError:
 py_modules=['pdfcrowd']
 
 setup(name='pdfcrowd',
-      version='5.2.2',
+      version='5.3.0',
       description="A client library for the Pdfcrowd API.",
       url='https://pdfcrowd.com/doc/api/',
       license="License :: OSI Approved :: MIT License",
