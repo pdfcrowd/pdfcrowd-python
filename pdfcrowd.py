@@ -43,7 +43,7 @@ import os
 import ssl
 import time
 
-__version__ = '5.3.0'
+__version__ = '5.4.0'
 
 # ======================================
 # === PDFCrowd legacy version client ===
@@ -698,7 +698,7 @@ else:
 
 HOST = os.environ.get('PDFCROWD_HOST', 'api.pdfcrowd.com')
 MULTIPART_BOUNDARY = '----------ThIs_Is_tHe_bOUnDary_$'
-CLIENT_VERSION = '5.3.0'
+CLIENT_VERSION = '5.4.0'
 
 def get_utf8_string(string):
     if PYTHON_3:
@@ -791,7 +791,7 @@ class ConnectionHelper:
         self._reset_response_data()
         self.setProxy(None, None, None, None)
         self.setUseHttp(False)
-        self.setUserAgent('pdfcrowd_python_client/5.3.0 (https://pdfcrowd.com)')
+        self.setUserAgent('pdfcrowd_python_client/5.4.0 (https://pdfcrowd.com)')
 
         self.retry_count = 1
         self.converter_version = '20.10'
@@ -1951,7 +1951,7 @@ class HtmlToPdfClient:
 
     def setViewportHeight(self, height):
         """
-        Set the viewport height in pixels. The viewport is the user's visible area of the page.
+        Set the viewport height in pixels. The viewport is the user's visible area of the page. If the input HTML uses lazily loaded images, try using a large value that covers the entire height of the HTML, e.g. 100000.
 
         height - Must be a positive integer number.
         return - The converter object.
@@ -1967,7 +1967,7 @@ class HtmlToPdfClient:
         Set the viewport size. The viewport is the user's visible area of the page.
 
         width - Set the viewport width in pixels. The viewport is the user's visible area of the page. The value must be in the range 96-65000.
-        height - Set the viewport height in pixels. The viewport is the user's visible area of the page. Must be a positive integer number.
+        height - Set the viewport height in pixels. The viewport is the user's visible area of the page. If the input HTML uses lazily loaded images, try using a large value that covers the entire height of the HTML, e.g. 100000. Must be a positive integer number.
         return - The converter object.
         """
         self.setViewportWidth(width)
@@ -2410,7 +2410,7 @@ class HtmlToPdfClient:
     def getRemainingCreditCount(self):
         """
         Get the number of conversion credits available in your account.
-        This method can only be called after a call to one of the convertXYZ methods.
+        This method can only be called after a call to one of the convertXtoY methods.
         The returned value can differ from the actual count if you run parallel conversions.
         The special value 999999 is returned if the information is not available.
         return - The number of credits.
@@ -2611,7 +2611,7 @@ class HtmlToPdfClient:
 
     def setUserAgent(self, agent):
         """
-        Set a custom user agent HTTP header. It can be useful if you are behind some proxy or firewall.
+        Set a custom user agent HTTP header. It can be useful if you are behind a proxy or a firewall.
 
         agent - The user agent string.
         return - The converter object.
@@ -2634,9 +2634,9 @@ class HtmlToPdfClient:
 
     def setRetryCount(self, count):
         """
-        Specifies the number of retries when the 502 HTTP status code is received. The 502 status code indicates a temporary network issue. This feature can be disabled by setting to 0.
+        Specifies the number of automatic retries when the 502 HTTP status code is received. The 502 status code indicates a temporary network issue. This feature can be disabled by setting to 0.
 
-        count - Number of retries wanted.
+        count - Number of retries.
         return - The converter object.
         """
         self.helper.setRetryCount(count)
@@ -3291,7 +3291,7 @@ class HtmlToImageClient:
     def getRemainingCreditCount(self):
         """
         Get the number of conversion credits available in your account.
-        This method can only be called after a call to one of the convertXYZ methods.
+        This method can only be called after a call to one of the convertXtoY methods.
         The returned value can differ from the actual count if you run parallel conversions.
         The special value 999999 is returned if the information is not available.
         return - The number of credits.
@@ -3411,7 +3411,7 @@ class HtmlToImageClient:
 
     def setUserAgent(self, agent):
         """
-        Set a custom user agent HTTP header. It can be useful if you are behind some proxy or firewall.
+        Set a custom user agent HTTP header. It can be useful if you are behind a proxy or a firewall.
 
         agent - The user agent string.
         return - The converter object.
@@ -3434,9 +3434,9 @@ class HtmlToImageClient:
 
     def setRetryCount(self, count):
         """
-        Specifies the number of retries when the 502 HTTP status code is received. The 502 status code indicates a temporary network issue. This feature can be disabled by setting to 0.
+        Specifies the number of automatic retries when the 502 HTTP status code is received. The 502 status code indicates a temporary network issue. This feature can be disabled by setting to 0.
 
-        count - Number of retries wanted.
+        count - Number of retries.
         return - The converter object.
         """
         self.helper.setRetryCount(count)
@@ -3684,7 +3684,7 @@ class ImageToImageClient:
     def getRemainingCreditCount(self):
         """
         Get the number of conversion credits available in your account.
-        This method can only be called after a call to one of the convertXYZ methods.
+        This method can only be called after a call to one of the convertXtoY methods.
         The returned value can differ from the actual count if you run parallel conversions.
         The special value 999999 is returned if the information is not available.
         return - The number of credits.
@@ -3781,7 +3781,7 @@ class ImageToImageClient:
 
     def setUserAgent(self, agent):
         """
-        Set a custom user agent HTTP header. It can be useful if you are behind some proxy or firewall.
+        Set a custom user agent HTTP header. It can be useful if you are behind a proxy or a firewall.
 
         agent - The user agent string.
         return - The converter object.
@@ -3804,9 +3804,9 @@ class ImageToImageClient:
 
     def setRetryCount(self, count):
         """
-        Specifies the number of retries when the 502 HTTP status code is received. The 502 status code indicates a temporary network issue. This feature can be disabled by setting to 0.
+        Specifies the number of automatic retries when the 502 HTTP status code is received. The 502 status code indicates a temporary network issue. This feature can be disabled by setting to 0.
 
-        count - Number of retries wanted.
+        count - Number of retries.
         return - The converter object.
         """
         self.helper.setRetryCount(count)
@@ -3900,6 +3900,16 @@ class PdfToPdfClient:
         
         self.raw_data['f_{}'.format(self.file_id)] = data
         self.file_id += 1
+        return self
+
+    def setInputPdfPassword(self, password):
+        """
+        Password to open the encrypted PDF file.
+
+        password - The input PDF password.
+        return - The converter object.
+        """
+        self.fields['input_pdf_password'] = get_utf8_string(password)
         return self
 
     def setPageWatermark(self, watermark):
@@ -4284,7 +4294,7 @@ class PdfToPdfClient:
     def getRemainingCreditCount(self):
         """
         Get the number of conversion credits available in your account.
-        This method can only be called after a call to one of the convertXYZ methods.
+        This method can only be called after a call to one of the convertXtoY methods.
         The returned value can differ from the actual count if you run parallel conversions.
         The special value 999999 is returned if the information is not available.
         return - The number of credits.
@@ -4362,7 +4372,7 @@ class PdfToPdfClient:
 
     def setUserAgent(self, agent):
         """
-        Set a custom user agent HTTP header. It can be useful if you are behind some proxy or firewall.
+        Set a custom user agent HTTP header. It can be useful if you are behind a proxy or a firewall.
 
         agent - The user agent string.
         return - The converter object.
@@ -4385,9 +4395,9 @@ class PdfToPdfClient:
 
     def setRetryCount(self, count):
         """
-        Specifies the number of retries when the 502 HTTP status code is received. The 502 status code indicates a temporary network issue. This feature can be disabled by setting to 0.
+        Specifies the number of automatic retries when the 502 HTTP status code is received. The 502 status code indicates a temporary network issue. This feature can be disabled by setting to 0.
 
-        count - Number of retries wanted.
+        count - Number of retries.
         return - The converter object.
         """
         self.helper.setRetryCount(count)
@@ -4622,7 +4632,7 @@ class ImageToPdfClient:
     def getRemainingCreditCount(self):
         """
         Get the number of conversion credits available in your account.
-        This method can only be called after a call to one of the convertXYZ methods.
+        This method can only be called after a call to one of the convertXtoY methods.
         The returned value can differ from the actual count if you run parallel conversions.
         The special value 999999 is returned if the information is not available.
         return - The number of credits.
@@ -4719,7 +4729,7 @@ class ImageToPdfClient:
 
     def setUserAgent(self, agent):
         """
-        Set a custom user agent HTTP header. It can be useful if you are behind some proxy or firewall.
+        Set a custom user agent HTTP header. It can be useful if you are behind a proxy or a firewall.
 
         agent - The user agent string.
         return - The converter object.
@@ -4742,14 +4752,492 @@ class ImageToPdfClient:
 
     def setRetryCount(self, count):
         """
-        Specifies the number of retries when the 502 HTTP status code is received. The 502 status code indicates a temporary network issue. This feature can be disabled by setting to 0.
+        Specifies the number of automatic retries when the 502 HTTP status code is received. The 502 status code indicates a temporary network issue. This feature can be disabled by setting to 0.
 
-        count - Number of retries wanted.
+        count - Number of retries.
         return - The converter object.
         """
         self.helper.setRetryCount(count)
         return self
 
+class PdfToHtmlClient:
+    """
+    Conversion from PDF to HTML.
+    """
+
+    def __init__(self, user_name, api_key):
+        """
+        Constructor for the Pdfcrowd API client.
+
+        user_name - Your username at Pdfcrowd.
+        api_key - Your API key.
+        """
+        self.helper = ConnectionHelper(user_name, api_key)
+        self.fields = {
+            'input_format': 'pdf',
+            'output_format': 'html'
+        }
+        self.file_id = 1
+        self.files = {}
+        self.raw_data = {}
+
+    def convertUrl(self, url):
+        """
+        Convert a PDF.
+
+        url - The address of the PDF to convert. The supported protocols are http:// and https://.
+        return - Byte array containing the conversion output.
+        """
+        if not re.match('(?i)^https?://.*$', url):
+            raise Error(create_invalid_value_message(url, "convertUrl", "pdf-to-html", "The supported protocols are http:// and https://.", "convert_url"), 470);
+        
+        self.fields['url'] = get_utf8_string(url)
+        return self.helper.post(self.fields, self.files, self.raw_data)
+
+    def convertUrlToStream(self, url, out_stream):
+        """
+        Convert a PDF and write the result to an output stream.
+
+        url - The address of the PDF to convert. The supported protocols are http:// and https://.
+        out_stream - The output stream that will contain the conversion output.
+        """
+        if not re.match('(?i)^https?://.*$', url):
+            raise Error(create_invalid_value_message(url, "convertUrlToStream::url", "pdf-to-html", "The supported protocols are http:// and https://.", "convert_url_to_stream"), 470);
+        
+        self.fields['url'] = get_utf8_string(url)
+        self.helper.post(self.fields, self.files, self.raw_data, out_stream)
+
+    def convertUrlToFile(self, url, file_path):
+        """
+        Convert a PDF and write the result to a local file.
+
+        url - The address of the PDF to convert. The supported protocols are http:// and https://.
+        file_path - The output file path. The string must not be empty. The converter generates an HTML or ZIP file. If ZIP file is generated, the file path must have a ZIP or zip extension.
+        """
+        if not (file_path):
+            raise Error(create_invalid_value_message(file_path, "convertUrlToFile::file_path", "pdf-to-html", "The string must not be empty.", "convert_url_to_file"), 470);
+        
+        if not (self._isOutputTypeValid(file_path)):
+            raise Error(create_invalid_value_message(file_path, "convertUrlToFile::file_path", "pdf-to-html", "The converter generates an HTML or ZIP file. If ZIP file is generated, the file path must have a ZIP or zip extension.", "convert_url_to_file"), 470);
+        
+        output_file = open(file_path, 'wb')
+        try:
+            self.convertUrlToStream(url, output_file)
+            output_file.close()
+        except Error:
+            output_file.close()
+            os.remove(file_path)
+            raise
+
+    def convertFile(self, file):
+        """
+        Convert a local file.
+
+        file - The path to a local file to convert. The file must exist and not be empty.
+        return - Byte array containing the conversion output.
+        """
+        if not (os.path.isfile(file) and os.path.getsize(file)):
+            raise Error(create_invalid_value_message(file, "convertFile", "pdf-to-html", "The file must exist and not be empty.", "convert_file"), 470);
+        
+        self.files['file'] = get_utf8_string(file)
+        return self.helper.post(self.fields, self.files, self.raw_data)
+
+    def convertFileToStream(self, file, out_stream):
+        """
+        Convert a local file and write the result to an output stream.
+
+        file - The path to a local file to convert. The file must exist and not be empty.
+        out_stream - The output stream that will contain the conversion output.
+        """
+        if not (os.path.isfile(file) and os.path.getsize(file)):
+            raise Error(create_invalid_value_message(file, "convertFileToStream::file", "pdf-to-html", "The file must exist and not be empty.", "convert_file_to_stream"), 470);
+        
+        self.files['file'] = get_utf8_string(file)
+        self.helper.post(self.fields, self.files, self.raw_data, out_stream)
+
+    def convertFileToFile(self, file, file_path):
+        """
+        Convert a local file and write the result to a local file.
+
+        file - The path to a local file to convert. The file must exist and not be empty.
+        file_path - The output file path. The string must not be empty. The converter generates an HTML or ZIP file. If ZIP file is generated, the file path must have a ZIP or zip extension.
+        """
+        if not (file_path):
+            raise Error(create_invalid_value_message(file_path, "convertFileToFile::file_path", "pdf-to-html", "The string must not be empty.", "convert_file_to_file"), 470);
+        
+        if not (self._isOutputTypeValid(file_path)):
+            raise Error(create_invalid_value_message(file_path, "convertFileToFile::file_path", "pdf-to-html", "The converter generates an HTML or ZIP file. If ZIP file is generated, the file path must have a ZIP or zip extension.", "convert_file_to_file"), 470);
+        
+        output_file = open(file_path, 'wb')
+        try:
+            self.convertFileToStream(file, output_file)
+            output_file.close()
+        except Error:
+            output_file.close()
+            os.remove(file_path)
+            raise
+
+    def convertRawData(self, data):
+        """
+        Convert raw data.
+
+        data - The raw content to be converted.
+        return - Byte array with the output.
+        """
+        self.raw_data['file'] = data
+        return self.helper.post(self.fields, self.files, self.raw_data)
+
+    def convertRawDataToStream(self, data, out_stream):
+        """
+        Convert raw data and write the result to an output stream.
+
+        data - The raw content to be converted.
+        out_stream - The output stream that will contain the conversion output.
+        """
+        self.raw_data['file'] = data
+        self.helper.post(self.fields, self.files, self.raw_data, out_stream)
+
+    def convertRawDataToFile(self, data, file_path):
+        """
+        Convert raw data to a file.
+
+        data - The raw content to be converted.
+        file_path - The output file path. The string must not be empty. The converter generates an HTML or ZIP file. If ZIP file is generated, the file path must have a ZIP or zip extension.
+        """
+        if not (file_path):
+            raise Error(create_invalid_value_message(file_path, "convertRawDataToFile::file_path", "pdf-to-html", "The string must not be empty.", "convert_raw_data_to_file"), 470);
+        
+        if not (self._isOutputTypeValid(file_path)):
+            raise Error(create_invalid_value_message(file_path, "convertRawDataToFile::file_path", "pdf-to-html", "The converter generates an HTML or ZIP file. If ZIP file is generated, the file path must have a ZIP or zip extension.", "convert_raw_data_to_file"), 470);
+        
+        output_file = open(file_path, 'wb')
+        try:
+            self.convertRawDataToStream(data, output_file)
+            output_file.close()
+        except Error:
+            output_file.close()
+            os.remove(file_path)
+            raise
+
+    def convertStream(self, in_stream):
+        """
+        Convert the contents of an input stream.
+
+        in_stream - The input stream with source data.
+        return - Byte array containing the conversion output.
+        """
+        self.raw_data['stream'] = in_stream.read()
+        return self.helper.post(self.fields, self.files, self.raw_data)
+
+    def convertStreamToStream(self, in_stream, out_stream):
+        """
+        Convert the contents of an input stream and write the result to an output stream.
+
+        in_stream - The input stream with source data.
+        out_stream - The output stream that will contain the conversion output.
+        """
+        self.raw_data['stream'] = in_stream.read()
+        self.helper.post(self.fields, self.files, self.raw_data, out_stream)
+
+    def convertStreamToFile(self, in_stream, file_path):
+        """
+        Convert the contents of an input stream and write the result to a local file.
+
+        in_stream - The input stream with source data.
+        file_path - The output file path. The string must not be empty. The converter generates an HTML or ZIP file. If ZIP file is generated, the file path must have a ZIP or zip extension.
+        """
+        if not (file_path):
+            raise Error(create_invalid_value_message(file_path, "convertStreamToFile::file_path", "pdf-to-html", "The string must not be empty.", "convert_stream_to_file"), 470);
+        
+        if not (self._isOutputTypeValid(file_path)):
+            raise Error(create_invalid_value_message(file_path, "convertStreamToFile::file_path", "pdf-to-html", "The converter generates an HTML or ZIP file. If ZIP file is generated, the file path must have a ZIP or zip extension.", "convert_stream_to_file"), 470);
+        
+        output_file = open(file_path, 'wb')
+        try:
+            self.convertStreamToStream(in_stream, output_file)
+            output_file.close()
+        except Error:
+            output_file.close()
+            os.remove(file_path)
+            raise
+
+    def setPdfPassword(self, password):
+        """
+        Password to open the encrypted PDF file.
+
+        password - The input PDF password.
+        return - The converter object.
+        """
+        self.fields['pdf_password'] = get_utf8_string(password)
+        return self
+
+    def setScaleFactor(self, factor):
+        """
+        Set the scaling factor (zoom) for the main page area.
+
+        factor - The percentage value. Must be a positive integer number.
+        return - The converter object.
+        """
+        if not (int(factor) > 0):
+            raise Error(create_invalid_value_message(factor, "setScaleFactor", "pdf-to-html", "Must be a positive integer number.", "set_scale_factor"), 470);
+        
+        self.fields['scale_factor'] = factor
+        return self
+
+    def setPrintPageRange(self, pages):
+        """
+        Set the page range to print.
+
+        pages - A comma separated list of page numbers or ranges.
+        return - The converter object.
+        """
+        if not re.match('^(?:\s*(?:\d+|(?:\d*\s*\-\s*\d+)|(?:\d+\s*\-\s*\d*))\s*,\s*)*\s*(?:\d+|(?:\d*\s*\-\s*\d+)|(?:\d+\s*\-\s*\d*))\s*$', pages):
+            raise Error(create_invalid_value_message(pages, "setPrintPageRange", "pdf-to-html", "A comma separated list of page numbers or ranges.", "set_print_page_range"), 470);
+        
+        self.fields['print_page_range'] = get_utf8_string(pages)
+        return self
+
+    def setImageMode(self, mode):
+        """
+        Specifies where the images are stored.
+
+        mode - The image storage mode. Allowed values are embed, separate.
+        return - The converter object.
+        """
+        if not re.match('(?i)^(embed|separate)$', mode):
+            raise Error(create_invalid_value_message(mode, "setImageMode", "pdf-to-html", "Allowed values are embed, separate.", "set_image_mode"), 470);
+        
+        self.fields['image_mode'] = get_utf8_string(mode)
+        return self
+
+    def setCssMode(self, mode):
+        """
+        Specifies where the style sheets are stored.
+
+        mode - The style sheet storage mode. Allowed values are embed, separate.
+        return - The converter object.
+        """
+        if not re.match('(?i)^(embed|separate)$', mode):
+            raise Error(create_invalid_value_message(mode, "setCssMode", "pdf-to-html", "Allowed values are embed, separate.", "set_css_mode"), 470);
+        
+        self.fields['css_mode'] = get_utf8_string(mode)
+        return self
+
+    def setFontMode(self, mode):
+        """
+        Specifies where the fonts are stored.
+
+        mode - The font storage mode. Allowed values are embed, separate.
+        return - The converter object.
+        """
+        if not re.match('(?i)^(embed|separate)$', mode):
+            raise Error(create_invalid_value_message(mode, "setFontMode", "pdf-to-html", "Allowed values are embed, separate.", "set_font_mode"), 470);
+        
+        self.fields['font_mode'] = get_utf8_string(mode)
+        return self
+
+    def isZippedOutput(self):
+        """
+        A helper method to determine if the output file is a zip archive. The output of the conversion may be either an HTML file or a zip file containing the HTML and its external assets.
+        return - True if the conversion output is a zip file, otherwise False.
+        """
+        return self.fields.get('image_mode') == 'separate' or self.fields.get('css_mode') == 'separate' or self.fields.get('font_mode') == 'separate' or self.fields.get('force_zip') == True
+
+    def setForceZip(self, value):
+        """
+        Enforces the zip output format.
+
+        value - Set to True to get the output as a zip archive.
+        return - The converter object.
+        """
+        self.fields['force_zip'] = value
+        return self
+
+    def setTitle(self, title):
+        """
+        Set the HTML title. The title from the input PDF is used by default.
+
+        title - The HTML title.
+        return - The converter object.
+        """
+        self.fields['title'] = get_utf8_string(title)
+        return self
+
+    def setSubject(self, subject):
+        """
+        Set the HTML subject. The subject from the input PDF is used by default.
+
+        subject - The HTML subject.
+        return - The converter object.
+        """
+        self.fields['subject'] = get_utf8_string(subject)
+        return self
+
+    def setAuthor(self, author):
+        """
+        Set the HTML author. The author from the input PDF is used by default.
+
+        author - The HTML author.
+        return - The converter object.
+        """
+        self.fields['author'] = get_utf8_string(author)
+        return self
+
+    def setKeywords(self, keywords):
+        """
+        Associate keywords with the HTML document. Keywords from the input PDF are used by default.
+
+        keywords - The string containing the keywords.
+        return - The converter object.
+        """
+        self.fields['keywords'] = get_utf8_string(keywords)
+        return self
+
+    def setDebugLog(self, value):
+        """
+        Turn on the debug logging. Details about the conversion are stored in the debug log. The URL of the log can be obtained from the getDebugLogUrl method or available in conversion statistics.
+
+        value - Set to True to enable the debug logging.
+        return - The converter object.
+        """
+        self.fields['debug_log'] = value
+        return self
+
+    def getDebugLogUrl(self):
+        """
+        Get the URL of the debug log for the last conversion.
+        return - The link to the debug log.
+        """
+        return self.helper.getDebugLogUrl()
+
+    def getRemainingCreditCount(self):
+        """
+        Get the number of conversion credits available in your account.
+        This method can only be called after a call to one of the convertXtoY methods.
+        The returned value can differ from the actual count if you run parallel conversions.
+        The special value 999999 is returned if the information is not available.
+        return - The number of credits.
+        """
+        return self.helper.getRemainingCreditCount()
+
+    def getConsumedCreditCount(self):
+        """
+        Get the number of credits consumed by the last conversion.
+        return - The number of credits.
+        """
+        return self.helper.getConsumedCreditCount()
+
+    def getJobId(self):
+        """
+        Get the job id.
+        return - The unique job identifier.
+        """
+        return self.helper.getJobId()
+
+    def getPageCount(self):
+        """
+        Get the total number of pages in the output document.
+        return - The page count.
+        """
+        return self.helper.getPageCount()
+
+    def getOutputSize(self):
+        """
+        Get the size of the output in bytes.
+        return - The count of bytes.
+        """
+        return self.helper.getOutputSize()
+
+    def getVersion(self):
+        """
+        Get the version details.
+        return - API version, converter version, and client version.
+        """
+        return 'client {}, API v2, converter {}'.format(CLIENT_VERSION, self.helper.getConverterVersion())
+
+    def setTag(self, tag):
+        """
+        Tag the conversion with a custom value. The tag is used in conversion statistics. A value longer than 32 characters is cut off.
+
+        tag - A string with the custom tag.
+        return - The converter object.
+        """
+        self.fields['tag'] = get_utf8_string(tag)
+        return self
+
+    def setHttpProxy(self, proxy):
+        """
+        A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTP scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
+
+        proxy - The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
+        return - The converter object.
+        """
+        if not re.match('(?i)^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z0-9]{1,}:\d+$', proxy):
+            raise Error(create_invalid_value_message(proxy, "setHttpProxy", "pdf-to-html", "The value must have format DOMAIN_OR_IP_ADDRESS:PORT.", "set_http_proxy"), 470);
+        
+        self.fields['http_proxy'] = get_utf8_string(proxy)
+        return self
+
+    def setHttpsProxy(self, proxy):
+        """
+        A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTPS scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
+
+        proxy - The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
+        return - The converter object.
+        """
+        if not re.match('(?i)^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z0-9]{1,}:\d+$', proxy):
+            raise Error(create_invalid_value_message(proxy, "setHttpsProxy", "pdf-to-html", "The value must have format DOMAIN_OR_IP_ADDRESS:PORT.", "set_https_proxy"), 470);
+        
+        self.fields['https_proxy'] = get_utf8_string(proxy)
+        return self
+
+    def setUseHttp(self, value):
+        """
+        Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API.
+        Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.
+
+        value - Set to True to use HTTP.
+        return - The converter object.
+        """
+        self.helper.setUseHttp(value)
+        return self
+
+    def setUserAgent(self, agent):
+        """
+        Set a custom user agent HTTP header. It can be useful if you are behind a proxy or a firewall.
+
+        agent - The user agent string.
+        return - The converter object.
+        """
+        self.helper.setUserAgent(agent)
+        return self
+
+    def setProxy(self, host, port, user_name, password):
+        """
+        Specifies an HTTP proxy that the API client library will use to connect to the internet.
+
+        host - The proxy hostname.
+        port - The proxy port.
+        user_name - The username.
+        password - The password.
+        return - The converter object.
+        """
+        self.helper.setProxy(host, port, user_name, password)
+        return self
+
+    def setRetryCount(self, count):
+        """
+        Specifies the number of automatic retries when the 502 HTTP status code is received. The 502 status code indicates a temporary network issue. This feature can be disabled by setting to 0.
+
+        count - Number of retries.
+        return - The converter object.
+        """
+        self.helper.setRetryCount(count)
+        return self
+
+    def _isOutputTypeValid(self, file_path):
+        extension = os.path.splitext(file_path)[1].lower()
+        return (extension == '.zip') == self.isZippedOutput()
 
 def main(argv, converter_known = False):
     def show_help():
@@ -4763,6 +5251,7 @@ available converters:
   image2image - Conversion from one image format to another image format.
   pdf2pdf - Conversion from PDF to PDF.
   image2pdf - Conversion from an image to PDF.
+  pdf2html - Conversion from PDF to HTML.
         """)
 
     def term_error(message):
@@ -5030,11 +5519,11 @@ available converters:
                             help = 'Set the viewport width in pixels. The viewport is the user\'s visible area of the page. The value must be in the range 96-65000. Default is 1024.'
 )
         parser.add_argument('-viewport-height',
-                            help = 'Set the viewport height in pixels. The viewport is the user\'s visible area of the page. Must be a positive integer number. Default is 768.'
+                            help = 'Set the viewport height in pixels. The viewport is the user\'s visible area of the page. If the input HTML uses lazily loaded images, try using a large value that covers the entire height of the HTML, e.g. 100000. Must be a positive integer number. Default is 768.'
 )
         multi_args['viewport'] = 2
         parser.add_argument('-viewport',
-                            help = 'Set the viewport size. The viewport is the user\'s visible area of the page. VIEWPORT must contain 2 values separated by a semicolon. Set the viewport width in pixels. The viewport is the user\'s visible area of the page. The value must be in the range 96-65000. Set the viewport height in pixels. The viewport is the user\'s visible area of the page. Must be a positive integer number.'
+                            help = 'Set the viewport size. The viewport is the user\'s visible area of the page. VIEWPORT must contain 2 values separated by a semicolon. Set the viewport width in pixels. The viewport is the user\'s visible area of the page. The value must be in the range 96-65000. Set the viewport height in pixels. The viewport is the user\'s visible area of the page. If the input HTML uses lazily loaded images, try using a large value that covers the entire height of the HTML, e.g. 100000. Must be a positive integer number.'
 )
         parser.add_argument('-rendering-mode',
                             help = 'Set the rendering mode. The rendering mode. Allowed values are default, viewport. Default is default.'
@@ -5217,14 +5706,14 @@ available converters:
                             help = 'Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API. Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.'
 )
         parser.add_argument('-user-agent',
-                            help = 'Set a custom user agent HTTP header. It can be useful if you are behind some proxy or firewall. The user agent string.'
+                            help = 'Set a custom user agent HTTP header. It can be useful if you are behind a proxy or a firewall. The user agent string.'
 )
         multi_args['proxy'] = 4
         parser.add_argument('-proxy',
                             help = 'Specifies an HTTP proxy that the API client library will use to connect to the internet. PROXY must contain 4 values separated by a semicolon. The proxy hostname. The proxy port. The username. The password.'
 )
         parser.add_argument('-retry-count',
-                            help = 'Specifies the number of retries when the 502 HTTP status code is received. The 502 status code indicates a temporary network issue. This feature can be disabled by setting to 0. Number of retries wanted. Default is 1.'
+                            help = 'Specifies the number of automatic retries when the 502 HTTP status code is received. The 502 status code indicates a temporary network issue. This feature can be disabled by setting to 0. Number of retries. Default is 1.'
 )
 
     if converter == 'html2image':
@@ -5396,14 +5885,14 @@ available converters:
                             help = 'Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API. Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.'
 )
         parser.add_argument('-user-agent',
-                            help = 'Set a custom user agent HTTP header. It can be useful if you are behind some proxy or firewall. The user agent string.'
+                            help = 'Set a custom user agent HTTP header. It can be useful if you are behind a proxy or a firewall. The user agent string.'
 )
         multi_args['proxy'] = 4
         parser.add_argument('-proxy',
                             help = 'Specifies an HTTP proxy that the API client library will use to connect to the internet. PROXY must contain 4 values separated by a semicolon. The proxy hostname. The proxy port. The username. The password.'
 )
         parser.add_argument('-retry-count',
-                            help = 'Specifies the number of retries when the 502 HTTP status code is received. The 502 status code indicates a temporary network issue. This feature can be disabled by setting to 0. Number of retries wanted. Default is 1.'
+                            help = 'Specifies the number of automatic retries when the 502 HTTP status code is received. The 502 status code indicates a temporary network issue. This feature can be disabled by setting to 0. Number of retries. Default is 1.'
 )
 
     if converter == 'image2image':
@@ -5446,14 +5935,14 @@ available converters:
                             help = 'Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API. Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.'
 )
         parser.add_argument('-user-agent',
-                            help = 'Set a custom user agent HTTP header. It can be useful if you are behind some proxy or firewall. The user agent string.'
+                            help = 'Set a custom user agent HTTP header. It can be useful if you are behind a proxy or a firewall. The user agent string.'
 )
         multi_args['proxy'] = 4
         parser.add_argument('-proxy',
                             help = 'Specifies an HTTP proxy that the API client library will use to connect to the internet. PROXY must contain 4 values separated by a semicolon. The proxy hostname. The proxy port. The username. The password.'
 )
         parser.add_argument('-retry-count',
-                            help = 'Specifies the number of retries when the 502 HTTP status code is received. The 502 status code indicates a temporary network issue. This feature can be disabled by setting to 0. Number of retries wanted. Default is 1.'
+                            help = 'Specifies the number of automatic retries when the 502 HTTP status code is received. The 502 status code indicates a temporary network issue. This feature can be disabled by setting to 0. Number of retries. Default is 1.'
 )
 
     if converter == 'pdf2pdf':
@@ -5468,6 +5957,9 @@ available converters:
 
         parser.add_argument('-action',
                             help = 'Specifies the action to be performed on the input PDFs. Allowed values are join, shuffle. Default is join.'
+)
+        parser.add_argument('-input-pdf-password',
+                            help = 'Password to open the encrypted PDF file. The input PDF password.'
 )
         parser.add_argument('-page-watermark',
                             help = 'Apply the first page of the watermark PDF to every page of the output PDF. The file path to a local watermark PDF file. The file must exist and not be empty.'
@@ -5592,14 +6084,14 @@ available converters:
                             help = 'Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API. Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.'
 )
         parser.add_argument('-user-agent',
-                            help = 'Set a custom user agent HTTP header. It can be useful if you are behind some proxy or firewall. The user agent string.'
+                            help = 'Set a custom user agent HTTP header. It can be useful if you are behind a proxy or a firewall. The user agent string.'
 )
         multi_args['proxy'] = 4
         parser.add_argument('-proxy',
                             help = 'Specifies an HTTP proxy that the API client library will use to connect to the internet. PROXY must contain 4 values separated by a semicolon. The proxy hostname. The proxy port. The username. The password.'
 )
         parser.add_argument('-retry-count',
-                            help = 'Specifies the number of retries when the 502 HTTP status code is received. The 502 status code indicates a temporary network issue. This feature can be disabled by setting to 0. Number of retries wanted. Default is 1.'
+                            help = 'Specifies the number of automatic retries when the 502 HTTP status code is received. The 502 status code indicates a temporary network issue. This feature can be disabled by setting to 0. Number of retries. Default is 1.'
 )
 
     if converter == 'image2pdf':
@@ -5639,14 +6131,86 @@ available converters:
                             help = 'Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API. Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.'
 )
         parser.add_argument('-user-agent',
-                            help = 'Set a custom user agent HTTP header. It can be useful if you are behind some proxy or firewall. The user agent string.'
+                            help = 'Set a custom user agent HTTP header. It can be useful if you are behind a proxy or a firewall. The user agent string.'
 )
         multi_args['proxy'] = 4
         parser.add_argument('-proxy',
                             help = 'Specifies an HTTP proxy that the API client library will use to connect to the internet. PROXY must contain 4 values separated by a semicolon. The proxy hostname. The proxy port. The username. The password.'
 )
         parser.add_argument('-retry-count',
-                            help = 'Specifies the number of retries when the 502 HTTP status code is received. The 502 status code indicates a temporary network issue. This feature can be disabled by setting to 0. Number of retries wanted. Default is 1.'
+                            help = 'Specifies the number of automatic retries when the 502 HTTP status code is received. The 502 status code indicates a temporary network issue. This feature can be disabled by setting to 0. Number of retries. Default is 1.'
+)
+
+    if converter == 'pdf2html':
+        converter_name = 'PdfToHtmlClient'
+
+        parser = argparse.ArgumentParser(usage = usage,
+                                         description = 'Conversion from PDF to HTML.',
+                                         add_help = False,
+                                         epilog = epilog)
+
+        add_generic_args(parser)
+
+        parser.add_argument('-pdf-password',
+                            help = 'Password to open the encrypted PDF file. The input PDF password.'
+)
+        parser.add_argument('-scale-factor',
+                            help = 'Set the scaling factor (zoom) for the main page area. The percentage value. Must be a positive integer number. Default is 100.'
+)
+        parser.add_argument('-print-page-range',
+                            help = 'Set the page range to print. A comma separated list of page numbers or ranges.'
+)
+        parser.add_argument('-image-mode',
+                            help = 'Specifies where the images are stored. The image storage mode. Allowed values are embed, separate. Default is embed.'
+)
+        parser.add_argument('-css-mode',
+                            help = 'Specifies where the style sheets are stored. The style sheet storage mode. Allowed values are embed, separate. Default is embed.'
+)
+        parser.add_argument('-font-mode',
+                            help = 'Specifies where the fonts are stored. The font storage mode. Allowed values are embed, separate. Default is embed.'
+)
+        parser.add_argument('-force-zip',
+                            action = 'store_true',
+                            help = 'Enforces the zip output format.'
+)
+        parser.add_argument('-title',
+                            help = 'Set the HTML title. The title from the input PDF is used by default. The HTML title.'
+)
+        parser.add_argument('-subject',
+                            help = 'Set the HTML subject. The subject from the input PDF is used by default. The HTML subject.'
+)
+        parser.add_argument('-author',
+                            help = 'Set the HTML author. The author from the input PDF is used by default. The HTML author.'
+)
+        parser.add_argument('-keywords',
+                            help = 'Associate keywords with the HTML document. Keywords from the input PDF are used by default. The string containing the keywords.'
+)
+        parser.add_argument('-debug-log',
+                            action = 'store_true',
+                            help = 'Turn on the debug logging. Details about the conversion are stored in the debug log.'
+)
+        parser.add_argument('-tag',
+                            help = 'Tag the conversion with a custom value. The tag is used in conversion statistics. A value longer than 32 characters is cut off. A string with the custom tag.'
+)
+        parser.add_argument('-http-proxy',
+                            help = 'A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTP scheme. It can help to circumvent regional restrictions or provide limited access to your intranet. The value must have format DOMAIN_OR_IP_ADDRESS:PORT.'
+)
+        parser.add_argument('-https-proxy',
+                            help = 'A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTPS scheme. It can help to circumvent regional restrictions or provide limited access to your intranet. The value must have format DOMAIN_OR_IP_ADDRESS:PORT.'
+)
+        parser.add_argument('-use-http',
+                            action = 'store_true',
+                            help = 'Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API. Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.'
+)
+        parser.add_argument('-user-agent',
+                            help = 'Set a custom user agent HTTP header. It can be useful if you are behind a proxy or a firewall. The user agent string.'
+)
+        multi_args['proxy'] = 4
+        parser.add_argument('-proxy',
+                            help = 'Specifies an HTTP proxy that the API client library will use to connect to the internet. PROXY must contain 4 values separated by a semicolon. The proxy hostname. The proxy port. The username. The password.'
+)
+        parser.add_argument('-retry-count',
+                            help = 'Specifies the number of automatic retries when the 502 HTTP status code is received. The 502 status code indicates a temporary network issue. This feature can be disabled by setting to 0. Number of retries. Default is 1.'
 )
 
 
