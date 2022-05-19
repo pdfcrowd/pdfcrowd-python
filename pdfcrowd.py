@@ -43,7 +43,7 @@ import os
 import ssl
 import time
 
-__version__ = '5.5.0'
+__version__ = '5.6.0'
 
 # ======================================
 # === PDFCrowd legacy version client ===
@@ -698,7 +698,7 @@ else:
 
 HOST = os.environ.get('PDFCROWD_HOST', 'api.pdfcrowd.com')
 MULTIPART_BOUNDARY = '----------ThIs_Is_tHe_bOUnDary_$'
-CLIENT_VERSION = '5.5.0'
+CLIENT_VERSION = '5.6.0'
 
 def get_utf8_string(string):
     if PYTHON_3:
@@ -791,7 +791,7 @@ class ConnectionHelper:
         self._reset_response_data()
         self.setProxy(None, None, None, None)
         self.setUseHttp(False)
-        self.setUserAgent('pdfcrowd_python_client/5.5.0 (https://pdfcrowd.com)')
+        self.setUserAgent('pdfcrowd_python_client/5.6.0 (https://pdfcrowd.com)')
 
         self.retry_count = 1
         self.converter_version = '20.10'
@@ -2073,6 +2073,16 @@ class HtmlToPdfClient:
             raise Error(create_invalid_value_message(dpi, "setImageDpi", "html-to-pdf", "Must be a positive integer number or 0.", "set_image_dpi"), 470);
         
         self.fields['image_dpi'] = dpi
+        return self
+
+    def setEnablePdfForms(self, value):
+        """
+        Convert HTML forms to fillable PDF forms. Details can be found in the blog post.
+
+        value - Set to True to make fillable PDF forms.
+        return - The converter object.
+        """
+        self.fields['enable_pdf_forms'] = value
         return self
 
     def setLinearize(self, value):
@@ -5595,6 +5605,10 @@ available converters:
 )
         parser.add_argument('-image-dpi',
                             help = 'Set the DPI of images in PDF. A lower DPI may result in a smaller PDF file. If the specified DPI is higher than the actual image DPI, the original image DPI is retained (no upscaling is performed). Use 0 to leave the images unaltered. The DPI value. Must be a positive integer number or 0.'
+)
+        parser.add_argument('-enable-pdf-forms',
+                            action = 'store_true',
+                            help = 'Convert HTML forms to fillable PDF forms. Details can be found in the blog post.'
 )
         parser.add_argument('-linearize',
                             action = 'store_true',
