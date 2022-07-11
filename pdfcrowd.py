@@ -43,7 +43,7 @@ import os
 import ssl
 import time
 
-__version__ = '5.6.0'
+__version__ = '5.6.1'
 
 # ======================================
 # === PDFCrowd legacy version client ===
@@ -698,7 +698,7 @@ else:
 
 HOST = os.environ.get('PDFCROWD_HOST', 'api.pdfcrowd.com')
 MULTIPART_BOUNDARY = '----------ThIs_Is_tHe_bOUnDary_$'
-CLIENT_VERSION = '5.6.0'
+CLIENT_VERSION = '5.6.1'
 
 def get_utf8_string(string):
     if PYTHON_3:
@@ -791,7 +791,7 @@ class ConnectionHelper:
         self._reset_response_data()
         self.setProxy(None, None, None, None)
         self.setUseHttp(False)
-        self.setUserAgent('pdfcrowd_python_client/5.6.0 (https://pdfcrowd.com)')
+        self.setUserAgent('pdfcrowd_python_client/5.6.1 (https://pdfcrowd.com)')
 
         self.retry_count = 1
         self.converter_version = '20.10'
@@ -974,7 +974,7 @@ class HtmlToPdfClient:
         return - Byte array containing the conversion output.
         """
         if not re.match('(?i)^https?://.*$', url):
-            raise Error(create_invalid_value_message(url, "convertUrl", "html-to-pdf", "The supported protocols are http:// and https://.", "convert_url"), 470);
+            raise Error(create_invalid_value_message(url, "convertUrl", "html-to-pdf", 'The supported protocols are http:// and https://.', "convert_url"), 470);
         
         self.fields['url'] = get_utf8_string(url)
         return self.helper.post(self.fields, self.files, self.raw_data)
@@ -987,7 +987,7 @@ class HtmlToPdfClient:
         out_stream - The output stream that will contain the conversion output.
         """
         if not re.match('(?i)^https?://.*$', url):
-            raise Error(create_invalid_value_message(url, "convertUrlToStream::url", "html-to-pdf", "The supported protocols are http:// and https://.", "convert_url_to_stream"), 470);
+            raise Error(create_invalid_value_message(url, "convertUrlToStream::url", "html-to-pdf", 'The supported protocols are http:// and https://.', "convert_url_to_stream"), 470);
         
         self.fields['url'] = get_utf8_string(url)
         self.helper.post(self.fields, self.files, self.raw_data, out_stream)
@@ -1000,7 +1000,7 @@ class HtmlToPdfClient:
         file_path - The output file path. The string must not be empty.
         """
         if not (file_path):
-            raise Error(create_invalid_value_message(file_path, "convertUrlToFile::file_path", "html-to-pdf", "The string must not be empty.", "convert_url_to_file"), 470);
+            raise Error(create_invalid_value_message(file_path, "convertUrlToFile::file_path", "html-to-pdf", 'The string must not be empty.', "convert_url_to_file"), 470);
         
         output_file = open(file_path, 'wb')
         try:
@@ -1019,7 +1019,7 @@ class HtmlToPdfClient:
         return - Byte array containing the conversion output.
         """
         if not (os.path.isfile(file) and os.path.getsize(file)):
-            raise Error(create_invalid_value_message(file, "convertFile", "html-to-pdf", "The file must exist and not be empty.", "convert_file"), 470);
+            raise Error(create_invalid_value_message(file, "convertFile", "html-to-pdf", 'The file must exist and not be empty.', "convert_file"), 470);
         
         self.files['file'] = get_utf8_string(file)
         return self.helper.post(self.fields, self.files, self.raw_data)
@@ -1032,7 +1032,7 @@ class HtmlToPdfClient:
         out_stream - The output stream that will contain the conversion output.
         """
         if not (os.path.isfile(file) and os.path.getsize(file)):
-            raise Error(create_invalid_value_message(file, "convertFileToStream::file", "html-to-pdf", "The file must exist and not be empty.", "convert_file_to_stream"), 470);
+            raise Error(create_invalid_value_message(file, "convertFileToStream::file", "html-to-pdf", 'The file must exist and not be empty.', "convert_file_to_stream"), 470);
         
         self.files['file'] = get_utf8_string(file)
         self.helper.post(self.fields, self.files, self.raw_data, out_stream)
@@ -1045,7 +1045,7 @@ class HtmlToPdfClient:
         file_path - The output file path. The string must not be empty.
         """
         if not (file_path):
-            raise Error(create_invalid_value_message(file_path, "convertFileToFile::file_path", "html-to-pdf", "The string must not be empty.", "convert_file_to_file"), 470);
+            raise Error(create_invalid_value_message(file_path, "convertFileToFile::file_path", "html-to-pdf", 'The string must not be empty.', "convert_file_to_file"), 470);
         
         output_file = open(file_path, 'wb')
         try:
@@ -1064,7 +1064,7 @@ class HtmlToPdfClient:
         return - Byte array containing the conversion output.
         """
         if not (text):
-            raise Error(create_invalid_value_message(text, "convertString", "html-to-pdf", "The string must not be empty.", "convert_string"), 470);
+            raise Error(create_invalid_value_message(text, "convertString", "html-to-pdf", 'The string must not be empty.', "convert_string"), 470);
         
         self.fields['text'] = get_utf8_string(text)
         return self.helper.post(self.fields, self.files, self.raw_data)
@@ -1077,7 +1077,7 @@ class HtmlToPdfClient:
         out_stream - The output stream that will contain the conversion output.
         """
         if not (text):
-            raise Error(create_invalid_value_message(text, "convertStringToStream::text", "html-to-pdf", "The string must not be empty.", "convert_string_to_stream"), 470);
+            raise Error(create_invalid_value_message(text, "convertStringToStream::text", "html-to-pdf", 'The string must not be empty.', "convert_string_to_stream"), 470);
         
         self.fields['text'] = get_utf8_string(text)
         self.helper.post(self.fields, self.files, self.raw_data, out_stream)
@@ -1090,7 +1090,7 @@ class HtmlToPdfClient:
         file_path - The output file path. The string must not be empty.
         """
         if not (file_path):
-            raise Error(create_invalid_value_message(file_path, "convertStringToFile::file_path", "html-to-pdf", "The string must not be empty.", "convert_string_to_file"), 470);
+            raise Error(create_invalid_value_message(file_path, "convertStringToFile::file_path", "html-to-pdf", 'The string must not be empty.', "convert_string_to_file"), 470);
         
         output_file = open(file_path, 'wb')
         try:
@@ -1129,7 +1129,7 @@ class HtmlToPdfClient:
         file_path - The output file path. The string must not be empty.
         """
         if not (file_path):
-            raise Error(create_invalid_value_message(file_path, "convertStreamToFile::file_path", "html-to-pdf", "The string must not be empty.", "convert_stream_to_file"), 470);
+            raise Error(create_invalid_value_message(file_path, "convertStreamToFile::file_path", "html-to-pdf", 'The string must not be empty.', "convert_stream_to_file"), 470);
         
         output_file = open(file_path, 'wb')
         try:
@@ -1158,7 +1158,7 @@ class HtmlToPdfClient:
         return - The converter object.
         """
         if not re.match('(?i)^(A0|A1|A2|A3|A4|A5|A6|Letter)$', size):
-            raise Error(create_invalid_value_message(size, "setPageSize", "html-to-pdf", "Allowed values are A0, A1, A2, A3, A4, A5, A6, Letter.", "set_page_size"), 470);
+            raise Error(create_invalid_value_message(size, "setPageSize", "html-to-pdf", 'Allowed values are A0, A1, A2, A3, A4, A5, A6, Letter.', "set_page_size"), 470);
         
         self.fields['page_size'] = get_utf8_string(size)
         return self
@@ -1167,11 +1167,11 @@ class HtmlToPdfClient:
         """
         Set the output page width. The safe maximum is 200in otherwise some PDF viewers may be unable to open the PDF.
 
-        width - Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
+        width - The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
         return - The converter object.
         """
         if not re.match('(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', width):
-            raise Error(create_invalid_value_message(width, "setPageWidth", "html-to-pdf", "Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).", "set_page_width"), 470);
+            raise Error(create_invalid_value_message(width, "setPageWidth", "html-to-pdf", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".', "set_page_width"), 470);
         
         self.fields['page_width'] = get_utf8_string(width)
         return self
@@ -1180,11 +1180,11 @@ class HtmlToPdfClient:
         """
         Set the output page height. Use -1 for a single page PDF. The safe maximum is 200in otherwise some PDF viewers may be unable to open the PDF.
 
-        height - Can be -1 or specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
+        height - The value must be -1 or specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
         return - The converter object.
         """
         if not re.match('(?i)^0$|^\-1$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', height):
-            raise Error(create_invalid_value_message(height, "setPageHeight", "html-to-pdf", "Can be -1 or specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).", "set_page_height"), 470);
+            raise Error(create_invalid_value_message(height, "setPageHeight", "html-to-pdf", 'The value must be -1 or specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".', "set_page_height"), 470);
         
         self.fields['page_height'] = get_utf8_string(height)
         return self
@@ -1193,8 +1193,8 @@ class HtmlToPdfClient:
         """
         Set the output page dimensions.
 
-        width - Set the output page width. The safe maximum is 200in otherwise some PDF viewers may be unable to open the PDF. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
-        height - Set the output page height. Use -1 for a single page PDF. The safe maximum is 200in otherwise some PDF viewers may be unable to open the PDF. Can be -1 or specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
+        width - Set the output page width. The safe maximum is 200in otherwise some PDF viewers may be unable to open the PDF. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
+        height - Set the output page height. Use -1 for a single page PDF. The safe maximum is 200in otherwise some PDF viewers may be unable to open the PDF. The value must be -1 or specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
         return - The converter object.
         """
         self.setPageWidth(width)
@@ -1209,7 +1209,7 @@ class HtmlToPdfClient:
         return - The converter object.
         """
         if not re.match('(?i)^(landscape|portrait)$', orientation):
-            raise Error(create_invalid_value_message(orientation, "setOrientation", "html-to-pdf", "Allowed values are landscape, portrait.", "set_orientation"), 470);
+            raise Error(create_invalid_value_message(orientation, "setOrientation", "html-to-pdf", 'Allowed values are landscape, portrait.', "set_orientation"), 470);
         
         self.fields['orientation'] = get_utf8_string(orientation)
         return self
@@ -1218,11 +1218,11 @@ class HtmlToPdfClient:
         """
         Set the output page top margin.
 
-        top - Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
+        top - The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
         return - The converter object.
         """
         if not re.match('(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', top):
-            raise Error(create_invalid_value_message(top, "setMarginTop", "html-to-pdf", "Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).", "set_margin_top"), 470);
+            raise Error(create_invalid_value_message(top, "setMarginTop", "html-to-pdf", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".', "set_margin_top"), 470);
         
         self.fields['margin_top'] = get_utf8_string(top)
         return self
@@ -1231,11 +1231,11 @@ class HtmlToPdfClient:
         """
         Set the output page right margin.
 
-        right - Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
+        right - The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
         return - The converter object.
         """
         if not re.match('(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', right):
-            raise Error(create_invalid_value_message(right, "setMarginRight", "html-to-pdf", "Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).", "set_margin_right"), 470);
+            raise Error(create_invalid_value_message(right, "setMarginRight", "html-to-pdf", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".', "set_margin_right"), 470);
         
         self.fields['margin_right'] = get_utf8_string(right)
         return self
@@ -1244,11 +1244,11 @@ class HtmlToPdfClient:
         """
         Set the output page bottom margin.
 
-        bottom - Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
+        bottom - The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
         return - The converter object.
         """
         if not re.match('(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', bottom):
-            raise Error(create_invalid_value_message(bottom, "setMarginBottom", "html-to-pdf", "Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).", "set_margin_bottom"), 470);
+            raise Error(create_invalid_value_message(bottom, "setMarginBottom", "html-to-pdf", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".', "set_margin_bottom"), 470);
         
         self.fields['margin_bottom'] = get_utf8_string(bottom)
         return self
@@ -1257,11 +1257,11 @@ class HtmlToPdfClient:
         """
         Set the output page left margin.
 
-        left - Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
+        left - The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
         return - The converter object.
         """
         if not re.match('(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', left):
-            raise Error(create_invalid_value_message(left, "setMarginLeft", "html-to-pdf", "Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).", "set_margin_left"), 470);
+            raise Error(create_invalid_value_message(left, "setMarginLeft", "html-to-pdf", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".', "set_margin_left"), 470);
         
         self.fields['margin_left'] = get_utf8_string(left)
         return self
@@ -1280,10 +1280,10 @@ class HtmlToPdfClient:
         """
         Set the output page margins.
 
-        top - Set the output page top margin. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
-        right - Set the output page right margin. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
-        bottom - Set the output page bottom margin. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
-        left - Set the output page left margin. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
+        top - Set the output page top margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
+        right - Set the output page right margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
+        bottom - Set the output page bottom margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
+        left - Set the output page left margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
         return - The converter object.
         """
         self.setMarginTop(top)
@@ -1300,7 +1300,7 @@ class HtmlToPdfClient:
         return - The converter object.
         """
         if not re.match('^(?:\s*(?:\d+|(?:\d*\s*\-\s*\d+)|(?:\d+\s*\-\s*\d*))\s*,\s*)*\s*(?:\d+|(?:\d*\s*\-\s*\d+)|(?:\d+\s*\-\s*\d*))\s*$', pages):
-            raise Error(create_invalid_value_message(pages, "setPrintPageRange", "html-to-pdf", "A comma separated list of page numbers or ranges.", "set_print_page_range"), 470);
+            raise Error(create_invalid_value_message(pages, "setPrintPageRange", "html-to-pdf", 'A comma separated list of page numbers or ranges.', "set_print_page_range"), 470);
         
         self.fields['print_page_range'] = get_utf8_string(pages)
         return self
@@ -1319,11 +1319,11 @@ class HtmlToPdfClient:
         """
         Set the top left X coordinate of the content area. It is relative to the top left X coordinate of the print area.
 
-        x - Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt). It may contain a negative value.
+        x - The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt". It may contain a negative value.
         return - The converter object.
         """
         if not re.match('(?i)^0$|^\-?[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', x):
-            raise Error(create_invalid_value_message(x, "setContentAreaX", "html-to-pdf", "Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt). It may contain a negative value.", "set_content_area_x"), 470);
+            raise Error(create_invalid_value_message(x, "setContentAreaX", "html-to-pdf", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt". It may contain a negative value.', "set_content_area_x"), 470);
         
         self.fields['content_area_x'] = get_utf8_string(x)
         return self
@@ -1332,11 +1332,11 @@ class HtmlToPdfClient:
         """
         Set the top left Y coordinate of the content area. It is relative to the top left Y coordinate of the print area.
 
-        y - Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt). It may contain a negative value.
+        y - The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt". It may contain a negative value.
         return - The converter object.
         """
         if not re.match('(?i)^0$|^\-?[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', y):
-            raise Error(create_invalid_value_message(y, "setContentAreaY", "html-to-pdf", "Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt). It may contain a negative value.", "set_content_area_y"), 470);
+            raise Error(create_invalid_value_message(y, "setContentAreaY", "html-to-pdf", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt". It may contain a negative value.', "set_content_area_y"), 470);
         
         self.fields['content_area_y'] = get_utf8_string(y)
         return self
@@ -1345,11 +1345,11 @@ class HtmlToPdfClient:
         """
         Set the width of the content area. It should be at least 1 inch.
 
-        width - Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
+        width - The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
         return - The converter object.
         """
         if not re.match('(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', width):
-            raise Error(create_invalid_value_message(width, "setContentAreaWidth", "html-to-pdf", "Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).", "set_content_area_width"), 470);
+            raise Error(create_invalid_value_message(width, "setContentAreaWidth", "html-to-pdf", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".', "set_content_area_width"), 470);
         
         self.fields['content_area_width'] = get_utf8_string(width)
         return self
@@ -1358,11 +1358,11 @@ class HtmlToPdfClient:
         """
         Set the height of the content area. It should be at least 1 inch.
 
-        height - Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
+        height - The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
         return - The converter object.
         """
         if not re.match('(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', height):
-            raise Error(create_invalid_value_message(height, "setContentAreaHeight", "html-to-pdf", "Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).", "set_content_area_height"), 470);
+            raise Error(create_invalid_value_message(height, "setContentAreaHeight", "html-to-pdf", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".', "set_content_area_height"), 470);
         
         self.fields['content_area_height'] = get_utf8_string(height)
         return self
@@ -1371,10 +1371,10 @@ class HtmlToPdfClient:
         """
         Set the content area position and size. The content area enables to specify a web page area to be converted.
 
-        x - Set the top left X coordinate of the content area. It is relative to the top left X coordinate of the print area. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt). It may contain a negative value.
-        y - Set the top left Y coordinate of the content area. It is relative to the top left Y coordinate of the print area. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt). It may contain a negative value.
-        width - Set the width of the content area. It should be at least 1 inch. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
-        height - Set the height of the content area. It should be at least 1 inch. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
+        x - Set the top left X coordinate of the content area. It is relative to the top left X coordinate of the print area. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt". It may contain a negative value.
+        y - Set the top left Y coordinate of the content area. It is relative to the top left Y coordinate of the print area. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt". It may contain a negative value.
+        width - Set the width of the content area. It should be at least 1 inch. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
+        height - Set the height of the content area. It should be at least 1 inch. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
         return - The converter object.
         """
         self.setContentAreaX(x)
@@ -1391,7 +1391,7 @@ class HtmlToPdfClient:
         return - The converter object.
         """
         if not re.match('(?i)^(default|mode1|mode2)$', mode):
-            raise Error(create_invalid_value_message(mode, "setCssPageRuleMode", "html-to-pdf", "Allowed values are default, mode1, mode2.", "set_css_page_rule_mode"), 470);
+            raise Error(create_invalid_value_message(mode, "setCssPageRuleMode", "html-to-pdf", 'Allowed values are default, mode1, mode2.', "set_css_page_rule_mode"), 470);
         
         self.fields['css_page_rule_mode'] = get_utf8_string(mode)
         return self
@@ -1404,7 +1404,7 @@ class HtmlToPdfClient:
         return - The converter object.
         """
         if not re.match('(?i)^https?://.*$', url):
-            raise Error(create_invalid_value_message(url, "setHeaderUrl", "html-to-pdf", "The supported protocols are http:// and https://.", "set_header_url"), 470);
+            raise Error(create_invalid_value_message(url, "setHeaderUrl", "html-to-pdf", 'The supported protocols are http:// and https://.', "set_header_url"), 470);
         
         self.fields['header_url'] = get_utf8_string(url)
         return self
@@ -1417,7 +1417,7 @@ class HtmlToPdfClient:
         return - The converter object.
         """
         if not (html):
-            raise Error(create_invalid_value_message(html, "setHeaderHtml", "html-to-pdf", "The string must not be empty.", "set_header_html"), 470);
+            raise Error(create_invalid_value_message(html, "setHeaderHtml", "html-to-pdf", 'The string must not be empty.', "set_header_html"), 470);
         
         self.fields['header_html'] = get_utf8_string(html)
         return self
@@ -1426,11 +1426,11 @@ class HtmlToPdfClient:
         """
         Set the header height.
 
-        height - Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
+        height - The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
         return - The converter object.
         """
         if not re.match('(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', height):
-            raise Error(create_invalid_value_message(height, "setHeaderHeight", "html-to-pdf", "Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).", "set_header_height"), 470);
+            raise Error(create_invalid_value_message(height, "setHeaderHeight", "html-to-pdf", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".', "set_header_height"), 470);
         
         self.fields['header_height'] = get_utf8_string(height)
         return self
@@ -1453,7 +1453,7 @@ class HtmlToPdfClient:
         return - The converter object.
         """
         if not re.match('(?i)^https?://.*$', url):
-            raise Error(create_invalid_value_message(url, "setFooterUrl", "html-to-pdf", "The supported protocols are http:// and https://.", "set_footer_url"), 470);
+            raise Error(create_invalid_value_message(url, "setFooterUrl", "html-to-pdf", 'The supported protocols are http:// and https://.', "set_footer_url"), 470);
         
         self.fields['footer_url'] = get_utf8_string(url)
         return self
@@ -1466,7 +1466,7 @@ class HtmlToPdfClient:
         return - The converter object.
         """
         if not (html):
-            raise Error(create_invalid_value_message(html, "setFooterHtml", "html-to-pdf", "The string must not be empty.", "set_footer_html"), 470);
+            raise Error(create_invalid_value_message(html, "setFooterHtml", "html-to-pdf", 'The string must not be empty.', "set_footer_html"), 470);
         
         self.fields['footer_html'] = get_utf8_string(html)
         return self
@@ -1475,11 +1475,11 @@ class HtmlToPdfClient:
         """
         Set the footer height.
 
-        height - Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).
+        height - The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
         return - The converter object.
         """
         if not re.match('(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', height):
-            raise Error(create_invalid_value_message(height, "setFooterHeight", "html-to-pdf", "Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).", "set_footer_height"), 470);
+            raise Error(create_invalid_value_message(height, "setFooterHeight", "html-to-pdf", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".', "set_footer_height"), 470);
         
         self.fields['footer_height'] = get_utf8_string(height)
         return self
@@ -1512,7 +1512,7 @@ class HtmlToPdfClient:
         return - The converter object.
         """
         if not re.match('^(?:\s*\-?\d+\s*,)*\s*\-?\d+\s*$', pages):
-            raise Error(create_invalid_value_message(pages, "setExcludeHeaderOnPages", "html-to-pdf", "A comma separated list of page numbers.", "set_exclude_header_on_pages"), 470);
+            raise Error(create_invalid_value_message(pages, "setExcludeHeaderOnPages", "html-to-pdf", 'A comma separated list of page numbers.', "set_exclude_header_on_pages"), 470);
         
         self.fields['exclude_header_on_pages'] = get_utf8_string(pages)
         return self
@@ -1525,7 +1525,7 @@ class HtmlToPdfClient:
         return - The converter object.
         """
         if not re.match('^(?:\s*\-?\d+\s*,)*\s*\-?\d+\s*$', pages):
-            raise Error(create_invalid_value_message(pages, "setExcludeFooterOnPages", "html-to-pdf", "A comma separated list of page numbers.", "set_exclude_footer_on_pages"), 470);
+            raise Error(create_invalid_value_message(pages, "setExcludeFooterOnPages", "html-to-pdf", 'A comma separated list of page numbers.', "set_exclude_footer_on_pages"), 470);
         
         self.fields['exclude_footer_on_pages'] = get_utf8_string(pages)
         return self
@@ -1538,7 +1538,7 @@ class HtmlToPdfClient:
         return - The converter object.
         """
         if not (int(factor) >= 10 and int(factor) <= 500):
-            raise Error(create_invalid_value_message(factor, "setHeaderFooterScaleFactor", "html-to-pdf", "The value must be in the range 10-500.", "set_header_footer_scale_factor"), 470);
+            raise Error(create_invalid_value_message(factor, "setHeaderFooterScaleFactor", "html-to-pdf", 'The value must be in the range 10-500.', "set_header_footer_scale_factor"), 470);
         
         self.fields['header_footer_scale_factor'] = factor
         return self
@@ -1551,7 +1551,7 @@ class HtmlToPdfClient:
         return - The converter object.
         """
         if not (os.path.isfile(watermark) and os.path.getsize(watermark)):
-            raise Error(create_invalid_value_message(watermark, "setPageWatermark", "html-to-pdf", "The file must exist and not be empty.", "set_page_watermark"), 470);
+            raise Error(create_invalid_value_message(watermark, "setPageWatermark", "html-to-pdf", 'The file must exist and not be empty.', "set_page_watermark"), 470);
         
         self.files['page_watermark'] = get_utf8_string(watermark)
         return self
@@ -1564,7 +1564,7 @@ class HtmlToPdfClient:
         return - The converter object.
         """
         if not re.match('(?i)^https?://.*$', url):
-            raise Error(create_invalid_value_message(url, "setPageWatermarkUrl", "html-to-pdf", "The supported protocols are http:// and https://.", "set_page_watermark_url"), 470);
+            raise Error(create_invalid_value_message(url, "setPageWatermarkUrl", "html-to-pdf", 'The supported protocols are http:// and https://.', "set_page_watermark_url"), 470);
         
         self.fields['page_watermark_url'] = get_utf8_string(url)
         return self
@@ -1577,7 +1577,7 @@ class HtmlToPdfClient:
         return - The converter object.
         """
         if not (os.path.isfile(watermark) and os.path.getsize(watermark)):
-            raise Error(create_invalid_value_message(watermark, "setMultipageWatermark", "html-to-pdf", "The file must exist and not be empty.", "set_multipage_watermark"), 470);
+            raise Error(create_invalid_value_message(watermark, "setMultipageWatermark", "html-to-pdf", 'The file must exist and not be empty.', "set_multipage_watermark"), 470);
         
         self.files['multipage_watermark'] = get_utf8_string(watermark)
         return self
@@ -1590,7 +1590,7 @@ class HtmlToPdfClient:
         return - The converter object.
         """
         if not re.match('(?i)^https?://.*$', url):
-            raise Error(create_invalid_value_message(url, "setMultipageWatermarkUrl", "html-to-pdf", "The supported protocols are http:// and https://.", "set_multipage_watermark_url"), 470);
+            raise Error(create_invalid_value_message(url, "setMultipageWatermarkUrl", "html-to-pdf", 'The supported protocols are http:// and https://.', "set_multipage_watermark_url"), 470);
         
         self.fields['multipage_watermark_url'] = get_utf8_string(url)
         return self
@@ -1603,7 +1603,7 @@ class HtmlToPdfClient:
         return - The converter object.
         """
         if not (os.path.isfile(background) and os.path.getsize(background)):
-            raise Error(create_invalid_value_message(background, "setPageBackground", "html-to-pdf", "The file must exist and not be empty.", "set_page_background"), 470);
+            raise Error(create_invalid_value_message(background, "setPageBackground", "html-to-pdf", 'The file must exist and not be empty.', "set_page_background"), 470);
         
         self.files['page_background'] = get_utf8_string(background)
         return self
@@ -1616,7 +1616,7 @@ class HtmlToPdfClient:
         return - The converter object.
         """
         if not re.match('(?i)^https?://.*$', url):
-            raise Error(create_invalid_value_message(url, "setPageBackgroundUrl", "html-to-pdf", "The supported protocols are http:// and https://.", "set_page_background_url"), 470);
+            raise Error(create_invalid_value_message(url, "setPageBackgroundUrl", "html-to-pdf", 'The supported protocols are http:// and https://.', "set_page_background_url"), 470);
         
         self.fields['page_background_url'] = get_utf8_string(url)
         return self
@@ -1629,7 +1629,7 @@ class HtmlToPdfClient:
         return - The converter object.
         """
         if not (os.path.isfile(background) and os.path.getsize(background)):
-            raise Error(create_invalid_value_message(background, "setMultipageBackground", "html-to-pdf", "The file must exist and not be empty.", "set_multipage_background"), 470);
+            raise Error(create_invalid_value_message(background, "setMultipageBackground", "html-to-pdf", 'The file must exist and not be empty.', "set_multipage_background"), 470);
         
         self.files['multipage_background'] = get_utf8_string(background)
         return self
@@ -1642,7 +1642,7 @@ class HtmlToPdfClient:
         return - The converter object.
         """
         if not re.match('(?i)^https?://.*$', url):
-            raise Error(create_invalid_value_message(url, "setMultipageBackgroundUrl", "html-to-pdf", "The supported protocols are http:// and https://.", "set_multipage_background_url"), 470);
+            raise Error(create_invalid_value_message(url, "setMultipageBackgroundUrl", "html-to-pdf", 'The supported protocols are http:// and https://.', "set_multipage_background_url"), 470);
         
         self.fields['multipage_background_url'] = get_utf8_string(url)
         return self
@@ -1655,7 +1655,7 @@ class HtmlToPdfClient:
         return - The converter object.
         """
         if not re.match('^[0-9a-fA-F]{6,8}$', color):
-            raise Error(create_invalid_value_message(color, "setPageBackgroundColor", "html-to-pdf", "The value must be in RRGGBB or RRGGBBAA hexadecimal format.", "set_page_background_color"), 470);
+            raise Error(create_invalid_value_message(color, "setPageBackgroundColor", "html-to-pdf", 'The value must be in RRGGBB or RRGGBBAA hexadecimal format.', "set_page_background_color"), 470);
         
         self.fields['page_background_color'] = get_utf8_string(color)
         return self
@@ -1728,7 +1728,7 @@ class HtmlToPdfClient:
         return - The converter object.
         """
         if not re.match('(?i)^(all|same-origin|none)$', iframes):
-            raise Error(create_invalid_value_message(iframes, "setLoadIframes", "html-to-pdf", "Allowed values are all, same-origin, none.", "set_load_iframes"), 470);
+            raise Error(create_invalid_value_message(iframes, "setLoadIframes", "html-to-pdf", 'Allowed values are all, same-origin, none.', "set_load_iframes"), 470);
         
         self.fields['load_iframes'] = get_utf8_string(iframes)
         return self
@@ -1853,7 +1853,7 @@ class HtmlToPdfClient:
         return - The converter object.
         """
         if not (javascript):
-            raise Error(create_invalid_value_message(javascript, "setCustomJavascript", "html-to-pdf", "The string must not be empty.", "set_custom_javascript"), 470);
+            raise Error(create_invalid_value_message(javascript, "setCustomJavascript", "html-to-pdf", 'The string must not be empty.', "set_custom_javascript"), 470);
         
         self.fields['custom_javascript'] = get_utf8_string(javascript)
         return self
@@ -1866,7 +1866,7 @@ class HtmlToPdfClient:
         return - The converter object.
         """
         if not (javascript):
-            raise Error(create_invalid_value_message(javascript, "setOnLoadJavascript", "html-to-pdf", "The string must not be empty.", "set_on_load_javascript"), 470);
+            raise Error(create_invalid_value_message(javascript, "setOnLoadJavascript", "html-to-pdf", 'The string must not be empty.', "set_on_load_javascript"), 470);
         
         self.fields['on_load_javascript'] = get_utf8_string(javascript)
         return self
@@ -1879,7 +1879,7 @@ class HtmlToPdfClient:
         return - The converter object.
         """
         if not re.match('^.+:.+$', header):
-            raise Error(create_invalid_value_message(header, "setCustomHttpHeader", "html-to-pdf", "A string containing the header name and value separated by a colon.", "set_custom_http_header"), 470);
+            raise Error(create_invalid_value_message(header, "setCustomHttpHeader", "html-to-pdf", 'A string containing the header name and value separated by a colon.', "set_custom_http_header"), 470);
         
         self.fields['custom_http_header'] = get_utf8_string(header)
         return self
@@ -1892,7 +1892,7 @@ class HtmlToPdfClient:
         return - The converter object.
         """
         if not (int(delay) >= 0):
-            raise Error(create_invalid_value_message(delay, "setJavascriptDelay", "html-to-pdf", "Must be a positive integer number or 0.", "set_javascript_delay"), 470);
+            raise Error(create_invalid_value_message(delay, "setJavascriptDelay", "html-to-pdf", 'Must be a positive integer number or 0.', "set_javascript_delay"), 470);
         
         self.fields['javascript_delay'] = delay
         return self
@@ -1905,7 +1905,7 @@ class HtmlToPdfClient:
         return - The converter object.
         """
         if not (selectors):
-            raise Error(create_invalid_value_message(selectors, "setElementToConvert", "html-to-pdf", "The string must not be empty.", "set_element_to_convert"), 470);
+            raise Error(create_invalid_value_message(selectors, "setElementToConvert", "html-to-pdf", 'The string must not be empty.', "set_element_to_convert"), 470);
         
         self.fields['element_to_convert'] = get_utf8_string(selectors)
         return self
@@ -1918,7 +1918,7 @@ class HtmlToPdfClient:
         return - The converter object.
         """
         if not re.match('(?i)^(cut-out|remove-siblings|hide-siblings)$', mode):
-            raise Error(create_invalid_value_message(mode, "setElementToConvertMode", "html-to-pdf", "Allowed values are cut-out, remove-siblings, hide-siblings.", "set_element_to_convert_mode"), 470);
+            raise Error(create_invalid_value_message(mode, "setElementToConvertMode", "html-to-pdf", 'Allowed values are cut-out, remove-siblings, hide-siblings.', "set_element_to_convert_mode"), 470);
         
         self.fields['element_to_convert_mode'] = get_utf8_string(mode)
         return self
@@ -1931,7 +1931,7 @@ class HtmlToPdfClient:
         return - The converter object.
         """
         if not (selectors):
-            raise Error(create_invalid_value_message(selectors, "setWaitForElement", "html-to-pdf", "The string must not be empty.", "set_wait_for_element"), 470);
+            raise Error(create_invalid_value_message(selectors, "setWaitForElement", "html-to-pdf", 'The string must not be empty.', "set_wait_for_element"), 470);
         
         self.fields['wait_for_element'] = get_utf8_string(selectors)
         return self
@@ -1954,7 +1954,7 @@ class HtmlToPdfClient:
         return - The converter object.
         """
         if not re.match('(?i)^(none|readability-v1)$', enhancements):
-            raise Error(create_invalid_value_message(enhancements, "setReadabilityEnhancements", "html-to-pdf", "Allowed values are none, readability-v1.", "set_readability_enhancements"), 470);
+            raise Error(create_invalid_value_message(enhancements, "setReadabilityEnhancements", "html-to-pdf", 'Allowed values are none, readability-v1.', "set_readability_enhancements"), 470);
         
         self.fields['readability_enhancements'] = get_utf8_string(enhancements)
         return self
@@ -1967,7 +1967,7 @@ class HtmlToPdfClient:
         return - The converter object.
         """
         if not (int(width) >= 96 and int(width) <= 65000):
-            raise Error(create_invalid_value_message(width, "setViewportWidth", "html-to-pdf", "The value must be in the range 96-65000.", "set_viewport_width"), 470);
+            raise Error(create_invalid_value_message(width, "setViewportWidth", "html-to-pdf", 'The value must be in the range 96-65000.', "set_viewport_width"), 470);
         
         self.fields['viewport_width'] = width
         return self
@@ -1980,7 +1980,7 @@ class HtmlToPdfClient:
         return - The converter object.
         """
         if not (int(height) > 0):
-            raise Error(create_invalid_value_message(height, "setViewportHeight", "html-to-pdf", "Must be a positive integer number.", "set_viewport_height"), 470);
+            raise Error(create_invalid_value_message(height, "setViewportHeight", "html-to-pdf", 'Must be a positive integer number.', "set_viewport_height"), 470);
         
         self.fields['viewport_height'] = height
         return self
@@ -2005,7 +2005,7 @@ class HtmlToPdfClient:
         return - The converter object.
         """
         if not re.match('(?i)^(default|viewport)$', mode):
-            raise Error(create_invalid_value_message(mode, "setRenderingMode", "html-to-pdf", "Allowed values are default, viewport.", "set_rendering_mode"), 470);
+            raise Error(create_invalid_value_message(mode, "setRenderingMode", "html-to-pdf", 'Allowed values are default, viewport.', "set_rendering_mode"), 470);
         
         self.fields['rendering_mode'] = get_utf8_string(mode)
         return self
@@ -2018,7 +2018,7 @@ class HtmlToPdfClient:
         return - The converter object.
         """
         if not re.match('(?i)^(default|disabled|viewport-fit|content-fit|single-page-fit|mode1)$', mode):
-            raise Error(create_invalid_value_message(mode, "setSmartScalingMode", "html-to-pdf", "Allowed values are default, disabled, viewport-fit, content-fit, single-page-fit, mode1.", "set_smart_scaling_mode"), 470);
+            raise Error(create_invalid_value_message(mode, "setSmartScalingMode", "html-to-pdf", 'Allowed values are default, disabled, viewport-fit, content-fit, single-page-fit, mode1.', "set_smart_scaling_mode"), 470);
         
         self.fields['smart_scaling_mode'] = get_utf8_string(mode)
         return self
@@ -2031,7 +2031,7 @@ class HtmlToPdfClient:
         return - The converter object.
         """
         if not (int(factor) >= 10 and int(factor) <= 500):
-            raise Error(create_invalid_value_message(factor, "setScaleFactor", "html-to-pdf", "The value must be in the range 10-500.", "set_scale_factor"), 470);
+            raise Error(create_invalid_value_message(factor, "setScaleFactor", "html-to-pdf", 'The value must be in the range 10-500.', "set_scale_factor"), 470);
         
         self.fields['scale_factor'] = factor
         return self
@@ -2044,7 +2044,7 @@ class HtmlToPdfClient:
         return - The converter object.
         """
         if not (int(quality) >= 1 and int(quality) <= 100):
-            raise Error(create_invalid_value_message(quality, "setJpegQuality", "html-to-pdf", "The value must be in the range 1-100.", "set_jpeg_quality"), 470);
+            raise Error(create_invalid_value_message(quality, "setJpegQuality", "html-to-pdf", 'The value must be in the range 1-100.', "set_jpeg_quality"), 470);
         
         self.fields['jpeg_quality'] = quality
         return self
@@ -2057,7 +2057,7 @@ class HtmlToPdfClient:
         return - The converter object.
         """
         if not re.match('(?i)^(none|opaque|all)$', images):
-            raise Error(create_invalid_value_message(images, "setConvertImagesToJpeg", "html-to-pdf", "Allowed values are none, opaque, all.", "set_convert_images_to_jpeg"), 470);
+            raise Error(create_invalid_value_message(images, "setConvertImagesToJpeg", "html-to-pdf", 'Allowed values are none, opaque, all.', "set_convert_images_to_jpeg"), 470);
         
         self.fields['convert_images_to_jpeg'] = get_utf8_string(images)
         return self
@@ -2070,7 +2070,7 @@ class HtmlToPdfClient:
         return - The converter object.
         """
         if not (int(dpi) >= 0):
-            raise Error(create_invalid_value_message(dpi, "setImageDpi", "html-to-pdf", "Must be a positive integer number or 0.", "set_image_dpi"), 470);
+            raise Error(create_invalid_value_message(dpi, "setImageDpi", "html-to-pdf", 'Must be a positive integer number or 0.', "set_image_dpi"), 470);
         
         self.fields['image_dpi'] = dpi
         return self
@@ -2213,7 +2213,7 @@ class HtmlToPdfClient:
         return - The converter object.
         """
         if not re.match('(?i)^(single-page|one-column|two-column-left|two-column-right)$', layout):
-            raise Error(create_invalid_value_message(layout, "setPageLayout", "html-to-pdf", "Allowed values are single-page, one-column, two-column-left, two-column-right.", "set_page_layout"), 470);
+            raise Error(create_invalid_value_message(layout, "setPageLayout", "html-to-pdf", 'Allowed values are single-page, one-column, two-column-left, two-column-right.', "set_page_layout"), 470);
         
         self.fields['page_layout'] = get_utf8_string(layout)
         return self
@@ -2226,7 +2226,7 @@ class HtmlToPdfClient:
         return - The converter object.
         """
         if not re.match('(?i)^(full-screen|thumbnails|outlines)$', mode):
-            raise Error(create_invalid_value_message(mode, "setPageMode", "html-to-pdf", "Allowed values are full-screen, thumbnails, outlines.", "set_page_mode"), 470);
+            raise Error(create_invalid_value_message(mode, "setPageMode", "html-to-pdf", 'Allowed values are full-screen, thumbnails, outlines.', "set_page_mode"), 470);
         
         self.fields['page_mode'] = get_utf8_string(mode)
         return self
@@ -2239,7 +2239,7 @@ class HtmlToPdfClient:
         return - The converter object.
         """
         if not re.match('(?i)^(fit-width|fit-height|fit-page)$', zoom_type):
-            raise Error(create_invalid_value_message(zoom_type, "setInitialZoomType", "html-to-pdf", "Allowed values are fit-width, fit-height, fit-page.", "set_initial_zoom_type"), 470);
+            raise Error(create_invalid_value_message(zoom_type, "setInitialZoomType", "html-to-pdf", 'Allowed values are fit-width, fit-height, fit-page.', "set_initial_zoom_type"), 470);
         
         self.fields['initial_zoom_type'] = get_utf8_string(zoom_type)
         return self
@@ -2252,7 +2252,7 @@ class HtmlToPdfClient:
         return - The converter object.
         """
         if not (int(page) > 0):
-            raise Error(create_invalid_value_message(page, "setInitialPage", "html-to-pdf", "Must be a positive integer number.", "set_initial_page"), 470);
+            raise Error(create_invalid_value_message(page, "setInitialPage", "html-to-pdf", 'Must be a positive integer number.', "set_initial_page"), 470);
         
         self.fields['initial_page'] = page
         return self
@@ -2265,7 +2265,7 @@ class HtmlToPdfClient:
         return - The converter object.
         """
         if not (int(zoom) > 0):
-            raise Error(create_invalid_value_message(zoom, "setInitialZoom", "html-to-pdf", "Must be a positive integer number.", "set_initial_zoom"), 470);
+            raise Error(create_invalid_value_message(zoom, "setInitialZoom", "html-to-pdf", 'Must be a positive integer number.', "set_initial_zoom"), 470);
         
         self.fields['initial_zoom'] = zoom
         return self
@@ -2368,7 +2368,7 @@ class HtmlToPdfClient:
         return - The converter object.
         """
         if not re.match('(?i)^(auto|json|xml|yaml|csv)$', data_format):
-            raise Error(create_invalid_value_message(data_format, "setDataFormat", "html-to-pdf", "Allowed values are auto, json, xml, yaml, csv.", "set_data_format"), 470);
+            raise Error(create_invalid_value_message(data_format, "setDataFormat", "html-to-pdf", 'Allowed values are auto, json, xml, yaml, csv.', "set_data_format"), 470);
         
         self.fields['data_format'] = get_utf8_string(data_format)
         return self
@@ -2503,7 +2503,7 @@ class HtmlToPdfClient:
         return - The converter object.
         """
         if not re.match('(?i)^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z0-9]{1,}:\d+$', proxy):
-            raise Error(create_invalid_value_message(proxy, "setHttpProxy", "html-to-pdf", "The value must have format DOMAIN_OR_IP_ADDRESS:PORT.", "set_http_proxy"), 470);
+            raise Error(create_invalid_value_message(proxy, "setHttpProxy", "html-to-pdf", 'The value must have format DOMAIN_OR_IP_ADDRESS:PORT.', "set_http_proxy"), 470);
         
         self.fields['http_proxy'] = get_utf8_string(proxy)
         return self
@@ -2516,7 +2516,7 @@ class HtmlToPdfClient:
         return - The converter object.
         """
         if not re.match('(?i)^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z0-9]{1,}:\d+$', proxy):
-            raise Error(create_invalid_value_message(proxy, "setHttpsProxy", "html-to-pdf", "The value must have format DOMAIN_OR_IP_ADDRESS:PORT.", "set_https_proxy"), 470);
+            raise Error(create_invalid_value_message(proxy, "setHttpsProxy", "html-to-pdf", 'The value must have format DOMAIN_OR_IP_ADDRESS:PORT.', "set_https_proxy"), 470);
         
         self.fields['https_proxy'] = get_utf8_string(proxy)
         return self
@@ -2529,7 +2529,7 @@ class HtmlToPdfClient:
         return - The converter object.
         """
         if not (os.path.isfile(certificate) and os.path.getsize(certificate)):
-            raise Error(create_invalid_value_message(certificate, "setClientCertificate", "html-to-pdf", "The file must exist and not be empty.", "set_client_certificate"), 470);
+            raise Error(create_invalid_value_message(certificate, "setClientCertificate", "html-to-pdf", 'The file must exist and not be empty.', "set_client_certificate"), 470);
         
         self.files['client_certificate'] = get_utf8_string(certificate)
         return self
@@ -2552,7 +2552,7 @@ class HtmlToPdfClient:
         return - The converter object.
         """
         if not (int(dpi) >= 72 and int(dpi) <= 600):
-            raise Error(create_invalid_value_message(dpi, "setLayoutDpi", "html-to-pdf", "The value must be in the range of 72-600.", "set_layout_dpi"), 470);
+            raise Error(create_invalid_value_message(dpi, "setLayoutDpi", "html-to-pdf", 'The value must be in the range of 72-600.', "set_layout_dpi"), 470);
         
         self.fields['layout_dpi'] = dpi
         return self
@@ -2626,7 +2626,7 @@ class HtmlToPdfClient:
         return - The converter object.
         """
         if not re.match('(?i)^(latest|20.10|18.10)$', version):
-            raise Error(create_invalid_value_message(version, "setConverterVersion", "html-to-pdf", "Allowed values are latest, 20.10, 18.10.", "set_converter_version"), 470);
+            raise Error(create_invalid_value_message(version, "setConverterVersion", "html-to-pdf", 'Allowed values are latest, 20.10, 18.10.', "set_converter_version"), 470);
         
         self.helper.setConverterVersion(version)
         return self
@@ -2704,7 +2704,7 @@ class HtmlToImageClient:
         return - The converter object.
         """
         if not re.match('(?i)^(png|jpg|gif|tiff|bmp|ico|ppm|pgm|pbm|pnm|psb|pct|ras|tga|sgi|sun|webp)$', output_format):
-            raise Error(create_invalid_value_message(output_format, "setOutputFormat", "html-to-image", "Allowed values are png, jpg, gif, tiff, bmp, ico, ppm, pgm, pbm, pnm, psb, pct, ras, tga, sgi, sun, webp.", "set_output_format"), 470);
+            raise Error(create_invalid_value_message(output_format, "setOutputFormat", "html-to-image", 'Allowed values are png, jpg, gif, tiff, bmp, ico, ppm, pgm, pbm, pnm, psb, pct, ras, tga, sgi, sun, webp.', "set_output_format"), 470);
         
         self.fields['output_format'] = get_utf8_string(output_format)
         return self
@@ -2717,7 +2717,7 @@ class HtmlToImageClient:
         return - Byte array containing the conversion output.
         """
         if not re.match('(?i)^https?://.*$', url):
-            raise Error(create_invalid_value_message(url, "convertUrl", "html-to-image", "The supported protocols are http:// and https://.", "convert_url"), 470);
+            raise Error(create_invalid_value_message(url, "convertUrl", "html-to-image", 'The supported protocols are http:// and https://.', "convert_url"), 470);
         
         self.fields['url'] = get_utf8_string(url)
         return self.helper.post(self.fields, self.files, self.raw_data)
@@ -2730,7 +2730,7 @@ class HtmlToImageClient:
         out_stream - The output stream that will contain the conversion output.
         """
         if not re.match('(?i)^https?://.*$', url):
-            raise Error(create_invalid_value_message(url, "convertUrlToStream::url", "html-to-image", "The supported protocols are http:// and https://.", "convert_url_to_stream"), 470);
+            raise Error(create_invalid_value_message(url, "convertUrlToStream::url", "html-to-image", 'The supported protocols are http:// and https://.', "convert_url_to_stream"), 470);
         
         self.fields['url'] = get_utf8_string(url)
         self.helper.post(self.fields, self.files, self.raw_data, out_stream)
@@ -2743,7 +2743,7 @@ class HtmlToImageClient:
         file_path - The output file path. The string must not be empty.
         """
         if not (file_path):
-            raise Error(create_invalid_value_message(file_path, "convertUrlToFile::file_path", "html-to-image", "The string must not be empty.", "convert_url_to_file"), 470);
+            raise Error(create_invalid_value_message(file_path, "convertUrlToFile::file_path", "html-to-image", 'The string must not be empty.', "convert_url_to_file"), 470);
         
         output_file = open(file_path, 'wb')
         try:
@@ -2762,7 +2762,7 @@ class HtmlToImageClient:
         return - Byte array containing the conversion output.
         """
         if not (os.path.isfile(file) and os.path.getsize(file)):
-            raise Error(create_invalid_value_message(file, "convertFile", "html-to-image", "The file must exist and not be empty.", "convert_file"), 470);
+            raise Error(create_invalid_value_message(file, "convertFile", "html-to-image", 'The file must exist and not be empty.', "convert_file"), 470);
         
         self.files['file'] = get_utf8_string(file)
         return self.helper.post(self.fields, self.files, self.raw_data)
@@ -2775,7 +2775,7 @@ class HtmlToImageClient:
         out_stream - The output stream that will contain the conversion output.
         """
         if not (os.path.isfile(file) and os.path.getsize(file)):
-            raise Error(create_invalid_value_message(file, "convertFileToStream::file", "html-to-image", "The file must exist and not be empty.", "convert_file_to_stream"), 470);
+            raise Error(create_invalid_value_message(file, "convertFileToStream::file", "html-to-image", 'The file must exist and not be empty.', "convert_file_to_stream"), 470);
         
         self.files['file'] = get_utf8_string(file)
         self.helper.post(self.fields, self.files, self.raw_data, out_stream)
@@ -2788,7 +2788,7 @@ class HtmlToImageClient:
         file_path - The output file path. The string must not be empty.
         """
         if not (file_path):
-            raise Error(create_invalid_value_message(file_path, "convertFileToFile::file_path", "html-to-image", "The string must not be empty.", "convert_file_to_file"), 470);
+            raise Error(create_invalid_value_message(file_path, "convertFileToFile::file_path", "html-to-image", 'The string must not be empty.', "convert_file_to_file"), 470);
         
         output_file = open(file_path, 'wb')
         try:
@@ -2807,7 +2807,7 @@ class HtmlToImageClient:
         return - Byte array containing the conversion output.
         """
         if not (text):
-            raise Error(create_invalid_value_message(text, "convertString", "html-to-image", "The string must not be empty.", "convert_string"), 470);
+            raise Error(create_invalid_value_message(text, "convertString", "html-to-image", 'The string must not be empty.', "convert_string"), 470);
         
         self.fields['text'] = get_utf8_string(text)
         return self.helper.post(self.fields, self.files, self.raw_data)
@@ -2820,7 +2820,7 @@ class HtmlToImageClient:
         out_stream - The output stream that will contain the conversion output.
         """
         if not (text):
-            raise Error(create_invalid_value_message(text, "convertStringToStream::text", "html-to-image", "The string must not be empty.", "convert_string_to_stream"), 470);
+            raise Error(create_invalid_value_message(text, "convertStringToStream::text", "html-to-image", 'The string must not be empty.', "convert_string_to_stream"), 470);
         
         self.fields['text'] = get_utf8_string(text)
         self.helper.post(self.fields, self.files, self.raw_data, out_stream)
@@ -2833,7 +2833,7 @@ class HtmlToImageClient:
         file_path - The output file path. The string must not be empty.
         """
         if not (file_path):
-            raise Error(create_invalid_value_message(file_path, "convertStringToFile::file_path", "html-to-image", "The string must not be empty.", "convert_string_to_file"), 470);
+            raise Error(create_invalid_value_message(file_path, "convertStringToFile::file_path", "html-to-image", 'The string must not be empty.', "convert_string_to_file"), 470);
         
         output_file = open(file_path, 'wb')
         try:
@@ -2872,7 +2872,7 @@ class HtmlToImageClient:
         file_path - The output file path. The string must not be empty.
         """
         if not (file_path):
-            raise Error(create_invalid_value_message(file_path, "convertStreamToFile::file_path", "html-to-image", "The string must not be empty.", "convert_stream_to_file"), 470);
+            raise Error(create_invalid_value_message(file_path, "convertStreamToFile::file_path", "html-to-image", 'The string must not be empty.', "convert_stream_to_file"), 470);
         
         output_file = open(file_path, 'wb')
         try:
@@ -2961,7 +2961,7 @@ class HtmlToImageClient:
         return - The converter object.
         """
         if not re.match('(?i)^(all|same-origin|none)$', iframes):
-            raise Error(create_invalid_value_message(iframes, "setLoadIframes", "html-to-image", "Allowed values are all, same-origin, none.", "set_load_iframes"), 470);
+            raise Error(create_invalid_value_message(iframes, "setLoadIframes", "html-to-image", 'Allowed values are all, same-origin, none.', "set_load_iframes"), 470);
         
         self.fields['load_iframes'] = get_utf8_string(iframes)
         return self
@@ -3086,7 +3086,7 @@ class HtmlToImageClient:
         return - The converter object.
         """
         if not (javascript):
-            raise Error(create_invalid_value_message(javascript, "setCustomJavascript", "html-to-image", "The string must not be empty.", "set_custom_javascript"), 470);
+            raise Error(create_invalid_value_message(javascript, "setCustomJavascript", "html-to-image", 'The string must not be empty.', "set_custom_javascript"), 470);
         
         self.fields['custom_javascript'] = get_utf8_string(javascript)
         return self
@@ -3099,7 +3099,7 @@ class HtmlToImageClient:
         return - The converter object.
         """
         if not (javascript):
-            raise Error(create_invalid_value_message(javascript, "setOnLoadJavascript", "html-to-image", "The string must not be empty.", "set_on_load_javascript"), 470);
+            raise Error(create_invalid_value_message(javascript, "setOnLoadJavascript", "html-to-image", 'The string must not be empty.', "set_on_load_javascript"), 470);
         
         self.fields['on_load_javascript'] = get_utf8_string(javascript)
         return self
@@ -3112,7 +3112,7 @@ class HtmlToImageClient:
         return - The converter object.
         """
         if not re.match('^.+:.+$', header):
-            raise Error(create_invalid_value_message(header, "setCustomHttpHeader", "html-to-image", "A string containing the header name and value separated by a colon.", "set_custom_http_header"), 470);
+            raise Error(create_invalid_value_message(header, "setCustomHttpHeader", "html-to-image", 'A string containing the header name and value separated by a colon.', "set_custom_http_header"), 470);
         
         self.fields['custom_http_header'] = get_utf8_string(header)
         return self
@@ -3125,7 +3125,7 @@ class HtmlToImageClient:
         return - The converter object.
         """
         if not (int(delay) >= 0):
-            raise Error(create_invalid_value_message(delay, "setJavascriptDelay", "html-to-image", "Must be a positive integer number or 0.", "set_javascript_delay"), 470);
+            raise Error(create_invalid_value_message(delay, "setJavascriptDelay", "html-to-image", 'Must be a positive integer number or 0.', "set_javascript_delay"), 470);
         
         self.fields['javascript_delay'] = delay
         return self
@@ -3138,7 +3138,7 @@ class HtmlToImageClient:
         return - The converter object.
         """
         if not (selectors):
-            raise Error(create_invalid_value_message(selectors, "setElementToConvert", "html-to-image", "The string must not be empty.", "set_element_to_convert"), 470);
+            raise Error(create_invalid_value_message(selectors, "setElementToConvert", "html-to-image", 'The string must not be empty.', "set_element_to_convert"), 470);
         
         self.fields['element_to_convert'] = get_utf8_string(selectors)
         return self
@@ -3151,7 +3151,7 @@ class HtmlToImageClient:
         return - The converter object.
         """
         if not re.match('(?i)^(cut-out|remove-siblings|hide-siblings)$', mode):
-            raise Error(create_invalid_value_message(mode, "setElementToConvertMode", "html-to-image", "Allowed values are cut-out, remove-siblings, hide-siblings.", "set_element_to_convert_mode"), 470);
+            raise Error(create_invalid_value_message(mode, "setElementToConvertMode", "html-to-image", 'Allowed values are cut-out, remove-siblings, hide-siblings.', "set_element_to_convert_mode"), 470);
         
         self.fields['element_to_convert_mode'] = get_utf8_string(mode)
         return self
@@ -3164,7 +3164,7 @@ class HtmlToImageClient:
         return - The converter object.
         """
         if not (selectors):
-            raise Error(create_invalid_value_message(selectors, "setWaitForElement", "html-to-image", "The string must not be empty.", "set_wait_for_element"), 470);
+            raise Error(create_invalid_value_message(selectors, "setWaitForElement", "html-to-image", 'The string must not be empty.', "set_wait_for_element"), 470);
         
         self.fields['wait_for_element'] = get_utf8_string(selectors)
         return self
@@ -3187,7 +3187,7 @@ class HtmlToImageClient:
         return - The converter object.
         """
         if not re.match('(?i)^(none|readability-v1)$', enhancements):
-            raise Error(create_invalid_value_message(enhancements, "setReadabilityEnhancements", "html-to-image", "Allowed values are none, readability-v1.", "set_readability_enhancements"), 470);
+            raise Error(create_invalid_value_message(enhancements, "setReadabilityEnhancements", "html-to-image", 'Allowed values are none, readability-v1.', "set_readability_enhancements"), 470);
         
         self.fields['readability_enhancements'] = get_utf8_string(enhancements)
         return self
@@ -3200,7 +3200,7 @@ class HtmlToImageClient:
         return - The converter object.
         """
         if not (int(width) >= 96 and int(width) <= 65000):
-            raise Error(create_invalid_value_message(width, "setScreenshotWidth", "html-to-image", "The value must be in the range 96-65000.", "set_screenshot_width"), 470);
+            raise Error(create_invalid_value_message(width, "setScreenshotWidth", "html-to-image", 'The value must be in the range 96-65000.', "set_screenshot_width"), 470);
         
         self.fields['screenshot_width'] = width
         return self
@@ -3213,7 +3213,7 @@ class HtmlToImageClient:
         return - The converter object.
         """
         if not (int(height) > 0):
-            raise Error(create_invalid_value_message(height, "setScreenshotHeight", "html-to-image", "Must be a positive integer number.", "set_screenshot_height"), 470);
+            raise Error(create_invalid_value_message(height, "setScreenshotHeight", "html-to-image", 'Must be a positive integer number.', "set_screenshot_height"), 470);
         
         self.fields['screenshot_height'] = height
         return self
@@ -3226,7 +3226,7 @@ class HtmlToImageClient:
         return - The converter object.
         """
         if not (int(factor) > 0):
-            raise Error(create_invalid_value_message(factor, "setScaleFactor", "html-to-image", "Must be a positive integer number.", "set_scale_factor"), 470);
+            raise Error(create_invalid_value_message(factor, "setScaleFactor", "html-to-image", 'Must be a positive integer number.', "set_scale_factor"), 470);
         
         self.fields['scale_factor'] = factor
         return self
@@ -3239,7 +3239,7 @@ class HtmlToImageClient:
         return - The converter object.
         """
         if not re.match('^[0-9a-fA-F]{6,8}$', color):
-            raise Error(create_invalid_value_message(color, "setBackgroundColor", "html-to-image", "The value must be in RRGGBB or RRGGBBAA hexadecimal format.", "set_background_color"), 470);
+            raise Error(create_invalid_value_message(color, "setBackgroundColor", "html-to-image", 'The value must be in RRGGBB or RRGGBBAA hexadecimal format.', "set_background_color"), 470);
         
         self.fields['background_color'] = get_utf8_string(color)
         return self
@@ -3272,7 +3272,7 @@ class HtmlToImageClient:
         return - The converter object.
         """
         if not re.match('(?i)^(auto|json|xml|yaml|csv)$', data_format):
-            raise Error(create_invalid_value_message(data_format, "setDataFormat", "html-to-image", "Allowed values are auto, json, xml, yaml, csv.", "set_data_format"), 470);
+            raise Error(create_invalid_value_message(data_format, "setDataFormat", "html-to-image", 'Allowed values are auto, json, xml, yaml, csv.', "set_data_format"), 470);
         
         self.fields['data_format'] = get_utf8_string(data_format)
         return self
@@ -3400,7 +3400,7 @@ class HtmlToImageClient:
         return - The converter object.
         """
         if not re.match('(?i)^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z0-9]{1,}:\d+$', proxy):
-            raise Error(create_invalid_value_message(proxy, "setHttpProxy", "html-to-image", "The value must have format DOMAIN_OR_IP_ADDRESS:PORT.", "set_http_proxy"), 470);
+            raise Error(create_invalid_value_message(proxy, "setHttpProxy", "html-to-image", 'The value must have format DOMAIN_OR_IP_ADDRESS:PORT.', "set_http_proxy"), 470);
         
         self.fields['http_proxy'] = get_utf8_string(proxy)
         return self
@@ -3413,7 +3413,7 @@ class HtmlToImageClient:
         return - The converter object.
         """
         if not re.match('(?i)^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z0-9]{1,}:\d+$', proxy):
-            raise Error(create_invalid_value_message(proxy, "setHttpsProxy", "html-to-image", "The value must have format DOMAIN_OR_IP_ADDRESS:PORT.", "set_https_proxy"), 470);
+            raise Error(create_invalid_value_message(proxy, "setHttpsProxy", "html-to-image", 'The value must have format DOMAIN_OR_IP_ADDRESS:PORT.', "set_https_proxy"), 470);
         
         self.fields['https_proxy'] = get_utf8_string(proxy)
         return self
@@ -3426,7 +3426,7 @@ class HtmlToImageClient:
         return - The converter object.
         """
         if not (os.path.isfile(certificate) and os.path.getsize(certificate)):
-            raise Error(create_invalid_value_message(certificate, "setClientCertificate", "html-to-image", "The file must exist and not be empty.", "set_client_certificate"), 470);
+            raise Error(create_invalid_value_message(certificate, "setClientCertificate", "html-to-image", 'The file must exist and not be empty.', "set_client_certificate"), 470);
         
         self.files['client_certificate'] = get_utf8_string(certificate)
         return self
@@ -3449,7 +3449,7 @@ class HtmlToImageClient:
         return - The converter object.
         """
         if not re.match('(?i)^(latest|20.10|18.10)$', version):
-            raise Error(create_invalid_value_message(version, "setConverterVersion", "html-to-image", "Allowed values are latest, 20.10, 18.10.", "set_converter_version"), 470);
+            raise Error(create_invalid_value_message(version, "setConverterVersion", "html-to-image", 'Allowed values are latest, 20.10, 18.10.', "set_converter_version"), 470);
         
         self.helper.setConverterVersion(version)
         return self
@@ -3527,7 +3527,7 @@ class ImageToImageClient:
         return - Byte array containing the conversion output.
         """
         if not re.match('(?i)^https?://.*$', url):
-            raise Error(create_invalid_value_message(url, "convertUrl", "image-to-image", "The supported protocols are http:// and https://.", "convert_url"), 470);
+            raise Error(create_invalid_value_message(url, "convertUrl", "image-to-image", 'The supported protocols are http:// and https://.', "convert_url"), 470);
         
         self.fields['url'] = get_utf8_string(url)
         return self.helper.post(self.fields, self.files, self.raw_data)
@@ -3540,7 +3540,7 @@ class ImageToImageClient:
         out_stream - The output stream that will contain the conversion output.
         """
         if not re.match('(?i)^https?://.*$', url):
-            raise Error(create_invalid_value_message(url, "convertUrlToStream::url", "image-to-image", "The supported protocols are http:// and https://.", "convert_url_to_stream"), 470);
+            raise Error(create_invalid_value_message(url, "convertUrlToStream::url", "image-to-image", 'The supported protocols are http:// and https://.', "convert_url_to_stream"), 470);
         
         self.fields['url'] = get_utf8_string(url)
         self.helper.post(self.fields, self.files, self.raw_data, out_stream)
@@ -3553,7 +3553,7 @@ class ImageToImageClient:
         file_path - The output file path. The string must not be empty.
         """
         if not (file_path):
-            raise Error(create_invalid_value_message(file_path, "convertUrlToFile::file_path", "image-to-image", "The string must not be empty.", "convert_url_to_file"), 470);
+            raise Error(create_invalid_value_message(file_path, "convertUrlToFile::file_path", "image-to-image", 'The string must not be empty.', "convert_url_to_file"), 470);
         
         output_file = open(file_path, 'wb')
         try:
@@ -3572,7 +3572,7 @@ class ImageToImageClient:
         return - Byte array containing the conversion output.
         """
         if not (os.path.isfile(file) and os.path.getsize(file)):
-            raise Error(create_invalid_value_message(file, "convertFile", "image-to-image", "The file must exist and not be empty.", "convert_file"), 470);
+            raise Error(create_invalid_value_message(file, "convertFile", "image-to-image", 'The file must exist and not be empty.', "convert_file"), 470);
         
         self.files['file'] = get_utf8_string(file)
         return self.helper.post(self.fields, self.files, self.raw_data)
@@ -3585,7 +3585,7 @@ class ImageToImageClient:
         out_stream - The output stream that will contain the conversion output.
         """
         if not (os.path.isfile(file) and os.path.getsize(file)):
-            raise Error(create_invalid_value_message(file, "convertFileToStream::file", "image-to-image", "The file must exist and not be empty.", "convert_file_to_stream"), 470);
+            raise Error(create_invalid_value_message(file, "convertFileToStream::file", "image-to-image", 'The file must exist and not be empty.', "convert_file_to_stream"), 470);
         
         self.files['file'] = get_utf8_string(file)
         self.helper.post(self.fields, self.files, self.raw_data, out_stream)
@@ -3598,7 +3598,7 @@ class ImageToImageClient:
         file_path - The output file path. The string must not be empty.
         """
         if not (file_path):
-            raise Error(create_invalid_value_message(file_path, "convertFileToFile::file_path", "image-to-image", "The string must not be empty.", "convert_file_to_file"), 470);
+            raise Error(create_invalid_value_message(file_path, "convertFileToFile::file_path", "image-to-image", 'The string must not be empty.', "convert_file_to_file"), 470);
         
         output_file = open(file_path, 'wb')
         try:
@@ -3637,7 +3637,7 @@ class ImageToImageClient:
         file_path - The output file path. The string must not be empty.
         """
         if not (file_path):
-            raise Error(create_invalid_value_message(file_path, "convertRawDataToFile::file_path", "image-to-image", "The string must not be empty.", "convert_raw_data_to_file"), 470);
+            raise Error(create_invalid_value_message(file_path, "convertRawDataToFile::file_path", "image-to-image", 'The string must not be empty.', "convert_raw_data_to_file"), 470);
         
         output_file = open(file_path, 'wb')
         try:
@@ -3676,7 +3676,7 @@ class ImageToImageClient:
         file_path - The output file path. The string must not be empty.
         """
         if not (file_path):
-            raise Error(create_invalid_value_message(file_path, "convertStreamToFile::file_path", "image-to-image", "The string must not be empty.", "convert_stream_to_file"), 470);
+            raise Error(create_invalid_value_message(file_path, "convertStreamToFile::file_path", "image-to-image", 'The string must not be empty.', "convert_stream_to_file"), 470);
         
         output_file = open(file_path, 'wb')
         try:
@@ -3695,7 +3695,7 @@ class ImageToImageClient:
         return - The converter object.
         """
         if not re.match('(?i)^(png|jpg|gif|tiff|bmp|ico|ppm|pgm|pbm|pnm|psb|pct|ras|tga|sgi|sun|webp)$', output_format):
-            raise Error(create_invalid_value_message(output_format, "setOutputFormat", "image-to-image", "Allowed values are png, jpg, gif, tiff, bmp, ico, ppm, pgm, pbm, pnm, psb, pct, ras, tga, sgi, sun, webp.", "set_output_format"), 470);
+            raise Error(create_invalid_value_message(output_format, "setOutputFormat", "image-to-image", 'Allowed values are png, jpg, gif, tiff, bmp, ico, ppm, pgm, pbm, pnm, psb, pct, ras, tga, sgi, sun, webp.', "set_output_format"), 470);
         
         self.fields['output_format'] = get_utf8_string(output_format)
         return self
@@ -3793,7 +3793,7 @@ class ImageToImageClient:
         return - The converter object.
         """
         if not re.match('(?i)^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z0-9]{1,}:\d+$', proxy):
-            raise Error(create_invalid_value_message(proxy, "setHttpProxy", "image-to-image", "The value must have format DOMAIN_OR_IP_ADDRESS:PORT.", "set_http_proxy"), 470);
+            raise Error(create_invalid_value_message(proxy, "setHttpProxy", "image-to-image", 'The value must have format DOMAIN_OR_IP_ADDRESS:PORT.', "set_http_proxy"), 470);
         
         self.fields['http_proxy'] = get_utf8_string(proxy)
         return self
@@ -3806,7 +3806,7 @@ class ImageToImageClient:
         return - The converter object.
         """
         if not re.match('(?i)^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z0-9]{1,}:\d+$', proxy):
-            raise Error(create_invalid_value_message(proxy, "setHttpsProxy", "image-to-image", "The value must have format DOMAIN_OR_IP_ADDRESS:PORT.", "set_https_proxy"), 470);
+            raise Error(create_invalid_value_message(proxy, "setHttpsProxy", "image-to-image", 'The value must have format DOMAIN_OR_IP_ADDRESS:PORT.', "set_https_proxy"), 470);
         
         self.fields['https_proxy'] = get_utf8_string(proxy)
         return self
@@ -3819,7 +3819,7 @@ class ImageToImageClient:
         return - The converter object.
         """
         if not re.match('(?i)^(latest|20.10|18.10)$', version):
-            raise Error(create_invalid_value_message(version, "setConverterVersion", "image-to-image", "Allowed values are latest, 20.10, 18.10.", "set_converter_version"), 470);
+            raise Error(create_invalid_value_message(version, "setConverterVersion", "image-to-image", 'Allowed values are latest, 20.10, 18.10.', "set_converter_version"), 470);
         
         self.helper.setConverterVersion(version)
         return self
@@ -3897,7 +3897,7 @@ class PdfToPdfClient:
         return - The converter object.
         """
         if not re.match('(?i)^(join|shuffle)$', action):
-            raise Error(create_invalid_value_message(action, "setAction", "pdf-to-pdf", "Allowed values are join, shuffle.", "set_action"), 470);
+            raise Error(create_invalid_value_message(action, "setAction", "pdf-to-pdf", 'Allowed values are join, shuffle.', "set_action"), 470);
         
         self.fields['action'] = get_utf8_string(action)
         return self
@@ -3924,7 +3924,7 @@ class PdfToPdfClient:
         file_path - The output file path. The string must not be empty.
         """
         if not (file_path):
-            raise Error(create_invalid_value_message(file_path, "convertToFile", "pdf-to-pdf", "The string must not be empty.", "convert_to_file"), 470);
+            raise Error(create_invalid_value_message(file_path, "convertToFile", "pdf-to-pdf", 'The string must not be empty.', "convert_to_file"), 470);
         
         output_file = open(file_path, 'wb')
         self.convertToStream(output_file)
@@ -3938,7 +3938,7 @@ class PdfToPdfClient:
         return - The converter object.
         """
         if not (os.path.isfile(file_path) and os.path.getsize(file_path)):
-            raise Error(create_invalid_value_message(file_path, "addPdfFile", "pdf-to-pdf", "The file must exist and not be empty.", "add_pdf_file"), 470);
+            raise Error(create_invalid_value_message(file_path, "addPdfFile", "pdf-to-pdf", 'The file must exist and not be empty.', "add_pdf_file"), 470);
         
         self.files['f_{}'.format(self.file_id)] = file_path
         self.file_id += 1
@@ -3952,7 +3952,7 @@ class PdfToPdfClient:
         return - The converter object.
         """
         if not (data and len(data) > 300 and (data[0:4] == '%PDF' or data[0:4] == u'%PDF' or data[0:4] == b'%PDF')):
-            raise Error(create_invalid_value_message("raw PDF data", "addPdfRawData", "pdf-to-pdf", "The input data must be PDF content.", "add_pdf_raw_data"), 470);
+            raise Error(create_invalid_value_message("raw PDF data", "addPdfRawData", "pdf-to-pdf", 'The input data must be PDF content.', "add_pdf_raw_data"), 470);
         
         self.raw_data['f_{}'.format(self.file_id)] = data
         self.file_id += 1
@@ -3976,7 +3976,7 @@ class PdfToPdfClient:
         return - The converter object.
         """
         if not (os.path.isfile(watermark) and os.path.getsize(watermark)):
-            raise Error(create_invalid_value_message(watermark, "setPageWatermark", "pdf-to-pdf", "The file must exist and not be empty.", "set_page_watermark"), 470);
+            raise Error(create_invalid_value_message(watermark, "setPageWatermark", "pdf-to-pdf", 'The file must exist and not be empty.', "set_page_watermark"), 470);
         
         self.files['page_watermark'] = get_utf8_string(watermark)
         return self
@@ -3989,7 +3989,7 @@ class PdfToPdfClient:
         return - The converter object.
         """
         if not re.match('(?i)^https?://.*$', url):
-            raise Error(create_invalid_value_message(url, "setPageWatermarkUrl", "pdf-to-pdf", "The supported protocols are http:// and https://.", "set_page_watermark_url"), 470);
+            raise Error(create_invalid_value_message(url, "setPageWatermarkUrl", "pdf-to-pdf", 'The supported protocols are http:// and https://.', "set_page_watermark_url"), 470);
         
         self.fields['page_watermark_url'] = get_utf8_string(url)
         return self
@@ -4002,7 +4002,7 @@ class PdfToPdfClient:
         return - The converter object.
         """
         if not (os.path.isfile(watermark) and os.path.getsize(watermark)):
-            raise Error(create_invalid_value_message(watermark, "setMultipageWatermark", "pdf-to-pdf", "The file must exist and not be empty.", "set_multipage_watermark"), 470);
+            raise Error(create_invalid_value_message(watermark, "setMultipageWatermark", "pdf-to-pdf", 'The file must exist and not be empty.', "set_multipage_watermark"), 470);
         
         self.files['multipage_watermark'] = get_utf8_string(watermark)
         return self
@@ -4015,7 +4015,7 @@ class PdfToPdfClient:
         return - The converter object.
         """
         if not re.match('(?i)^https?://.*$', url):
-            raise Error(create_invalid_value_message(url, "setMultipageWatermarkUrl", "pdf-to-pdf", "The supported protocols are http:// and https://.", "set_multipage_watermark_url"), 470);
+            raise Error(create_invalid_value_message(url, "setMultipageWatermarkUrl", "pdf-to-pdf", 'The supported protocols are http:// and https://.', "set_multipage_watermark_url"), 470);
         
         self.fields['multipage_watermark_url'] = get_utf8_string(url)
         return self
@@ -4028,7 +4028,7 @@ class PdfToPdfClient:
         return - The converter object.
         """
         if not (os.path.isfile(background) and os.path.getsize(background)):
-            raise Error(create_invalid_value_message(background, "setPageBackground", "pdf-to-pdf", "The file must exist and not be empty.", "set_page_background"), 470);
+            raise Error(create_invalid_value_message(background, "setPageBackground", "pdf-to-pdf", 'The file must exist and not be empty.', "set_page_background"), 470);
         
         self.files['page_background'] = get_utf8_string(background)
         return self
@@ -4041,7 +4041,7 @@ class PdfToPdfClient:
         return - The converter object.
         """
         if not re.match('(?i)^https?://.*$', url):
-            raise Error(create_invalid_value_message(url, "setPageBackgroundUrl", "pdf-to-pdf", "The supported protocols are http:// and https://.", "set_page_background_url"), 470);
+            raise Error(create_invalid_value_message(url, "setPageBackgroundUrl", "pdf-to-pdf", 'The supported protocols are http:// and https://.', "set_page_background_url"), 470);
         
         self.fields['page_background_url'] = get_utf8_string(url)
         return self
@@ -4054,7 +4054,7 @@ class PdfToPdfClient:
         return - The converter object.
         """
         if not (os.path.isfile(background) and os.path.getsize(background)):
-            raise Error(create_invalid_value_message(background, "setMultipageBackground", "pdf-to-pdf", "The file must exist and not be empty.", "set_multipage_background"), 470);
+            raise Error(create_invalid_value_message(background, "setMultipageBackground", "pdf-to-pdf", 'The file must exist and not be empty.', "set_multipage_background"), 470);
         
         self.files['multipage_background'] = get_utf8_string(background)
         return self
@@ -4067,7 +4067,7 @@ class PdfToPdfClient:
         return - The converter object.
         """
         if not re.match('(?i)^https?://.*$', url):
-            raise Error(create_invalid_value_message(url, "setMultipageBackgroundUrl", "pdf-to-pdf", "The supported protocols are http:// and https://.", "set_multipage_background_url"), 470);
+            raise Error(create_invalid_value_message(url, "setMultipageBackgroundUrl", "pdf-to-pdf", 'The supported protocols are http:// and https://.', "set_multipage_background_url"), 470);
         
         self.fields['multipage_background_url'] = get_utf8_string(url)
         return self
@@ -4190,7 +4190,7 @@ class PdfToPdfClient:
         return - The converter object.
         """
         if not (int(index) >= 0):
-            raise Error(create_invalid_value_message(index, "setUseMetadataFrom", "pdf-to-pdf", "Must be a positive integer number or 0.", "set_use_metadata_from"), 470);
+            raise Error(create_invalid_value_message(index, "setUseMetadataFrom", "pdf-to-pdf", 'Must be a positive integer number or 0.', "set_use_metadata_from"), 470);
         
         self.fields['use_metadata_from'] = index
         return self
@@ -4203,7 +4203,7 @@ class PdfToPdfClient:
         return - The converter object.
         """
         if not re.match('(?i)^(single-page|one-column|two-column-left|two-column-right)$', layout):
-            raise Error(create_invalid_value_message(layout, "setPageLayout", "pdf-to-pdf", "Allowed values are single-page, one-column, two-column-left, two-column-right.", "set_page_layout"), 470);
+            raise Error(create_invalid_value_message(layout, "setPageLayout", "pdf-to-pdf", 'Allowed values are single-page, one-column, two-column-left, two-column-right.', "set_page_layout"), 470);
         
         self.fields['page_layout'] = get_utf8_string(layout)
         return self
@@ -4216,7 +4216,7 @@ class PdfToPdfClient:
         return - The converter object.
         """
         if not re.match('(?i)^(full-screen|thumbnails|outlines)$', mode):
-            raise Error(create_invalid_value_message(mode, "setPageMode", "pdf-to-pdf", "Allowed values are full-screen, thumbnails, outlines.", "set_page_mode"), 470);
+            raise Error(create_invalid_value_message(mode, "setPageMode", "pdf-to-pdf", 'Allowed values are full-screen, thumbnails, outlines.', "set_page_mode"), 470);
         
         self.fields['page_mode'] = get_utf8_string(mode)
         return self
@@ -4229,7 +4229,7 @@ class PdfToPdfClient:
         return - The converter object.
         """
         if not re.match('(?i)^(fit-width|fit-height|fit-page)$', zoom_type):
-            raise Error(create_invalid_value_message(zoom_type, "setInitialZoomType", "pdf-to-pdf", "Allowed values are fit-width, fit-height, fit-page.", "set_initial_zoom_type"), 470);
+            raise Error(create_invalid_value_message(zoom_type, "setInitialZoomType", "pdf-to-pdf", 'Allowed values are fit-width, fit-height, fit-page.', "set_initial_zoom_type"), 470);
         
         self.fields['initial_zoom_type'] = get_utf8_string(zoom_type)
         return self
@@ -4242,7 +4242,7 @@ class PdfToPdfClient:
         return - The converter object.
         """
         if not (int(page) > 0):
-            raise Error(create_invalid_value_message(page, "setInitialPage", "pdf-to-pdf", "Must be a positive integer number.", "set_initial_page"), 470);
+            raise Error(create_invalid_value_message(page, "setInitialPage", "pdf-to-pdf", 'Must be a positive integer number.', "set_initial_page"), 470);
         
         self.fields['initial_page'] = page
         return self
@@ -4255,7 +4255,7 @@ class PdfToPdfClient:
         return - The converter object.
         """
         if not (int(zoom) > 0):
-            raise Error(create_invalid_value_message(zoom, "setInitialZoom", "pdf-to-pdf", "Must be a positive integer number.", "set_initial_zoom"), 470);
+            raise Error(create_invalid_value_message(zoom, "setInitialZoom", "pdf-to-pdf", 'Must be a positive integer number.', "set_initial_zoom"), 470);
         
         self.fields['initial_zoom'] = zoom
         return self
@@ -4410,7 +4410,7 @@ class PdfToPdfClient:
         return - The converter object.
         """
         if not re.match('(?i)^(latest|20.10|18.10)$', version):
-            raise Error(create_invalid_value_message(version, "setConverterVersion", "pdf-to-pdf", "Allowed values are latest, 20.10, 18.10.", "set_converter_version"), 470);
+            raise Error(create_invalid_value_message(version, "setConverterVersion", "pdf-to-pdf", 'Allowed values are latest, 20.10, 18.10.', "set_converter_version"), 470);
         
         self.helper.setConverterVersion(version)
         return self
@@ -4488,7 +4488,7 @@ class ImageToPdfClient:
         return - Byte array containing the conversion output.
         """
         if not re.match('(?i)^https?://.*$', url):
-            raise Error(create_invalid_value_message(url, "convertUrl", "image-to-pdf", "The supported protocols are http:// and https://.", "convert_url"), 470);
+            raise Error(create_invalid_value_message(url, "convertUrl", "image-to-pdf", 'The supported protocols are http:// and https://.', "convert_url"), 470);
         
         self.fields['url'] = get_utf8_string(url)
         return self.helper.post(self.fields, self.files, self.raw_data)
@@ -4501,7 +4501,7 @@ class ImageToPdfClient:
         out_stream - The output stream that will contain the conversion output.
         """
         if not re.match('(?i)^https?://.*$', url):
-            raise Error(create_invalid_value_message(url, "convertUrlToStream::url", "image-to-pdf", "The supported protocols are http:// and https://.", "convert_url_to_stream"), 470);
+            raise Error(create_invalid_value_message(url, "convertUrlToStream::url", "image-to-pdf", 'The supported protocols are http:// and https://.', "convert_url_to_stream"), 470);
         
         self.fields['url'] = get_utf8_string(url)
         self.helper.post(self.fields, self.files, self.raw_data, out_stream)
@@ -4514,7 +4514,7 @@ class ImageToPdfClient:
         file_path - The output file path. The string must not be empty.
         """
         if not (file_path):
-            raise Error(create_invalid_value_message(file_path, "convertUrlToFile::file_path", "image-to-pdf", "The string must not be empty.", "convert_url_to_file"), 470);
+            raise Error(create_invalid_value_message(file_path, "convertUrlToFile::file_path", "image-to-pdf", 'The string must not be empty.', "convert_url_to_file"), 470);
         
         output_file = open(file_path, 'wb')
         try:
@@ -4533,7 +4533,7 @@ class ImageToPdfClient:
         return - Byte array containing the conversion output.
         """
         if not (os.path.isfile(file) and os.path.getsize(file)):
-            raise Error(create_invalid_value_message(file, "convertFile", "image-to-pdf", "The file must exist and not be empty.", "convert_file"), 470);
+            raise Error(create_invalid_value_message(file, "convertFile", "image-to-pdf", 'The file must exist and not be empty.', "convert_file"), 470);
         
         self.files['file'] = get_utf8_string(file)
         return self.helper.post(self.fields, self.files, self.raw_data)
@@ -4546,7 +4546,7 @@ class ImageToPdfClient:
         out_stream - The output stream that will contain the conversion output.
         """
         if not (os.path.isfile(file) and os.path.getsize(file)):
-            raise Error(create_invalid_value_message(file, "convertFileToStream::file", "image-to-pdf", "The file must exist and not be empty.", "convert_file_to_stream"), 470);
+            raise Error(create_invalid_value_message(file, "convertFileToStream::file", "image-to-pdf", 'The file must exist and not be empty.', "convert_file_to_stream"), 470);
         
         self.files['file'] = get_utf8_string(file)
         self.helper.post(self.fields, self.files, self.raw_data, out_stream)
@@ -4559,7 +4559,7 @@ class ImageToPdfClient:
         file_path - The output file path. The string must not be empty.
         """
         if not (file_path):
-            raise Error(create_invalid_value_message(file_path, "convertFileToFile::file_path", "image-to-pdf", "The string must not be empty.", "convert_file_to_file"), 470);
+            raise Error(create_invalid_value_message(file_path, "convertFileToFile::file_path", "image-to-pdf", 'The string must not be empty.', "convert_file_to_file"), 470);
         
         output_file = open(file_path, 'wb')
         try:
@@ -4598,7 +4598,7 @@ class ImageToPdfClient:
         file_path - The output file path. The string must not be empty.
         """
         if not (file_path):
-            raise Error(create_invalid_value_message(file_path, "convertRawDataToFile::file_path", "image-to-pdf", "The string must not be empty.", "convert_raw_data_to_file"), 470);
+            raise Error(create_invalid_value_message(file_path, "convertRawDataToFile::file_path", "image-to-pdf", 'The string must not be empty.', "convert_raw_data_to_file"), 470);
         
         output_file = open(file_path, 'wb')
         try:
@@ -4637,7 +4637,7 @@ class ImageToPdfClient:
         file_path - The output file path. The string must not be empty.
         """
         if not (file_path):
-            raise Error(create_invalid_value_message(file_path, "convertStreamToFile::file_path", "image-to-pdf", "The string must not be empty.", "convert_stream_to_file"), 470);
+            raise Error(create_invalid_value_message(file_path, "convertStreamToFile::file_path", "image-to-pdf", 'The string must not be empty.', "convert_stream_to_file"), 470);
         
         output_file = open(file_path, 'wb')
         try:
@@ -4741,7 +4741,7 @@ class ImageToPdfClient:
         return - The converter object.
         """
         if not re.match('(?i)^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z0-9]{1,}:\d+$', proxy):
-            raise Error(create_invalid_value_message(proxy, "setHttpProxy", "image-to-pdf", "The value must have format DOMAIN_OR_IP_ADDRESS:PORT.", "set_http_proxy"), 470);
+            raise Error(create_invalid_value_message(proxy, "setHttpProxy", "image-to-pdf", 'The value must have format DOMAIN_OR_IP_ADDRESS:PORT.', "set_http_proxy"), 470);
         
         self.fields['http_proxy'] = get_utf8_string(proxy)
         return self
@@ -4754,7 +4754,7 @@ class ImageToPdfClient:
         return - The converter object.
         """
         if not re.match('(?i)^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z0-9]{1,}:\d+$', proxy):
-            raise Error(create_invalid_value_message(proxy, "setHttpsProxy", "image-to-pdf", "The value must have format DOMAIN_OR_IP_ADDRESS:PORT.", "set_https_proxy"), 470);
+            raise Error(create_invalid_value_message(proxy, "setHttpsProxy", "image-to-pdf", 'The value must have format DOMAIN_OR_IP_ADDRESS:PORT.', "set_https_proxy"), 470);
         
         self.fields['https_proxy'] = get_utf8_string(proxy)
         return self
@@ -4767,7 +4767,7 @@ class ImageToPdfClient:
         return - The converter object.
         """
         if not re.match('(?i)^(latest|20.10|18.10)$', version):
-            raise Error(create_invalid_value_message(version, "setConverterVersion", "image-to-pdf", "Allowed values are latest, 20.10, 18.10.", "set_converter_version"), 470);
+            raise Error(create_invalid_value_message(version, "setConverterVersion", "image-to-pdf", 'Allowed values are latest, 20.10, 18.10.', "set_converter_version"), 470);
         
         self.helper.setConverterVersion(version)
         return self
@@ -4845,7 +4845,7 @@ class PdfToHtmlClient:
         return - Byte array containing the conversion output.
         """
         if not re.match('(?i)^https?://.*$', url):
-            raise Error(create_invalid_value_message(url, "convertUrl", "pdf-to-html", "The supported protocols are http:// and https://.", "convert_url"), 470);
+            raise Error(create_invalid_value_message(url, "convertUrl", "pdf-to-html", 'The supported protocols are http:// and https://.', "convert_url"), 470);
         
         self.fields['url'] = get_utf8_string(url)
         return self.helper.post(self.fields, self.files, self.raw_data)
@@ -4858,7 +4858,7 @@ class PdfToHtmlClient:
         out_stream - The output stream that will contain the conversion output.
         """
         if not re.match('(?i)^https?://.*$', url):
-            raise Error(create_invalid_value_message(url, "convertUrlToStream::url", "pdf-to-html", "The supported protocols are http:// and https://.", "convert_url_to_stream"), 470);
+            raise Error(create_invalid_value_message(url, "convertUrlToStream::url", "pdf-to-html", 'The supported protocols are http:// and https://.', "convert_url_to_stream"), 470);
         
         self.fields['url'] = get_utf8_string(url)
         self.helper.post(self.fields, self.files, self.raw_data, out_stream)
@@ -4871,10 +4871,10 @@ class PdfToHtmlClient:
         file_path - The output file path. The string must not be empty. The converter generates an HTML or ZIP file. If ZIP file is generated, the file path must have a ZIP or zip extension.
         """
         if not (file_path):
-            raise Error(create_invalid_value_message(file_path, "convertUrlToFile::file_path", "pdf-to-html", "The string must not be empty.", "convert_url_to_file"), 470);
+            raise Error(create_invalid_value_message(file_path, "convertUrlToFile::file_path", "pdf-to-html", 'The string must not be empty.', "convert_url_to_file"), 470);
         
         if not (self._isOutputTypeValid(file_path)):
-            raise Error(create_invalid_value_message(file_path, "convertUrlToFile::file_path", "pdf-to-html", "The converter generates an HTML or ZIP file. If ZIP file is generated, the file path must have a ZIP or zip extension.", "convert_url_to_file"), 470);
+            raise Error(create_invalid_value_message(file_path, "convertUrlToFile::file_path", "pdf-to-html", 'The converter generates an HTML or ZIP file. If ZIP file is generated, the file path must have a ZIP or zip extension.', "convert_url_to_file"), 470);
         
         output_file = open(file_path, 'wb')
         try:
@@ -4893,7 +4893,7 @@ class PdfToHtmlClient:
         return - Byte array containing the conversion output.
         """
         if not (os.path.isfile(file) and os.path.getsize(file)):
-            raise Error(create_invalid_value_message(file, "convertFile", "pdf-to-html", "The file must exist and not be empty.", "convert_file"), 470);
+            raise Error(create_invalid_value_message(file, "convertFile", "pdf-to-html", 'The file must exist and not be empty.', "convert_file"), 470);
         
         self.files['file'] = get_utf8_string(file)
         return self.helper.post(self.fields, self.files, self.raw_data)
@@ -4906,7 +4906,7 @@ class PdfToHtmlClient:
         out_stream - The output stream that will contain the conversion output.
         """
         if not (os.path.isfile(file) and os.path.getsize(file)):
-            raise Error(create_invalid_value_message(file, "convertFileToStream::file", "pdf-to-html", "The file must exist and not be empty.", "convert_file_to_stream"), 470);
+            raise Error(create_invalid_value_message(file, "convertFileToStream::file", "pdf-to-html", 'The file must exist and not be empty.', "convert_file_to_stream"), 470);
         
         self.files['file'] = get_utf8_string(file)
         self.helper.post(self.fields, self.files, self.raw_data, out_stream)
@@ -4919,10 +4919,10 @@ class PdfToHtmlClient:
         file_path - The output file path. The string must not be empty. The converter generates an HTML or ZIP file. If ZIP file is generated, the file path must have a ZIP or zip extension.
         """
         if not (file_path):
-            raise Error(create_invalid_value_message(file_path, "convertFileToFile::file_path", "pdf-to-html", "The string must not be empty.", "convert_file_to_file"), 470);
+            raise Error(create_invalid_value_message(file_path, "convertFileToFile::file_path", "pdf-to-html", 'The string must not be empty.', "convert_file_to_file"), 470);
         
         if not (self._isOutputTypeValid(file_path)):
-            raise Error(create_invalid_value_message(file_path, "convertFileToFile::file_path", "pdf-to-html", "The converter generates an HTML or ZIP file. If ZIP file is generated, the file path must have a ZIP or zip extension.", "convert_file_to_file"), 470);
+            raise Error(create_invalid_value_message(file_path, "convertFileToFile::file_path", "pdf-to-html", 'The converter generates an HTML or ZIP file. If ZIP file is generated, the file path must have a ZIP or zip extension.', "convert_file_to_file"), 470);
         
         output_file = open(file_path, 'wb')
         try:
@@ -4961,10 +4961,10 @@ class PdfToHtmlClient:
         file_path - The output file path. The string must not be empty. The converter generates an HTML or ZIP file. If ZIP file is generated, the file path must have a ZIP or zip extension.
         """
         if not (file_path):
-            raise Error(create_invalid_value_message(file_path, "convertRawDataToFile::file_path", "pdf-to-html", "The string must not be empty.", "convert_raw_data_to_file"), 470);
+            raise Error(create_invalid_value_message(file_path, "convertRawDataToFile::file_path", "pdf-to-html", 'The string must not be empty.', "convert_raw_data_to_file"), 470);
         
         if not (self._isOutputTypeValid(file_path)):
-            raise Error(create_invalid_value_message(file_path, "convertRawDataToFile::file_path", "pdf-to-html", "The converter generates an HTML or ZIP file. If ZIP file is generated, the file path must have a ZIP or zip extension.", "convert_raw_data_to_file"), 470);
+            raise Error(create_invalid_value_message(file_path, "convertRawDataToFile::file_path", "pdf-to-html", 'The converter generates an HTML or ZIP file. If ZIP file is generated, the file path must have a ZIP or zip extension.', "convert_raw_data_to_file"), 470);
         
         output_file = open(file_path, 'wb')
         try:
@@ -5003,10 +5003,10 @@ class PdfToHtmlClient:
         file_path - The output file path. The string must not be empty. The converter generates an HTML or ZIP file. If ZIP file is generated, the file path must have a ZIP or zip extension.
         """
         if not (file_path):
-            raise Error(create_invalid_value_message(file_path, "convertStreamToFile::file_path", "pdf-to-html", "The string must not be empty.", "convert_stream_to_file"), 470);
+            raise Error(create_invalid_value_message(file_path, "convertStreamToFile::file_path", "pdf-to-html", 'The string must not be empty.', "convert_stream_to_file"), 470);
         
         if not (self._isOutputTypeValid(file_path)):
-            raise Error(create_invalid_value_message(file_path, "convertStreamToFile::file_path", "pdf-to-html", "The converter generates an HTML or ZIP file. If ZIP file is generated, the file path must have a ZIP or zip extension.", "convert_stream_to_file"), 470);
+            raise Error(create_invalid_value_message(file_path, "convertStreamToFile::file_path", "pdf-to-html", 'The converter generates an HTML or ZIP file. If ZIP file is generated, the file path must have a ZIP or zip extension.', "convert_stream_to_file"), 470);
         
         output_file = open(file_path, 'wb')
         try:
@@ -5035,7 +5035,7 @@ class PdfToHtmlClient:
         return - The converter object.
         """
         if not (int(factor) > 0):
-            raise Error(create_invalid_value_message(factor, "setScaleFactor", "pdf-to-html", "Must be a positive integer number.", "set_scale_factor"), 470);
+            raise Error(create_invalid_value_message(factor, "setScaleFactor", "pdf-to-html", 'Must be a positive integer number.', "set_scale_factor"), 470);
         
         self.fields['scale_factor'] = factor
         return self
@@ -5048,7 +5048,7 @@ class PdfToHtmlClient:
         return - The converter object.
         """
         if not re.match('^(?:\s*(?:\d+|(?:\d*\s*\-\s*\d+)|(?:\d+\s*\-\s*\d*))\s*,\s*)*\s*(?:\d+|(?:\d*\s*\-\s*\d+)|(?:\d+\s*\-\s*\d*))\s*$', pages):
-            raise Error(create_invalid_value_message(pages, "setPrintPageRange", "pdf-to-html", "A comma separated list of page numbers or ranges.", "set_print_page_range"), 470);
+            raise Error(create_invalid_value_message(pages, "setPrintPageRange", "pdf-to-html", 'A comma separated list of page numbers or ranges.', "set_print_page_range"), 470);
         
         self.fields['print_page_range'] = get_utf8_string(pages)
         return self
@@ -5061,7 +5061,7 @@ class PdfToHtmlClient:
         return - The converter object.
         """
         if not re.match('(?i)^(embed|separate)$', mode):
-            raise Error(create_invalid_value_message(mode, "setImageMode", "pdf-to-html", "Allowed values are embed, separate.", "set_image_mode"), 470);
+            raise Error(create_invalid_value_message(mode, "setImageMode", "pdf-to-html", 'Allowed values are embed, separate.', "set_image_mode"), 470);
         
         self.fields['image_mode'] = get_utf8_string(mode)
         return self
@@ -5074,7 +5074,7 @@ class PdfToHtmlClient:
         return - The converter object.
         """
         if not re.match('(?i)^(embed|separate)$', mode):
-            raise Error(create_invalid_value_message(mode, "setCssMode", "pdf-to-html", "Allowed values are embed, separate.", "set_css_mode"), 470);
+            raise Error(create_invalid_value_message(mode, "setCssMode", "pdf-to-html", 'Allowed values are embed, separate.', "set_css_mode"), 470);
         
         self.fields['css_mode'] = get_utf8_string(mode)
         return self
@@ -5087,7 +5087,7 @@ class PdfToHtmlClient:
         return - The converter object.
         """
         if not re.match('(?i)^(embed|separate)$', mode):
-            raise Error(create_invalid_value_message(mode, "setFontMode", "pdf-to-html", "Allowed values are embed, separate.", "set_font_mode"), 470);
+            raise Error(create_invalid_value_message(mode, "setFontMode", "pdf-to-html", 'Allowed values are embed, separate.', "set_font_mode"), 470);
         
         self.fields['font_mode'] = get_utf8_string(mode)
         return self
@@ -5229,7 +5229,7 @@ class PdfToHtmlClient:
         return - The converter object.
         """
         if not re.match('(?i)^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z0-9]{1,}:\d+$', proxy):
-            raise Error(create_invalid_value_message(proxy, "setHttpProxy", "pdf-to-html", "The value must have format DOMAIN_OR_IP_ADDRESS:PORT.", "set_http_proxy"), 470);
+            raise Error(create_invalid_value_message(proxy, "setHttpProxy", "pdf-to-html", 'The value must have format DOMAIN_OR_IP_ADDRESS:PORT.', "set_http_proxy"), 470);
         
         self.fields['http_proxy'] = get_utf8_string(proxy)
         return self
@@ -5242,7 +5242,7 @@ class PdfToHtmlClient:
         return - The converter object.
         """
         if not re.match('(?i)^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z0-9]{1,}:\d+$', proxy):
-            raise Error(create_invalid_value_message(proxy, "setHttpsProxy", "pdf-to-html", "The value must have format DOMAIN_OR_IP_ADDRESS:PORT.", "set_https_proxy"), 470);
+            raise Error(create_invalid_value_message(proxy, "setHttpsProxy", "pdf-to-html", 'The value must have format DOMAIN_OR_IP_ADDRESS:PORT.', "set_https_proxy"), 470);
         
         self.fields['https_proxy'] = get_utf8_string(proxy)
         return self
@@ -5363,29 +5363,29 @@ available converters:
                             help = 'Set the output page size. Allowed values are A0, A1, A2, A3, A4, A5, A6, Letter. Default is A4.'
 )
         parser.add_argument('-page-width',
-                            help = 'Set the output page width. The safe maximum is 200in otherwise some PDF viewers may be unable to open the PDF. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt). Default is 8.27in.'
+                            help = 'Set the output page width. The safe maximum is 200in otherwise some PDF viewers may be unable to open the PDF. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt". Default is 8.27in.'
 )
         parser.add_argument('-page-height',
-                            help = 'Set the output page height. Use -1 for a single page PDF. The safe maximum is 200in otherwise some PDF viewers may be unable to open the PDF. Can be -1 or specified in inches (in), millimeters (mm), centimeters (cm), or points (pt). Default is 11.7in.'
+                            help = 'Set the output page height. Use -1 for a single page PDF. The safe maximum is 200in otherwise some PDF viewers may be unable to open the PDF. The value must be -1 or specified in inches "in", millimeters "mm", centimeters "cm", or points "pt". Default is 11.7in.'
 )
         multi_args['page_dimensions'] = 2
         parser.add_argument('-page-dimensions',
-                            help = 'Set the output page dimensions. PAGE_DIMENSIONS must contain 2 values separated by a semicolon. Set the output page width. The safe maximum is 200in otherwise some PDF viewers may be unable to open the PDF. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt). Set the output page height. Use -1 for a single page PDF. The safe maximum is 200in otherwise some PDF viewers may be unable to open the PDF. Can be -1 or specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).'
+                            help = 'Set the output page dimensions. PAGE_DIMENSIONS must contain 2 values separated by a semicolon. Set the output page width. The safe maximum is 200in otherwise some PDF viewers may be unable to open the PDF. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt". Set the output page height. Use -1 for a single page PDF. The safe maximum is 200in otherwise some PDF viewers may be unable to open the PDF. The value must be -1 or specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".'
 )
         parser.add_argument('-orientation',
                             help = 'Set the output page orientation. Allowed values are landscape, portrait. Default is portrait.'
 )
         parser.add_argument('-margin-top',
-                            help = 'Set the output page top margin. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt). Default is 0.4in.'
+                            help = 'Set the output page top margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt". Default is 0.4in.'
 )
         parser.add_argument('-margin-right',
-                            help = 'Set the output page right margin. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt). Default is 0.4in.'
+                            help = 'Set the output page right margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt". Default is 0.4in.'
 )
         parser.add_argument('-margin-bottom',
-                            help = 'Set the output page bottom margin. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt). Default is 0.4in.'
+                            help = 'Set the output page bottom margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt". Default is 0.4in.'
 )
         parser.add_argument('-margin-left',
-                            help = 'Set the output page left margin. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt). Default is 0.4in.'
+                            help = 'Set the output page left margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt". Default is 0.4in.'
 )
         parser.add_argument('-no-margins',
                             action = 'store_true',
@@ -5393,7 +5393,7 @@ available converters:
 )
         multi_args['page_margins'] = 4
         parser.add_argument('-page-margins',
-                            help = 'Set the output page margins. PAGE_MARGINS must contain 4 values separated by a semicolon. Set the output page top margin. Set the output page right margin. Set the output page bottom margin. Set the output page left margin. All values can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).'
+                            help = 'Set the output page margins. PAGE_MARGINS must contain 4 values separated by a semicolon. Set the output page top margin. Set the output page right margin. Set the output page bottom margin. Set the output page left margin. All values the value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".'
 )
         parser.add_argument('-print-page-range',
                             help = 'Set the page range to print. A comma separated list of page numbers or ranges.'
@@ -5402,20 +5402,20 @@ available converters:
                             help = 'Set an offset between physical and logical page numbers. Integer specifying page offset.'
 )
         parser.add_argument('-content-area-x',
-                            help = 'Set the top left X coordinate of the content area. It is relative to the top left X coordinate of the print area. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt). It may contain a negative value. Default is 0in.'
+                            help = 'Set the top left X coordinate of the content area. It is relative to the top left X coordinate of the print area. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt". It may contain a negative value. Default is 0in.'
 )
         parser.add_argument('-content-area-y',
-                            help = 'Set the top left Y coordinate of the content area. It is relative to the top left Y coordinate of the print area. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt). It may contain a negative value. Default is 0in.'
+                            help = 'Set the top left Y coordinate of the content area. It is relative to the top left Y coordinate of the print area. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt". It may contain a negative value. Default is 0in.'
 )
         parser.add_argument('-content-area-width',
-                            help = 'Set the width of the content area. It should be at least 1 inch. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt). Default is The width of the print area..'
+                            help = 'Set the width of the content area. It should be at least 1 inch. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt". Default is The width of the print area..'
 )
         parser.add_argument('-content-area-height',
-                            help = 'Set the height of the content area. It should be at least 1 inch. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt). Default is The height of the print area..'
+                            help = 'Set the height of the content area. It should be at least 1 inch. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt". Default is The height of the print area..'
 )
         multi_args['content_area'] = 4
         parser.add_argument('-content-area',
-                            help = 'Set the content area position and size. The content area enables to specify a web page area to be converted. CONTENT_AREA must contain 4 values separated by a semicolon. Set the top left X coordinate of the content area. It is relative to the top left X coordinate of the print area. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt). It may contain a negative value. Set the top left Y coordinate of the content area. It is relative to the top left Y coordinate of the print area. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt). It may contain a negative value. Set the width of the content area. It should be at least 1 inch. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt). Set the height of the content area. It should be at least 1 inch. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt).'
+                            help = 'Set the content area position and size. The content area enables to specify a web page area to be converted. CONTENT_AREA must contain 4 values separated by a semicolon. Set the top left X coordinate of the content area. It is relative to the top left X coordinate of the print area. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt". It may contain a negative value. Set the top left Y coordinate of the content area. It is relative to the top left Y coordinate of the print area. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt". It may contain a negative value. Set the width of the content area. It should be at least 1 inch. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt". Set the height of the content area. It should be at least 1 inch. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".'
 )
         parser.add_argument('-css-page-rule-mode',
                             help = 'Specifies behavior in presence of CSS @page rules. It may affect the page size, margins and orientation. The page rule mode. Allowed values are default, mode1, mode2. Default is default.'
@@ -5427,7 +5427,7 @@ available converters:
                             help = 'Use the specified HTML code as the page header. The following classes can be used in the HTML. The content of the respective elements will be expanded as follows: pdfcrowd-page-count - the total page count of printed pages pdfcrowd-page-number - the current page number pdfcrowd-source-url - the source URL of the converted document pdfcrowd-source-title - the title of the converted document The following attributes can be used: data-pdfcrowd-number-format - specifies the type of the used numerals. Allowed values: arabic - Arabic numerals, they are used by default roman - Roman numerals eastern-arabic - Eastern Arabic numerals bengali - Bengali numerals devanagari - Devanagari numerals thai - Thai numerals east-asia - Chinese, Vietnamese, Japanese and Korean numerals chinese-formal - Chinese formal numerals Please contact us if you need another type of numerals. Example: <span class=\'pdfcrowd-page-number\' data-pdfcrowd-number-format=\'roman\'></span> data-pdfcrowd-placement - specifies where to place the source URL. Allowed values: The URL is inserted to the content Example: <span class=\'pdfcrowd-source-url\'></span> will produce <span>http://example.com</span> href - the URL is set to the href attribute Example: <a class=\'pdfcrowd-source-url\' data-pdfcrowd-placement=\'href\'>Link to source</a> will produce <a href=\'http://example.com\'>Link to source</a> href-and-content - the URL is set to the href attribute and to the content Example: <a class=\'pdfcrowd-source-url\' data-pdfcrowd-placement=\'href-and-content\'></a> will produce <a href=\'http://example.com\'>http://example.com</a> The string must not be empty.'
 )
         parser.add_argument('-header-height',
-                            help = 'Set the header height. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt). Default is 0.5in.'
+                            help = 'Set the header height. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt". Default is 0.5in.'
 )
         parser.add_argument('-zip-header-filename',
                             help = 'Set the file name of the header HTML document stored in the input archive. Use this method if the input archive contains multiple HTML documents. The file name.'
@@ -5439,7 +5439,7 @@ available converters:
                             help = 'Use the specified HTML as the page footer. The following classes can be used in the HTML. The content of the respective elements will be expanded as follows: pdfcrowd-page-count - the total page count of printed pages pdfcrowd-page-number - the current page number pdfcrowd-source-url - the source URL of the converted document pdfcrowd-source-title - the title of the converted document The following attributes can be used: data-pdfcrowd-number-format - specifies the type of the used numerals. Allowed values: arabic - Arabic numerals, they are used by default roman - Roman numerals eastern-arabic - Eastern Arabic numerals bengali - Bengali numerals devanagari - Devanagari numerals thai - Thai numerals east-asia - Chinese, Vietnamese, Japanese and Korean numerals chinese-formal - Chinese formal numerals Please contact us if you need another type of numerals. Example: <span class=\'pdfcrowd-page-number\' data-pdfcrowd-number-format=\'roman\'></span> data-pdfcrowd-placement - specifies where to place the source URL. Allowed values: The URL is inserted to the content Example: <span class=\'pdfcrowd-source-url\'></span> will produce <span>http://example.com</span> href - the URL is set to the href attribute Example: <a class=\'pdfcrowd-source-url\' data-pdfcrowd-placement=\'href\'>Link to source</a> will produce <a href=\'http://example.com\'>Link to source</a> href-and-content - the URL is set to the href attribute and to the content Example: <a class=\'pdfcrowd-source-url\' data-pdfcrowd-placement=\'href-and-content\'></a> will produce <a href=\'http://example.com\'>http://example.com</a> The string must not be empty.'
 )
         parser.add_argument('-footer-height',
-                            help = 'Set the footer height. Can be specified in inches (in), millimeters (mm), centimeters (cm), or points (pt). Default is 0.5in.'
+                            help = 'Set the footer height. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt". Default is 0.5in.'
 )
         parser.add_argument('-zip-footer-filename',
                             help = 'Set the file name of the footer HTML document stored in the input archive. Use this method if the input archive contains multiple HTML documents. The file name.'
