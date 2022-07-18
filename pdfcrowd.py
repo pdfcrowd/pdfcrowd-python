@@ -43,7 +43,7 @@ import os
 import ssl
 import time
 
-__version__ = '5.6.1'
+__version__ = '5.6.2'
 
 # ======================================
 # === PDFCrowd legacy version client ===
@@ -698,7 +698,7 @@ else:
 
 HOST = os.environ.get('PDFCROWD_HOST', 'api.pdfcrowd.com')
 MULTIPART_BOUNDARY = '----------ThIs_Is_tHe_bOUnDary_$'
-CLIENT_VERSION = '5.6.1'
+CLIENT_VERSION = '5.6.2'
 
 def get_utf8_string(string):
     if PYTHON_3:
@@ -717,7 +717,7 @@ def create_invalid_value_message(value, field, converter, hint, id):
     message = "Invalid value '%s' for %s." % (value, field)
     if hint:
         message += " " + hint
-    return message + ' ' + "Details: https://www.pdfcrowd.com/doc/api/%s/python/ref/#%s" % (converter, id)
+    return message + ' ' + "Details: https://www.pdfcrowd.com/api/%s-python/ref/#%s" % (converter, id)
 
 def iter_items(dictionary):
     if PYTHON_3:
@@ -791,7 +791,7 @@ class ConnectionHelper:
         self._reset_response_data()
         self.setProxy(None, None, None, None)
         self.setUseHttp(False)
-        self.setUserAgent('pdfcrowd_python_client/5.6.1 (https://pdfcrowd.com)')
+        self.setUserAgent('pdfcrowd_python_client/5.6.2 (https://pdfcrowd.com)')
 
         self.retry_count = 1
         self.converter_version = '20.10'

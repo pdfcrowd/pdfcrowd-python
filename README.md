@@ -22,8 +22,8 @@ Or you can download/clone the client and run
 
 ## Learn more
 
-* API Home:  <https://pdfcrowd.com/doc/api/>
-* API Reference:  <https://pdfcrowd.com/doc/api/html-to-pdf/python/>
+* API Home:  <https://pdfcrowd.com/api/>
+* API Reference:  <https://pdfcrowd.com/api/html-to-pdf-python/>
 * Interactive API Playground:
   * Python: <https://pdfcrowd.com/playground/html-to-pdf/?lang=python>
   * Django: <https://pdfcrowd.com/playground/html-to-pdf/?lang=wf-django>
