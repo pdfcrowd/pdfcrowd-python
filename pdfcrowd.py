@@ -43,7 +43,7 @@ import os
 import ssl
 import time
 
-__version__ = '5.7.0'
+__version__ = '5.8.0'
 
 # ======================================
 # === PDFCrowd legacy version client ===
@@ -698,7 +698,7 @@ else:
 
 HOST = os.environ.get('PDFCROWD_HOST', 'api.pdfcrowd.com')
 MULTIPART_BOUNDARY = '----------ThIs_Is_tHe_bOUnDary_$'
-CLIENT_VERSION = '5.7.0'
+CLIENT_VERSION = '5.8.0'
 
 def get_utf8_string(string):
     if PYTHON_3:
@@ -791,7 +791,7 @@ class ConnectionHelper:
         self._reset_response_data()
         self.setProxy(None, None, None, None)
         self.setUseHttp(False)
-        self.setUserAgent('pdfcrowd_python_client/5.7.0 (https://pdfcrowd.com)')
+        self.setUserAgent('pdfcrowd_python_client/5.8.0 (https://pdfcrowd.com)')
 
         self.retry_count = 1
         self.converter_version = '20.10'
@@ -1545,9 +1545,9 @@ class HtmlToPdfClient:
 
     def setPageWatermark(self, watermark):
         """
-        Apply the first page of the watermark PDF to every page of the output PDF.
+        Apply a watermark to each page of the output PDF file. A watermark can be either a PDF or an image. If a multi-page file (PDF or TIFF) is used, the first page is used as the watermark.
 
-        watermark - The file path to a local watermark PDF file. The file must exist and not be empty.
+        watermark - The file path to a local file. The file must exist and not be empty.
         return - The converter object.
         """
         if not (os.path.isfile(watermark) and os.path.getsize(watermark)):
@@ -1558,7 +1558,7 @@ class HtmlToPdfClient:
 
     def setPageWatermarkUrl(self, url):
         """
-        Load a watermark PDF from the specified URL and apply the first page of the watermark PDF to every page of the output PDF.
+        Load a file from the specified URL and apply the file as a watermark to each page of the output PDF. A watermark can be either a PDF or an image. If a multi-page file (PDF or TIFF) is used, the first page is used as the watermark.
 
         url - The supported protocols are http:// and https://.
         return - The converter object.
@@ -1571,9 +1571,9 @@ class HtmlToPdfClient:
 
     def setMultipageWatermark(self, watermark):
         """
-        Apply each page of the specified watermark PDF to the corresponding page of the output PDF.
+        Apply each page of a watermark to the corresponding page of the output PDF. A watermark can be either a PDF or an image.
 
-        watermark - The file path to a local watermark PDF file. The file must exist and not be empty.
+        watermark - The file path to a local file. The file must exist and not be empty.
         return - The converter object.
         """
         if not (os.path.isfile(watermark) and os.path.getsize(watermark)):
@@ -1584,7 +1584,7 @@ class HtmlToPdfClient:
 
     def setMultipageWatermarkUrl(self, url):
         """
-        Load a watermark PDF from the specified URL and apply each page of the specified watermark PDF to the corresponding page of the output PDF.
+        Load a file from the specified URL and apply each page of the file as a watermark to the corresponding page of the output PDF. A watermark can be either a PDF or an image.
 
         url - The supported protocols are http:// and https://.
         return - The converter object.
@@ -1597,9 +1597,9 @@ class HtmlToPdfClient:
 
     def setPageBackground(self, background):
         """
-        Apply the first page of the specified PDF to the background of every page of the output PDF.
+        Apply a background to each page of the output PDF file. A background can be either a PDF or an image. If a multi-page file (PDF or TIFF) is used, the first page is used as the background.
 
-        background - The file path to a local background PDF file. The file must exist and not be empty.
+        background - The file path to a local file. The file must exist and not be empty.
         return - The converter object.
         """
         if not (os.path.isfile(background) and os.path.getsize(background)):
@@ -1610,7 +1610,7 @@ class HtmlToPdfClient:
 
     def setPageBackgroundUrl(self, url):
         """
-        Load a background PDF from the specified URL and apply the first page of the background PDF to every page of the output PDF.
+        Load a file from the specified URL and apply the file as a background to each page of the output PDF. A background can be either a PDF or an image. If a multi-page file (PDF or TIFF) is used, the first page is used as the background.
 
         url - The supported protocols are http:// and https://.
         return - The converter object.
@@ -1623,9 +1623,9 @@ class HtmlToPdfClient:
 
     def setMultipageBackground(self, background):
         """
-        Apply each page of the specified PDF to the background of the corresponding page of the output PDF.
+        Apply each page of a background to the corresponding page of the output PDF. A background can be either a PDF or an image.
 
-        background - The file path to a local background PDF file. The file must exist and not be empty.
+        background - The file path to a local file. The file must exist and not be empty.
         return - The converter object.
         """
         if not (os.path.isfile(background) and os.path.getsize(background)):
@@ -1636,7 +1636,7 @@ class HtmlToPdfClient:
 
     def setMultipageBackgroundUrl(self, url):
         """
-        Load a background PDF from the specified URL and apply each page of the specified background PDF to the corresponding page of the output PDF.
+        Load a file from the specified URL and apply each page of the file as a background to the corresponding page of the output PDF. A background can be either a PDF or an image.
 
         url - The supported protocols are http:// and https://.
         return - The converter object.
@@ -3970,9 +3970,9 @@ class PdfToPdfClient:
 
     def setPageWatermark(self, watermark):
         """
-        Apply the first page of the watermark PDF to every page of the output PDF.
+        Apply a watermark to each page of the output PDF file. A watermark can be either a PDF or an image. If a multi-page file (PDF or TIFF) is used, the first page is used as the watermark.
 
-        watermark - The file path to a local watermark PDF file. The file must exist and not be empty.
+        watermark - The file path to a local file. The file must exist and not be empty.
         return - The converter object.
         """
         if not (os.path.isfile(watermark) and os.path.getsize(watermark)):
@@ -3983,7 +3983,7 @@ class PdfToPdfClient:
 
     def setPageWatermarkUrl(self, url):
         """
-        Load a watermark PDF from the specified URL and apply the first page of the watermark PDF to every page of the output PDF.
+        Load a file from the specified URL and apply the file as a watermark to each page of the output PDF. A watermark can be either a PDF or an image. If a multi-page file (PDF or TIFF) is used, the first page is used as the watermark.
 
         url - The supported protocols are http:// and https://.
         return - The converter object.
@@ -3996,9 +3996,9 @@ class PdfToPdfClient:
 
     def setMultipageWatermark(self, watermark):
         """
-        Apply each page of the specified watermark PDF to the corresponding page of the output PDF.
+        Apply each page of a watermark to the corresponding page of the output PDF. A watermark can be either a PDF or an image.
 
-        watermark - The file path to a local watermark PDF file. The file must exist and not be empty.
+        watermark - The file path to a local file. The file must exist and not be empty.
         return - The converter object.
         """
         if not (os.path.isfile(watermark) and os.path.getsize(watermark)):
@@ -4009,7 +4009,7 @@ class PdfToPdfClient:
 
     def setMultipageWatermarkUrl(self, url):
         """
-        Load a watermark PDF from the specified URL and apply each page of the specified watermark PDF to the corresponding page of the output PDF.
+        Load a file from the specified URL and apply each page of the file as a watermark to the corresponding page of the output PDF. A watermark can be either a PDF or an image.
 
         url - The supported protocols are http:// and https://.
         return - The converter object.
@@ -4022,9 +4022,9 @@ class PdfToPdfClient:
 
     def setPageBackground(self, background):
         """
-        Apply the first page of the specified PDF to the background of every page of the output PDF.
+        Apply a background to each page of the output PDF file. A background can be either a PDF or an image. If a multi-page file (PDF or TIFF) is used, the first page is used as the background.
 
-        background - The file path to a local background PDF file. The file must exist and not be empty.
+        background - The file path to a local file. The file must exist and not be empty.
         return - The converter object.
         """
         if not (os.path.isfile(background) and os.path.getsize(background)):
@@ -4035,7 +4035,7 @@ class PdfToPdfClient:
 
     def setPageBackgroundUrl(self, url):
         """
-        Load a background PDF from the specified URL and apply the first page of the background PDF to every page of the output PDF.
+        Load a file from the specified URL and apply the file as a background to each page of the output PDF. A background can be either a PDF or an image. If a multi-page file (PDF or TIFF) is used, the first page is used as the background.
 
         url - The supported protocols are http:// and https://.
         return - The converter object.
@@ -4048,9 +4048,9 @@ class PdfToPdfClient:
 
     def setMultipageBackground(self, background):
         """
-        Apply each page of the specified PDF to the background of the corresponding page of the output PDF.
+        Apply each page of a background to the corresponding page of the output PDF. A background can be either a PDF or an image.
 
-        background - The file path to a local background PDF file. The file must exist and not be empty.
+        background - The file path to a local file. The file must exist and not be empty.
         return - The converter object.
         """
         if not (os.path.isfile(background) and os.path.getsize(background)):
@@ -4061,7 +4061,7 @@ class PdfToPdfClient:
 
     def setMultipageBackgroundUrl(self, url):
         """
-        Load a background PDF from the specified URL and apply each page of the specified background PDF to the corresponding page of the output PDF.
+        Load a file from the specified URL and apply each page of the file as a background to the corresponding page of the output PDF. A background can be either a PDF or an image.
 
         url - The supported protocols are http:// and https://.
         return - The converter object.
@@ -5458,28 +5458,28 @@ available converters:
                             help = 'Set the scaling factor (zoom) for the header and footer. The percentage value. The value must be in the range 10-500. Default is 100.'
 )
         parser.add_argument('-page-watermark',
-                            help = 'Apply the first page of the watermark PDF to every page of the output PDF. The file path to a local watermark PDF file. The file must exist and not be empty.'
+                            help = 'Apply a watermark to each page of the output PDF file. A watermark can be either a PDF or an image. If a multi-page file (PDF or TIFF) is used, the first page is used as the watermark. The file path to a local file. The file must exist and not be empty.'
 )
         parser.add_argument('-page-watermark-url',
-                            help = 'Load a watermark PDF from the specified URL and apply the first page of the watermark PDF to every page of the output PDF. The supported protocols are http:// and https://.'
+                            help = 'Load a file from the specified URL and apply the file as a watermark to each page of the output PDF. A watermark can be either a PDF or an image. If a multi-page file (PDF or TIFF) is used, the first page is used as the watermark. The supported protocols are http:// and https://.'
 )
         parser.add_argument('-multipage-watermark',
-                            help = 'Apply each page of the specified watermark PDF to the corresponding page of the output PDF. The file path to a local watermark PDF file. The file must exist and not be empty.'
+                            help = 'Apply each page of a watermark to the corresponding page of the output PDF. A watermark can be either a PDF or an image. The file path to a local file. The file must exist and not be empty.'
 )
         parser.add_argument('-multipage-watermark-url',
-                            help = 'Load a watermark PDF from the specified URL and apply each page of the specified watermark PDF to the corresponding page of the output PDF. The supported protocols are http:// and https://.'
+                            help = 'Load a file from the specified URL and apply each page of the file as a watermark to the corresponding page of the output PDF. A watermark can be either a PDF or an image. The supported protocols are http:// and https://.'
 )
         parser.add_argument('-page-background',
-                            help = 'Apply the first page of the specified PDF to the background of every page of the output PDF. The file path to a local background PDF file. The file must exist and not be empty.'
+                            help = 'Apply a background to each page of the output PDF file. A background can be either a PDF or an image. If a multi-page file (PDF or TIFF) is used, the first page is used as the background. The file path to a local file. The file must exist and not be empty.'
 )
         parser.add_argument('-page-background-url',
-                            help = 'Load a background PDF from the specified URL and apply the first page of the background PDF to every page of the output PDF. The supported protocols are http:// and https://.'
+                            help = 'Load a file from the specified URL and apply the file as a background to each page of the output PDF. A background can be either a PDF or an image. If a multi-page file (PDF or TIFF) is used, the first page is used as the background. The supported protocols are http:// and https://.'
 )
         parser.add_argument('-multipage-background',
-                            help = 'Apply each page of the specified PDF to the background of the corresponding page of the output PDF. The file path to a local background PDF file. The file must exist and not be empty.'
+                            help = 'Apply each page of a background to the corresponding page of the output PDF. A background can be either a PDF or an image. The file path to a local file. The file must exist and not be empty.'
 )
         parser.add_argument('-multipage-background-url',
-                            help = 'Load a background PDF from the specified URL and apply each page of the specified background PDF to the corresponding page of the output PDF. The supported protocols are http:// and https://.'
+                            help = 'Load a file from the specified URL and apply each page of the file as a background to the corresponding page of the output PDF. A background can be either a PDF or an image. The supported protocols are http:// and https://.'
 )
         parser.add_argument('-page-background-color',
                             help = 'The page background color in RGB or RGBA hexadecimal format. The color fills the entire page regardless of the margins. The value must be in RRGGBB or RRGGBBAA hexadecimal format.'
@@ -6036,28 +6036,28 @@ available converters:
                             help = 'Password to open the encrypted PDF file. The input PDF password.'
 )
         parser.add_argument('-page-watermark',
-                            help = 'Apply the first page of the watermark PDF to every page of the output PDF. The file path to a local watermark PDF file. The file must exist and not be empty.'
+                            help = 'Apply a watermark to each page of the output PDF file. A watermark can be either a PDF or an image. If a multi-page file (PDF or TIFF) is used, the first page is used as the watermark. The file path to a local file. The file must exist and not be empty.'
 )
         parser.add_argument('-page-watermark-url',
-                            help = 'Load a watermark PDF from the specified URL and apply the first page of the watermark PDF to every page of the output PDF. The supported protocols are http:// and https://.'
+                            help = 'Load a file from the specified URL and apply the file as a watermark to each page of the output PDF. A watermark can be either a PDF or an image. If a multi-page file (PDF or TIFF) is used, the first page is used as the watermark. The supported protocols are http:// and https://.'
 )
         parser.add_argument('-multipage-watermark',
-                            help = 'Apply each page of the specified watermark PDF to the corresponding page of the output PDF. The file path to a local watermark PDF file. The file must exist and not be empty.'
+                            help = 'Apply each page of a watermark to the corresponding page of the output PDF. A watermark can be either a PDF or an image. The file path to a local file. The file must exist and not be empty.'
 )
         parser.add_argument('-multipage-watermark-url',
-                            help = 'Load a watermark PDF from the specified URL and apply each page of the specified watermark PDF to the corresponding page of the output PDF. The supported protocols are http:// and https://.'
+                            help = 'Load a file from the specified URL and apply each page of the file as a watermark to the corresponding page of the output PDF. A watermark can be either a PDF or an image. The supported protocols are http:// and https://.'
 )
         parser.add_argument('-page-background',
-                            help = 'Apply the first page of the specified PDF to the background of every page of the output PDF. The file path to a local background PDF file. The file must exist and not be empty.'
+                            help = 'Apply a background to each page of the output PDF file. A background can be either a PDF or an image. If a multi-page file (PDF or TIFF) is used, the first page is used as the background. The file path to a local file. The file must exist and not be empty.'
 )
         parser.add_argument('-page-background-url',
-                            help = 'Load a background PDF from the specified URL and apply the first page of the background PDF to every page of the output PDF. The supported protocols are http:// and https://.'
+                            help = 'Load a file from the specified URL and apply the file as a background to each page of the output PDF. A background can be either a PDF or an image. If a multi-page file (PDF or TIFF) is used, the first page is used as the background. The supported protocols are http:// and https://.'
 )
         parser.add_argument('-multipage-background',
-                            help = 'Apply each page of the specified PDF to the background of the corresponding page of the output PDF. The file path to a local background PDF file. The file must exist and not be empty.'
+                            help = 'Apply each page of a background to the corresponding page of the output PDF. A background can be either a PDF or an image. The file path to a local file. The file must exist and not be empty.'
 )
         parser.add_argument('-multipage-background-url',
-                            help = 'Load a background PDF from the specified URL and apply each page of the specified background PDF to the corresponding page of the output PDF. The supported protocols are http:// and https://.'
+                            help = 'Load a file from the specified URL and apply each page of the file as a background to the corresponding page of the output PDF. A background can be either a PDF or an image. The supported protocols are http:// and https://.'
 )
         parser.add_argument('-linearize',
                             action = 'store_true',
