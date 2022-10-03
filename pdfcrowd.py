@@ -43,7 +43,7 @@ import os
 import ssl
 import time
 
-__version__ = '5.8.0'
+__version__ = '5.9.0'
 
 # ======================================
 # === PDFCrowd legacy version client ===
@@ -698,7 +698,7 @@ else:
 
 HOST = os.environ.get('PDFCROWD_HOST', 'api.pdfcrowd.com')
 MULTIPART_BOUNDARY = '----------ThIs_Is_tHe_bOUnDary_$'
-CLIENT_VERSION = '5.8.0'
+CLIENT_VERSION = '5.9.0'
 
 def get_utf8_string(string):
     if PYTHON_3:
@@ -791,7 +791,7 @@ class ConnectionHelper:
         self._reset_response_data()
         self.setProxy(None, None, None, None)
         self.setUseHttp(False)
-        self.setUserAgent('pdfcrowd_python_client/5.8.0 (https://pdfcrowd.com)')
+        self.setUserAgent('pdfcrowd_python_client/5.9.0 (https://pdfcrowd.com)')
 
         self.retry_count = 1
         self.converter_version = '20.10'
@@ -802,6 +802,7 @@ class ConnectionHelper:
         self.consumed_credits = 0
         self.job_id = ''
         self.page_count = 0
+        self.total_page_count = 0
         self.output_size = 0
         self.retry = 0
 
@@ -867,6 +868,7 @@ class ConnectionHelper:
             self.consumed_credits = int(response.getheader('X-Pdfcrowd-Consumed-Credits', 0))
             self.job_id = response.getheader('X-Pdfcrowd-Job-Id', '')
             self.page_count = int(response.getheader('X-Pdfcrowd-Pages', 0))
+            self.total_page_count = int(response.getheader('X-Pdfcrowd-Total-Pages', 0))
             self.output_size = int(response.getheader('X-Pdfcrowd-Output-Size', 0))
 
             if (os.environ.get('PDFCROWD_UNIT_TEST_MODE') and
@@ -936,6 +938,9 @@ class ConnectionHelper:
 
     def getPageCount(self):
         return self.page_count
+
+    def getTotalPageCount(self):
+        return self.total_page_count
 
     def getOutputSize(self):
         return self.output_size
@@ -1950,11 +1955,11 @@ class HtmlToPdfClient:
         """
         The input HTML is automatically enhanced to improve the readability.
 
-        enhancements - Allowed values are none, readability-v1, readability-v2, readability-v3.
+        enhancements - Allowed values are none, readability-v1, readability-v2, readability-v3, readability-v4.
         return - The converter object.
         """
-        if not re.match('(?i)^(none|readability-v1|readability-v2|readability-v3)$', enhancements):
-            raise Error(create_invalid_value_message(enhancements, "setReadabilityEnhancements", "html-to-pdf", 'Allowed values are none, readability-v1, readability-v2, readability-v3.', "set_readability_enhancements"), 470);
+        if not re.match('(?i)^(none|readability-v1|readability-v2|readability-v3|readability-v4)$', enhancements):
+            raise Error(create_invalid_value_message(enhancements, "setReadabilityEnhancements", "html-to-pdf", 'Allowed values are none, readability-v1, readability-v2, readability-v3, readability-v4.', "set_readability_enhancements"), 470);
         
         self.fields['readability_enhancements'] = get_utf8_string(enhancements)
         return self
@@ -2466,10 +2471,17 @@ class HtmlToPdfClient:
 
     def getPageCount(self):
         """
-        Get the total number of pages in the output document.
+        Get the number of pages in the output document.
         return - The page count.
         """
         return self.helper.getPageCount()
+
+    def getTotalPageCount(self):
+        """
+        Get the total number of pages in the original output document, including the pages excluded by setPrintPageRange().
+        return - The total page count.
+        """
+        return self.helper.getTotalPageCount()
 
     def getOutputSize(self):
         """
@@ -3183,11 +3195,11 @@ class HtmlToImageClient:
         """
         The input HTML is automatically enhanced to improve the readability.
 
-        enhancements - Allowed values are none, readability-v1, readability-v2, readability-v3.
+        enhancements - Allowed values are none, readability-v1, readability-v2, readability-v3, readability-v4.
         return - The converter object.
         """
-        if not re.match('(?i)^(none|readability-v1|readability-v2|readability-v3)$', enhancements):
-            raise Error(create_invalid_value_message(enhancements, "setReadabilityEnhancements", "html-to-image", 'Allowed values are none, readability-v1, readability-v2, readability-v3.', "set_readability_enhancements"), 470);
+        if not re.match('(?i)^(none|readability-v1|readability-v2|readability-v3|readability-v4)$', enhancements):
+            raise Error(create_invalid_value_message(enhancements, "setReadabilityEnhancements", "html-to-image", 'Allowed values are none, readability-v1, readability-v2, readability-v3, readability-v4.', "set_readability_enhancements"), 470);
         
         self.fields['readability_enhancements'] = get_utf8_string(enhancements)
         return self
@@ -4373,7 +4385,7 @@ class PdfToPdfClient:
 
     def getPageCount(self):
         """
-        Get the total number of pages in the output document.
+        Get the number of pages in the output document.
         return - The page count.
         """
         return self.helper.getPageCount()
@@ -5192,7 +5204,7 @@ class PdfToHtmlClient:
 
     def getPageCount(self):
         """
-        Get the total number of pages in the output document.
+        Get the number of pages in the output document.
         return - The page count.
         """
         return self.helper.getPageCount()
@@ -5576,7 +5588,7 @@ available converters:
                             help = 'The main HTML element for conversion is detected automatically.'
 )
         parser.add_argument('-readability-enhancements',
-                            help = 'The input HTML is automatically enhanced to improve the readability. Allowed values are none, readability-v1, readability-v2, readability-v3. Default is none.'
+                            help = 'The input HTML is automatically enhanced to improve the readability. Allowed values are none, readability-v1, readability-v2, readability-v3, readability-v4. Default is none.'
 )
         parser.add_argument('-viewport-width',
                             help = 'Set the viewport width in pixels. The viewport is the user\'s visible area of the page. The value must be in the range 96-65000. Default is 1024.'
@@ -5891,7 +5903,7 @@ available converters:
                             help = 'The main HTML element for conversion is detected automatically.'
 )
         parser.add_argument('-readability-enhancements',
-                            help = 'The input HTML is automatically enhanced to improve the readability. Allowed values are none, readability-v1, readability-v2, readability-v3. Default is none.'
+                            help = 'The input HTML is automatically enhanced to improve the readability. Allowed values are none, readability-v1, readability-v2, readability-v3, readability-v4. Default is none.'
 )
         parser.add_argument('-screenshot-width',
                             help = 'Set the output image width in pixels. The value must be in the range 96-65000. Default is 1024.'
