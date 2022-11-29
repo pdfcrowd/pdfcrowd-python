@@ -43,7 +43,7 @@ import os
 import ssl
 import time
 
-__version__ = '5.9.0'
+__version__ = '5.10.0'
 
 # ======================================
 # === PDFCrowd legacy version client ===
@@ -698,7 +698,7 @@ else:
 
 HOST = os.environ.get('PDFCROWD_HOST', 'api.pdfcrowd.com')
 MULTIPART_BOUNDARY = '----------ThIs_Is_tHe_bOUnDary_$'
-CLIENT_VERSION = '5.9.0'
+CLIENT_VERSION = '5.10.0'
 
 def get_utf8_string(string):
     if PYTHON_3:
@@ -791,7 +791,7 @@ class ConnectionHelper:
         self._reset_response_data()
         self.setProxy(None, None, None, None)
         self.setUseHttp(False)
-        self.setUserAgent('pdfcrowd_python_client/5.9.0 (https://pdfcrowd.com)')
+        self.setUserAgent('pdfcrowd_python_client/5.10.0 (https://pdfcrowd.com)')
 
         self.retry_count = 1
         self.converter_version = '20.10'
@@ -2019,11 +2019,11 @@ class HtmlToPdfClient:
         """
         Specifies the scaling mode used for fitting the HTML contents to the print area.
 
-        mode - The smart scaling mode. Allowed values are default, disabled, viewport-fit, content-fit, single-page-fit, mode1.
+        mode - The smart scaling mode. Allowed values are default, disabled, viewport-fit, content-fit, single-page-fit, single-page-fit-ex, mode1.
         return - The converter object.
         """
-        if not re.match('(?i)^(default|disabled|viewport-fit|content-fit|single-page-fit|mode1)$', mode):
-            raise Error(create_invalid_value_message(mode, "setSmartScalingMode", "html-to-pdf", 'Allowed values are default, disabled, viewport-fit, content-fit, single-page-fit, mode1.', "set_smart_scaling_mode"), 470);
+        if not re.match('(?i)^(default|disabled|viewport-fit|content-fit|single-page-fit|single-page-fit-ex|mode1)$', mode):
+            raise Error(create_invalid_value_message(mode, "setSmartScalingMode", "html-to-pdf", 'Allowed values are default, disabled, viewport-fit, content-fit, single-page-fit, single-page-fit-ex, mode1.', "set_smart_scaling_mode"), 470);
         
         self.fields['smart_scaling_mode'] = get_utf8_string(mode)
         return self
@@ -4680,6 +4680,345 @@ class ImageToPdfClient:
         self.fields['rotate'] = get_utf8_string(rotate)
         return self
 
+    def setPageWatermark(self, watermark):
+        """
+        Apply a watermark to each page of the output PDF file. A watermark can be either a PDF or an image. If a multi-page file (PDF or TIFF) is used, the first page is used as the watermark.
+
+        watermark - The file path to a local file. The file must exist and not be empty.
+        return - The converter object.
+        """
+        if not (os.path.isfile(watermark) and os.path.getsize(watermark)):
+            raise Error(create_invalid_value_message(watermark, "setPageWatermark", "image-to-pdf", 'The file must exist and not be empty.', "set_page_watermark"), 470);
+        
+        self.files['page_watermark'] = get_utf8_string(watermark)
+        return self
+
+    def setPageWatermarkUrl(self, url):
+        """
+        Load a file from the specified URL and apply the file as a watermark to each page of the output PDF. A watermark can be either a PDF or an image. If a multi-page file (PDF or TIFF) is used, the first page is used as the watermark.
+
+        url - The supported protocols are http:// and https://.
+        return - The converter object.
+        """
+        if not re.match('(?i)^https?://.*$', url):
+            raise Error(create_invalid_value_message(url, "setPageWatermarkUrl", "image-to-pdf", 'The supported protocols are http:// and https://.', "set_page_watermark_url"), 470);
+        
+        self.fields['page_watermark_url'] = get_utf8_string(url)
+        return self
+
+    def setMultipageWatermark(self, watermark):
+        """
+        Apply each page of a watermark to the corresponding page of the output PDF. A watermark can be either a PDF or an image.
+
+        watermark - The file path to a local file. The file must exist and not be empty.
+        return - The converter object.
+        """
+        if not (os.path.isfile(watermark) and os.path.getsize(watermark)):
+            raise Error(create_invalid_value_message(watermark, "setMultipageWatermark", "image-to-pdf", 'The file must exist and not be empty.', "set_multipage_watermark"), 470);
+        
+        self.files['multipage_watermark'] = get_utf8_string(watermark)
+        return self
+
+    def setMultipageWatermarkUrl(self, url):
+        """
+        Load a file from the specified URL and apply each page of the file as a watermark to the corresponding page of the output PDF. A watermark can be either a PDF or an image.
+
+        url - The supported protocols are http:// and https://.
+        return - The converter object.
+        """
+        if not re.match('(?i)^https?://.*$', url):
+            raise Error(create_invalid_value_message(url, "setMultipageWatermarkUrl", "image-to-pdf", 'The supported protocols are http:// and https://.', "set_multipage_watermark_url"), 470);
+        
+        self.fields['multipage_watermark_url'] = get_utf8_string(url)
+        return self
+
+    def setPageBackground(self, background):
+        """
+        Apply a background to each page of the output PDF file. A background can be either a PDF or an image. If a multi-page file (PDF or TIFF) is used, the first page is used as the background.
+
+        background - The file path to a local file. The file must exist and not be empty.
+        return - The converter object.
+        """
+        if not (os.path.isfile(background) and os.path.getsize(background)):
+            raise Error(create_invalid_value_message(background, "setPageBackground", "image-to-pdf", 'The file must exist and not be empty.', "set_page_background"), 470);
+        
+        self.files['page_background'] = get_utf8_string(background)
+        return self
+
+    def setPageBackgroundUrl(self, url):
+        """
+        Load a file from the specified URL and apply the file as a background to each page of the output PDF. A background can be either a PDF or an image. If a multi-page file (PDF or TIFF) is used, the first page is used as the background.
+
+        url - The supported protocols are http:// and https://.
+        return - The converter object.
+        """
+        if not re.match('(?i)^https?://.*$', url):
+            raise Error(create_invalid_value_message(url, "setPageBackgroundUrl", "image-to-pdf", 'The supported protocols are http:// and https://.', "set_page_background_url"), 470);
+        
+        self.fields['page_background_url'] = get_utf8_string(url)
+        return self
+
+    def setMultipageBackground(self, background):
+        """
+        Apply each page of a background to the corresponding page of the output PDF. A background can be either a PDF or an image.
+
+        background - The file path to a local file. The file must exist and not be empty.
+        return - The converter object.
+        """
+        if not (os.path.isfile(background) and os.path.getsize(background)):
+            raise Error(create_invalid_value_message(background, "setMultipageBackground", "image-to-pdf", 'The file must exist and not be empty.', "set_multipage_background"), 470);
+        
+        self.files['multipage_background'] = get_utf8_string(background)
+        return self
+
+    def setMultipageBackgroundUrl(self, url):
+        """
+        Load a file from the specified URL and apply each page of the file as a background to the corresponding page of the output PDF. A background can be either a PDF or an image.
+
+        url - The supported protocols are http:// and https://.
+        return - The converter object.
+        """
+        if not re.match('(?i)^https?://.*$', url):
+            raise Error(create_invalid_value_message(url, "setMultipageBackgroundUrl", "image-to-pdf", 'The supported protocols are http:// and https://.', "set_multipage_background_url"), 470);
+        
+        self.fields['multipage_background_url'] = get_utf8_string(url)
+        return self
+
+    def setLinearize(self, value):
+        """
+        Create linearized PDF. This is also known as Fast Web View.
+
+        value - Set to True to create linearized PDF.
+        return - The converter object.
+        """
+        self.fields['linearize'] = value
+        return self
+
+    def setEncrypt(self, value):
+        """
+        Encrypt the PDF. This prevents search engines from indexing the contents.
+
+        value - Set to True to enable PDF encryption.
+        return - The converter object.
+        """
+        self.fields['encrypt'] = value
+        return self
+
+    def setUserPassword(self, password):
+        """
+        Protect the PDF with a user password. When a PDF has a user password, it must be supplied in order to view the document and to perform operations allowed by the access permissions.
+
+        password - The user password.
+        return - The converter object.
+        """
+        self.fields['user_password'] = get_utf8_string(password)
+        return self
+
+    def setOwnerPassword(self, password):
+        """
+        Protect the PDF with an owner password. Supplying an owner password grants unlimited access to the PDF including changing the passwords and access permissions.
+
+        password - The owner password.
+        return - The converter object.
+        """
+        self.fields['owner_password'] = get_utf8_string(password)
+        return self
+
+    def setNoPrint(self, value):
+        """
+        Disallow printing of the output PDF.
+
+        value - Set to True to set the no-print flag in the output PDF.
+        return - The converter object.
+        """
+        self.fields['no_print'] = value
+        return self
+
+    def setNoModify(self, value):
+        """
+        Disallow modification of the output PDF.
+
+        value - Set to True to set the read-only only flag in the output PDF.
+        return - The converter object.
+        """
+        self.fields['no_modify'] = value
+        return self
+
+    def setNoCopy(self, value):
+        """
+        Disallow text and graphics extraction from the output PDF.
+
+        value - Set to True to set the no-copy flag in the output PDF.
+        return - The converter object.
+        """
+        self.fields['no_copy'] = value
+        return self
+
+    def setTitle(self, title):
+        """
+        Set the title of the PDF.
+
+        title - The title.
+        return - The converter object.
+        """
+        self.fields['title'] = get_utf8_string(title)
+        return self
+
+    def setSubject(self, subject):
+        """
+        Set the subject of the PDF.
+
+        subject - The subject.
+        return - The converter object.
+        """
+        self.fields['subject'] = get_utf8_string(subject)
+        return self
+
+    def setAuthor(self, author):
+        """
+        Set the author of the PDF.
+
+        author - The author.
+        return - The converter object.
+        """
+        self.fields['author'] = get_utf8_string(author)
+        return self
+
+    def setKeywords(self, keywords):
+        """
+        Associate keywords with the document.
+
+        keywords - The string with the keywords.
+        return - The converter object.
+        """
+        self.fields['keywords'] = get_utf8_string(keywords)
+        return self
+
+    def setPageLayout(self, layout):
+        """
+        Specify the page layout to be used when the document is opened.
+
+        layout - Allowed values are single-page, one-column, two-column-left, two-column-right.
+        return - The converter object.
+        """
+        if not re.match('(?i)^(single-page|one-column|two-column-left|two-column-right)$', layout):
+            raise Error(create_invalid_value_message(layout, "setPageLayout", "image-to-pdf", 'Allowed values are single-page, one-column, two-column-left, two-column-right.', "set_page_layout"), 470);
+        
+        self.fields['page_layout'] = get_utf8_string(layout)
+        return self
+
+    def setPageMode(self, mode):
+        """
+        Specify how the document should be displayed when opened.
+
+        mode - Allowed values are full-screen, thumbnails, outlines.
+        return - The converter object.
+        """
+        if not re.match('(?i)^(full-screen|thumbnails|outlines)$', mode):
+            raise Error(create_invalid_value_message(mode, "setPageMode", "image-to-pdf", 'Allowed values are full-screen, thumbnails, outlines.', "set_page_mode"), 470);
+        
+        self.fields['page_mode'] = get_utf8_string(mode)
+        return self
+
+    def setInitialZoomType(self, zoom_type):
+        """
+        Specify how the page should be displayed when opened.
+
+        zoom_type - Allowed values are fit-width, fit-height, fit-page.
+        return - The converter object.
+        """
+        if not re.match('(?i)^(fit-width|fit-height|fit-page)$', zoom_type):
+            raise Error(create_invalid_value_message(zoom_type, "setInitialZoomType", "image-to-pdf", 'Allowed values are fit-width, fit-height, fit-page.', "set_initial_zoom_type"), 470);
+        
+        self.fields['initial_zoom_type'] = get_utf8_string(zoom_type)
+        return self
+
+    def setInitialPage(self, page):
+        """
+        Display the specified page when the document is opened.
+
+        page - Must be a positive integer number.
+        return - The converter object.
+        """
+        if not (int(page) > 0):
+            raise Error(create_invalid_value_message(page, "setInitialPage", "image-to-pdf", 'Must be a positive integer number.', "set_initial_page"), 470);
+        
+        self.fields['initial_page'] = page
+        return self
+
+    def setInitialZoom(self, zoom):
+        """
+        Specify the initial page zoom in percents when the document is opened.
+
+        zoom - Must be a positive integer number.
+        return - The converter object.
+        """
+        if not (int(zoom) > 0):
+            raise Error(create_invalid_value_message(zoom, "setInitialZoom", "image-to-pdf", 'Must be a positive integer number.', "set_initial_zoom"), 470);
+        
+        self.fields['initial_zoom'] = zoom
+        return self
+
+    def setHideToolbar(self, value):
+        """
+        Specify whether to hide the viewer application's tool bars when the document is active.
+
+        value - Set to True to hide tool bars.
+        return - The converter object.
+        """
+        self.fields['hide_toolbar'] = value
+        return self
+
+    def setHideMenubar(self, value):
+        """
+        Specify whether to hide the viewer application's menu bar when the document is active.
+
+        value - Set to True to hide the menu bar.
+        return - The converter object.
+        """
+        self.fields['hide_menubar'] = value
+        return self
+
+    def setHideWindowUi(self, value):
+        """
+        Specify whether to hide user interface elements in the document's window (such as scroll bars and navigation controls), leaving only the document's contents displayed.
+
+        value - Set to True to hide ui elements.
+        return - The converter object.
+        """
+        self.fields['hide_window_ui'] = value
+        return self
+
+    def setFitWindow(self, value):
+        """
+        Specify whether to resize the document's window to fit the size of the first displayed page.
+
+        value - Set to True to resize the window.
+        return - The converter object.
+        """
+        self.fields['fit_window'] = value
+        return self
+
+    def setCenterWindow(self, value):
+        """
+        Specify whether to position the document's window in the center of the screen.
+
+        value - Set to True to center the window.
+        return - The converter object.
+        """
+        self.fields['center_window'] = value
+        return self
+
+    def setDisplayTitle(self, value):
+        """
+        Specify whether the window's title bar should display the document title. If false , the title bar should instead display the name of the PDF file containing the document.
+
+        value - Set to True to display the title.
+        return - The converter object.
+        """
+        self.fields['display_title'] = value
+        return self
+
     def setDebugLog(self, value):
         """
         Turn on the debug logging. Details about the conversion are stored in the debug log. The URL of the log can be obtained from the getDebugLogUrl method or available in conversion statistics.
@@ -5306,6 +5645,520 @@ class PdfToHtmlClient:
     def _isOutputTypeValid(self, file_path):
         extension = os.path.splitext(file_path)[1].lower()
         return (extension == '.zip') == self.isZippedOutput()
+class PdfToTextClient:
+    """
+    Conversion from PDF to text.
+    """
+
+    def __init__(self, user_name, api_key):
+        """
+        Constructor for the Pdfcrowd API client.
+
+        user_name - Your username at Pdfcrowd.
+        api_key - Your API key.
+        """
+        self.helper = ConnectionHelper(user_name, api_key)
+        self.fields = {
+            'input_format': 'pdf',
+            'output_format': 'txt'
+        }
+        self.file_id = 1
+        self.files = {}
+        self.raw_data = {}
+
+    def convertUrl(self, url):
+        """
+        Convert a PDF.
+
+        url - The address of the PDF to convert. The supported protocols are http:// and https://.
+        return - Byte array containing the conversion output.
+        """
+        if not re.match('(?i)^https?://.*$', url):
+            raise Error(create_invalid_value_message(url, "convertUrl", "pdf-to-text", 'The supported protocols are http:// and https://.', "convert_url"), 470);
+        
+        self.fields['url'] = get_utf8_string(url)
+        return self.helper.post(self.fields, self.files, self.raw_data)
+
+    def convertUrlToStream(self, url, out_stream):
+        """
+        Convert a PDF and write the result to an output stream.
+
+        url - The address of the PDF to convert. The supported protocols are http:// and https://.
+        out_stream - The output stream that will contain the conversion output.
+        """
+        if not re.match('(?i)^https?://.*$', url):
+            raise Error(create_invalid_value_message(url, "convertUrlToStream::url", "pdf-to-text", 'The supported protocols are http:// and https://.', "convert_url_to_stream"), 470);
+        
+        self.fields['url'] = get_utf8_string(url)
+        self.helper.post(self.fields, self.files, self.raw_data, out_stream)
+
+    def convertUrlToFile(self, url, file_path):
+        """
+        Convert a PDF and write the result to a local file.
+
+        url - The address of the PDF to convert. The supported protocols are http:// and https://.
+        file_path - The output file path. The string must not be empty.
+        """
+        if not (file_path):
+            raise Error(create_invalid_value_message(file_path, "convertUrlToFile::file_path", "pdf-to-text", 'The string must not be empty.', "convert_url_to_file"), 470);
+        
+        output_file = open(file_path, 'wb')
+        try:
+            self.convertUrlToStream(url, output_file)
+            output_file.close()
+        except Error:
+            output_file.close()
+            os.remove(file_path)
+            raise
+
+    def convertFile(self, file):
+        """
+        Convert a local file.
+
+        file - The path to a local file to convert. The file must exist and not be empty.
+        return - Byte array containing the conversion output.
+        """
+        if not (os.path.isfile(file) and os.path.getsize(file)):
+            raise Error(create_invalid_value_message(file, "convertFile", "pdf-to-text", 'The file must exist and not be empty.', "convert_file"), 470);
+        
+        self.files['file'] = get_utf8_string(file)
+        return self.helper.post(self.fields, self.files, self.raw_data)
+
+    def convertFileToStream(self, file, out_stream):
+        """
+        Convert a local file and write the result to an output stream.
+
+        file - The path to a local file to convert. The file must exist and not be empty.
+        out_stream - The output stream that will contain the conversion output.
+        """
+        if not (os.path.isfile(file) and os.path.getsize(file)):
+            raise Error(create_invalid_value_message(file, "convertFileToStream::file", "pdf-to-text", 'The file must exist and not be empty.', "convert_file_to_stream"), 470);
+        
+        self.files['file'] = get_utf8_string(file)
+        self.helper.post(self.fields, self.files, self.raw_data, out_stream)
+
+    def convertFileToFile(self, file, file_path):
+        """
+        Convert a local file and write the result to a local file.
+
+        file - The path to a local file to convert. The file must exist and not be empty.
+        file_path - The output file path. The string must not be empty.
+        """
+        if not (file_path):
+            raise Error(create_invalid_value_message(file_path, "convertFileToFile::file_path", "pdf-to-text", 'The string must not be empty.', "convert_file_to_file"), 470);
+        
+        output_file = open(file_path, 'wb')
+        try:
+            self.convertFileToStream(file, output_file)
+            output_file.close()
+        except Error:
+            output_file.close()
+            os.remove(file_path)
+            raise
+
+    def convertRawData(self, data):
+        """
+        Convert raw data.
+
+        data - The raw content to be converted.
+        return - Byte array with the output.
+        """
+        self.raw_data['file'] = data
+        return self.helper.post(self.fields, self.files, self.raw_data)
+
+    def convertRawDataToStream(self, data, out_stream):
+        """
+        Convert raw data and write the result to an output stream.
+
+        data - The raw content to be converted.
+        out_stream - The output stream that will contain the conversion output.
+        """
+        self.raw_data['file'] = data
+        self.helper.post(self.fields, self.files, self.raw_data, out_stream)
+
+    def convertRawDataToFile(self, data, file_path):
+        """
+        Convert raw data to a file.
+
+        data - The raw content to be converted.
+        file_path - The output file path. The string must not be empty.
+        """
+        if not (file_path):
+            raise Error(create_invalid_value_message(file_path, "convertRawDataToFile::file_path", "pdf-to-text", 'The string must not be empty.', "convert_raw_data_to_file"), 470);
+        
+        output_file = open(file_path, 'wb')
+        try:
+            self.convertRawDataToStream(data, output_file)
+            output_file.close()
+        except Error:
+            output_file.close()
+            os.remove(file_path)
+            raise
+
+    def convertStream(self, in_stream):
+        """
+        Convert the contents of an input stream.
+
+        in_stream - The input stream with source data.
+        return - Byte array containing the conversion output.
+        """
+        self.raw_data['stream'] = in_stream.read()
+        return self.helper.post(self.fields, self.files, self.raw_data)
+
+    def convertStreamToStream(self, in_stream, out_stream):
+        """
+        Convert the contents of an input stream and write the result to an output stream.
+
+        in_stream - The input stream with source data.
+        out_stream - The output stream that will contain the conversion output.
+        """
+        self.raw_data['stream'] = in_stream.read()
+        self.helper.post(self.fields, self.files, self.raw_data, out_stream)
+
+    def convertStreamToFile(self, in_stream, file_path):
+        """
+        Convert the contents of an input stream and write the result to a local file.
+
+        in_stream - The input stream with source data.
+        file_path - The output file path. The string must not be empty.
+        """
+        if not (file_path):
+            raise Error(create_invalid_value_message(file_path, "convertStreamToFile::file_path", "pdf-to-text", 'The string must not be empty.', "convert_stream_to_file"), 470);
+        
+        output_file = open(file_path, 'wb')
+        try:
+            self.convertStreamToStream(in_stream, output_file)
+            output_file.close()
+        except Error:
+            output_file.close()
+            os.remove(file_path)
+            raise
+
+    def setPdfPassword(self, password):
+        """
+        The password to open the encrypted PDF file.
+
+        password - The input PDF password.
+        return - The converter object.
+        """
+        self.fields['pdf_password'] = get_utf8_string(password)
+        return self
+
+    def setPrintPageRange(self, pages):
+        """
+        Set the page range to print.
+
+        pages - A comma separated list of page numbers or ranges.
+        return - The converter object.
+        """
+        if not re.match('^(?:\s*(?:\d+|(?:\d*\s*\-\s*\d+)|(?:\d+\s*\-\s*\d*))\s*,\s*)*\s*(?:\d+|(?:\d*\s*\-\s*\d+)|(?:\d+\s*\-\s*\d*))\s*$', pages):
+            raise Error(create_invalid_value_message(pages, "setPrintPageRange", "pdf-to-text", 'A comma separated list of page numbers or ranges.', "set_print_page_range"), 470);
+        
+        self.fields['print_page_range'] = get_utf8_string(pages)
+        return self
+
+    def setNoLayout(self, value):
+        """
+        Ignore the original PDF layout.
+
+        value - Set to True to ignore the layout.
+        return - The converter object.
+        """
+        self.fields['no_layout'] = value
+        return self
+
+    def setEol(self, eol):
+        """
+        The end-of-line convention for the text output.
+
+        eol - Allowed values are unix, dos, mac.
+        return - The converter object.
+        """
+        if not re.match('(?i)^(unix|dos|mac)$', eol):
+            raise Error(create_invalid_value_message(eol, "setEol", "pdf-to-text", 'Allowed values are unix, dos, mac.', "set_eol"), 470);
+        
+        self.fields['eol'] = get_utf8_string(eol)
+        return self
+
+    def setPageBreakMode(self, mode):
+        """
+        Specify the page break mode for the text output.
+
+        mode - Allowed values are none, default, custom.
+        return - The converter object.
+        """
+        if not re.match('(?i)^(none|default|custom)$', mode):
+            raise Error(create_invalid_value_message(mode, "setPageBreakMode", "pdf-to-text", 'Allowed values are none, default, custom.', "set_page_break_mode"), 470);
+        
+        self.fields['page_break_mode'] = get_utf8_string(mode)
+        return self
+
+    def setCustomPageBreak(self, page_break):
+        """
+        Specify the custom page break.
+
+        page_break - String to insert between the pages.
+        return - The converter object.
+        """
+        self.fields['custom_page_break'] = get_utf8_string(page_break)
+        return self
+
+    def setParagraphMode(self, mode):
+        """
+        Specify the paragraph detection mode.
+
+        mode - Allowed values are none, bounding-box, characters.
+        return - The converter object.
+        """
+        if not re.match('(?i)^(none|bounding-box|characters)$', mode):
+            raise Error(create_invalid_value_message(mode, "setParagraphMode", "pdf-to-text", 'Allowed values are none, bounding-box, characters.', "set_paragraph_mode"), 470);
+        
+        self.fields['paragraph_mode'] = get_utf8_string(mode)
+        return self
+
+    def setLineSpacingThreshold(self, threshold):
+        """
+        Set the maximum line spacing when the paragraph detection mode is enabled.
+
+        threshold - The value must be a positive integer percentage.
+        return - The converter object.
+        """
+        if not re.match('(?i)^0$|^[0-9]+%$', threshold):
+            raise Error(create_invalid_value_message(threshold, "setLineSpacingThreshold", "pdf-to-text", 'The value must be a positive integer percentage.', "set_line_spacing_threshold"), 470);
+        
+        self.fields['line_spacing_threshold'] = get_utf8_string(threshold)
+        return self
+
+    def setRemoveHyphenation(self, value):
+        """
+        Remove the hyphen character from the end of lines.
+
+        value - Set to True to remove hyphens.
+        return - The converter object.
+        """
+        self.fields['remove_hyphenation'] = value
+        return self
+
+    def setRemoveEmptyLines(self, value):
+        """
+        Remove empty lines from the text output.
+
+        value - Set to True to remove empty lines.
+        return - The converter object.
+        """
+        self.fields['remove_empty_lines'] = value
+        return self
+
+    def setCropAreaX(self, x):
+        """
+        Set the top left X coordinate of the crop area in points.
+
+        x - Must be a positive integer number or 0.
+        return - The converter object.
+        """
+        if not (int(x) >= 0):
+            raise Error(create_invalid_value_message(x, "setCropAreaX", "pdf-to-text", 'Must be a positive integer number or 0.', "set_crop_area_x"), 470);
+        
+        self.fields['crop_area_x'] = x
+        return self
+
+    def setCropAreaY(self, y):
+        """
+        Set the top left Y coordinate of the crop area in points.
+
+        y - Must be a positive integer number or 0.
+        return - The converter object.
+        """
+        if not (int(y) >= 0):
+            raise Error(create_invalid_value_message(y, "setCropAreaY", "pdf-to-text", 'Must be a positive integer number or 0.', "set_crop_area_y"), 470);
+        
+        self.fields['crop_area_y'] = y
+        return self
+
+    def setCropAreaWidth(self, width):
+        """
+        Set the width of the crop area in points.
+
+        width - Must be a positive integer number or 0.
+        return - The converter object.
+        """
+        if not (int(width) >= 0):
+            raise Error(create_invalid_value_message(width, "setCropAreaWidth", "pdf-to-text", 'Must be a positive integer number or 0.', "set_crop_area_width"), 470);
+        
+        self.fields['crop_area_width'] = width
+        return self
+
+    def setCropAreaHeight(self, height):
+        """
+        Set the height of the crop area in points.
+
+        height - Must be a positive integer number or 0.
+        return - The converter object.
+        """
+        if not (int(height) >= 0):
+            raise Error(create_invalid_value_message(height, "setCropAreaHeight", "pdf-to-text", 'Must be a positive integer number or 0.', "set_crop_area_height"), 470);
+        
+        self.fields['crop_area_height'] = height
+        return self
+
+    def setCropArea(self, x, y, width, height):
+        """
+        Set the crop area. It allows to extract just a part of a PDF page.
+
+        x - Set the top left X coordinate of the crop area in points. Must be a positive integer number or 0.
+        y - Set the top left Y coordinate of the crop area in points. Must be a positive integer number or 0.
+        width - Set the width of the crop area in points. Must be a positive integer number or 0.
+        height - Set the height of the crop area in points. Must be a positive integer number or 0.
+        return - The converter object.
+        """
+        self.setCropAreaX(x)
+        self.setCropAreaY(y)
+        self.setCropAreaWidth(width)
+        self.setCropAreaHeight(height)
+        return self
+
+    def setDebugLog(self, value):
+        """
+        Turn on the debug logging. Details about the conversion are stored in the debug log. The URL of the log can be obtained from the getDebugLogUrl method or available in conversion statistics.
+
+        value - Set to True to enable the debug logging.
+        return - The converter object.
+        """
+        self.fields['debug_log'] = value
+        return self
+
+    def getDebugLogUrl(self):
+        """
+        Get the URL of the debug log for the last conversion.
+        return - The link to the debug log.
+        """
+        return self.helper.getDebugLogUrl()
+
+    def getRemainingCreditCount(self):
+        """
+        Get the number of conversion credits available in your account.
+        This method can only be called after a call to one of the convertXtoY methods.
+        The returned value can differ from the actual count if you run parallel conversions.
+        The special value 999999 is returned if the information is not available.
+        return - The number of credits.
+        """
+        return self.helper.getRemainingCreditCount()
+
+    def getConsumedCreditCount(self):
+        """
+        Get the number of credits consumed by the last conversion.
+        return - The number of credits.
+        """
+        return self.helper.getConsumedCreditCount()
+
+    def getJobId(self):
+        """
+        Get the job id.
+        return - The unique job identifier.
+        """
+        return self.helper.getJobId()
+
+    def getPageCount(self):
+        """
+        Get the number of pages in the output document.
+        return - The page count.
+        """
+        return self.helper.getPageCount()
+
+    def getOutputSize(self):
+        """
+        Get the size of the output in bytes.
+        return - The count of bytes.
+        """
+        return self.helper.getOutputSize()
+
+    def getVersion(self):
+        """
+        Get the version details.
+        return - API version, converter version, and client version.
+        """
+        return 'client {}, API v2, converter {}'.format(CLIENT_VERSION, self.helper.getConverterVersion())
+
+    def setTag(self, tag):
+        """
+        Tag the conversion with a custom value. The tag is used in conversion statistics. A value longer than 32 characters is cut off.
+
+        tag - A string with the custom tag.
+        return - The converter object.
+        """
+        self.fields['tag'] = get_utf8_string(tag)
+        return self
+
+    def setHttpProxy(self, proxy):
+        """
+        A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTP scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
+
+        proxy - The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
+        return - The converter object.
+        """
+        if not re.match('(?i)^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z0-9]{1,}:\d+$', proxy):
+            raise Error(create_invalid_value_message(proxy, "setHttpProxy", "pdf-to-text", 'The value must have format DOMAIN_OR_IP_ADDRESS:PORT.', "set_http_proxy"), 470);
+        
+        self.fields['http_proxy'] = get_utf8_string(proxy)
+        return self
+
+    def setHttpsProxy(self, proxy):
+        """
+        A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTPS scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
+
+        proxy - The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
+        return - The converter object.
+        """
+        if not re.match('(?i)^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z0-9]{1,}:\d+$', proxy):
+            raise Error(create_invalid_value_message(proxy, "setHttpsProxy", "pdf-to-text", 'The value must have format DOMAIN_OR_IP_ADDRESS:PORT.', "set_https_proxy"), 470);
+        
+        self.fields['https_proxy'] = get_utf8_string(proxy)
+        return self
+
+    def setUseHttp(self, value):
+        """
+        Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API.
+        Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.
+
+        value - Set to True to use HTTP.
+        return - The converter object.
+        """
+        self.helper.setUseHttp(value)
+        return self
+
+    def setUserAgent(self, agent):
+        """
+        Set a custom user agent HTTP header. It can be useful if you are behind a proxy or a firewall.
+
+        agent - The user agent string.
+        return - The converter object.
+        """
+        self.helper.setUserAgent(agent)
+        return self
+
+    def setProxy(self, host, port, user_name, password):
+        """
+        Specifies an HTTP proxy that the API client library will use to connect to the internet.
+
+        host - The proxy hostname.
+        port - The proxy port.
+        user_name - The username.
+        password - The password.
+        return - The converter object.
+        """
+        self.helper.setProxy(host, port, user_name, password)
+        return self
+
+    def setRetryCount(self, count):
+        """
+        Specifies the number of automatic retries when the 502 HTTP status code is received. The 502 status code indicates a temporary network issue. This feature can be disabled by setting to 0.
+
+        count - Number of retries.
+        return - The converter object.
+        """
+        self.helper.setRetryCount(count)
+        return self
+
 
 def main(argv, converter_known = False):
     def show_help():
@@ -5320,6 +6173,7 @@ available converters:
   pdf2pdf - Conversion from PDF to PDF.
   image2pdf - Conversion from an image to PDF.
   pdf2html - Conversion from PDF to HTML.
+  pdf2text - Conversion from PDF to text.
         """)
 
     def term_error(message):
@@ -5369,170 +6223,119 @@ available converters:
         add_generic_args(parser)
 
         parser.add_argument('-zip-main-filename',
-                            help = 'Set the file name of the main HTML document stored in the input archive. If not specified, the first HTML file in the archive is used for conversion. Use this method if the input archive contains multiple HTML documents. The file name.'
-)
+                            help = 'Set the file name of the main HTML document stored in the input archive. If not specified, the first HTML file in the archive is used for conversion. Use this method if the input archive contains multiple HTML documents. The file name.')
         parser.add_argument('-page-size',
-                            help = 'Set the output page size. Allowed values are A0, A1, A2, A3, A4, A5, A6, Letter. Default is A4.'
-)
+                            help = 'Set the output page size. Allowed values are A0, A1, A2, A3, A4, A5, A6, Letter. Default is A4.')
         parser.add_argument('-page-width',
-                            help = 'Set the output page width. The safe maximum is 200in otherwise some PDF viewers may be unable to open the PDF. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt". Default is 8.27in.'
-)
+                            help = 'Set the output page width. The safe maximum is 200in otherwise some PDF viewers may be unable to open the PDF. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt". Default is 8.27in.')
         parser.add_argument('-page-height',
-                            help = 'Set the output page height. Use -1 for a single page PDF. The safe maximum is 200in otherwise some PDF viewers may be unable to open the PDF. The value must be -1 or specified in inches "in", millimeters "mm", centimeters "cm", or points "pt". Default is 11.7in.'
-)
+                            help = 'Set the output page height. Use -1 for a single page PDF. The safe maximum is 200in otherwise some PDF viewers may be unable to open the PDF. The value must be -1 or specified in inches "in", millimeters "mm", centimeters "cm", or points "pt". Default is 11.7in.')
         multi_args['page_dimensions'] = 2
         parser.add_argument('-page-dimensions',
-                            help = 'Set the output page dimensions. PAGE_DIMENSIONS must contain 2 values separated by a semicolon. Set the output page width. The safe maximum is 200in otherwise some PDF viewers may be unable to open the PDF. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt". Set the output page height. Use -1 for a single page PDF. The safe maximum is 200in otherwise some PDF viewers may be unable to open the PDF. The value must be -1 or specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".'
-)
+                            help = 'Set the output page dimensions. PAGE_DIMENSIONS must contain 2 values separated by a semicolon. Set the output page width. The safe maximum is 200in otherwise some PDF viewers may be unable to open the PDF. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt". Set the output page height. Use -1 for a single page PDF. The safe maximum is 200in otherwise some PDF viewers may be unable to open the PDF. The value must be -1 or specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".')
         parser.add_argument('-orientation',
-                            help = 'Set the output page orientation. Allowed values are landscape, portrait. Default is portrait.'
-)
+                            help = 'Set the output page orientation. Allowed values are landscape, portrait. Default is portrait.')
         parser.add_argument('-margin-top',
-                            help = 'Set the output page top margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt". Default is 0.4in.'
-)
+                            help = 'Set the output page top margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt". Default is 0.4in.')
         parser.add_argument('-margin-right',
-                            help = 'Set the output page right margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt". Default is 0.4in.'
-)
+                            help = 'Set the output page right margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt". Default is 0.4in.')
         parser.add_argument('-margin-bottom',
-                            help = 'Set the output page bottom margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt". Default is 0.4in.'
-)
+                            help = 'Set the output page bottom margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt". Default is 0.4in.')
         parser.add_argument('-margin-left',
-                            help = 'Set the output page left margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt". Default is 0.4in.'
-)
+                            help = 'Set the output page left margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt". Default is 0.4in.')
         parser.add_argument('-no-margins',
                             action = 'store_true',
-                            help = 'Disable page margins.'
-)
+                            help = 'Disable page margins.')
         multi_args['page_margins'] = 4
         parser.add_argument('-page-margins',
-                            help = 'Set the output page margins. PAGE_MARGINS must contain 4 values separated by a semicolon. Set the output page top margin. Set the output page right margin. Set the output page bottom margin. Set the output page left margin. All values the value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".'
-)
+                            help = 'Set the output page margins. PAGE_MARGINS must contain 4 values separated by a semicolon. Set the output page top margin. Set the output page right margin. Set the output page bottom margin. Set the output page left margin. All values the value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".')
         parser.add_argument('-print-page-range',
-                            help = 'Set the page range to print. A comma separated list of page numbers or ranges.'
-)
+                            help = 'Set the page range to print. A comma separated list of page numbers or ranges.')
         parser.add_argument('-page-numbering-offset',
-                            help = 'Set an offset between physical and logical page numbers. Integer specifying page offset.'
-)
+                            help = 'Set an offset between physical and logical page numbers. Integer specifying page offset.')
         parser.add_argument('-content-area-x',
-                            help = 'Set the top left X coordinate of the content area. It is relative to the top left X coordinate of the print area. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt". It may contain a negative value. Default is 0in.'
-)
+                            help = 'Set the top left X coordinate of the content area. It is relative to the top left X coordinate of the print area. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt". It may contain a negative value. Default is 0in.')
         parser.add_argument('-content-area-y',
-                            help = 'Set the top left Y coordinate of the content area. It is relative to the top left Y coordinate of the print area. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt". It may contain a negative value. Default is 0in.'
-)
+                            help = 'Set the top left Y coordinate of the content area. It is relative to the top left Y coordinate of the print area. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt". It may contain a negative value. Default is 0in.')
         parser.add_argument('-content-area-width',
-                            help = 'Set the width of the content area. It should be at least 1 inch. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt". Default is The width of the print area..'
-)
+                            help = 'Set the width of the content area. It should be at least 1 inch. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt". Default is The width of the print area..')
         parser.add_argument('-content-area-height',
-                            help = 'Set the height of the content area. It should be at least 1 inch. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt". Default is The height of the print area..'
-)
+                            help = 'Set the height of the content area. It should be at least 1 inch. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt". Default is The height of the print area..')
         multi_args['content_area'] = 4
         parser.add_argument('-content-area',
-                            help = 'Set the content area position and size. The content area enables to specify a web page area to be converted. CONTENT_AREA must contain 4 values separated by a semicolon. Set the top left X coordinate of the content area. It is relative to the top left X coordinate of the print area. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt". It may contain a negative value. Set the top left Y coordinate of the content area. It is relative to the top left Y coordinate of the print area. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt". It may contain a negative value. Set the width of the content area. It should be at least 1 inch. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt". Set the height of the content area. It should be at least 1 inch. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".'
-)
+                            help = 'Set the content area position and size. The content area enables to specify a web page area to be converted. CONTENT_AREA must contain 4 values separated by a semicolon. Set the top left X coordinate of the content area. It is relative to the top left X coordinate of the print area. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt". It may contain a negative value. Set the top left Y coordinate of the content area. It is relative to the top left Y coordinate of the print area. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt". It may contain a negative value. Set the width of the content area. It should be at least 1 inch. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt". Set the height of the content area. It should be at least 1 inch. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".')
         parser.add_argument('-css-page-rule-mode',
-                            help = 'Specifies behavior in presence of CSS @page rules. It may affect the page size, margins and orientation. The page rule mode. Allowed values are default, mode1, mode2. Default is default.'
-)
+                            help = 'Specifies behavior in presence of CSS @page rules. It may affect the page size, margins and orientation. The page rule mode. Allowed values are default, mode1, mode2. Default is default.')
         parser.add_argument('-header-url',
-                            help = 'Load an HTML code from the specified URL and use it as the page header. The following classes can be used in the HTML. The content of the respective elements will be expanded as follows: pdfcrowd-page-count - the total page count of printed pages pdfcrowd-page-number - the current page number pdfcrowd-source-url - the source URL of the converted document pdfcrowd-source-title - the title of the converted document The following attributes can be used: data-pdfcrowd-number-format - specifies the type of the used numerals. Allowed values: arabic - Arabic numerals, they are used by default roman - Roman numerals eastern-arabic - Eastern Arabic numerals bengali - Bengali numerals devanagari - Devanagari numerals thai - Thai numerals east-asia - Chinese, Vietnamese, Japanese and Korean numerals chinese-formal - Chinese formal numerals Please contact us if you need another type of numerals. Example: <span class=\'pdfcrowd-page-number\' data-pdfcrowd-number-format=\'roman\'></span> data-pdfcrowd-placement - specifies where to place the source URL. Allowed values: The URL is inserted to the content Example: <span class=\'pdfcrowd-source-url\'></span> will produce <span>http://example.com</span> href - the URL is set to the href attribute Example: <a class=\'pdfcrowd-source-url\' data-pdfcrowd-placement=\'href\'>Link to source</a> will produce <a href=\'http://example.com\'>Link to source</a> href-and-content - the URL is set to the href attribute and to the content Example: <a class=\'pdfcrowd-source-url\' data-pdfcrowd-placement=\'href-and-content\'></a> will produce <a href=\'http://example.com\'>http://example.com</a> The supported protocols are http:// and https://.'
-)
+                            help = 'Load an HTML code from the specified URL and use it as the page header. The following classes can be used in the HTML. The content of the respective elements will be expanded as follows: pdfcrowd-page-count - the total page count of printed pages pdfcrowd-page-number - the current page number pdfcrowd-source-url - the source URL of the converted document pdfcrowd-source-title - the title of the converted document The following attributes can be used: data-pdfcrowd-number-format - specifies the type of the used numerals. Allowed values: arabic - Arabic numerals, they are used by default roman - Roman numerals eastern-arabic - Eastern Arabic numerals bengali - Bengali numerals devanagari - Devanagari numerals thai - Thai numerals east-asia - Chinese, Vietnamese, Japanese and Korean numerals chinese-formal - Chinese formal numerals Please contact us if you need another type of numerals. Example: <span class=\'pdfcrowd-page-number\' data-pdfcrowd-number-format=\'roman\'></span> data-pdfcrowd-placement - specifies where to place the source URL. Allowed values: The URL is inserted to the content Example: <span class=\'pdfcrowd-source-url\'></span> will produce <span>http://example.com</span> href - the URL is set to the href attribute Example: <a class=\'pdfcrowd-source-url\' data-pdfcrowd-placement=\'href\'>Link to source</a> will produce <a href=\'http://example.com\'>Link to source</a> href-and-content - the URL is set to the href attribute and to the content Example: <a class=\'pdfcrowd-source-url\' data-pdfcrowd-placement=\'href-and-content\'></a> will produce <a href=\'http://example.com\'>http://example.com</a> The supported protocols are http:// and https://.')
         parser.add_argument('-header-html',
-                            help = 'Use the specified HTML code as the page header. The following classes can be used in the HTML. The content of the respective elements will be expanded as follows: pdfcrowd-page-count - the total page count of printed pages pdfcrowd-page-number - the current page number pdfcrowd-source-url - the source URL of the converted document pdfcrowd-source-title - the title of the converted document The following attributes can be used: data-pdfcrowd-number-format - specifies the type of the used numerals. Allowed values: arabic - Arabic numerals, they are used by default roman - Roman numerals eastern-arabic - Eastern Arabic numerals bengali - Bengali numerals devanagari - Devanagari numerals thai - Thai numerals east-asia - Chinese, Vietnamese, Japanese and Korean numerals chinese-formal - Chinese formal numerals Please contact us if you need another type of numerals. Example: <span class=\'pdfcrowd-page-number\' data-pdfcrowd-number-format=\'roman\'></span> data-pdfcrowd-placement - specifies where to place the source URL. Allowed values: The URL is inserted to the content Example: <span class=\'pdfcrowd-source-url\'></span> will produce <span>http://example.com</span> href - the URL is set to the href attribute Example: <a class=\'pdfcrowd-source-url\' data-pdfcrowd-placement=\'href\'>Link to source</a> will produce <a href=\'http://example.com\'>Link to source</a> href-and-content - the URL is set to the href attribute and to the content Example: <a class=\'pdfcrowd-source-url\' data-pdfcrowd-placement=\'href-and-content\'></a> will produce <a href=\'http://example.com\'>http://example.com</a> The string must not be empty.'
-)
+                            help = 'Use the specified HTML code as the page header. The following classes can be used in the HTML. The content of the respective elements will be expanded as follows: pdfcrowd-page-count - the total page count of printed pages pdfcrowd-page-number - the current page number pdfcrowd-source-url - the source URL of the converted document pdfcrowd-source-title - the title of the converted document The following attributes can be used: data-pdfcrowd-number-format - specifies the type of the used numerals. Allowed values: arabic - Arabic numerals, they are used by default roman - Roman numerals eastern-arabic - Eastern Arabic numerals bengali - Bengali numerals devanagari - Devanagari numerals thai - Thai numerals east-asia - Chinese, Vietnamese, Japanese and Korean numerals chinese-formal - Chinese formal numerals Please contact us if you need another type of numerals. Example: <span class=\'pdfcrowd-page-number\' data-pdfcrowd-number-format=\'roman\'></span> data-pdfcrowd-placement - specifies where to place the source URL. Allowed values: The URL is inserted to the content Example: <span class=\'pdfcrowd-source-url\'></span> will produce <span>http://example.com</span> href - the URL is set to the href attribute Example: <a class=\'pdfcrowd-source-url\' data-pdfcrowd-placement=\'href\'>Link to source</a> will produce <a href=\'http://example.com\'>Link to source</a> href-and-content - the URL is set to the href attribute and to the content Example: <a class=\'pdfcrowd-source-url\' data-pdfcrowd-placement=\'href-and-content\'></a> will produce <a href=\'http://example.com\'>http://example.com</a> The string must not be empty.')
         parser.add_argument('-header-height',
-                            help = 'Set the header height. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt". Default is 0.5in.'
-)
+                            help = 'Set the header height. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt". Default is 0.5in.')
         parser.add_argument('-zip-header-filename',
-                            help = 'Set the file name of the header HTML document stored in the input archive. Use this method if the input archive contains multiple HTML documents. The file name.'
-)
+                            help = 'Set the file name of the header HTML document stored in the input archive. Use this method if the input archive contains multiple HTML documents. The file name.')
         parser.add_argument('-footer-url',
-                            help = 'Load an HTML code from the specified URL and use it as the page footer. The following classes can be used in the HTML. The content of the respective elements will be expanded as follows: pdfcrowd-page-count - the total page count of printed pages pdfcrowd-page-number - the current page number pdfcrowd-source-url - the source URL of the converted document pdfcrowd-source-title - the title of the converted document The following attributes can be used: data-pdfcrowd-number-format - specifies the type of the used numerals. Allowed values: arabic - Arabic numerals, they are used by default roman - Roman numerals eastern-arabic - Eastern Arabic numerals bengali - Bengali numerals devanagari - Devanagari numerals thai - Thai numerals east-asia - Chinese, Vietnamese, Japanese and Korean numerals chinese-formal - Chinese formal numerals Please contact us if you need another type of numerals. Example: <span class=\'pdfcrowd-page-number\' data-pdfcrowd-number-format=\'roman\'></span> data-pdfcrowd-placement - specifies where to place the source URL. Allowed values: The URL is inserted to the content Example: <span class=\'pdfcrowd-source-url\'></span> will produce <span>http://example.com</span> href - the URL is set to the href attribute Example: <a class=\'pdfcrowd-source-url\' data-pdfcrowd-placement=\'href\'>Link to source</a> will produce <a href=\'http://example.com\'>Link to source</a> href-and-content - the URL is set to the href attribute and to the content Example: <a class=\'pdfcrowd-source-url\' data-pdfcrowd-placement=\'href-and-content\'></a> will produce <a href=\'http://example.com\'>http://example.com</a> The supported protocols are http:// and https://.'
-)
+                            help = 'Load an HTML code from the specified URL and use it as the page footer. The following classes can be used in the HTML. The content of the respective elements will be expanded as follows: pdfcrowd-page-count - the total page count of printed pages pdfcrowd-page-number - the current page number pdfcrowd-source-url - the source URL of the converted document pdfcrowd-source-title - the title of the converted document The following attributes can be used: data-pdfcrowd-number-format - specifies the type of the used numerals. Allowed values: arabic - Arabic numerals, they are used by default roman - Roman numerals eastern-arabic - Eastern Arabic numerals bengali - Bengali numerals devanagari - Devanagari numerals thai - Thai numerals east-asia - Chinese, Vietnamese, Japanese and Korean numerals chinese-formal - Chinese formal numerals Please contact us if you need another type of numerals. Example: <span class=\'pdfcrowd-page-number\' data-pdfcrowd-number-format=\'roman\'></span> data-pdfcrowd-placement - specifies where to place the source URL. Allowed values: The URL is inserted to the content Example: <span class=\'pdfcrowd-source-url\'></span> will produce <span>http://example.com</span> href - the URL is set to the href attribute Example: <a class=\'pdfcrowd-source-url\' data-pdfcrowd-placement=\'href\'>Link to source</a> will produce <a href=\'http://example.com\'>Link to source</a> href-and-content - the URL is set to the href attribute and to the content Example: <a class=\'pdfcrowd-source-url\' data-pdfcrowd-placement=\'href-and-content\'></a> will produce <a href=\'http://example.com\'>http://example.com</a> The supported protocols are http:// and https://.')
         parser.add_argument('-footer-html',
-                            help = 'Use the specified HTML as the page footer. The following classes can be used in the HTML. The content of the respective elements will be expanded as follows: pdfcrowd-page-count - the total page count of printed pages pdfcrowd-page-number - the current page number pdfcrowd-source-url - the source URL of the converted document pdfcrowd-source-title - the title of the converted document The following attributes can be used: data-pdfcrowd-number-format - specifies the type of the used numerals. Allowed values: arabic - Arabic numerals, they are used by default roman - Roman numerals eastern-arabic - Eastern Arabic numerals bengali - Bengali numerals devanagari - Devanagari numerals thai - Thai numerals east-asia - Chinese, Vietnamese, Japanese and Korean numerals chinese-formal - Chinese formal numerals Please contact us if you need another type of numerals. Example: <span class=\'pdfcrowd-page-number\' data-pdfcrowd-number-format=\'roman\'></span> data-pdfcrowd-placement - specifies where to place the source URL. Allowed values: The URL is inserted to the content Example: <span class=\'pdfcrowd-source-url\'></span> will produce <span>http://example.com</span> href - the URL is set to the href attribute Example: <a class=\'pdfcrowd-source-url\' data-pdfcrowd-placement=\'href\'>Link to source</a> will produce <a href=\'http://example.com\'>Link to source</a> href-and-content - the URL is set to the href attribute and to the content Example: <a class=\'pdfcrowd-source-url\' data-pdfcrowd-placement=\'href-and-content\'></a> will produce <a href=\'http://example.com\'>http://example.com</a> The string must not be empty.'
-)
+                            help = 'Use the specified HTML as the page footer. The following classes can be used in the HTML. The content of the respective elements will be expanded as follows: pdfcrowd-page-count - the total page count of printed pages pdfcrowd-page-number - the current page number pdfcrowd-source-url - the source URL of the converted document pdfcrowd-source-title - the title of the converted document The following attributes can be used: data-pdfcrowd-number-format - specifies the type of the used numerals. Allowed values: arabic - Arabic numerals, they are used by default roman - Roman numerals eastern-arabic - Eastern Arabic numerals bengali - Bengali numerals devanagari - Devanagari numerals thai - Thai numerals east-asia - Chinese, Vietnamese, Japanese and Korean numerals chinese-formal - Chinese formal numerals Please contact us if you need another type of numerals. Example: <span class=\'pdfcrowd-page-number\' data-pdfcrowd-number-format=\'roman\'></span> data-pdfcrowd-placement - specifies where to place the source URL. Allowed values: The URL is inserted to the content Example: <span class=\'pdfcrowd-source-url\'></span> will produce <span>http://example.com</span> href - the URL is set to the href attribute Example: <a class=\'pdfcrowd-source-url\' data-pdfcrowd-placement=\'href\'>Link to source</a> will produce <a href=\'http://example.com\'>Link to source</a> href-and-content - the URL is set to the href attribute and to the content Example: <a class=\'pdfcrowd-source-url\' data-pdfcrowd-placement=\'href-and-content\'></a> will produce <a href=\'http://example.com\'>http://example.com</a> The string must not be empty.')
         parser.add_argument('-footer-height',
-                            help = 'Set the footer height. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt". Default is 0.5in.'
-)
+                            help = 'Set the footer height. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt". Default is 0.5in.')
         parser.add_argument('-zip-footer-filename',
-                            help = 'Set the file name of the footer HTML document stored in the input archive. Use this method if the input archive contains multiple HTML documents. The file name.'
-)
+                            help = 'Set the file name of the footer HTML document stored in the input archive. Use this method if the input archive contains multiple HTML documents. The file name.')
         parser.add_argument('-no-header-footer-horizontal-margins',
                             action = 'store_true',
-                            help = 'Disable horizontal page margins for header and footer. The header/footer contents width will be equal to the physical page width.'
-)
+                            help = 'Disable horizontal page margins for header and footer. The header/footer contents width will be equal to the physical page width.')
         parser.add_argument('-exclude-header-on-pages',
-                            help = 'The page header is not printed on the specified pages. List of physical page numbers. Negative numbers count backwards from the last page: -1 is the last page, -2 is the last but one page, and so on. A comma separated list of page numbers.'
-)
+                            help = 'The page header is not printed on the specified pages. List of physical page numbers. Negative numbers count backwards from the last page: -1 is the last page, -2 is the last but one page, and so on. A comma separated list of page numbers.')
         parser.add_argument('-exclude-footer-on-pages',
-                            help = 'The page footer is not printed on the specified pages. List of physical page numbers. Negative numbers count backwards from the last page: -1 is the last page, -2 is the last but one page, and so on. A comma separated list of page numbers.'
-)
+                            help = 'The page footer is not printed on the specified pages. List of physical page numbers. Negative numbers count backwards from the last page: -1 is the last page, -2 is the last but one page, and so on. A comma separated list of page numbers.')
         parser.add_argument('-header-footer-scale-factor',
-                            help = 'Set the scaling factor (zoom) for the header and footer. The percentage value. The value must be in the range 10-500. Default is 100.'
-)
+                            help = 'Set the scaling factor (zoom) for the header and footer. The percentage value. The value must be in the range 10-500. Default is 100.')
         parser.add_argument('-page-watermark',
-                            help = 'Apply a watermark to each page of the output PDF file. A watermark can be either a PDF or an image. If a multi-page file (PDF or TIFF) is used, the first page is used as the watermark. The file path to a local file. The file must exist and not be empty.'
-)
+                            help = 'Apply a watermark to each page of the output PDF file. A watermark can be either a PDF or an image. If a multi-page file (PDF or TIFF) is used, the first page is used as the watermark. The file path to a local file. The file must exist and not be empty.')
         parser.add_argument('-page-watermark-url',
-                            help = 'Load a file from the specified URL and apply the file as a watermark to each page of the output PDF. A watermark can be either a PDF or an image. If a multi-page file (PDF or TIFF) is used, the first page is used as the watermark. The supported protocols are http:// and https://.'
-)
+                            help = 'Load a file from the specified URL and apply the file as a watermark to each page of the output PDF. A watermark can be either a PDF or an image. If a multi-page file (PDF or TIFF) is used, the first page is used as the watermark. The supported protocols are http:// and https://.')
         parser.add_argument('-multipage-watermark',
-                            help = 'Apply each page of a watermark to the corresponding page of the output PDF. A watermark can be either a PDF or an image. The file path to a local file. The file must exist and not be empty.'
-)
+                            help = 'Apply each page of a watermark to the corresponding page of the output PDF. A watermark can be either a PDF or an image. The file path to a local file. The file must exist and not be empty.')
         parser.add_argument('-multipage-watermark-url',
-                            help = 'Load a file from the specified URL and apply each page of the file as a watermark to the corresponding page of the output PDF. A watermark can be either a PDF or an image. The supported protocols are http:// and https://.'
-)
+                            help = 'Load a file from the specified URL and apply each page of the file as a watermark to the corresponding page of the output PDF. A watermark can be either a PDF or an image. The supported protocols are http:// and https://.')
         parser.add_argument('-page-background',
-                            help = 'Apply a background to each page of the output PDF file. A background can be either a PDF or an image. If a multi-page file (PDF or TIFF) is used, the first page is used as the background. The file path to a local file. The file must exist and not be empty.'
-)
+                            help = 'Apply a background to each page of the output PDF file. A background can be either a PDF or an image. If a multi-page file (PDF or TIFF) is used, the first page is used as the background. The file path to a local file. The file must exist and not be empty.')
         parser.add_argument('-page-background-url',
-                            help = 'Load a file from the specified URL and apply the file as a background to each page of the output PDF. A background can be either a PDF or an image. If a multi-page file (PDF or TIFF) is used, the first page is used as the background. The supported protocols are http:// and https://.'
-)
+                            help = 'Load a file from the specified URL and apply the file as a background to each page of the output PDF. A background can be either a PDF or an image. If a multi-page file (PDF or TIFF) is used, the first page is used as the background. The supported protocols are http:// and https://.')
         parser.add_argument('-multipage-background',
-                            help = 'Apply each page of a background to the corresponding page of the output PDF. A background can be either a PDF or an image. The file path to a local file. The file must exist and not be empty.'
-)
+                            help = 'Apply each page of a background to the corresponding page of the output PDF. A background can be either a PDF or an image. The file path to a local file. The file must exist and not be empty.')
         parser.add_argument('-multipage-background-url',
-                            help = 'Load a file from the specified URL and apply each page of the file as a background to the corresponding page of the output PDF. A background can be either a PDF or an image. The supported protocols are http:// and https://.'
-)
+                            help = 'Load a file from the specified URL and apply each page of the file as a background to the corresponding page of the output PDF. A background can be either a PDF or an image. The supported protocols are http:// and https://.')
         parser.add_argument('-page-background-color',
-                            help = 'The page background color in RGB or RGBA hexadecimal format. The color fills the entire page regardless of the margins. The value must be in RRGGBB or RRGGBBAA hexadecimal format.'
-)
+                            help = 'The page background color in RGB or RGBA hexadecimal format. The color fills the entire page regardless of the margins. The value must be in RRGGBB or RRGGBBAA hexadecimal format.')
         parser.add_argument('-use-print-media',
                             action = 'store_true',
-                            help = 'Use the print version of the page if available (@media print).'
-)
+                            help = 'Use the print version of the page if available (@media print).')
         parser.add_argument('-no-background',
                             action = 'store_true',
-                            help = 'Do not print the background graphics.'
-)
+                            help = 'Do not print the background graphics.')
         parser.add_argument('-disable-javascript',
                             action = 'store_true',
-                            help = 'Do not execute JavaScript.'
-)
+                            help = 'Do not execute JavaScript.')
         parser.add_argument('-disable-image-loading',
                             action = 'store_true',
-                            help = 'Do not load images.'
-)
+                            help = 'Do not load images.')
         parser.add_argument('-disable-remote-fonts',
                             action = 'store_true',
-                            help = 'Disable loading fonts from remote sources.'
-)
+                            help = 'Disable loading fonts from remote sources.')
         parser.add_argument('-use-mobile-user-agent',
                             action = 'store_true',
-                            help = 'Use a mobile user agent.'
-)
+                            help = 'Use a mobile user agent.')
         parser.add_argument('-load-iframes',
-                            help = 'Specifies how iframes are handled. Allowed values are all, same-origin, none. Default is all.'
-)
+                            help = 'Specifies how iframes are handled. Allowed values are all, same-origin, none. Default is all.')
         parser.add_argument('-block-ads',
                             action = 'store_true',
-                            help = 'Try to block ads. Enabling this option can produce smaller output and speed up the conversion.'
-)
+                            help = 'Try to block ads. Enabling this option can produce smaller output and speed up the conversion.')
         parser.add_argument('-default-encoding',
-                            help = 'Set the default HTML content text encoding. The text encoding of the HTML content. Default is auto detect.'
-)
+                            help = 'Set the default HTML content text encoding. The text encoding of the HTML content. Default is auto detect.')
         parser.add_argument('-locale',
-                            help = 'Set the locale for the conversion. This may affect the output format of dates, times and numbers. The locale code according to ISO 639. Default is en-US.'
-)
+                            help = 'Set the locale for the conversion. This may affect the output format of dates, times and numbers. The locale code according to ISO 639. Default is en-US.')
         parser.add_argument('-http-auth-user-name',
                             help = argparse.SUPPRESS
 )
@@ -5541,259 +6344,184 @@ available converters:
 )
         multi_args['http_auth'] = 2
         parser.add_argument('-http-auth',
-                            help = 'Set credentials to access HTTP base authentication protected websites. HTTP_AUTH must contain 2 values separated by a semicolon. Set the HTTP authentication user name. Set the HTTP authentication password.'
-)
+                            help = 'Set credentials to access HTTP base authentication protected websites. HTTP_AUTH must contain 2 values separated by a semicolon. Set the HTTP authentication user name. Set the HTTP authentication password.')
         parser.add_argument('-cookies',
-                            help = 'Set cookies that are sent in Pdfcrowd HTTP requests. The cookie string.'
-)
+                            help = 'Set cookies that are sent in Pdfcrowd HTTP requests. The cookie string.')
         parser.add_argument('-verify-ssl-certificates',
                             action = 'store_true',
-                            help = 'Do not allow insecure HTTPS connections.'
-)
+                            help = 'Do not allow insecure HTTPS connections.')
         parser.add_argument('-fail-on-main-url-error',
                             action = 'store_true',
-                            help = 'Abort the conversion if the main URL HTTP status code is greater than or equal to 400.'
-)
+                            help = 'Abort the conversion if the main URL HTTP status code is greater than or equal to 400.')
         parser.add_argument('-fail-on-any-url-error',
                             action = 'store_true',
-                            help = 'Abort the conversion if any of the sub-request HTTP status code is greater than or equal to 400 or if some sub-requests are still pending. See details in a debug log.'
-)
+                            help = 'Abort the conversion if any of the sub-request HTTP status code is greater than or equal to 400 or if some sub-requests are still pending. See details in a debug log.')
         parser.add_argument('-no-xpdfcrowd-header',
                             action = 'store_true',
-                            help = 'Do not send the X-Pdfcrowd HTTP header in Pdfcrowd HTTP requests.'
-)
+                            help = 'Do not send the X-Pdfcrowd HTTP header in Pdfcrowd HTTP requests.')
         parser.add_argument('-custom-javascript',
-                            help = 'Run a custom JavaScript after the document is loaded and ready to print. The script is intended for post-load DOM manipulation (add/remove elements, update CSS, ...). In addition to the standard browser APIs, the custom JavaScript code can use helper functions from our JavaScript library. A string containing a JavaScript code. The string must not be empty.'
-)
+                            help = 'Run a custom JavaScript after the document is loaded and ready to print. The script is intended for post-load DOM manipulation (add/remove elements, update CSS, ...). In addition to the standard browser APIs, the custom JavaScript code can use helper functions from our JavaScript library. A string containing a JavaScript code. The string must not be empty.')
         parser.add_argument('-on-load-javascript',
-                            help = 'Run a custom JavaScript right after the document is loaded. The script is intended for early DOM manipulation (add/remove elements, update CSS, ...). In addition to the standard browser APIs, the custom JavaScript code can use helper functions from our JavaScript library. A string containing a JavaScript code. The string must not be empty.'
-)
+                            help = 'Run a custom JavaScript right after the document is loaded. The script is intended for early DOM manipulation (add/remove elements, update CSS, ...). In addition to the standard browser APIs, the custom JavaScript code can use helper functions from our JavaScript library. A string containing a JavaScript code. The string must not be empty.')
         parser.add_argument('-custom-http-header',
-                            help = 'Set a custom HTTP header that is sent in Pdfcrowd HTTP requests. A string containing the header name and value separated by a colon.'
-)
+                            help = 'Set a custom HTTP header that is sent in Pdfcrowd HTTP requests. A string containing the header name and value separated by a colon.')
         parser.add_argument('-javascript-delay',
-                            help = 'Wait the specified number of milliseconds to finish all JavaScript after the document is loaded. Your API license defines the maximum wait time by "Max Delay" parameter. The number of milliseconds to wait. Must be a positive integer number or 0. Default is 200.'
-)
+                            help = 'Wait the specified number of milliseconds to finish all JavaScript after the document is loaded. Your API license defines the maximum wait time by "Max Delay" parameter. The number of milliseconds to wait. Must be a positive integer number or 0. Default is 200.')
         parser.add_argument('-element-to-convert',
-                            help = 'Convert only the specified element from the main document and its children. The element is specified by one or more CSS selectors. If the element is not found, the conversion fails. If multiple elements are found, the first one is used. One or more CSS selectors separated by commas. The string must not be empty.'
-)
+                            help = 'Convert only the specified element from the main document and its children. The element is specified by one or more CSS selectors. If the element is not found, the conversion fails. If multiple elements are found, the first one is used. One or more CSS selectors separated by commas. The string must not be empty.')
         parser.add_argument('-element-to-convert-mode',
-                            help = 'Specify the DOM handling when only a part of the document is converted. This can affect the CSS rules used. Allowed values are cut-out, remove-siblings, hide-siblings. Default is cut-out.'
-)
+                            help = 'Specify the DOM handling when only a part of the document is converted. This can affect the CSS rules used. Allowed values are cut-out, remove-siblings, hide-siblings. Default is cut-out.')
         parser.add_argument('-wait-for-element',
-                            help = 'Wait for the specified element in a source document. The element is specified by one or more CSS selectors. The element is searched for in the main document and all iframes. If the element is not found, the conversion fails. Your API license defines the maximum wait time by "Max Delay" parameter. One or more CSS selectors separated by commas. The string must not be empty.'
-)
+                            help = 'Wait for the specified element in a source document. The element is specified by one or more CSS selectors. The element is searched for in the main document and all iframes. If the element is not found, the conversion fails. Your API license defines the maximum wait time by "Max Delay" parameter. One or more CSS selectors separated by commas. The string must not be empty.')
         parser.add_argument('-auto-detect-element-to-convert',
                             action = 'store_true',
-                            help = 'The main HTML element for conversion is detected automatically.'
-)
+                            help = 'The main HTML element for conversion is detected automatically.')
         parser.add_argument('-readability-enhancements',
-                            help = 'The input HTML is automatically enhanced to improve the readability. Allowed values are none, readability-v1, readability-v2, readability-v3, readability-v4. Default is none.'
-)
+                            help = 'The input HTML is automatically enhanced to improve the readability. Allowed values are none, readability-v1, readability-v2, readability-v3, readability-v4. Default is none.')
         parser.add_argument('-viewport-width',
-                            help = 'Set the viewport width in pixels. The viewport is the user\'s visible area of the page. The value must be in the range 96-65000. Default is 1024.'
-)
+                            help = 'Set the viewport width in pixels. The viewport is the user\'s visible area of the page. The value must be in the range 96-65000. Default is 1024.')
         parser.add_argument('-viewport-height',
-                            help = 'Set the viewport height in pixels. The viewport is the user\'s visible area of the page. If the input HTML uses lazily loaded images, try using a large value that covers the entire height of the HTML, e.g. 100000. Must be a positive integer number. Default is 768.'
-)
+                            help = 'Set the viewport height in pixels. The viewport is the user\'s visible area of the page. If the input HTML uses lazily loaded images, try using a large value that covers the entire height of the HTML, e.g. 100000. Must be a positive integer number. Default is 768.')
         multi_args['viewport'] = 2
         parser.add_argument('-viewport',
-                            help = 'Set the viewport size. The viewport is the user\'s visible area of the page. VIEWPORT must contain 2 values separated by a semicolon. Set the viewport width in pixels. The viewport is the user\'s visible area of the page. The value must be in the range 96-65000. Set the viewport height in pixels. The viewport is the user\'s visible area of the page. If the input HTML uses lazily loaded images, try using a large value that covers the entire height of the HTML, e.g. 100000. Must be a positive integer number.'
-)
+                            help = 'Set the viewport size. The viewport is the user\'s visible area of the page. VIEWPORT must contain 2 values separated by a semicolon. Set the viewport width in pixels. The viewport is the user\'s visible area of the page. The value must be in the range 96-65000. Set the viewport height in pixels. The viewport is the user\'s visible area of the page. If the input HTML uses lazily loaded images, try using a large value that covers the entire height of the HTML, e.g. 100000. Must be a positive integer number.')
         parser.add_argument('-rendering-mode',
-                            help = 'Set the rendering mode. The rendering mode. Allowed values are default, viewport. Default is default.'
-)
+                            help = 'Set the rendering mode. The rendering mode. Allowed values are default, viewport. Default is default.')
         parser.add_argument('-smart-scaling-mode',
-                            help = 'Specifies the scaling mode used for fitting the HTML contents to the print area. The smart scaling mode. Allowed values are default, disabled, viewport-fit, content-fit, single-page-fit, mode1. Default is default.'
-)
+                            help = 'Specifies the scaling mode used for fitting the HTML contents to the print area. The smart scaling mode. Allowed values are default, disabled, viewport-fit, content-fit, single-page-fit, single-page-fit-ex, mode1. Default is default.')
         parser.add_argument('-scale-factor',
-                            help = 'Set the scaling factor (zoom) for the main page area. The percentage value. The value must be in the range 10-500. Default is 100.'
-)
+                            help = 'Set the scaling factor (zoom) for the main page area. The percentage value. The value must be in the range 10-500. Default is 100.')
         parser.add_argument('-jpeg-quality',
-                            help = 'Set the quality of embedded JPEG images. A lower quality results in a smaller PDF file but can lead to compression artifacts. The percentage value. The value must be in the range 1-100. Default is 100.'
-)
+                            help = 'Set the quality of embedded JPEG images. A lower quality results in a smaller PDF file but can lead to compression artifacts. The percentage value. The value must be in the range 1-100. Default is 100.')
         parser.add_argument('-convert-images-to-jpeg',
-                            help = 'Specify which image types will be converted to JPEG. Converting lossless compression image formats (PNG, GIF, ...) to JPEG may result in a smaller PDF file. The image category. Allowed values are none, opaque, all. Default is none.'
-)
+                            help = 'Specify which image types will be converted to JPEG. Converting lossless compression image formats (PNG, GIF, ...) to JPEG may result in a smaller PDF file. The image category. Allowed values are none, opaque, all. Default is none.')
         parser.add_argument('-image-dpi',
-                            help = 'Set the DPI of images in PDF. A lower DPI may result in a smaller PDF file. If the specified DPI is higher than the actual image DPI, the original image DPI is retained (no upscaling is performed). Use 0 to leave the images unaltered. The DPI value. Must be a positive integer number or 0.'
-)
+                            help = 'Set the DPI of images in PDF. A lower DPI may result in a smaller PDF file. If the specified DPI is higher than the actual image DPI, the original image DPI is retained (no upscaling is performed). Use 0 to leave the images unaltered. The DPI value. Must be a positive integer number or 0.')
         parser.add_argument('-enable-pdf-forms',
                             action = 'store_true',
-                            help = 'Convert HTML forms to fillable PDF forms. Details can be found in the blog post.'
-)
+                            help = 'Convert HTML forms to fillable PDF forms. Details can be found in the blog post.')
         parser.add_argument('-linearize',
                             action = 'store_true',
-                            help = 'Create linearized PDF. This is also known as Fast Web View.'
-)
+                            help = 'Create linearized PDF. This is also known as Fast Web View.')
         parser.add_argument('-encrypt',
                             action = 'store_true',
-                            help = 'Encrypt the PDF. This prevents search engines from indexing the contents.'
-)
+                            help = 'Encrypt the PDF. This prevents search engines from indexing the contents.')
         parser.add_argument('-user-password',
-                            help = 'Protect the PDF with a user password. When a PDF has a user password, it must be supplied in order to view the document and to perform operations allowed by the access permissions. The user password.'
-)
+                            help = 'Protect the PDF with a user password. When a PDF has a user password, it must be supplied in order to view the document and to perform operations allowed by the access permissions. The user password.')
         parser.add_argument('-owner-password',
-                            help = 'Protect the PDF with an owner password. Supplying an owner password grants unlimited access to the PDF including changing the passwords and access permissions. The owner password.'
-)
+                            help = 'Protect the PDF with an owner password. Supplying an owner password grants unlimited access to the PDF including changing the passwords and access permissions. The owner password.')
         parser.add_argument('-no-print',
                             action = 'store_true',
-                            help = 'Disallow printing of the output PDF.'
-)
+                            help = 'Disallow printing of the output PDF.')
         parser.add_argument('-no-modify',
                             action = 'store_true',
-                            help = 'Disallow modification of the output PDF.'
-)
+                            help = 'Disallow modification of the output PDF.')
         parser.add_argument('-no-copy',
                             action = 'store_true',
-                            help = 'Disallow text and graphics extraction from the output PDF.'
-)
+                            help = 'Disallow text and graphics extraction from the output PDF.')
         parser.add_argument('-title',
-                            help = 'Set the title of the PDF. The title.'
-)
+                            help = 'Set the title of the PDF. The title.')
         parser.add_argument('-subject',
-                            help = 'Set the subject of the PDF. The subject.'
-)
+                            help = 'Set the subject of the PDF. The subject.')
         parser.add_argument('-author',
-                            help = 'Set the author of the PDF. The author.'
-)
+                            help = 'Set the author of the PDF. The author.')
         parser.add_argument('-keywords',
-                            help = 'Associate keywords with the document. The string with the keywords.'
-)
+                            help = 'Associate keywords with the document. The string with the keywords.')
         parser.add_argument('-extract-meta-tags',
                             action = 'store_true',
-                            help = 'Extract meta tags (author, keywords and description) from the input HTML and use them in the output PDF.'
-)
+                            help = 'Extract meta tags (author, keywords and description) from the input HTML and use them in the output PDF.')
         parser.add_argument('-page-layout',
-                            help = 'Specify the page layout to be used when the document is opened. Allowed values are single-page, one-column, two-column-left, two-column-right.'
-)
+                            help = 'Specify the page layout to be used when the document is opened. Allowed values are single-page, one-column, two-column-left, two-column-right.')
         parser.add_argument('-page-mode',
-                            help = 'Specify how the document should be displayed when opened. Allowed values are full-screen, thumbnails, outlines.'
-)
+                            help = 'Specify how the document should be displayed when opened. Allowed values are full-screen, thumbnails, outlines.')
         parser.add_argument('-initial-zoom-type',
-                            help = 'Specify how the page should be displayed when opened. Allowed values are fit-width, fit-height, fit-page.'
-)
+                            help = 'Specify how the page should be displayed when opened. Allowed values are fit-width, fit-height, fit-page.')
         parser.add_argument('-initial-page',
-                            help = 'Display the specified page when the document is opened. Must be a positive integer number.'
-)
+                            help = 'Display the specified page when the document is opened. Must be a positive integer number.')
         parser.add_argument('-initial-zoom',
-                            help = 'Specify the initial page zoom in percents when the document is opened. Must be a positive integer number.'
-)
+                            help = 'Specify the initial page zoom in percents when the document is opened. Must be a positive integer number.')
         parser.add_argument('-hide-toolbar',
                             action = 'store_true',
-                            help = 'Specify whether to hide the viewer application\'s tool bars when the document is active.'
-)
+                            help = 'Specify whether to hide the viewer application\'s tool bars when the document is active.')
         parser.add_argument('-hide-menubar',
                             action = 'store_true',
-                            help = 'Specify whether to hide the viewer application\'s menu bar when the document is active.'
-)
+                            help = 'Specify whether to hide the viewer application\'s menu bar when the document is active.')
         parser.add_argument('-hide-window-ui',
                             action = 'store_true',
-                            help = 'Specify whether to hide user interface elements in the document\'s window (such as scroll bars and navigation controls), leaving only the document\'s contents displayed.'
-)
+                            help = 'Specify whether to hide user interface elements in the document\'s window (such as scroll bars and navigation controls), leaving only the document\'s contents displayed.')
         parser.add_argument('-fit-window',
                             action = 'store_true',
-                            help = 'Specify whether to resize the document\'s window to fit the size of the first displayed page.'
-)
+                            help = 'Specify whether to resize the document\'s window to fit the size of the first displayed page.')
         parser.add_argument('-center-window',
                             action = 'store_true',
-                            help = 'Specify whether to position the document\'s window in the center of the screen.'
-)
+                            help = 'Specify whether to position the document\'s window in the center of the screen.')
         parser.add_argument('-display-title',
                             action = 'store_true',
-                            help = 'Specify whether the window\'s title bar should display the document title. If false , the title bar should instead display the name of the PDF file containing the document.'
-)
+                            help = 'Specify whether the window\'s title bar should display the document title. If false , the title bar should instead display the name of the PDF file containing the document.')
         parser.add_argument('-right-to-left',
                             action = 'store_true',
-                            help = 'Set the predominant reading order for text to right-to-left. This option has no direct effect on the document\'s contents or page numbering but can be used to determine the relative positioning of pages when displayed side by side or printed n-up'
-)
+                            help = 'Set the predominant reading order for text to right-to-left. This option has no direct effect on the document\'s contents or page numbering but can be used to determine the relative positioning of pages when displayed side by side or printed n-up')
         parser.add_argument('-data-string',
-                            help = 'Set the input data for template rendering. The data format can be JSON, XML, YAML or CSV. The input data string.'
-)
+                            help = 'Set the input data for template rendering. The data format can be JSON, XML, YAML or CSV. The input data string.')
         parser.add_argument('-data-file',
-                            help = 'Load the input data for template rendering from the specified file. The data format can be JSON, XML, YAML or CSV. The file path to a local file containing the input data.'
-)
+                            help = 'Load the input data for template rendering from the specified file. The data format can be JSON, XML, YAML or CSV. The file path to a local file containing the input data.')
         parser.add_argument('-data-format',
-                            help = 'Specify the input data format. The data format. Allowed values are auto, json, xml, yaml, csv. Default is auto.'
-)
+                            help = 'Specify the input data format. The data format. Allowed values are auto, json, xml, yaml, csv. Default is auto.')
         parser.add_argument('-data-encoding',
-                            help = 'Set the encoding of the data file set by setDataFile. The data file encoding. Default is utf-8.'
-)
+                            help = 'Set the encoding of the data file set by setDataFile. The data file encoding. Default is utf-8.')
         parser.add_argument('-data-ignore-undefined',
                             action = 'store_true',
-                            help = 'Ignore undefined variables in the HTML template. The default mode is strict so any undefined variable causes the conversion to fail. You can use {%% if variable is defined %%} to check if the variable is defined.'
-)
+                            help = 'Ignore undefined variables in the HTML template. The default mode is strict so any undefined variable causes the conversion to fail. You can use {%% if variable is defined %%} to check if the variable is defined.')
         parser.add_argument('-data-auto-escape',
                             action = 'store_true',
-                            help = 'Auto escape HTML symbols in the input data before placing them into the output.'
-)
+                            help = 'Auto escape HTML symbols in the input data before placing them into the output.')
         parser.add_argument('-data-trim-blocks',
                             action = 'store_true',
-                            help = 'Auto trim whitespace around each template command block.'
-)
+                            help = 'Auto trim whitespace around each template command block.')
         parser.add_argument('-data-options',
-                            help = 'Set the advanced data options:csv_delimiter - The CSV data delimiter, the default is ,.xml_remove_root - Remove the root XML element from the input data.data_root - The name of the root element inserted into the input data without a root node (e.g. CSV), the default is data. Comma separated list of options.'
-)
+                            help = 'Set the advanced data options:csv_delimiter - The CSV data delimiter, the default is ,.xml_remove_root - Remove the root XML element from the input data.data_root - The name of the root element inserted into the input data without a root node (e.g. CSV), the default is data. Comma separated list of options.')
         parser.add_argument('-debug-log',
                             action = 'store_true',
-                            help = 'Turn on the debug logging. Details about the conversion are stored in the debug log.'
-)
+                            help = 'Turn on the debug logging. Details about the conversion are stored in the debug log.')
         parser.add_argument('-tag',
-                            help = 'Tag the conversion with a custom value. The tag is used in conversion statistics. A value longer than 32 characters is cut off. A string with the custom tag.'
-)
+                            help = 'Tag the conversion with a custom value. The tag is used in conversion statistics. A value longer than 32 characters is cut off. A string with the custom tag.')
         parser.add_argument('-http-proxy',
-                            help = 'A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTP scheme. It can help to circumvent regional restrictions or provide limited access to your intranet. The value must have format DOMAIN_OR_IP_ADDRESS:PORT.'
-)
+                            help = 'A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTP scheme. It can help to circumvent regional restrictions or provide limited access to your intranet. The value must have format DOMAIN_OR_IP_ADDRESS:PORT.')
         parser.add_argument('-https-proxy',
-                            help = 'A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTPS scheme. It can help to circumvent regional restrictions or provide limited access to your intranet. The value must have format DOMAIN_OR_IP_ADDRESS:PORT.'
-)
+                            help = 'A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTPS scheme. It can help to circumvent regional restrictions or provide limited access to your intranet. The value must have format DOMAIN_OR_IP_ADDRESS:PORT.')
         parser.add_argument('-client-certificate',
-                            help = 'A client certificate to authenticate Pdfcrowd converter on your web server. The certificate is used for two-way SSL/TLS authentication and adds extra security. The file must be in PKCS12 format. The file must exist and not be empty.'
-)
+                            help = 'A client certificate to authenticate Pdfcrowd converter on your web server. The certificate is used for two-way SSL/TLS authentication and adds extra security. The file must be in PKCS12 format. The file must exist and not be empty.')
         parser.add_argument('-client-certificate-password',
-                            help = 'A password for PKCS12 file with a client certificate if it is needed.'
-)
+                            help = 'A password for PKCS12 file with a client certificate if it is needed.')
         parser.add_argument('-layout-dpi',
-                            help = 'Set the internal DPI resolution used for positioning of PDF contents. It can help in situations when there are small inaccuracies in the PDF. It is recommended to use values that are a multiple of 72, such as 288 or 360. The DPI value. The value must be in the range of 72-600. Default is 300.'
-)
+                            help = 'Set the internal DPI resolution used for positioning of PDF contents. It can help in situations when there are small inaccuracies in the PDF. It is recommended to use values that are a multiple of 72, such as 288 or 360. The DPI value. The value must be in the range of 72-600. Default is 300.')
         parser.add_argument('-contents-matrix',
-                            help = 'A 2D transformation matrix applied to the main contents on each page. The origin [0,0] is located at the top-left corner of the contents. The resolution is 72 dpi. A comma separated string of matrix elements: "scaleX,skewX,transX,skewY,scaleY,transY" Default is 1,0,0,0,1,0.'
-)
+                            help = 'A 2D transformation matrix applied to the main contents on each page. The origin [0,0] is located at the top-left corner of the contents. The resolution is 72 dpi. A comma separated string of matrix elements: "scaleX,skewX,transX,skewY,scaleY,transY" Default is 1,0,0,0,1,0.')
         parser.add_argument('-header-matrix',
-                            help = 'A 2D transformation matrix applied to the page header contents. The origin [0,0] is located at the top-left corner of the header. The resolution is 72 dpi. A comma separated string of matrix elements: "scaleX,skewX,transX,skewY,scaleY,transY" Default is 1,0,0,0,1,0.'
-)
+                            help = 'A 2D transformation matrix applied to the page header contents. The origin [0,0] is located at the top-left corner of the header. The resolution is 72 dpi. A comma separated string of matrix elements: "scaleX,skewX,transX,skewY,scaleY,transY" Default is 1,0,0,0,1,0.')
         parser.add_argument('-footer-matrix',
-                            help = 'A 2D transformation matrix applied to the page footer contents. The origin [0,0] is located at the top-left corner of the footer. The resolution is 72 dpi. A comma separated string of matrix elements: "scaleX,skewX,transX,skewY,scaleY,transY" Default is 1,0,0,0,1,0.'
-)
+                            help = 'A 2D transformation matrix applied to the page footer contents. The origin [0,0] is located at the top-left corner of the footer. The resolution is 72 dpi. A comma separated string of matrix elements: "scaleX,skewX,transX,skewY,scaleY,transY" Default is 1,0,0,0,1,0.')
         parser.add_argument('-disable-page-height-optimization',
                             action = 'store_true',
-                            help = 'Disable automatic height adjustment that compensates for pixel to point rounding errors.'
-)
+                            help = 'Disable automatic height adjustment that compensates for pixel to point rounding errors.')
         parser.add_argument('-main-document-css-annotation',
                             action = 'store_true',
-                            help = 'Add special CSS classes to the main document\'s body element. This allows applying custom styling based on these classes: pdfcrowd-page-X - where X is the current page number pdfcrowd-page-odd - odd page pdfcrowd-page-even - even page Warning: If your custom styling affects the contents area size (e.g. by using different margins, padding, border width), the resulting PDF may contain duplicit contents or some contents may be missing.'
-)
+                            help = 'Add special CSS classes to the main document\'s body element. This allows applying custom styling based on these classes: pdfcrowd-page-X - where X is the current page number pdfcrowd-page-odd - odd page pdfcrowd-page-even - even page Warning: If your custom styling affects the contents area size (e.g. by using different margins, padding, border width), the resulting PDF may contain duplicit contents or some contents may be missing.')
         parser.add_argument('-header-footer-css-annotation',
                             action = 'store_true',
-                            help = 'Add special CSS classes to the header/footer\'s body element. This allows applying custom styling based on these classes: pdfcrowd-page-X - where X is the current page number pdfcrowd-page-count-X - where X is the total page count pdfcrowd-page-first - the first page pdfcrowd-page-last - the last page pdfcrowd-page-odd - odd page pdfcrowd-page-even - even page'
-)
+                            help = 'Add special CSS classes to the header/footer\'s body element. This allows applying custom styling based on these classes: pdfcrowd-page-X - where X is the current page number pdfcrowd-page-count-X - where X is the total page count pdfcrowd-page-first - the first page pdfcrowd-page-last - the last page pdfcrowd-page-odd - odd page pdfcrowd-page-even - even page')
         parser.add_argument('-converter-version',
-                            help = 'Set the converter version. Different versions may produce different output. Choose which one provides the best output for your case. The version identifier. Allowed values are latest, 20.10, 18.10. Default is 20.10.'
-)
+                            help = 'Set the converter version. Different versions may produce different output. Choose which one provides the best output for your case. The version identifier. Allowed values are latest, 20.10, 18.10. Default is 20.10.')
         parser.add_argument('-use-http',
                             action = 'store_true',
-                            help = 'Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API. Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.'
-)
+                            help = 'Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API. Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.')
         parser.add_argument('-user-agent',
-                            help = 'Set a custom user agent HTTP header. It can be useful if you are behind a proxy or a firewall. The user agent string.'
-)
+                            help = 'Set a custom user agent HTTP header. It can be useful if you are behind a proxy or a firewall. The user agent string.')
         multi_args['proxy'] = 4
         parser.add_argument('-proxy',
-                            help = 'Specifies an HTTP proxy that the API client library will use to connect to the internet. PROXY must contain 4 values separated by a semicolon. The proxy hostname. The proxy port. The username. The password.'
-)
+                            help = 'Specifies an HTTP proxy that the API client library will use to connect to the internet. PROXY must contain 4 values separated by a semicolon. The proxy hostname. The proxy port. The username. The password.')
         parser.add_argument('-retry-count',
-                            help = 'Specifies the number of automatic retries when the 502 HTTP status code is received. The 502 status code indicates a temporary network issue. This feature can be disabled by setting to 0. Number of retries. Default is 1.'
-)
+                            help = 'Specifies the number of automatic retries when the 502 HTTP status code is received. The 502 status code indicates a temporary network issue. This feature can be disabled by setting to 0. Number of retries. Default is 1.')
 
     if converter == 'html2image':
         converter_name = 'HtmlToImageClient'
@@ -5806,48 +6534,36 @@ available converters:
         add_generic_args(parser)
 
         parser.add_argument('-output-format',
-                            help = 'The format of the output file. Allowed values are png, jpg, gif, tiff, bmp, ico, ppm, pgm, pbm, pnm, psb, pct, ras, tga, sgi, sun, webp. Default is png.'
-)
+                            help = 'The format of the output file. Allowed values are png, jpg, gif, tiff, bmp, ico, ppm, pgm, pbm, pnm, psb, pct, ras, tga, sgi, sun, webp. Default is png.')
         parser.add_argument('-zip-main-filename',
-                            help = 'Set the file name of the main HTML document stored in the input archive. If not specified, the first HTML file in the archive is used for conversion. Use this method if the input archive contains multiple HTML documents. The file name.'
-)
+                            help = 'Set the file name of the main HTML document stored in the input archive. If not specified, the first HTML file in the archive is used for conversion. Use this method if the input archive contains multiple HTML documents. The file name.')
         parser.add_argument('-use-print-media',
                             action = 'store_true',
-                            help = 'Use the print version of the page if available (@media print).'
-)
+                            help = 'Use the print version of the page if available (@media print).')
         parser.add_argument('-no-background',
                             action = 'store_true',
-                            help = 'Do not print the background graphics.'
-)
+                            help = 'Do not print the background graphics.')
         parser.add_argument('-disable-javascript',
                             action = 'store_true',
-                            help = 'Do not execute JavaScript.'
-)
+                            help = 'Do not execute JavaScript.')
         parser.add_argument('-disable-image-loading',
                             action = 'store_true',
-                            help = 'Do not load images.'
-)
+                            help = 'Do not load images.')
         parser.add_argument('-disable-remote-fonts',
                             action = 'store_true',
-                            help = 'Disable loading fonts from remote sources.'
-)
+                            help = 'Disable loading fonts from remote sources.')
         parser.add_argument('-use-mobile-user-agent',
                             action = 'store_true',
-                            help = 'Use a mobile user agent.'
-)
+                            help = 'Use a mobile user agent.')
         parser.add_argument('-load-iframes',
-                            help = 'Specifies how iframes are handled. Allowed values are all, same-origin, none. Default is all.'
-)
+                            help = 'Specifies how iframes are handled. Allowed values are all, same-origin, none. Default is all.')
         parser.add_argument('-block-ads',
                             action = 'store_true',
-                            help = 'Try to block ads. Enabling this option can produce smaller output and speed up the conversion.'
-)
+                            help = 'Try to block ads. Enabling this option can produce smaller output and speed up the conversion.')
         parser.add_argument('-default-encoding',
-                            help = 'Set the default HTML content text encoding. The text encoding of the HTML content. Default is auto detect.'
-)
+                            help = 'Set the default HTML content text encoding. The text encoding of the HTML content. Default is auto detect.')
         parser.add_argument('-locale',
-                            help = 'Set the locale for the conversion. This may affect the output format of dates, times and numbers. The locale code according to ISO 639. Default is en-US.'
-)
+                            help = 'Set the locale for the conversion. This may affect the output format of dates, times and numbers. The locale code according to ISO 639. Default is en-US.')
         parser.add_argument('-http-auth-user-name',
                             help = argparse.SUPPRESS
 )
@@ -5856,130 +6572,92 @@ available converters:
 )
         multi_args['http_auth'] = 2
         parser.add_argument('-http-auth',
-                            help = 'Set credentials to access HTTP base authentication protected websites. HTTP_AUTH must contain 2 values separated by a semicolon. Set the HTTP authentication user name. Set the HTTP authentication password.'
-)
+                            help = 'Set credentials to access HTTP base authentication protected websites. HTTP_AUTH must contain 2 values separated by a semicolon. Set the HTTP authentication user name. Set the HTTP authentication password.')
         parser.add_argument('-cookies',
-                            help = 'Set cookies that are sent in Pdfcrowd HTTP requests. The cookie string.'
-)
+                            help = 'Set cookies that are sent in Pdfcrowd HTTP requests. The cookie string.')
         parser.add_argument('-verify-ssl-certificates',
                             action = 'store_true',
-                            help = 'Do not allow insecure HTTPS connections.'
-)
+                            help = 'Do not allow insecure HTTPS connections.')
         parser.add_argument('-fail-on-main-url-error',
                             action = 'store_true',
-                            help = 'Abort the conversion if the main URL HTTP status code is greater than or equal to 400.'
-)
+                            help = 'Abort the conversion if the main URL HTTP status code is greater than or equal to 400.')
         parser.add_argument('-fail-on-any-url-error',
                             action = 'store_true',
-                            help = 'Abort the conversion if any of the sub-request HTTP status code is greater than or equal to 400 or if some sub-requests are still pending. See details in a debug log.'
-)
+                            help = 'Abort the conversion if any of the sub-request HTTP status code is greater than or equal to 400 or if some sub-requests are still pending. See details in a debug log.')
         parser.add_argument('-no-xpdfcrowd-header',
                             action = 'store_true',
-                            help = 'Do not send the X-Pdfcrowd HTTP header in Pdfcrowd HTTP requests.'
-)
+                            help = 'Do not send the X-Pdfcrowd HTTP header in Pdfcrowd HTTP requests.')
         parser.add_argument('-custom-javascript',
-                            help = 'Run a custom JavaScript after the document is loaded and ready to print. The script is intended for post-load DOM manipulation (add/remove elements, update CSS, ...). In addition to the standard browser APIs, the custom JavaScript code can use helper functions from our JavaScript library. A string containing a JavaScript code. The string must not be empty.'
-)
+                            help = 'Run a custom JavaScript after the document is loaded and ready to print. The script is intended for post-load DOM manipulation (add/remove elements, update CSS, ...). In addition to the standard browser APIs, the custom JavaScript code can use helper functions from our JavaScript library. A string containing a JavaScript code. The string must not be empty.')
         parser.add_argument('-on-load-javascript',
-                            help = 'Run a custom JavaScript right after the document is loaded. The script is intended for early DOM manipulation (add/remove elements, update CSS, ...). In addition to the standard browser APIs, the custom JavaScript code can use helper functions from our JavaScript library. A string containing a JavaScript code. The string must not be empty.'
-)
+                            help = 'Run a custom JavaScript right after the document is loaded. The script is intended for early DOM manipulation (add/remove elements, update CSS, ...). In addition to the standard browser APIs, the custom JavaScript code can use helper functions from our JavaScript library. A string containing a JavaScript code. The string must not be empty.')
         parser.add_argument('-custom-http-header',
-                            help = 'Set a custom HTTP header that is sent in Pdfcrowd HTTP requests. A string containing the header name and value separated by a colon.'
-)
+                            help = 'Set a custom HTTP header that is sent in Pdfcrowd HTTP requests. A string containing the header name and value separated by a colon.')
         parser.add_argument('-javascript-delay',
-                            help = 'Wait the specified number of milliseconds to finish all JavaScript after the document is loaded. Your API license defines the maximum wait time by "Max Delay" parameter. The number of milliseconds to wait. Must be a positive integer number or 0. Default is 200.'
-)
+                            help = 'Wait the specified number of milliseconds to finish all JavaScript after the document is loaded. Your API license defines the maximum wait time by "Max Delay" parameter. The number of milliseconds to wait. Must be a positive integer number or 0. Default is 200.')
         parser.add_argument('-element-to-convert',
-                            help = 'Convert only the specified element from the main document and its children. The element is specified by one or more CSS selectors. If the element is not found, the conversion fails. If multiple elements are found, the first one is used. One or more CSS selectors separated by commas. The string must not be empty.'
-)
+                            help = 'Convert only the specified element from the main document and its children. The element is specified by one or more CSS selectors. If the element is not found, the conversion fails. If multiple elements are found, the first one is used. One or more CSS selectors separated by commas. The string must not be empty.')
         parser.add_argument('-element-to-convert-mode',
-                            help = 'Specify the DOM handling when only a part of the document is converted. This can affect the CSS rules used. Allowed values are cut-out, remove-siblings, hide-siblings. Default is cut-out.'
-)
+                            help = 'Specify the DOM handling when only a part of the document is converted. This can affect the CSS rules used. Allowed values are cut-out, remove-siblings, hide-siblings. Default is cut-out.')
         parser.add_argument('-wait-for-element',
-                            help = 'Wait for the specified element in a source document. The element is specified by one or more CSS selectors. The element is searched for in the main document and all iframes. If the element is not found, the conversion fails. Your API license defines the maximum wait time by "Max Delay" parameter. One or more CSS selectors separated by commas. The string must not be empty.'
-)
+                            help = 'Wait for the specified element in a source document. The element is specified by one or more CSS selectors. The element is searched for in the main document and all iframes. If the element is not found, the conversion fails. Your API license defines the maximum wait time by "Max Delay" parameter. One or more CSS selectors separated by commas. The string must not be empty.')
         parser.add_argument('-auto-detect-element-to-convert',
                             action = 'store_true',
-                            help = 'The main HTML element for conversion is detected automatically.'
-)
+                            help = 'The main HTML element for conversion is detected automatically.')
         parser.add_argument('-readability-enhancements',
-                            help = 'The input HTML is automatically enhanced to improve the readability. Allowed values are none, readability-v1, readability-v2, readability-v3, readability-v4. Default is none.'
-)
+                            help = 'The input HTML is automatically enhanced to improve the readability. Allowed values are none, readability-v1, readability-v2, readability-v3, readability-v4. Default is none.')
         parser.add_argument('-screenshot-width',
-                            help = 'Set the output image width in pixels. The value must be in the range 96-65000. Default is 1024.'
-)
+                            help = 'Set the output image width in pixels. The value must be in the range 96-65000. Default is 1024.')
         parser.add_argument('-screenshot-height',
-                            help = 'Set the output image height in pixels. If it is not specified, actual document height is used. Must be a positive integer number.'
-)
+                            help = 'Set the output image height in pixels. If it is not specified, actual document height is used. Must be a positive integer number.')
         parser.add_argument('-scale-factor',
-                            help = 'Set the scaling factor (zoom) for the output image. The percentage value. Must be a positive integer number. Default is 100.'
-)
+                            help = 'Set the scaling factor (zoom) for the output image. The percentage value. Must be a positive integer number. Default is 100.')
         parser.add_argument('-background-color',
-                            help = 'The output image background color. The value must be in RRGGBB or RRGGBBAA hexadecimal format.'
-)
+                            help = 'The output image background color. The value must be in RRGGBB or RRGGBBAA hexadecimal format.')
         parser.add_argument('-data-string',
-                            help = 'Set the input data for template rendering. The data format can be JSON, XML, YAML or CSV. The input data string.'
-)
+                            help = 'Set the input data for template rendering. The data format can be JSON, XML, YAML or CSV. The input data string.')
         parser.add_argument('-data-file',
-                            help = 'Load the input data for template rendering from the specified file. The data format can be JSON, XML, YAML or CSV. The file path to a local file containing the input data.'
-)
+                            help = 'Load the input data for template rendering from the specified file. The data format can be JSON, XML, YAML or CSV. The file path to a local file containing the input data.')
         parser.add_argument('-data-format',
-                            help = 'Specify the input data format. The data format. Allowed values are auto, json, xml, yaml, csv. Default is auto.'
-)
+                            help = 'Specify the input data format. The data format. Allowed values are auto, json, xml, yaml, csv. Default is auto.')
         parser.add_argument('-data-encoding',
-                            help = 'Set the encoding of the data file set by setDataFile. The data file encoding. Default is utf-8.'
-)
+                            help = 'Set the encoding of the data file set by setDataFile. The data file encoding. Default is utf-8.')
         parser.add_argument('-data-ignore-undefined',
                             action = 'store_true',
-                            help = 'Ignore undefined variables in the HTML template. The default mode is strict so any undefined variable causes the conversion to fail. You can use {%% if variable is defined %%} to check if the variable is defined.'
-)
+                            help = 'Ignore undefined variables in the HTML template. The default mode is strict so any undefined variable causes the conversion to fail. You can use {%% if variable is defined %%} to check if the variable is defined.')
         parser.add_argument('-data-auto-escape',
                             action = 'store_true',
-                            help = 'Auto escape HTML symbols in the input data before placing them into the output.'
-)
+                            help = 'Auto escape HTML symbols in the input data before placing them into the output.')
         parser.add_argument('-data-trim-blocks',
                             action = 'store_true',
-                            help = 'Auto trim whitespace around each template command block.'
-)
+                            help = 'Auto trim whitespace around each template command block.')
         parser.add_argument('-data-options',
-                            help = 'Set the advanced data options:csv_delimiter - The CSV data delimiter, the default is ,.xml_remove_root - Remove the root XML element from the input data.data_root - The name of the root element inserted into the input data without a root node (e.g. CSV), the default is data. Comma separated list of options.'
-)
+                            help = 'Set the advanced data options:csv_delimiter - The CSV data delimiter, the default is ,.xml_remove_root - Remove the root XML element from the input data.data_root - The name of the root element inserted into the input data without a root node (e.g. CSV), the default is data. Comma separated list of options.')
         parser.add_argument('-debug-log',
                             action = 'store_true',
-                            help = 'Turn on the debug logging. Details about the conversion are stored in the debug log.'
-)
+                            help = 'Turn on the debug logging. Details about the conversion are stored in the debug log.')
         parser.add_argument('-tag',
-                            help = 'Tag the conversion with a custom value. The tag is used in conversion statistics. A value longer than 32 characters is cut off. A string with the custom tag.'
-)
+                            help = 'Tag the conversion with a custom value. The tag is used in conversion statistics. A value longer than 32 characters is cut off. A string with the custom tag.')
         parser.add_argument('-http-proxy',
-                            help = 'A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTP scheme. It can help to circumvent regional restrictions or provide limited access to your intranet. The value must have format DOMAIN_OR_IP_ADDRESS:PORT.'
-)
+                            help = 'A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTP scheme. It can help to circumvent regional restrictions or provide limited access to your intranet. The value must have format DOMAIN_OR_IP_ADDRESS:PORT.')
         parser.add_argument('-https-proxy',
-                            help = 'A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTPS scheme. It can help to circumvent regional restrictions or provide limited access to your intranet. The value must have format DOMAIN_OR_IP_ADDRESS:PORT.'
-)
+                            help = 'A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTPS scheme. It can help to circumvent regional restrictions or provide limited access to your intranet. The value must have format DOMAIN_OR_IP_ADDRESS:PORT.')
         parser.add_argument('-client-certificate',
-                            help = 'A client certificate to authenticate Pdfcrowd converter on your web server. The certificate is used for two-way SSL/TLS authentication and adds extra security. The file must be in PKCS12 format. The file must exist and not be empty.'
-)
+                            help = 'A client certificate to authenticate Pdfcrowd converter on your web server. The certificate is used for two-way SSL/TLS authentication and adds extra security. The file must be in PKCS12 format. The file must exist and not be empty.')
         parser.add_argument('-client-certificate-password',
-                            help = 'A password for PKCS12 file with a client certificate if it is needed.'
-)
+                            help = 'A password for PKCS12 file with a client certificate if it is needed.')
         parser.add_argument('-converter-version',
-                            help = 'Set the converter version. Different versions may produce different output. Choose which one provides the best output for your case. The version identifier. Allowed values are latest, 20.10, 18.10. Default is 20.10.'
-)
+                            help = 'Set the converter version. Different versions may produce different output. Choose which one provides the best output for your case. The version identifier. Allowed values are latest, 20.10, 18.10. Default is 20.10.')
         parser.add_argument('-use-http',
                             action = 'store_true',
-                            help = 'Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API. Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.'
-)
+                            help = 'Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API. Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.')
         parser.add_argument('-user-agent',
-                            help = 'Set a custom user agent HTTP header. It can be useful if you are behind a proxy or a firewall. The user agent string.'
-)
+                            help = 'Set a custom user agent HTTP header. It can be useful if you are behind a proxy or a firewall. The user agent string.')
         multi_args['proxy'] = 4
         parser.add_argument('-proxy',
-                            help = 'Specifies an HTTP proxy that the API client library will use to connect to the internet. PROXY must contain 4 values separated by a semicolon. The proxy hostname. The proxy port. The username. The password.'
-)
+                            help = 'Specifies an HTTP proxy that the API client library will use to connect to the internet. PROXY must contain 4 values separated by a semicolon. The proxy hostname. The proxy port. The username. The password.')
         parser.add_argument('-retry-count',
-                            help = 'Specifies the number of automatic retries when the 502 HTTP status code is received. The 502 status code indicates a temporary network issue. This feature can be disabled by setting to 0. Number of retries. Default is 1.'
-)
+                            help = 'Specifies the number of automatic retries when the 502 HTTP status code is received. The 502 status code indicates a temporary network issue. This feature can be disabled by setting to 0. Number of retries. Default is 1.')
 
     if converter == 'image2image':
         converter_name = 'ImageToImageClient'
@@ -5992,44 +6670,32 @@ available converters:
         add_generic_args(parser)
 
         parser.add_argument('-output-format',
-                            help = 'The format of the output file. Allowed values are png, jpg, gif, tiff, bmp, ico, ppm, pgm, pbm, pnm, psb, pct, ras, tga, sgi, sun, webp. Default is png.'
-)
+                            help = 'The format of the output file. Allowed values are png, jpg, gif, tiff, bmp, ico, ppm, pgm, pbm, pnm, psb, pct, ras, tga, sgi, sun, webp. Default is png.')
         parser.add_argument('-resize',
-                            help = 'Resize the image. The resize percentage or new image dimensions. Default is 100%%.'
-)
+                            help = 'Resize the image. The resize percentage or new image dimensions. Default is 100%%.')
         parser.add_argument('-rotate',
-                            help = 'Rotate the image. The rotation specified in degrees.'
-)
+                            help = 'Rotate the image. The rotation specified in degrees.')
         parser.add_argument('-debug-log',
                             action = 'store_true',
-                            help = 'Turn on the debug logging. Details about the conversion are stored in the debug log.'
-)
+                            help = 'Turn on the debug logging. Details about the conversion are stored in the debug log.')
         parser.add_argument('-tag',
-                            help = 'Tag the conversion with a custom value. The tag is used in conversion statistics. A value longer than 32 characters is cut off. A string with the custom tag.'
-)
+                            help = 'Tag the conversion with a custom value. The tag is used in conversion statistics. A value longer than 32 characters is cut off. A string with the custom tag.')
         parser.add_argument('-http-proxy',
-                            help = 'A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTP scheme. It can help to circumvent regional restrictions or provide limited access to your intranet. The value must have format DOMAIN_OR_IP_ADDRESS:PORT.'
-)
+                            help = 'A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTP scheme. It can help to circumvent regional restrictions or provide limited access to your intranet. The value must have format DOMAIN_OR_IP_ADDRESS:PORT.')
         parser.add_argument('-https-proxy',
-                            help = 'A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTPS scheme. It can help to circumvent regional restrictions or provide limited access to your intranet. The value must have format DOMAIN_OR_IP_ADDRESS:PORT.'
-)
+                            help = 'A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTPS scheme. It can help to circumvent regional restrictions or provide limited access to your intranet. The value must have format DOMAIN_OR_IP_ADDRESS:PORT.')
         parser.add_argument('-converter-version',
-                            help = 'Set the converter version. Different versions may produce different output. Choose which one provides the best output for your case. The version identifier. Allowed values are latest, 20.10, 18.10. Default is 20.10.'
-)
+                            help = 'Set the converter version. Different versions may produce different output. Choose which one provides the best output for your case. The version identifier. Allowed values are latest, 20.10, 18.10. Default is 20.10.')
         parser.add_argument('-use-http',
                             action = 'store_true',
-                            help = 'Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API. Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.'
-)
+                            help = 'Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API. Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.')
         parser.add_argument('-user-agent',
-                            help = 'Set a custom user agent HTTP header. It can be useful if you are behind a proxy or a firewall. The user agent string.'
-)
+                            help = 'Set a custom user agent HTTP header. It can be useful if you are behind a proxy or a firewall. The user agent string.')
         multi_args['proxy'] = 4
         parser.add_argument('-proxy',
-                            help = 'Specifies an HTTP proxy that the API client library will use to connect to the internet. PROXY must contain 4 values separated by a semicolon. The proxy hostname. The proxy port. The username. The password.'
-)
+                            help = 'Specifies an HTTP proxy that the API client library will use to connect to the internet. PROXY must contain 4 values separated by a semicolon. The proxy hostname. The proxy port. The username. The password.')
         parser.add_argument('-retry-count',
-                            help = 'Specifies the number of automatic retries when the 502 HTTP status code is received. The 502 status code indicates a temporary network issue. This feature can be disabled by setting to 0. Number of retries. Default is 1.'
-)
+                            help = 'Specifies the number of automatic retries when the 502 HTTP status code is received. The 502 status code indicates a temporary network issue. This feature can be disabled by setting to 0. Number of retries. Default is 1.')
 
     if converter == 'pdf2pdf':
         converter_name = 'PdfToPdfClient'
@@ -6042,143 +6708,102 @@ available converters:
         add_generic_args(parser, '+')
 
         parser.add_argument('-action',
-                            help = 'Specifies the action to be performed on the input PDFs. Allowed values are join, shuffle. Default is join.'
-)
+                            help = 'Specifies the action to be performed on the input PDFs. Allowed values are join, shuffle. Default is join.')
         parser.add_argument('-input-pdf-password',
-                            help = 'Password to open the encrypted PDF file. The input PDF password.'
-)
+                            help = 'Password to open the encrypted PDF file. The input PDF password.')
         parser.add_argument('-page-watermark',
-                            help = 'Apply a watermark to each page of the output PDF file. A watermark can be either a PDF or an image. If a multi-page file (PDF or TIFF) is used, the first page is used as the watermark. The file path to a local file. The file must exist and not be empty.'
-)
+                            help = 'Apply a watermark to each page of the output PDF file. A watermark can be either a PDF or an image. If a multi-page file (PDF or TIFF) is used, the first page is used as the watermark. The file path to a local file. The file must exist and not be empty.')
         parser.add_argument('-page-watermark-url',
-                            help = 'Load a file from the specified URL and apply the file as a watermark to each page of the output PDF. A watermark can be either a PDF or an image. If a multi-page file (PDF or TIFF) is used, the first page is used as the watermark. The supported protocols are http:// and https://.'
-)
+                            help = 'Load a file from the specified URL and apply the file as a watermark to each page of the output PDF. A watermark can be either a PDF or an image. If a multi-page file (PDF or TIFF) is used, the first page is used as the watermark. The supported protocols are http:// and https://.')
         parser.add_argument('-multipage-watermark',
-                            help = 'Apply each page of a watermark to the corresponding page of the output PDF. A watermark can be either a PDF or an image. The file path to a local file. The file must exist and not be empty.'
-)
+                            help = 'Apply each page of a watermark to the corresponding page of the output PDF. A watermark can be either a PDF or an image. The file path to a local file. The file must exist and not be empty.')
         parser.add_argument('-multipage-watermark-url',
-                            help = 'Load a file from the specified URL and apply each page of the file as a watermark to the corresponding page of the output PDF. A watermark can be either a PDF or an image. The supported protocols are http:// and https://.'
-)
+                            help = 'Load a file from the specified URL and apply each page of the file as a watermark to the corresponding page of the output PDF. A watermark can be either a PDF or an image. The supported protocols are http:// and https://.')
         parser.add_argument('-page-background',
-                            help = 'Apply a background to each page of the output PDF file. A background can be either a PDF or an image. If a multi-page file (PDF or TIFF) is used, the first page is used as the background. The file path to a local file. The file must exist and not be empty.'
-)
+                            help = 'Apply a background to each page of the output PDF file. A background can be either a PDF or an image. If a multi-page file (PDF or TIFF) is used, the first page is used as the background. The file path to a local file. The file must exist and not be empty.')
         parser.add_argument('-page-background-url',
-                            help = 'Load a file from the specified URL and apply the file as a background to each page of the output PDF. A background can be either a PDF or an image. If a multi-page file (PDF or TIFF) is used, the first page is used as the background. The supported protocols are http:// and https://.'
-)
+                            help = 'Load a file from the specified URL and apply the file as a background to each page of the output PDF. A background can be either a PDF or an image. If a multi-page file (PDF or TIFF) is used, the first page is used as the background. The supported protocols are http:// and https://.')
         parser.add_argument('-multipage-background',
-                            help = 'Apply each page of a background to the corresponding page of the output PDF. A background can be either a PDF or an image. The file path to a local file. The file must exist and not be empty.'
-)
+                            help = 'Apply each page of a background to the corresponding page of the output PDF. A background can be either a PDF or an image. The file path to a local file. The file must exist and not be empty.')
         parser.add_argument('-multipage-background-url',
-                            help = 'Load a file from the specified URL and apply each page of the file as a background to the corresponding page of the output PDF. A background can be either a PDF or an image. The supported protocols are http:// and https://.'
-)
+                            help = 'Load a file from the specified URL and apply each page of the file as a background to the corresponding page of the output PDF. A background can be either a PDF or an image. The supported protocols are http:// and https://.')
         parser.add_argument('-linearize',
                             action = 'store_true',
-                            help = 'Create linearized PDF. This is also known as Fast Web View.'
-)
+                            help = 'Create linearized PDF. This is also known as Fast Web View.')
         parser.add_argument('-encrypt',
                             action = 'store_true',
-                            help = 'Encrypt the PDF. This prevents search engines from indexing the contents.'
-)
+                            help = 'Encrypt the PDF. This prevents search engines from indexing the contents.')
         parser.add_argument('-user-password',
-                            help = 'Protect the PDF with a user password. When a PDF has a user password, it must be supplied in order to view the document and to perform operations allowed by the access permissions. The user password.'
-)
+                            help = 'Protect the PDF with a user password. When a PDF has a user password, it must be supplied in order to view the document and to perform operations allowed by the access permissions. The user password.')
         parser.add_argument('-owner-password',
-                            help = 'Protect the PDF with an owner password. Supplying an owner password grants unlimited access to the PDF including changing the passwords and access permissions. The owner password.'
-)
+                            help = 'Protect the PDF with an owner password. Supplying an owner password grants unlimited access to the PDF including changing the passwords and access permissions. The owner password.')
         parser.add_argument('-no-print',
                             action = 'store_true',
-                            help = 'Disallow printing of the output PDF.'
-)
+                            help = 'Disallow printing of the output PDF.')
         parser.add_argument('-no-modify',
                             action = 'store_true',
-                            help = 'Disallow modification of the output PDF.'
-)
+                            help = 'Disallow modification of the output PDF.')
         parser.add_argument('-no-copy',
                             action = 'store_true',
-                            help = 'Disallow text and graphics extraction from the output PDF.'
-)
+                            help = 'Disallow text and graphics extraction from the output PDF.')
         parser.add_argument('-title',
-                            help = 'Set the title of the PDF. The title.'
-)
+                            help = 'Set the title of the PDF. The title.')
         parser.add_argument('-subject',
-                            help = 'Set the subject of the PDF. The subject.'
-)
+                            help = 'Set the subject of the PDF. The subject.')
         parser.add_argument('-author',
-                            help = 'Set the author of the PDF. The author.'
-)
+                            help = 'Set the author of the PDF. The author.')
         parser.add_argument('-keywords',
-                            help = 'Associate keywords with the document. The string with the keywords.'
-)
+                            help = 'Associate keywords with the document. The string with the keywords.')
         parser.add_argument('-use-metadata-from',
-                            help = 'Use metadata (title, subject, author and keywords) from the n-th input PDF. Set the index of the input PDF file from which to use the metadata. 0 means no metadata. Must be a positive integer number or 0.'
-)
+                            help = 'Use metadata (title, subject, author and keywords) from the n-th input PDF. Set the index of the input PDF file from which to use the metadata. 0 means no metadata. Must be a positive integer number or 0.')
         parser.add_argument('-page-layout',
-                            help = 'Specify the page layout to be used when the document is opened. Allowed values are single-page, one-column, two-column-left, two-column-right.'
-)
+                            help = 'Specify the page layout to be used when the document is opened. Allowed values are single-page, one-column, two-column-left, two-column-right.')
         parser.add_argument('-page-mode',
-                            help = 'Specify how the document should be displayed when opened. Allowed values are full-screen, thumbnails, outlines.'
-)
+                            help = 'Specify how the document should be displayed when opened. Allowed values are full-screen, thumbnails, outlines.')
         parser.add_argument('-initial-zoom-type',
-                            help = 'Specify how the page should be displayed when opened. Allowed values are fit-width, fit-height, fit-page.'
-)
+                            help = 'Specify how the page should be displayed when opened. Allowed values are fit-width, fit-height, fit-page.')
         parser.add_argument('-initial-page',
-                            help = 'Display the specified page when the document is opened. Must be a positive integer number.'
-)
+                            help = 'Display the specified page when the document is opened. Must be a positive integer number.')
         parser.add_argument('-initial-zoom',
-                            help = 'Specify the initial page zoom in percents when the document is opened. Must be a positive integer number.'
-)
+                            help = 'Specify the initial page zoom in percents when the document is opened. Must be a positive integer number.')
         parser.add_argument('-hide-toolbar',
                             action = 'store_true',
-                            help = 'Specify whether to hide the viewer application\'s tool bars when the document is active.'
-)
+                            help = 'Specify whether to hide the viewer application\'s tool bars when the document is active.')
         parser.add_argument('-hide-menubar',
                             action = 'store_true',
-                            help = 'Specify whether to hide the viewer application\'s menu bar when the document is active.'
-)
+                            help = 'Specify whether to hide the viewer application\'s menu bar when the document is active.')
         parser.add_argument('-hide-window-ui',
                             action = 'store_true',
-                            help = 'Specify whether to hide user interface elements in the document\'s window (such as scroll bars and navigation controls), leaving only the document\'s contents displayed.'
-)
+                            help = 'Specify whether to hide user interface elements in the document\'s window (such as scroll bars and navigation controls), leaving only the document\'s contents displayed.')
         parser.add_argument('-fit-window',
                             action = 'store_true',
-                            help = 'Specify whether to resize the document\'s window to fit the size of the first displayed page.'
-)
+                            help = 'Specify whether to resize the document\'s window to fit the size of the first displayed page.')
         parser.add_argument('-center-window',
                             action = 'store_true',
-                            help = 'Specify whether to position the document\'s window in the center of the screen.'
-)
+                            help = 'Specify whether to position the document\'s window in the center of the screen.')
         parser.add_argument('-display-title',
                             action = 'store_true',
-                            help = 'Specify whether the window\'s title bar should display the document title. If false , the title bar should instead display the name of the PDF file containing the document.'
-)
+                            help = 'Specify whether the window\'s title bar should display the document title. If false , the title bar should instead display the name of the PDF file containing the document.')
         parser.add_argument('-right-to-left',
                             action = 'store_true',
-                            help = 'Set the predominant reading order for text to right-to-left. This option has no direct effect on the document\'s contents or page numbering but can be used to determine the relative positioning of pages when displayed side by side or printed n-up'
-)
+                            help = 'Set the predominant reading order for text to right-to-left. This option has no direct effect on the document\'s contents or page numbering but can be used to determine the relative positioning of pages when displayed side by side or printed n-up')
         parser.add_argument('-debug-log',
                             action = 'store_true',
-                            help = 'Turn on the debug logging. Details about the conversion are stored in the debug log.'
-)
+                            help = 'Turn on the debug logging. Details about the conversion are stored in the debug log.')
         parser.add_argument('-tag',
-                            help = 'Tag the conversion with a custom value. The tag is used in conversion statistics. A value longer than 32 characters is cut off. A string with the custom tag.'
-)
+                            help = 'Tag the conversion with a custom value. The tag is used in conversion statistics. A value longer than 32 characters is cut off. A string with the custom tag.')
         parser.add_argument('-converter-version',
-                            help = 'Set the converter version. Different versions may produce different output. Choose which one provides the best output for your case. The version identifier. Allowed values are latest, 20.10, 18.10. Default is 20.10.'
-)
+                            help = 'Set the converter version. Different versions may produce different output. Choose which one provides the best output for your case. The version identifier. Allowed values are latest, 20.10, 18.10. Default is 20.10.')
         parser.add_argument('-use-http',
                             action = 'store_true',
-                            help = 'Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API. Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.'
-)
+                            help = 'Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API. Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.')
         parser.add_argument('-user-agent',
-                            help = 'Set a custom user agent HTTP header. It can be useful if you are behind a proxy or a firewall. The user agent string.'
-)
+                            help = 'Set a custom user agent HTTP header. It can be useful if you are behind a proxy or a firewall. The user agent string.')
         multi_args['proxy'] = 4
         parser.add_argument('-proxy',
-                            help = 'Specifies an HTTP proxy that the API client library will use to connect to the internet. PROXY must contain 4 values separated by a semicolon. The proxy hostname. The proxy port. The username. The password.'
-)
+                            help = 'Specifies an HTTP proxy that the API client library will use to connect to the internet. PROXY must contain 4 values separated by a semicolon. The proxy hostname. The proxy port. The username. The password.')
         parser.add_argument('-retry-count',
-                            help = 'Specifies the number of automatic retries when the 502 HTTP status code is received. The 502 status code indicates a temporary network issue. This feature can be disabled by setting to 0. Number of retries. Default is 1.'
-)
+                            help = 'Specifies the number of automatic retries when the 502 HTTP status code is received. The 502 status code indicates a temporary network issue. This feature can be disabled by setting to 0. Number of retries. Default is 1.')
 
     if converter == 'image2pdf':
         converter_name = 'ImageToPdfClient'
@@ -6191,41 +6816,101 @@ available converters:
         add_generic_args(parser)
 
         parser.add_argument('-resize',
-                            help = 'Resize the image. The resize percentage or new image dimensions. Default is 100%%.'
-)
+                            help = 'Resize the image. The resize percentage or new image dimensions. Default is 100%%.')
         parser.add_argument('-rotate',
-                            help = 'Rotate the image. The rotation specified in degrees.'
-)
+                            help = 'Rotate the image. The rotation specified in degrees.')
+        parser.add_argument('-page-watermark',
+                            help = 'Apply a watermark to each page of the output PDF file. A watermark can be either a PDF or an image. If a multi-page file (PDF or TIFF) is used, the first page is used as the watermark. The file path to a local file. The file must exist and not be empty.')
+        parser.add_argument('-page-watermark-url',
+                            help = 'Load a file from the specified URL and apply the file as a watermark to each page of the output PDF. A watermark can be either a PDF or an image. If a multi-page file (PDF or TIFF) is used, the first page is used as the watermark. The supported protocols are http:// and https://.')
+        parser.add_argument('-multipage-watermark',
+                            help = 'Apply each page of a watermark to the corresponding page of the output PDF. A watermark can be either a PDF or an image. The file path to a local file. The file must exist and not be empty.')
+        parser.add_argument('-multipage-watermark-url',
+                            help = 'Load a file from the specified URL and apply each page of the file as a watermark to the corresponding page of the output PDF. A watermark can be either a PDF or an image. The supported protocols are http:// and https://.')
+        parser.add_argument('-page-background',
+                            help = 'Apply a background to each page of the output PDF file. A background can be either a PDF or an image. If a multi-page file (PDF or TIFF) is used, the first page is used as the background. The file path to a local file. The file must exist and not be empty.')
+        parser.add_argument('-page-background-url',
+                            help = 'Load a file from the specified URL and apply the file as a background to each page of the output PDF. A background can be either a PDF or an image. If a multi-page file (PDF or TIFF) is used, the first page is used as the background. The supported protocols are http:// and https://.')
+        parser.add_argument('-multipage-background',
+                            help = 'Apply each page of a background to the corresponding page of the output PDF. A background can be either a PDF or an image. The file path to a local file. The file must exist and not be empty.')
+        parser.add_argument('-multipage-background-url',
+                            help = 'Load a file from the specified URL and apply each page of the file as a background to the corresponding page of the output PDF. A background can be either a PDF or an image. The supported protocols are http:// and https://.')
+        parser.add_argument('-linearize',
+                            action = 'store_true',
+                            help = 'Create linearized PDF. This is also known as Fast Web View.')
+        parser.add_argument('-encrypt',
+                            action = 'store_true',
+                            help = 'Encrypt the PDF. This prevents search engines from indexing the contents.')
+        parser.add_argument('-user-password',
+                            help = 'Protect the PDF with a user password. When a PDF has a user password, it must be supplied in order to view the document and to perform operations allowed by the access permissions. The user password.')
+        parser.add_argument('-owner-password',
+                            help = 'Protect the PDF with an owner password. Supplying an owner password grants unlimited access to the PDF including changing the passwords and access permissions. The owner password.')
+        parser.add_argument('-no-print',
+                            action = 'store_true',
+                            help = 'Disallow printing of the output PDF.')
+        parser.add_argument('-no-modify',
+                            action = 'store_true',
+                            help = 'Disallow modification of the output PDF.')
+        parser.add_argument('-no-copy',
+                            action = 'store_true',
+                            help = 'Disallow text and graphics extraction from the output PDF.')
+        parser.add_argument('-title',
+                            help = 'Set the title of the PDF. The title.')
+        parser.add_argument('-subject',
+                            help = 'Set the subject of the PDF. The subject.')
+        parser.add_argument('-author',
+                            help = 'Set the author of the PDF. The author.')
+        parser.add_argument('-keywords',
+                            help = 'Associate keywords with the document. The string with the keywords.')
+        parser.add_argument('-page-layout',
+                            help = 'Specify the page layout to be used when the document is opened. Allowed values are single-page, one-column, two-column-left, two-column-right.')
+        parser.add_argument('-page-mode',
+                            help = 'Specify how the document should be displayed when opened. Allowed values are full-screen, thumbnails, outlines.')
+        parser.add_argument('-initial-zoom-type',
+                            help = 'Specify how the page should be displayed when opened. Allowed values are fit-width, fit-height, fit-page.')
+        parser.add_argument('-initial-page',
+                            help = 'Display the specified page when the document is opened. Must be a positive integer number.')
+        parser.add_argument('-initial-zoom',
+                            help = 'Specify the initial page zoom in percents when the document is opened. Must be a positive integer number.')
+        parser.add_argument('-hide-toolbar',
+                            action = 'store_true',
+                            help = 'Specify whether to hide the viewer application\'s tool bars when the document is active.')
+        parser.add_argument('-hide-menubar',
+                            action = 'store_true',
+                            help = 'Specify whether to hide the viewer application\'s menu bar when the document is active.')
+        parser.add_argument('-hide-window-ui',
+                            action = 'store_true',
+                            help = 'Specify whether to hide user interface elements in the document\'s window (such as scroll bars and navigation controls), leaving only the document\'s contents displayed.')
+        parser.add_argument('-fit-window',
+                            action = 'store_true',
+                            help = 'Specify whether to resize the document\'s window to fit the size of the first displayed page.')
+        parser.add_argument('-center-window',
+                            action = 'store_true',
+                            help = 'Specify whether to position the document\'s window in the center of the screen.')
+        parser.add_argument('-display-title',
+                            action = 'store_true',
+                            help = 'Specify whether the window\'s title bar should display the document title. If false , the title bar should instead display the name of the PDF file containing the document.')
         parser.add_argument('-debug-log',
                             action = 'store_true',
-                            help = 'Turn on the debug logging. Details about the conversion are stored in the debug log.'
-)
+                            help = 'Turn on the debug logging. Details about the conversion are stored in the debug log.')
         parser.add_argument('-tag',
-                            help = 'Tag the conversion with a custom value. The tag is used in conversion statistics. A value longer than 32 characters is cut off. A string with the custom tag.'
-)
+                            help = 'Tag the conversion with a custom value. The tag is used in conversion statistics. A value longer than 32 characters is cut off. A string with the custom tag.')
         parser.add_argument('-http-proxy',
-                            help = 'A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTP scheme. It can help to circumvent regional restrictions or provide limited access to your intranet. The value must have format DOMAIN_OR_IP_ADDRESS:PORT.'
-)
+                            help = 'A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTP scheme. It can help to circumvent regional restrictions or provide limited access to your intranet. The value must have format DOMAIN_OR_IP_ADDRESS:PORT.')
         parser.add_argument('-https-proxy',
-                            help = 'A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTPS scheme. It can help to circumvent regional restrictions or provide limited access to your intranet. The value must have format DOMAIN_OR_IP_ADDRESS:PORT.'
-)
+                            help = 'A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTPS scheme. It can help to circumvent regional restrictions or provide limited access to your intranet. The value must have format DOMAIN_OR_IP_ADDRESS:PORT.')
         parser.add_argument('-converter-version',
-                            help = 'Set the converter version. Different versions may produce different output. Choose which one provides the best output for your case. The version identifier. Allowed values are latest, 20.10, 18.10. Default is 20.10.'
-)
+                            help = 'Set the converter version. Different versions may produce different output. Choose which one provides the best output for your case. The version identifier. Allowed values are latest, 20.10, 18.10. Default is 20.10.')
         parser.add_argument('-use-http',
                             action = 'store_true',
-                            help = 'Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API. Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.'
-)
+                            help = 'Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API. Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.')
         parser.add_argument('-user-agent',
-                            help = 'Set a custom user agent HTTP header. It can be useful if you are behind a proxy or a firewall. The user agent string.'
-)
+                            help = 'Set a custom user agent HTTP header. It can be useful if you are behind a proxy or a firewall. The user agent string.')
         multi_args['proxy'] = 4
         parser.add_argument('-proxy',
-                            help = 'Specifies an HTTP proxy that the API client library will use to connect to the internet. PROXY must contain 4 values separated by a semicolon. The proxy hostname. The proxy port. The username. The password.'
-)
+                            help = 'Specifies an HTTP proxy that the API client library will use to connect to the internet. PROXY must contain 4 values separated by a semicolon. The proxy hostname. The proxy port. The username. The password.')
         parser.add_argument('-retry-count',
-                            help = 'Specifies the number of automatic retries when the 502 HTTP status code is received. The 502 status code indicates a temporary network issue. This feature can be disabled by setting to 0. Number of retries. Default is 1.'
-)
+                            help = 'Specifies the number of automatic retries when the 502 HTTP status code is received. The 502 status code indicates a temporary network issue. This feature can be disabled by setting to 0. Number of retries. Default is 1.')
 
     if converter == 'pdf2html':
         converter_name = 'PdfToHtmlClient'
@@ -6238,66 +6923,111 @@ available converters:
         add_generic_args(parser)
 
         parser.add_argument('-pdf-password',
-                            help = 'Password to open the encrypted PDF file. The input PDF password.'
-)
+                            help = 'Password to open the encrypted PDF file. The input PDF password.')
         parser.add_argument('-scale-factor',
-                            help = 'Set the scaling factor (zoom) for the main page area. The percentage value. Must be a positive integer number. Default is 100.'
-)
+                            help = 'Set the scaling factor (zoom) for the main page area. The percentage value. Must be a positive integer number. Default is 100.')
         parser.add_argument('-print-page-range',
-                            help = 'Set the page range to print. A comma separated list of page numbers or ranges.'
-)
+                            help = 'Set the page range to print. A comma separated list of page numbers or ranges.')
         parser.add_argument('-image-mode',
-                            help = 'Specifies where the images are stored. The image storage mode. Allowed values are embed, separate. Default is embed.'
-)
+                            help = 'Specifies where the images are stored. The image storage mode. Allowed values are embed, separate. Default is embed.')
         parser.add_argument('-css-mode',
-                            help = 'Specifies where the style sheets are stored. The style sheet storage mode. Allowed values are embed, separate. Default is embed.'
-)
+                            help = 'Specifies where the style sheets are stored. The style sheet storage mode. Allowed values are embed, separate. Default is embed.')
         parser.add_argument('-font-mode',
-                            help = 'Specifies where the fonts are stored. The font storage mode. Allowed values are embed, separate. Default is embed.'
-)
+                            help = 'Specifies where the fonts are stored. The font storage mode. Allowed values are embed, separate. Default is embed.')
         parser.add_argument('-force-zip',
                             action = 'store_true',
-                            help = 'Enforces the zip output format.'
-)
+                            help = 'Enforces the zip output format.')
         parser.add_argument('-title',
-                            help = 'Set the HTML title. The title from the input PDF is used by default. The HTML title.'
-)
+                            help = 'Set the HTML title. The title from the input PDF is used by default. The HTML title.')
         parser.add_argument('-subject',
-                            help = 'Set the HTML subject. The subject from the input PDF is used by default. The HTML subject.'
-)
+                            help = 'Set the HTML subject. The subject from the input PDF is used by default. The HTML subject.')
         parser.add_argument('-author',
-                            help = 'Set the HTML author. The author from the input PDF is used by default. The HTML author.'
-)
+                            help = 'Set the HTML author. The author from the input PDF is used by default. The HTML author.')
         parser.add_argument('-keywords',
-                            help = 'Associate keywords with the HTML document. Keywords from the input PDF are used by default. The string containing the keywords.'
-)
+                            help = 'Associate keywords with the HTML document. Keywords from the input PDF are used by default. The string containing the keywords.')
         parser.add_argument('-debug-log',
                             action = 'store_true',
-                            help = 'Turn on the debug logging. Details about the conversion are stored in the debug log.'
-)
+                            help = 'Turn on the debug logging. Details about the conversion are stored in the debug log.')
         parser.add_argument('-tag',
-                            help = 'Tag the conversion with a custom value. The tag is used in conversion statistics. A value longer than 32 characters is cut off. A string with the custom tag.'
-)
+                            help = 'Tag the conversion with a custom value. The tag is used in conversion statistics. A value longer than 32 characters is cut off. A string with the custom tag.')
         parser.add_argument('-http-proxy',
-                            help = 'A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTP scheme. It can help to circumvent regional restrictions or provide limited access to your intranet. The value must have format DOMAIN_OR_IP_ADDRESS:PORT.'
-)
+                            help = 'A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTP scheme. It can help to circumvent regional restrictions or provide limited access to your intranet. The value must have format DOMAIN_OR_IP_ADDRESS:PORT.')
         parser.add_argument('-https-proxy',
-                            help = 'A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTPS scheme. It can help to circumvent regional restrictions or provide limited access to your intranet. The value must have format DOMAIN_OR_IP_ADDRESS:PORT.'
-)
+                            help = 'A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTPS scheme. It can help to circumvent regional restrictions or provide limited access to your intranet. The value must have format DOMAIN_OR_IP_ADDRESS:PORT.')
         parser.add_argument('-use-http',
                             action = 'store_true',
-                            help = 'Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API. Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.'
-)
+                            help = 'Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API. Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.')
         parser.add_argument('-user-agent',
-                            help = 'Set a custom user agent HTTP header. It can be useful if you are behind a proxy or a firewall. The user agent string.'
-)
+                            help = 'Set a custom user agent HTTP header. It can be useful if you are behind a proxy or a firewall. The user agent string.')
         multi_args['proxy'] = 4
         parser.add_argument('-proxy',
-                            help = 'Specifies an HTTP proxy that the API client library will use to connect to the internet. PROXY must contain 4 values separated by a semicolon. The proxy hostname. The proxy port. The username. The password.'
-)
+                            help = 'Specifies an HTTP proxy that the API client library will use to connect to the internet. PROXY must contain 4 values separated by a semicolon. The proxy hostname. The proxy port. The username. The password.')
         parser.add_argument('-retry-count',
-                            help = 'Specifies the number of automatic retries when the 502 HTTP status code is received. The 502 status code indicates a temporary network issue. This feature can be disabled by setting to 0. Number of retries. Default is 1.'
-)
+                            help = 'Specifies the number of automatic retries when the 502 HTTP status code is received. The 502 status code indicates a temporary network issue. This feature can be disabled by setting to 0. Number of retries. Default is 1.')
+
+    if converter == 'pdf2text':
+        converter_name = 'PdfToTextClient'
+
+        parser = argparse.ArgumentParser(usage = usage,
+                                         description = 'Conversion from PDF to text.',
+                                         add_help = False,
+                                         epilog = epilog)
+
+        add_generic_args(parser)
+
+        parser.add_argument('-pdf-password',
+                            help = 'The password to open the encrypted PDF file. The input PDF password.')
+        parser.add_argument('-print-page-range',
+                            help = 'Set the page range to print. A comma separated list of page numbers or ranges.')
+        parser.add_argument('-no-layout',
+                            action = 'store_true',
+                            help = 'Ignore the original PDF layout.')
+        parser.add_argument('-eol',
+                            help = 'The end-of-line convention for the text output. Allowed values are unix, dos, mac. Default is unix.')
+        parser.add_argument('-page-break-mode',
+                            help = 'Specify the page break mode for the text output. Allowed values are none, default, custom. Default is none.')
+        parser.add_argument('-custom-page-break',
+                            help = 'Specify the custom page break. String to insert between the pages.')
+        parser.add_argument('-paragraph-mode',
+                            help = 'Specify the paragraph detection mode. Allowed values are none, bounding-box, characters. Default is none.')
+        parser.add_argument('-line-spacing-threshold',
+                            help = 'Set the maximum line spacing when the paragraph detection mode is enabled. The value must be a positive integer percentage. Default is 10%%.')
+        parser.add_argument('-remove-hyphenation',
+                            action = 'store_true',
+                            help = 'Remove the hyphen character from the end of lines.')
+        parser.add_argument('-remove-empty-lines',
+                            action = 'store_true',
+                            help = 'Remove empty lines from the text output.')
+        parser.add_argument('-crop-area-x',
+                            help = 'Set the top left X coordinate of the crop area in points. Must be a positive integer number or 0.')
+        parser.add_argument('-crop-area-y',
+                            help = 'Set the top left Y coordinate of the crop area in points. Must be a positive integer number or 0.')
+        parser.add_argument('-crop-area-width',
+                            help = 'Set the width of the crop area in points. Must be a positive integer number or 0. Default is PDF page width..')
+        parser.add_argument('-crop-area-height',
+                            help = 'Set the height of the crop area in points. Must be a positive integer number or 0. Default is PDF page height..')
+        multi_args['crop_area'] = 4
+        parser.add_argument('-crop-area',
+                            help = 'Set the crop area. It allows to extract just a part of a PDF page. CROP_AREA must contain 4 values separated by a semicolon. Set the top left X coordinate of the crop area in points. Set the top left Y coordinate of the crop area in points. Set the width of the crop area in points. Set the height of the crop area in points. All values must be a positive integer number or 0.')
+        parser.add_argument('-debug-log',
+                            action = 'store_true',
+                            help = 'Turn on the debug logging. Details about the conversion are stored in the debug log.')
+        parser.add_argument('-tag',
+                            help = 'Tag the conversion with a custom value. The tag is used in conversion statistics. A value longer than 32 characters is cut off. A string with the custom tag.')
+        parser.add_argument('-http-proxy',
+                            help = 'A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTP scheme. It can help to circumvent regional restrictions or provide limited access to your intranet. The value must have format DOMAIN_OR_IP_ADDRESS:PORT.')
+        parser.add_argument('-https-proxy',
+                            help = 'A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTPS scheme. It can help to circumvent regional restrictions or provide limited access to your intranet. The value must have format DOMAIN_OR_IP_ADDRESS:PORT.')
+        parser.add_argument('-use-http',
+                            action = 'store_true',
+                            help = 'Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API. Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.')
+        parser.add_argument('-user-agent',
+                            help = 'Set a custom user agent HTTP header. It can be useful if you are behind a proxy or a firewall. The user agent string.')
+        multi_args['proxy'] = 4
+        parser.add_argument('-proxy',
+                            help = 'Specifies an HTTP proxy that the API client library will use to connect to the internet. PROXY must contain 4 values separated by a semicolon. The proxy hostname. The proxy port. The username. The password.')
+        parser.add_argument('-retry-count',
+                            help = 'Specifies the number of automatic retries when the 502 HTTP status code is received. The 502 status code indicates a temporary network issue. This feature can be disabled by setting to 0. Number of retries. Default is 1.')
 
 
     if not parser:

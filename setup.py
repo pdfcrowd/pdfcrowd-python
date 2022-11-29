@@ -31,7 +31,7 @@ except ImportError:
 py_modules=['pdfcrowd']
 
 setup(name='pdfcrowd',
-      version='5.9.0',
+      version='5.10.0',
       description="A client library for the Pdfcrowd API.",
       url='https://pdfcrowd.com/api/',
       license="License :: OSI Approved :: MIT License",
@@ -46,7 +46,8 @@ The Pdfcrowd API lets you easily convert between HTML, PDF and various image for
                './image2image',
                './image2pdf',
                './pdf2pdf',
-               './pdf2html'
+               './pdf2html',
+               './pdf2text'
                ],
       classifiers=["License :: OSI Approved :: MIT License",
                    "Operating System :: MacOS",
