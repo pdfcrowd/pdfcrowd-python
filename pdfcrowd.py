@@ -43,7 +43,7 @@ import os
 import ssl
 import time
 
-__version__ = '5.10.0'
+__version__ = '5.11.0'
 
 # ======================================
 # === PDFCrowd legacy version client ===
@@ -698,7 +698,7 @@ else:
 
 HOST = os.environ.get('PDFCROWD_HOST', 'api.pdfcrowd.com')
 MULTIPART_BOUNDARY = '----------ThIs_Is_tHe_bOUnDary_$'
-CLIENT_VERSION = '5.10.0'
+CLIENT_VERSION = '5.11.0'
 
 def get_utf8_string(string):
     if PYTHON_3:
@@ -791,7 +791,7 @@ class ConnectionHelper:
         self._reset_response_data()
         self.setProxy(None, None, None, None)
         self.setUseHttp(False)
-        self.setUserAgent('pdfcrowd_python_client/5.10.0 (https://pdfcrowd.com)')
+        self.setUserAgent('pdfcrowd_python_client/5.11.0 (https://pdfcrowd.com)')
 
         self.retry_count = 1
         self.converter_version = '20.10'
@@ -3732,6 +3732,187 @@ class ImageToImageClient:
         self.fields['rotate'] = get_utf8_string(rotate)
         return self
 
+    def setCanvasSize(self, size):
+        """
+        Set the output canvas size.
+
+        size - Allowed values are A0, A1, A2, A3, A4, A5, A6, Letter.
+        return - The converter object.
+        """
+        if not re.match('(?i)^(A0|A1|A2|A3|A4|A5|A6|Letter)$', size):
+            raise Error(create_invalid_value_message(size, "setCanvasSize", "image-to-image", 'Allowed values are A0, A1, A2, A3, A4, A5, A6, Letter.', "set_canvas_size"), 470);
+        
+        self.fields['canvas_size'] = get_utf8_string(size)
+        return self
+
+    def setCanvasWidth(self, width):
+        """
+        Set the output canvas width.
+
+        width - The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
+        return - The converter object.
+        """
+        if not re.match('(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', width):
+            raise Error(create_invalid_value_message(width, "setCanvasWidth", "image-to-image", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".', "set_canvas_width"), 470);
+        
+        self.fields['canvas_width'] = get_utf8_string(width)
+        return self
+
+    def setCanvasHeight(self, height):
+        """
+        Set the output canvas height.
+
+        height - The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
+        return - The converter object.
+        """
+        if not re.match('(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', height):
+            raise Error(create_invalid_value_message(height, "setCanvasHeight", "image-to-image", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".', "set_canvas_height"), 470);
+        
+        self.fields['canvas_height'] = get_utf8_string(height)
+        return self
+
+    def setCanvasDimensions(self, width, height):
+        """
+        Set the output canvas dimensions. If no canvas size is specified, margins are applied as a border around the image.
+
+        width - Set the output canvas width. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
+        height - Set the output canvas height. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
+        return - The converter object.
+        """
+        self.setCanvasWidth(width)
+        self.setCanvasHeight(height)
+        return self
+
+    def setOrientation(self, orientation):
+        """
+        Set the output canvas orientation.
+
+        orientation - Allowed values are landscape, portrait.
+        return - The converter object.
+        """
+        if not re.match('(?i)^(landscape|portrait)$', orientation):
+            raise Error(create_invalid_value_message(orientation, "setOrientation", "image-to-image", 'Allowed values are landscape, portrait.', "set_orientation"), 470);
+        
+        self.fields['orientation'] = get_utf8_string(orientation)
+        return self
+
+    def setPosition(self, position):
+        """
+        Set the image position on the page.
+
+        position - Allowed values are center, top, bottom, left, right, top-left, top-right, bottom-left, bottom-right.
+        return - The converter object.
+        """
+        if not re.match('(?i)^(center|top|bottom|left|right|top-left|top-right|bottom-left|bottom-right)$', position):
+            raise Error(create_invalid_value_message(position, "setPosition", "image-to-image", 'Allowed values are center, top, bottom, left, right, top-left, top-right, bottom-left, bottom-right.', "set_position"), 470);
+        
+        self.fields['position'] = get_utf8_string(position)
+        return self
+
+    def setPrintCanvasMode(self, mode):
+        """
+        Set the mode to print the image on the content area of the page.
+
+        mode - Allowed values are default, fit, stretch.
+        return - The converter object.
+        """
+        if not re.match('(?i)^(default|fit|stretch)$', mode):
+            raise Error(create_invalid_value_message(mode, "setPrintCanvasMode", "image-to-image", 'Allowed values are default, fit, stretch.', "set_print_canvas_mode"), 470);
+        
+        self.fields['print_canvas_mode'] = get_utf8_string(mode)
+        return self
+
+    def setMarginTop(self, top):
+        """
+        Set the output canvas top margin.
+
+        top - The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
+        return - The converter object.
+        """
+        if not re.match('(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', top):
+            raise Error(create_invalid_value_message(top, "setMarginTop", "image-to-image", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".', "set_margin_top"), 470);
+        
+        self.fields['margin_top'] = get_utf8_string(top)
+        return self
+
+    def setMarginRight(self, right):
+        """
+        Set the output canvas right margin.
+
+        right - The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
+        return - The converter object.
+        """
+        if not re.match('(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', right):
+            raise Error(create_invalid_value_message(right, "setMarginRight", "image-to-image", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".', "set_margin_right"), 470);
+        
+        self.fields['margin_right'] = get_utf8_string(right)
+        return self
+
+    def setMarginBottom(self, bottom):
+        """
+        Set the output canvas bottom margin.
+
+        bottom - The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
+        return - The converter object.
+        """
+        if not re.match('(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', bottom):
+            raise Error(create_invalid_value_message(bottom, "setMarginBottom", "image-to-image", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".', "set_margin_bottom"), 470);
+        
+        self.fields['margin_bottom'] = get_utf8_string(bottom)
+        return self
+
+    def setMarginLeft(self, left):
+        """
+        Set the output canvas left margin.
+
+        left - The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
+        return - The converter object.
+        """
+        if not re.match('(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', left):
+            raise Error(create_invalid_value_message(left, "setMarginLeft", "image-to-image", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".', "set_margin_left"), 470);
+        
+        self.fields['margin_left'] = get_utf8_string(left)
+        return self
+
+    def setMargins(self, top, right, bottom, left):
+        """
+        Set the output canvas margins.
+
+        top - Set the output canvas top margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
+        right - Set the output canvas right margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
+        bottom - Set the output canvas bottom margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
+        left - Set the output canvas left margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
+        return - The converter object.
+        """
+        self.setMarginTop(top)
+        self.setMarginRight(right)
+        self.setMarginBottom(bottom)
+        self.setMarginLeft(left)
+        return self
+
+    def setCanvasBackgroundColor(self, color):
+        """
+        The canvas background color in RGB or RGBA hexadecimal format. The color fills the entire canvas regardless of margins. If no canvas size is specified and the image format supports background (e.g. PDF, PNG), the background color is applied too.
+
+        color - The value must be in RRGGBB or RRGGBBAA hexadecimal format.
+        return - The converter object.
+        """
+        if not re.match('^[0-9a-fA-F]{6,8}$', color):
+            raise Error(create_invalid_value_message(color, "setCanvasBackgroundColor", "image-to-image", 'The value must be in RRGGBB or RRGGBBAA hexadecimal format.', "set_canvas_background_color"), 470);
+        
+        self.fields['canvas_background_color'] = get_utf8_string(color)
+        return self
+
+    def setDpi(self, dpi):
+        """
+        Set the DPI resolution of the input image. The DPI affects margin options specified in points too (e.g. 1 point is equal to 1 pixel in 96 DPI).
+
+        dpi - The DPI value.
+        return - The converter object.
+        """
+        self.fields['dpi'] = dpi
+        return self
+
     def setDebugLog(self, value):
         """
         Turn on the debug logging. Details about the conversion are stored in the debug log. The URL of the log can be obtained from the getDebugLogUrl method or available in conversion statistics.
@@ -3905,11 +4086,11 @@ class PdfToPdfClient:
         """
         Specifies the action to be performed on the input PDFs.
 
-        action - Allowed values are join, shuffle.
+        action - Allowed values are join, shuffle, extract, delete.
         return - The converter object.
         """
-        if not re.match('(?i)^(join|shuffle)$', action):
-            raise Error(create_invalid_value_message(action, "setAction", "pdf-to-pdf", 'Allowed values are join, shuffle.', "set_action"), 470);
+        if not re.match('(?i)^(join|shuffle|extract|delete)$', action):
+            raise Error(create_invalid_value_message(action, "setAction", "pdf-to-pdf", 'Allowed values are join, shuffle, extract, delete.', "set_action"), 470);
         
         self.fields['action'] = get_utf8_string(action)
         return self
@@ -3978,6 +4159,19 @@ class PdfToPdfClient:
         return - The converter object.
         """
         self.fields['input_pdf_password'] = get_utf8_string(password)
+        return self
+
+    def setPageRange(self, pages):
+        """
+        Set the page range for extract or delete action.
+
+        pages - A comma separated list of page numbers or ranges.
+        return - The converter object.
+        """
+        if not re.match('^(?:\s*(?:\d+|(?:\d*\s*\-\s*\d+)|(?:\d+\s*\-\s*\d*))\s*,\s*)*\s*(?:\d+|(?:\d*\s*\-\s*\d+)|(?:\d+\s*\-\s*\d*))\s*$', pages):
+            raise Error(create_invalid_value_message(pages, "setPageRange", "pdf-to-pdf", 'A comma separated list of page numbers or ranges.', "set_page_range"), 470);
+        
+        self.fields['page_range'] = get_utf8_string(pages)
         return self
 
     def setPageWatermark(self, watermark):
@@ -4678,6 +4872,187 @@ class ImageToPdfClient:
         return - The converter object.
         """
         self.fields['rotate'] = get_utf8_string(rotate)
+        return self
+
+    def setPageSize(self, size):
+        """
+        Set the output page size.
+
+        size - Allowed values are A0, A1, A2, A3, A4, A5, A6, Letter.
+        return - The converter object.
+        """
+        if not re.match('(?i)^(A0|A1|A2|A3|A4|A5|A6|Letter)$', size):
+            raise Error(create_invalid_value_message(size, "setPageSize", "image-to-pdf", 'Allowed values are A0, A1, A2, A3, A4, A5, A6, Letter.', "set_page_size"), 470);
+        
+        self.fields['page_size'] = get_utf8_string(size)
+        return self
+
+    def setPageWidth(self, width):
+        """
+        Set the output page width.
+
+        width - The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
+        return - The converter object.
+        """
+        if not re.match('(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', width):
+            raise Error(create_invalid_value_message(width, "setPageWidth", "image-to-pdf", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".', "set_page_width"), 470);
+        
+        self.fields['page_width'] = get_utf8_string(width)
+        return self
+
+    def setPageHeight(self, height):
+        """
+        Set the output page height.
+
+        height - The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
+        return - The converter object.
+        """
+        if not re.match('(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', height):
+            raise Error(create_invalid_value_message(height, "setPageHeight", "image-to-pdf", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".', "set_page_height"), 470);
+        
+        self.fields['page_height'] = get_utf8_string(height)
+        return self
+
+    def setPageDimensions(self, width, height):
+        """
+        Set the output page dimensions. If no page size is specified, margins are applied as a border around the image.
+
+        width - Set the output page width. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
+        height - Set the output page height. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
+        return - The converter object.
+        """
+        self.setPageWidth(width)
+        self.setPageHeight(height)
+        return self
+
+    def setOrientation(self, orientation):
+        """
+        Set the output page orientation.
+
+        orientation - Allowed values are landscape, portrait.
+        return - The converter object.
+        """
+        if not re.match('(?i)^(landscape|portrait)$', orientation):
+            raise Error(create_invalid_value_message(orientation, "setOrientation", "image-to-pdf", 'Allowed values are landscape, portrait.', "set_orientation"), 470);
+        
+        self.fields['orientation'] = get_utf8_string(orientation)
+        return self
+
+    def setPosition(self, position):
+        """
+        Set the image position on the page.
+
+        position - Allowed values are center, top, bottom, left, right, top-left, top-right, bottom-left, bottom-right.
+        return - The converter object.
+        """
+        if not re.match('(?i)^(center|top|bottom|left|right|top-left|top-right|bottom-left|bottom-right)$', position):
+            raise Error(create_invalid_value_message(position, "setPosition", "image-to-pdf", 'Allowed values are center, top, bottom, left, right, top-left, top-right, bottom-left, bottom-right.', "set_position"), 470);
+        
+        self.fields['position'] = get_utf8_string(position)
+        return self
+
+    def setPrintPageMode(self, mode):
+        """
+        Set the mode to print the image on the content area of the page.
+
+        mode - Allowed values are default, fit, stretch.
+        return - The converter object.
+        """
+        if not re.match('(?i)^(default|fit|stretch)$', mode):
+            raise Error(create_invalid_value_message(mode, "setPrintPageMode", "image-to-pdf", 'Allowed values are default, fit, stretch.', "set_print_page_mode"), 470);
+        
+        self.fields['print_page_mode'] = get_utf8_string(mode)
+        return self
+
+    def setMarginTop(self, top):
+        """
+        Set the output page top margin.
+
+        top - The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
+        return - The converter object.
+        """
+        if not re.match('(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', top):
+            raise Error(create_invalid_value_message(top, "setMarginTop", "image-to-pdf", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".', "set_margin_top"), 470);
+        
+        self.fields['margin_top'] = get_utf8_string(top)
+        return self
+
+    def setMarginRight(self, right):
+        """
+        Set the output page right margin.
+
+        right - The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
+        return - The converter object.
+        """
+        if not re.match('(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', right):
+            raise Error(create_invalid_value_message(right, "setMarginRight", "image-to-pdf", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".', "set_margin_right"), 470);
+        
+        self.fields['margin_right'] = get_utf8_string(right)
+        return self
+
+    def setMarginBottom(self, bottom):
+        """
+        Set the output page bottom margin.
+
+        bottom - The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
+        return - The converter object.
+        """
+        if not re.match('(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', bottom):
+            raise Error(create_invalid_value_message(bottom, "setMarginBottom", "image-to-pdf", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".', "set_margin_bottom"), 470);
+        
+        self.fields['margin_bottom'] = get_utf8_string(bottom)
+        return self
+
+    def setMarginLeft(self, left):
+        """
+        Set the output page left margin.
+
+        left - The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
+        return - The converter object.
+        """
+        if not re.match('(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', left):
+            raise Error(create_invalid_value_message(left, "setMarginLeft", "image-to-pdf", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".', "set_margin_left"), 470);
+        
+        self.fields['margin_left'] = get_utf8_string(left)
+        return self
+
+    def setPageMargins(self, top, right, bottom, left):
+        """
+        Set the output page margins.
+
+        top - Set the output page top margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
+        right - Set the output page right margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
+        bottom - Set the output page bottom margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
+        left - Set the output page left margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
+        return - The converter object.
+        """
+        self.setMarginTop(top)
+        self.setMarginRight(right)
+        self.setMarginBottom(bottom)
+        self.setMarginLeft(left)
+        return self
+
+    def setPageBackgroundColor(self, color):
+        """
+        The page background color in RGB or RGBA hexadecimal format. The color fills the entire page regardless of the margins. If not page size is specified and the image format supports background (e.g. PDF, PNG), the background color is applied too.
+
+        color - The value must be in RRGGBB or RRGGBBAA hexadecimal format.
+        return - The converter object.
+        """
+        if not re.match('^[0-9a-fA-F]{6,8}$', color):
+            raise Error(create_invalid_value_message(color, "setPageBackgroundColor", "image-to-pdf", 'The value must be in RRGGBB or RRGGBBAA hexadecimal format.', "set_page_background_color"), 470);
+        
+        self.fields['page_background_color'] = get_utf8_string(color)
+        return self
+
+    def setDpi(self, dpi):
+        """
+        Set the DPI resolution of the input image. The DPI affects margin options specified in points too (e.g. 1 point is equal to 1 pixel in 96 DPI).
+
+        dpi - The DPI value.
+        return - The converter object.
+        """
+        self.fields['dpi'] = dpi
         return self
 
     def setPageWatermark(self, watermark):
@@ -6675,6 +7050,36 @@ available converters:
                             help = 'Resize the image. The resize percentage or new image dimensions. Default is 100%%.')
         parser.add_argument('-rotate',
                             help = 'Rotate the image. The rotation specified in degrees.')
+        parser.add_argument('-canvas-size',
+                            help = 'Set the output canvas size. Allowed values are A0, A1, A2, A3, A4, A5, A6, Letter.')
+        parser.add_argument('-canvas-width',
+                            help = 'Set the output canvas width. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".')
+        parser.add_argument('-canvas-height',
+                            help = 'Set the output canvas height. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".')
+        multi_args['canvas_dimensions'] = 2
+        parser.add_argument('-canvas-dimensions',
+                            help = 'Set the output canvas dimensions. If no canvas size is specified, margins are applied as a border around the image. CANVAS_DIMENSIONS must contain 2 values separated by a semicolon. Set the output canvas width. Set the output canvas height. All values the value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".')
+        parser.add_argument('-orientation',
+                            help = 'Set the output canvas orientation. Allowed values are landscape, portrait. Default is portrait.')
+        parser.add_argument('-position',
+                            help = 'Set the image position on the page. Allowed values are center, top, bottom, left, right, top-left, top-right, bottom-left, bottom-right. Default is center.')
+        parser.add_argument('-print-canvas-mode',
+                            help = 'Set the mode to print the image on the content area of the page. Allowed values are default, fit, stretch. Default is default.')
+        parser.add_argument('-margin-top',
+                            help = 'Set the output canvas top margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".')
+        parser.add_argument('-margin-right',
+                            help = 'Set the output canvas right margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".')
+        parser.add_argument('-margin-bottom',
+                            help = 'Set the output canvas bottom margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".')
+        parser.add_argument('-margin-left',
+                            help = 'Set the output canvas left margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".')
+        multi_args['margins'] = 4
+        parser.add_argument('-margins',
+                            help = 'Set the output canvas margins. MARGINS must contain 4 values separated by a semicolon. Set the output canvas top margin. Set the output canvas right margin. Set the output canvas bottom margin. Set the output canvas left margin. All values the value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".')
+        parser.add_argument('-canvas-background-color',
+                            help = 'The canvas background color in RGB or RGBA hexadecimal format. The color fills the entire canvas regardless of margins. If no canvas size is specified and the image format supports background (e.g. PDF, PNG), the background color is applied too. The value must be in RRGGBB or RRGGBBAA hexadecimal format.')
+        parser.add_argument('-dpi',
+                            help = 'Set the DPI resolution of the input image. The DPI affects margin options specified in points too (e.g. 1 point is equal to 1 pixel in 96 DPI). The DPI value. Default is 96.')
         parser.add_argument('-debug-log',
                             action = 'store_true',
                             help = 'Turn on the debug logging. Details about the conversion are stored in the debug log.')
@@ -6708,9 +7113,11 @@ available converters:
         add_generic_args(parser, '+')
 
         parser.add_argument('-action',
-                            help = 'Specifies the action to be performed on the input PDFs. Allowed values are join, shuffle. Default is join.')
+                            help = 'Specifies the action to be performed on the input PDFs. Allowed values are join, shuffle, extract, delete. Default is join.')
         parser.add_argument('-input-pdf-password',
                             help = 'Password to open the encrypted PDF file. The input PDF password.')
+        parser.add_argument('-page-range',
+                            help = 'Set the page range for extract or delete action. A comma separated list of page numbers or ranges.')
         parser.add_argument('-page-watermark',
                             help = 'Apply a watermark to each page of the output PDF file. A watermark can be either a PDF or an image. If a multi-page file (PDF or TIFF) is used, the first page is used as the watermark. The file path to a local file. The file must exist and not be empty.')
         parser.add_argument('-page-watermark-url',
@@ -6819,6 +7226,36 @@ available converters:
                             help = 'Resize the image. The resize percentage or new image dimensions. Default is 100%%.')
         parser.add_argument('-rotate',
                             help = 'Rotate the image. The rotation specified in degrees.')
+        parser.add_argument('-page-size',
+                            help = 'Set the output page size. Allowed values are A0, A1, A2, A3, A4, A5, A6, Letter.')
+        parser.add_argument('-page-width',
+                            help = 'Set the output page width. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".')
+        parser.add_argument('-page-height',
+                            help = 'Set the output page height. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".')
+        multi_args['page_dimensions'] = 2
+        parser.add_argument('-page-dimensions',
+                            help = 'Set the output page dimensions. If no page size is specified, margins are applied as a border around the image. PAGE_DIMENSIONS must contain 2 values separated by a semicolon. Set the output page width. Set the output page height. All values the value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".')
+        parser.add_argument('-orientation',
+                            help = 'Set the output page orientation. Allowed values are landscape, portrait. Default is portrait.')
+        parser.add_argument('-position',
+                            help = 'Set the image position on the page. Allowed values are center, top, bottom, left, right, top-left, top-right, bottom-left, bottom-right. Default is center.')
+        parser.add_argument('-print-page-mode',
+                            help = 'Set the mode to print the image on the content area of the page. Allowed values are default, fit, stretch. Default is default.')
+        parser.add_argument('-margin-top',
+                            help = 'Set the output page top margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".')
+        parser.add_argument('-margin-right',
+                            help = 'Set the output page right margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".')
+        parser.add_argument('-margin-bottom',
+                            help = 'Set the output page bottom margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".')
+        parser.add_argument('-margin-left',
+                            help = 'Set the output page left margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".')
+        multi_args['page_margins'] = 4
+        parser.add_argument('-page-margins',
+                            help = 'Set the output page margins. PAGE_MARGINS must contain 4 values separated by a semicolon. Set the output page top margin. Set the output page right margin. Set the output page bottom margin. Set the output page left margin. All values the value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".')
+        parser.add_argument('-page-background-color',
+                            help = 'The page background color in RGB or RGBA hexadecimal format. The color fills the entire page regardless of the margins. If not page size is specified and the image format supports background (e.g. PDF, PNG), the background color is applied too. The value must be in RRGGBB or RRGGBBAA hexadecimal format.')
+        parser.add_argument('-dpi',
+                            help = 'Set the DPI resolution of the input image. The DPI affects margin options specified in points too (e.g. 1 point is equal to 1 pixel in 96 DPI). The DPI value. Default is 96.')
         parser.add_argument('-page-watermark',
                             help = 'Apply a watermark to each page of the output PDF file. A watermark can be either a PDF or an image. If a multi-page file (PDF or TIFF) is used, the first page is used as the watermark. The file path to a local file. The file must exist and not be empty.')
         parser.add_argument('-page-watermark-url',
