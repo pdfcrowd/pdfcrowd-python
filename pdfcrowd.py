@@ -43,7 +43,7 @@ import os
 import ssl
 import time
 
-__version__ = '5.11.0'
+__version__ = '5.12.0'
 
 # ======================================
 # === PDFCrowd legacy version client ===
@@ -698,7 +698,7 @@ else:
 
 HOST = os.environ.get('PDFCROWD_HOST', 'api.pdfcrowd.com')
 MULTIPART_BOUNDARY = '----------ThIs_Is_tHe_bOUnDary_$'
-CLIENT_VERSION = '5.11.0'
+CLIENT_VERSION = '5.12.0'
 
 def get_utf8_string(string):
     if PYTHON_3:
@@ -791,7 +791,7 @@ class ConnectionHelper:
         self._reset_response_data()
         self.setProxy(None, None, None, None)
         self.setUseHttp(False)
-        self.setUserAgent('pdfcrowd_python_client/5.11.0 (https://pdfcrowd.com)')
+        self.setUserAgent('pdfcrowd_python_client/5.12.0 (https://pdfcrowd.com)')
 
         self.retry_count = 1
         self.converter_version = '20.10'
@@ -1172,11 +1172,11 @@ class HtmlToPdfClient:
         """
         Set the output page width. The safe maximum is 200in otherwise some PDF viewers may be unable to open the PDF.
 
-        width - The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
+        width - The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
         return - The converter object.
         """
         if not re.match('(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', width):
-            raise Error(create_invalid_value_message(width, "setPageWidth", "html-to-pdf", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".', "set_page_width"), 470);
+            raise Error(create_invalid_value_message(width, "setPageWidth", "html-to-pdf", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".', "set_page_width"), 470);
         
         self.fields['page_width'] = get_utf8_string(width)
         return self
@@ -1185,11 +1185,11 @@ class HtmlToPdfClient:
         """
         Set the output page height. Use -1 for a single page PDF. The safe maximum is 200in otherwise some PDF viewers may be unable to open the PDF.
 
-        height - The value must be -1 or specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
+        height - The value must be -1 or specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
         return - The converter object.
         """
         if not re.match('(?i)^0$|^\-1$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', height):
-            raise Error(create_invalid_value_message(height, "setPageHeight", "html-to-pdf", 'The value must be -1 or specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".', "set_page_height"), 470);
+            raise Error(create_invalid_value_message(height, "setPageHeight", "html-to-pdf", 'The value must be -1 or specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".', "set_page_height"), 470);
         
         self.fields['page_height'] = get_utf8_string(height)
         return self
@@ -1198,8 +1198,8 @@ class HtmlToPdfClient:
         """
         Set the output page dimensions.
 
-        width - Set the output page width. The safe maximum is 200in otherwise some PDF viewers may be unable to open the PDF. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
-        height - Set the output page height. Use -1 for a single page PDF. The safe maximum is 200in otherwise some PDF viewers may be unable to open the PDF. The value must be -1 or specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
+        width - Set the output page width. The safe maximum is 200in otherwise some PDF viewers may be unable to open the PDF. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+        height - Set the output page height. Use -1 for a single page PDF. The safe maximum is 200in otherwise some PDF viewers may be unable to open the PDF. The value must be -1 or specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
         return - The converter object.
         """
         self.setPageWidth(width)
@@ -1223,11 +1223,11 @@ class HtmlToPdfClient:
         """
         Set the output page top margin.
 
-        top - The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
+        top - The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
         return - The converter object.
         """
         if not re.match('(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', top):
-            raise Error(create_invalid_value_message(top, "setMarginTop", "html-to-pdf", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".', "set_margin_top"), 470);
+            raise Error(create_invalid_value_message(top, "setMarginTop", "html-to-pdf", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".', "set_margin_top"), 470);
         
         self.fields['margin_top'] = get_utf8_string(top)
         return self
@@ -1236,11 +1236,11 @@ class HtmlToPdfClient:
         """
         Set the output page right margin.
 
-        right - The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
+        right - The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
         return - The converter object.
         """
         if not re.match('(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', right):
-            raise Error(create_invalid_value_message(right, "setMarginRight", "html-to-pdf", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".', "set_margin_right"), 470);
+            raise Error(create_invalid_value_message(right, "setMarginRight", "html-to-pdf", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".', "set_margin_right"), 470);
         
         self.fields['margin_right'] = get_utf8_string(right)
         return self
@@ -1249,11 +1249,11 @@ class HtmlToPdfClient:
         """
         Set the output page bottom margin.
 
-        bottom - The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
+        bottom - The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
         return - The converter object.
         """
         if not re.match('(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', bottom):
-            raise Error(create_invalid_value_message(bottom, "setMarginBottom", "html-to-pdf", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".', "set_margin_bottom"), 470);
+            raise Error(create_invalid_value_message(bottom, "setMarginBottom", "html-to-pdf", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".', "set_margin_bottom"), 470);
         
         self.fields['margin_bottom'] = get_utf8_string(bottom)
         return self
@@ -1262,11 +1262,11 @@ class HtmlToPdfClient:
         """
         Set the output page left margin.
 
-        left - The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
+        left - The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
         return - The converter object.
         """
         if not re.match('(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', left):
-            raise Error(create_invalid_value_message(left, "setMarginLeft", "html-to-pdf", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".', "set_margin_left"), 470);
+            raise Error(create_invalid_value_message(left, "setMarginLeft", "html-to-pdf", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".', "set_margin_left"), 470);
         
         self.fields['margin_left'] = get_utf8_string(left)
         return self
@@ -1285,10 +1285,10 @@ class HtmlToPdfClient:
         """
         Set the output page margins.
 
-        top - Set the output page top margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
-        right - Set the output page right margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
-        bottom - Set the output page bottom margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
-        left - Set the output page left margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
+        top - Set the output page top margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+        right - Set the output page right margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+        bottom - Set the output page bottom margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+        left - Set the output page left margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
         return - The converter object.
         """
         self.setMarginTop(top)
@@ -1324,11 +1324,11 @@ class HtmlToPdfClient:
         """
         Set the top left X coordinate of the content area. It is relative to the top left X coordinate of the print area.
 
-        x - The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt". It may contain a negative value.
+        x - The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt". It may contain a negative value.
         return - The converter object.
         """
         if not re.match('(?i)^0$|^\-?[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', x):
-            raise Error(create_invalid_value_message(x, "setContentAreaX", "html-to-pdf", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt". It may contain a negative value.', "set_content_area_x"), 470);
+            raise Error(create_invalid_value_message(x, "setContentAreaX", "html-to-pdf", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt". It may contain a negative value.', "set_content_area_x"), 470);
         
         self.fields['content_area_x'] = get_utf8_string(x)
         return self
@@ -1337,11 +1337,11 @@ class HtmlToPdfClient:
         """
         Set the top left Y coordinate of the content area. It is relative to the top left Y coordinate of the print area.
 
-        y - The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt". It may contain a negative value.
+        y - The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt". It may contain a negative value.
         return - The converter object.
         """
         if not re.match('(?i)^0$|^\-?[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', y):
-            raise Error(create_invalid_value_message(y, "setContentAreaY", "html-to-pdf", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt". It may contain a negative value.', "set_content_area_y"), 470);
+            raise Error(create_invalid_value_message(y, "setContentAreaY", "html-to-pdf", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt". It may contain a negative value.', "set_content_area_y"), 470);
         
         self.fields['content_area_y'] = get_utf8_string(y)
         return self
@@ -1350,11 +1350,11 @@ class HtmlToPdfClient:
         """
         Set the width of the content area. It should be at least 1 inch.
 
-        width - The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
+        width - The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
         return - The converter object.
         """
         if not re.match('(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', width):
-            raise Error(create_invalid_value_message(width, "setContentAreaWidth", "html-to-pdf", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".', "set_content_area_width"), 470);
+            raise Error(create_invalid_value_message(width, "setContentAreaWidth", "html-to-pdf", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".', "set_content_area_width"), 470);
         
         self.fields['content_area_width'] = get_utf8_string(width)
         return self
@@ -1363,11 +1363,11 @@ class HtmlToPdfClient:
         """
         Set the height of the content area. It should be at least 1 inch.
 
-        height - The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
+        height - The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
         return - The converter object.
         """
         if not re.match('(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', height):
-            raise Error(create_invalid_value_message(height, "setContentAreaHeight", "html-to-pdf", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".', "set_content_area_height"), 470);
+            raise Error(create_invalid_value_message(height, "setContentAreaHeight", "html-to-pdf", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".', "set_content_area_height"), 470);
         
         self.fields['content_area_height'] = get_utf8_string(height)
         return self
@@ -1376,10 +1376,10 @@ class HtmlToPdfClient:
         """
         Set the content area position and size. The content area enables to specify a web page area to be converted.
 
-        x - Set the top left X coordinate of the content area. It is relative to the top left X coordinate of the print area. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt". It may contain a negative value.
-        y - Set the top left Y coordinate of the content area. It is relative to the top left Y coordinate of the print area. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt". It may contain a negative value.
-        width - Set the width of the content area. It should be at least 1 inch. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
-        height - Set the height of the content area. It should be at least 1 inch. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
+        x - Set the top left X coordinate of the content area. It is relative to the top left X coordinate of the print area. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt". It may contain a negative value.
+        y - Set the top left Y coordinate of the content area. It is relative to the top left Y coordinate of the print area. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt". It may contain a negative value.
+        width - Set the width of the content area. It should be at least 1 inch. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+        height - Set the height of the content area. It should be at least 1 inch. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
         return - The converter object.
         """
         self.setContentAreaX(x)
@@ -1431,11 +1431,11 @@ class HtmlToPdfClient:
         """
         Set the header height.
 
-        height - The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
+        height - The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
         return - The converter object.
         """
         if not re.match('(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', height):
-            raise Error(create_invalid_value_message(height, "setHeaderHeight", "html-to-pdf", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".', "set_header_height"), 470);
+            raise Error(create_invalid_value_message(height, "setHeaderHeight", "html-to-pdf", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".', "set_header_height"), 470);
         
         self.fields['header_height'] = get_utf8_string(height)
         return self
@@ -1480,11 +1480,11 @@ class HtmlToPdfClient:
         """
         Set the footer height.
 
-        height - The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
+        height - The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
         return - The converter object.
         """
         if not re.match('(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', height):
-            raise Error(create_invalid_value_message(height, "setFooterHeight", "html-to-pdf", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".', "set_footer_height"), 470);
+            raise Error(create_invalid_value_message(height, "setFooterHeight", "html-to-pdf", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".', "set_footer_height"), 470);
         
         self.fields['footer_height'] = get_utf8_string(height)
         return self
@@ -3732,6 +3732,84 @@ class ImageToImageClient:
         self.fields['rotate'] = get_utf8_string(rotate)
         return self
 
+    def setCropAreaX(self, x):
+        """
+        Set the top left X coordinate of the content area. It is relative to the top left X coordinate of the print area.
+
+        x - The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+        return - The converter object.
+        """
+        if not re.match('(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', x):
+            raise Error(create_invalid_value_message(x, "setCropAreaX", "image-to-image", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".', "set_crop_area_x"), 470);
+        
+        self.fields['crop_area_x'] = get_utf8_string(x)
+        return self
+
+    def setCropAreaY(self, y):
+        """
+        Set the top left Y coordinate of the content area. It is relative to the top left Y coordinate of the print area.
+
+        y - The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+        return - The converter object.
+        """
+        if not re.match('(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', y):
+            raise Error(create_invalid_value_message(y, "setCropAreaY", "image-to-image", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".', "set_crop_area_y"), 470);
+        
+        self.fields['crop_area_y'] = get_utf8_string(y)
+        return self
+
+    def setCropAreaWidth(self, width):
+        """
+        Set the width of the content area. It should be at least 1 inch.
+
+        width - The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+        return - The converter object.
+        """
+        if not re.match('(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', width):
+            raise Error(create_invalid_value_message(width, "setCropAreaWidth", "image-to-image", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".', "set_crop_area_width"), 470);
+        
+        self.fields['crop_area_width'] = get_utf8_string(width)
+        return self
+
+    def setCropAreaHeight(self, height):
+        """
+        Set the height of the content area. It should be at least 1 inch.
+
+        height - The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+        return - The converter object.
+        """
+        if not re.match('(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', height):
+            raise Error(create_invalid_value_message(height, "setCropAreaHeight", "image-to-image", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".', "set_crop_area_height"), 470);
+        
+        self.fields['crop_area_height'] = get_utf8_string(height)
+        return self
+
+    def setCropArea(self, x, y, width, height):
+        """
+        Set the content area position and size. The content area enables to specify the part to be converted.
+
+        x - Set the top left X coordinate of the content area. It is relative to the top left X coordinate of the print area. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+        y - Set the top left Y coordinate of the content area. It is relative to the top left Y coordinate of the print area. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+        width - Set the width of the content area. It should be at least 1 inch. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+        height - Set the height of the content area. It should be at least 1 inch. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+        return - The converter object.
+        """
+        self.setCropAreaX(x)
+        self.setCropAreaY(y)
+        self.setCropAreaWidth(width)
+        self.setCropAreaHeight(height)
+        return self
+
+    def setRemoveBorders(self, value):
+        """
+        Remove borders of an image which does not change in color.
+
+        value - Set to True to remove borders.
+        return - The converter object.
+        """
+        self.fields['remove_borders'] = value
+        return self
+
     def setCanvasSize(self, size):
         """
         Set the output canvas size.
@@ -3749,11 +3827,11 @@ class ImageToImageClient:
         """
         Set the output canvas width.
 
-        width - The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
+        width - The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
         return - The converter object.
         """
         if not re.match('(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', width):
-            raise Error(create_invalid_value_message(width, "setCanvasWidth", "image-to-image", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".', "set_canvas_width"), 470);
+            raise Error(create_invalid_value_message(width, "setCanvasWidth", "image-to-image", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".', "set_canvas_width"), 470);
         
         self.fields['canvas_width'] = get_utf8_string(width)
         return self
@@ -3762,11 +3840,11 @@ class ImageToImageClient:
         """
         Set the output canvas height.
 
-        height - The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
+        height - The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
         return - The converter object.
         """
         if not re.match('(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', height):
-            raise Error(create_invalid_value_message(height, "setCanvasHeight", "image-to-image", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".', "set_canvas_height"), 470);
+            raise Error(create_invalid_value_message(height, "setCanvasHeight", "image-to-image", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".', "set_canvas_height"), 470);
         
         self.fields['canvas_height'] = get_utf8_string(height)
         return self
@@ -3775,8 +3853,8 @@ class ImageToImageClient:
         """
         Set the output canvas dimensions. If no canvas size is specified, margins are applied as a border around the image.
 
-        width - Set the output canvas width. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
-        height - Set the output canvas height. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
+        width - Set the output canvas width. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+        height - Set the output canvas height. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
         return - The converter object.
         """
         self.setCanvasWidth(width)
@@ -3798,7 +3876,7 @@ class ImageToImageClient:
 
     def setPosition(self, position):
         """
-        Set the image position on the page.
+        Set the image position on the canvas.
 
         position - Allowed values are center, top, bottom, left, right, top-left, top-right, bottom-left, bottom-right.
         return - The converter object.
@@ -3811,7 +3889,7 @@ class ImageToImageClient:
 
     def setPrintCanvasMode(self, mode):
         """
-        Set the mode to print the image on the content area of the page.
+        Set the mode to print the image on the canvas.
 
         mode - Allowed values are default, fit, stretch.
         return - The converter object.
@@ -3826,11 +3904,11 @@ class ImageToImageClient:
         """
         Set the output canvas top margin.
 
-        top - The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
+        top - The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
         return - The converter object.
         """
         if not re.match('(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', top):
-            raise Error(create_invalid_value_message(top, "setMarginTop", "image-to-image", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".', "set_margin_top"), 470);
+            raise Error(create_invalid_value_message(top, "setMarginTop", "image-to-image", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".', "set_margin_top"), 470);
         
         self.fields['margin_top'] = get_utf8_string(top)
         return self
@@ -3839,11 +3917,11 @@ class ImageToImageClient:
         """
         Set the output canvas right margin.
 
-        right - The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
+        right - The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
         return - The converter object.
         """
         if not re.match('(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', right):
-            raise Error(create_invalid_value_message(right, "setMarginRight", "image-to-image", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".', "set_margin_right"), 470);
+            raise Error(create_invalid_value_message(right, "setMarginRight", "image-to-image", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".', "set_margin_right"), 470);
         
         self.fields['margin_right'] = get_utf8_string(right)
         return self
@@ -3852,11 +3930,11 @@ class ImageToImageClient:
         """
         Set the output canvas bottom margin.
 
-        bottom - The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
+        bottom - The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
         return - The converter object.
         """
         if not re.match('(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', bottom):
-            raise Error(create_invalid_value_message(bottom, "setMarginBottom", "image-to-image", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".', "set_margin_bottom"), 470);
+            raise Error(create_invalid_value_message(bottom, "setMarginBottom", "image-to-image", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".', "set_margin_bottom"), 470);
         
         self.fields['margin_bottom'] = get_utf8_string(bottom)
         return self
@@ -3865,11 +3943,11 @@ class ImageToImageClient:
         """
         Set the output canvas left margin.
 
-        left - The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
+        left - The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
         return - The converter object.
         """
         if not re.match('(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', left):
-            raise Error(create_invalid_value_message(left, "setMarginLeft", "image-to-image", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".', "set_margin_left"), 470);
+            raise Error(create_invalid_value_message(left, "setMarginLeft", "image-to-image", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".', "set_margin_left"), 470);
         
         self.fields['margin_left'] = get_utf8_string(left)
         return self
@@ -3878,10 +3956,10 @@ class ImageToImageClient:
         """
         Set the output canvas margins.
 
-        top - Set the output canvas top margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
-        right - Set the output canvas right margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
-        bottom - Set the output canvas bottom margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
-        left - Set the output canvas left margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
+        top - Set the output canvas top margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+        right - Set the output canvas right margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+        bottom - Set the output canvas bottom margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+        left - Set the output canvas left margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
         return - The converter object.
         """
         self.setMarginTop(top)
@@ -4874,6 +4952,84 @@ class ImageToPdfClient:
         self.fields['rotate'] = get_utf8_string(rotate)
         return self
 
+    def setCropAreaX(self, x):
+        """
+        Set the top left X coordinate of the content area. It is relative to the top left X coordinate of the print area.
+
+        x - The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+        return - The converter object.
+        """
+        if not re.match('(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', x):
+            raise Error(create_invalid_value_message(x, "setCropAreaX", "image-to-pdf", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".', "set_crop_area_x"), 470);
+        
+        self.fields['crop_area_x'] = get_utf8_string(x)
+        return self
+
+    def setCropAreaY(self, y):
+        """
+        Set the top left Y coordinate of the content area. It is relative to the top left Y coordinate of the print area.
+
+        y - The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+        return - The converter object.
+        """
+        if not re.match('(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', y):
+            raise Error(create_invalid_value_message(y, "setCropAreaY", "image-to-pdf", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".', "set_crop_area_y"), 470);
+        
+        self.fields['crop_area_y'] = get_utf8_string(y)
+        return self
+
+    def setCropAreaWidth(self, width):
+        """
+        Set the width of the content area. It should be at least 1 inch.
+
+        width - The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+        return - The converter object.
+        """
+        if not re.match('(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', width):
+            raise Error(create_invalid_value_message(width, "setCropAreaWidth", "image-to-pdf", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".', "set_crop_area_width"), 470);
+        
+        self.fields['crop_area_width'] = get_utf8_string(width)
+        return self
+
+    def setCropAreaHeight(self, height):
+        """
+        Set the height of the content area. It should be at least 1 inch.
+
+        height - The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+        return - The converter object.
+        """
+        if not re.match('(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', height):
+            raise Error(create_invalid_value_message(height, "setCropAreaHeight", "image-to-pdf", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".', "set_crop_area_height"), 470);
+        
+        self.fields['crop_area_height'] = get_utf8_string(height)
+        return self
+
+    def setCropArea(self, x, y, width, height):
+        """
+        Set the content area position and size. The content area enables to specify the part to be converted.
+
+        x - Set the top left X coordinate of the content area. It is relative to the top left X coordinate of the print area. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+        y - Set the top left Y coordinate of the content area. It is relative to the top left Y coordinate of the print area. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+        width - Set the width of the content area. It should be at least 1 inch. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+        height - Set the height of the content area. It should be at least 1 inch. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+        return - The converter object.
+        """
+        self.setCropAreaX(x)
+        self.setCropAreaY(y)
+        self.setCropAreaWidth(width)
+        self.setCropAreaHeight(height)
+        return self
+
+    def setRemoveBorders(self, value):
+        """
+        Remove borders of an image which does not change in color.
+
+        value - Set to True to remove borders.
+        return - The converter object.
+        """
+        self.fields['remove_borders'] = value
+        return self
+
     def setPageSize(self, size):
         """
         Set the output page size.
@@ -4891,11 +5047,11 @@ class ImageToPdfClient:
         """
         Set the output page width.
 
-        width - The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
+        width - The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
         return - The converter object.
         """
         if not re.match('(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', width):
-            raise Error(create_invalid_value_message(width, "setPageWidth", "image-to-pdf", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".', "set_page_width"), 470);
+            raise Error(create_invalid_value_message(width, "setPageWidth", "image-to-pdf", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".', "set_page_width"), 470);
         
         self.fields['page_width'] = get_utf8_string(width)
         return self
@@ -4904,11 +5060,11 @@ class ImageToPdfClient:
         """
         Set the output page height.
 
-        height - The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
+        height - The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
         return - The converter object.
         """
         if not re.match('(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', height):
-            raise Error(create_invalid_value_message(height, "setPageHeight", "image-to-pdf", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".', "set_page_height"), 470);
+            raise Error(create_invalid_value_message(height, "setPageHeight", "image-to-pdf", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".', "set_page_height"), 470);
         
         self.fields['page_height'] = get_utf8_string(height)
         return self
@@ -4917,8 +5073,8 @@ class ImageToPdfClient:
         """
         Set the output page dimensions. If no page size is specified, margins are applied as a border around the image.
 
-        width - Set the output page width. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
-        height - Set the output page height. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
+        width - Set the output page width. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+        height - Set the output page height. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
         return - The converter object.
         """
         self.setPageWidth(width)
@@ -4968,11 +5124,11 @@ class ImageToPdfClient:
         """
         Set the output page top margin.
 
-        top - The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
+        top - The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
         return - The converter object.
         """
         if not re.match('(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', top):
-            raise Error(create_invalid_value_message(top, "setMarginTop", "image-to-pdf", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".', "set_margin_top"), 470);
+            raise Error(create_invalid_value_message(top, "setMarginTop", "image-to-pdf", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".', "set_margin_top"), 470);
         
         self.fields['margin_top'] = get_utf8_string(top)
         return self
@@ -4981,11 +5137,11 @@ class ImageToPdfClient:
         """
         Set the output page right margin.
 
-        right - The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
+        right - The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
         return - The converter object.
         """
         if not re.match('(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', right):
-            raise Error(create_invalid_value_message(right, "setMarginRight", "image-to-pdf", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".', "set_margin_right"), 470);
+            raise Error(create_invalid_value_message(right, "setMarginRight", "image-to-pdf", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".', "set_margin_right"), 470);
         
         self.fields['margin_right'] = get_utf8_string(right)
         return self
@@ -4994,11 +5150,11 @@ class ImageToPdfClient:
         """
         Set the output page bottom margin.
 
-        bottom - The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
+        bottom - The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
         return - The converter object.
         """
         if not re.match('(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', bottom):
-            raise Error(create_invalid_value_message(bottom, "setMarginBottom", "image-to-pdf", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".', "set_margin_bottom"), 470);
+            raise Error(create_invalid_value_message(bottom, "setMarginBottom", "image-to-pdf", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".', "set_margin_bottom"), 470);
         
         self.fields['margin_bottom'] = get_utf8_string(bottom)
         return self
@@ -5007,11 +5163,11 @@ class ImageToPdfClient:
         """
         Set the output page left margin.
 
-        left - The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
+        left - The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
         return - The converter object.
         """
         if not re.match('(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', left):
-            raise Error(create_invalid_value_message(left, "setMarginLeft", "image-to-pdf", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".', "set_margin_left"), 470);
+            raise Error(create_invalid_value_message(left, "setMarginLeft", "image-to-pdf", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".', "set_margin_left"), 470);
         
         self.fields['margin_left'] = get_utf8_string(left)
         return self
@@ -5020,10 +5176,10 @@ class ImageToPdfClient:
         """
         Set the output page margins.
 
-        top - Set the output page top margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
-        right - Set the output page right margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
-        bottom - Set the output page bottom margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
-        left - Set the output page left margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".
+        top - Set the output page top margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+        right - Set the output page right margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+        bottom - Set the output page bottom margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+        left - Set the output page left margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
         return - The converter object.
         """
         self.setMarginTop(top)
@@ -6602,43 +6758,43 @@ available converters:
         parser.add_argument('-page-size',
                             help = 'Set the output page size. Allowed values are A0, A1, A2, A3, A4, A5, A6, Letter. Default is A4.')
         parser.add_argument('-page-width',
-                            help = 'Set the output page width. The safe maximum is 200in otherwise some PDF viewers may be unable to open the PDF. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt". Default is 8.27in.')
+                            help = 'Set the output page width. The safe maximum is 200in otherwise some PDF viewers may be unable to open the PDF. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt". Default is 8.27in.')
         parser.add_argument('-page-height',
-                            help = 'Set the output page height. Use -1 for a single page PDF. The safe maximum is 200in otherwise some PDF viewers may be unable to open the PDF. The value must be -1 or specified in inches "in", millimeters "mm", centimeters "cm", or points "pt". Default is 11.7in.')
+                            help = 'Set the output page height. Use -1 for a single page PDF. The safe maximum is 200in otherwise some PDF viewers may be unable to open the PDF. The value must be -1 or specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt". Default is 11.7in.')
         multi_args['page_dimensions'] = 2
         parser.add_argument('-page-dimensions',
-                            help = 'Set the output page dimensions. PAGE_DIMENSIONS must contain 2 values separated by a semicolon. Set the output page width. The safe maximum is 200in otherwise some PDF viewers may be unable to open the PDF. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt". Set the output page height. Use -1 for a single page PDF. The safe maximum is 200in otherwise some PDF viewers may be unable to open the PDF. The value must be -1 or specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".')
+                            help = 'Set the output page dimensions. PAGE_DIMENSIONS must contain 2 values separated by a semicolon. Set the output page width. The safe maximum is 200in otherwise some PDF viewers may be unable to open the PDF. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt". Set the output page height. Use -1 for a single page PDF. The safe maximum is 200in otherwise some PDF viewers may be unable to open the PDF. The value must be -1 or specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".')
         parser.add_argument('-orientation',
                             help = 'Set the output page orientation. Allowed values are landscape, portrait. Default is portrait.')
         parser.add_argument('-margin-top',
-                            help = 'Set the output page top margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt". Default is 0.4in.')
+                            help = 'Set the output page top margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt". Default is 0.4in.')
         parser.add_argument('-margin-right',
-                            help = 'Set the output page right margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt". Default is 0.4in.')
+                            help = 'Set the output page right margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt". Default is 0.4in.')
         parser.add_argument('-margin-bottom',
-                            help = 'Set the output page bottom margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt". Default is 0.4in.')
+                            help = 'Set the output page bottom margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt". Default is 0.4in.')
         parser.add_argument('-margin-left',
-                            help = 'Set the output page left margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt". Default is 0.4in.')
+                            help = 'Set the output page left margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt". Default is 0.4in.')
         parser.add_argument('-no-margins',
                             action = 'store_true',
                             help = 'Disable page margins.')
         multi_args['page_margins'] = 4
         parser.add_argument('-page-margins',
-                            help = 'Set the output page margins. PAGE_MARGINS must contain 4 values separated by a semicolon. Set the output page top margin. Set the output page right margin. Set the output page bottom margin. Set the output page left margin. All values the value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".')
+                            help = 'Set the output page margins. PAGE_MARGINS must contain 4 values separated by a semicolon. Set the output page top margin. Set the output page right margin. Set the output page bottom margin. Set the output page left margin. All values the value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".')
         parser.add_argument('-print-page-range',
                             help = 'Set the page range to print. A comma separated list of page numbers or ranges.')
         parser.add_argument('-page-numbering-offset',
                             help = 'Set an offset between physical and logical page numbers. Integer specifying page offset.')
         parser.add_argument('-content-area-x',
-                            help = 'Set the top left X coordinate of the content area. It is relative to the top left X coordinate of the print area. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt". It may contain a negative value. Default is 0in.')
+                            help = 'Set the top left X coordinate of the content area. It is relative to the top left X coordinate of the print area. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt". It may contain a negative value. Default is 0in.')
         parser.add_argument('-content-area-y',
-                            help = 'Set the top left Y coordinate of the content area. It is relative to the top left Y coordinate of the print area. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt". It may contain a negative value. Default is 0in.')
+                            help = 'Set the top left Y coordinate of the content area. It is relative to the top left Y coordinate of the print area. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt". It may contain a negative value. Default is 0in.')
         parser.add_argument('-content-area-width',
-                            help = 'Set the width of the content area. It should be at least 1 inch. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt". Default is The width of the print area..')
+                            help = 'Set the width of the content area. It should be at least 1 inch. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt". Default is The width of the print area..')
         parser.add_argument('-content-area-height',
-                            help = 'Set the height of the content area. It should be at least 1 inch. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt". Default is The height of the print area..')
+                            help = 'Set the height of the content area. It should be at least 1 inch. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt". Default is The height of the print area..')
         multi_args['content_area'] = 4
         parser.add_argument('-content-area',
-                            help = 'Set the content area position and size. The content area enables to specify a web page area to be converted. CONTENT_AREA must contain 4 values separated by a semicolon. Set the top left X coordinate of the content area. It is relative to the top left X coordinate of the print area. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt". It may contain a negative value. Set the top left Y coordinate of the content area. It is relative to the top left Y coordinate of the print area. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt". It may contain a negative value. Set the width of the content area. It should be at least 1 inch. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt". Set the height of the content area. It should be at least 1 inch. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".')
+                            help = 'Set the content area position and size. The content area enables to specify a web page area to be converted. CONTENT_AREA must contain 4 values separated by a semicolon. Set the top left X coordinate of the content area. It is relative to the top left X coordinate of the print area. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt". It may contain a negative value. Set the top left Y coordinate of the content area. It is relative to the top left Y coordinate of the print area. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt". It may contain a negative value. Set the width of the content area. It should be at least 1 inch. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt". Set the height of the content area. It should be at least 1 inch. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".')
         parser.add_argument('-css-page-rule-mode',
                             help = 'Specifies behavior in presence of CSS @page rules. It may affect the page size, margins and orientation. The page rule mode. Allowed values are default, mode1, mode2. Default is default.')
         parser.add_argument('-header-url',
@@ -6646,7 +6802,7 @@ available converters:
         parser.add_argument('-header-html',
                             help = 'Use the specified HTML code as the page header. The following classes can be used in the HTML. The content of the respective elements will be expanded as follows: pdfcrowd-page-count - the total page count of printed pages pdfcrowd-page-number - the current page number pdfcrowd-source-url - the source URL of the converted document pdfcrowd-source-title - the title of the converted document The following attributes can be used: data-pdfcrowd-number-format - specifies the type of the used numerals. Allowed values: arabic - Arabic numerals, they are used by default roman - Roman numerals eastern-arabic - Eastern Arabic numerals bengali - Bengali numerals devanagari - Devanagari numerals thai - Thai numerals east-asia - Chinese, Vietnamese, Japanese and Korean numerals chinese-formal - Chinese formal numerals Please contact us if you need another type of numerals. Example: <span class=\'pdfcrowd-page-number\' data-pdfcrowd-number-format=\'roman\'></span> data-pdfcrowd-placement - specifies where to place the source URL. Allowed values: The URL is inserted to the content Example: <span class=\'pdfcrowd-source-url\'></span> will produce <span>http://example.com</span> href - the URL is set to the href attribute Example: <a class=\'pdfcrowd-source-url\' data-pdfcrowd-placement=\'href\'>Link to source</a> will produce <a href=\'http://example.com\'>Link to source</a> href-and-content - the URL is set to the href attribute and to the content Example: <a class=\'pdfcrowd-source-url\' data-pdfcrowd-placement=\'href-and-content\'></a> will produce <a href=\'http://example.com\'>http://example.com</a> The string must not be empty.')
         parser.add_argument('-header-height',
-                            help = 'Set the header height. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt". Default is 0.5in.')
+                            help = 'Set the header height. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt". Default is 0.5in.')
         parser.add_argument('-zip-header-filename',
                             help = 'Set the file name of the header HTML document stored in the input archive. Use this method if the input archive contains multiple HTML documents. The file name.')
         parser.add_argument('-footer-url',
@@ -6654,7 +6810,7 @@ available converters:
         parser.add_argument('-footer-html',
                             help = 'Use the specified HTML as the page footer. The following classes can be used in the HTML. The content of the respective elements will be expanded as follows: pdfcrowd-page-count - the total page count of printed pages pdfcrowd-page-number - the current page number pdfcrowd-source-url - the source URL of the converted document pdfcrowd-source-title - the title of the converted document The following attributes can be used: data-pdfcrowd-number-format - specifies the type of the used numerals. Allowed values: arabic - Arabic numerals, they are used by default roman - Roman numerals eastern-arabic - Eastern Arabic numerals bengali - Bengali numerals devanagari - Devanagari numerals thai - Thai numerals east-asia - Chinese, Vietnamese, Japanese and Korean numerals chinese-formal - Chinese formal numerals Please contact us if you need another type of numerals. Example: <span class=\'pdfcrowd-page-number\' data-pdfcrowd-number-format=\'roman\'></span> data-pdfcrowd-placement - specifies where to place the source URL. Allowed values: The URL is inserted to the content Example: <span class=\'pdfcrowd-source-url\'></span> will produce <span>http://example.com</span> href - the URL is set to the href attribute Example: <a class=\'pdfcrowd-source-url\' data-pdfcrowd-placement=\'href\'>Link to source</a> will produce <a href=\'http://example.com\'>Link to source</a> href-and-content - the URL is set to the href attribute and to the content Example: <a class=\'pdfcrowd-source-url\' data-pdfcrowd-placement=\'href-and-content\'></a> will produce <a href=\'http://example.com\'>http://example.com</a> The string must not be empty.')
         parser.add_argument('-footer-height',
-                            help = 'Set the footer height. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt". Default is 0.5in.')
+                            help = 'Set the footer height. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt". Default is 0.5in.')
         parser.add_argument('-zip-footer-filename',
                             help = 'Set the file name of the footer HTML document stored in the input archive. Use this method if the input archive contains multiple HTML documents. The file name.')
         parser.add_argument('-no-header-footer-horizontal-margins',
@@ -7050,32 +7206,46 @@ available converters:
                             help = 'Resize the image. The resize percentage or new image dimensions. Default is 100%%.')
         parser.add_argument('-rotate',
                             help = 'Rotate the image. The rotation specified in degrees.')
+        parser.add_argument('-crop-area-x',
+                            help = 'Set the top left X coordinate of the content area. It is relative to the top left X coordinate of the print area. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt". Default is 0px.')
+        parser.add_argument('-crop-area-y',
+                            help = 'Set the top left Y coordinate of the content area. It is relative to the top left Y coordinate of the print area. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt". Default is 0px.')
+        parser.add_argument('-crop-area-width',
+                            help = 'Set the width of the content area. It should be at least 1 inch. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt". Default is The width of the print area..')
+        parser.add_argument('-crop-area-height',
+                            help = 'Set the height of the content area. It should be at least 1 inch. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt". Default is The height of the print area..')
+        multi_args['crop_area'] = 4
+        parser.add_argument('-crop-area',
+                            help = 'Set the content area position and size. The content area enables to specify the part to be converted. CROP_AREA must contain 4 values separated by a semicolon. Set the top left X coordinate of the content area. It is relative to the top left X coordinate of the print area. Set the top left Y coordinate of the content area. It is relative to the top left Y coordinate of the print area. Set the width of the content area. It should be at least 1 inch. Set the height of the content area. It should be at least 1 inch. All values the value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".')
+        parser.add_argument('-remove-borders',
+                            action = 'store_true',
+                            help = 'Remove borders of an image which does not change in color.')
         parser.add_argument('-canvas-size',
                             help = 'Set the output canvas size. Allowed values are A0, A1, A2, A3, A4, A5, A6, Letter.')
         parser.add_argument('-canvas-width',
-                            help = 'Set the output canvas width. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".')
+                            help = 'Set the output canvas width. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".')
         parser.add_argument('-canvas-height',
-                            help = 'Set the output canvas height. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".')
+                            help = 'Set the output canvas height. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".')
         multi_args['canvas_dimensions'] = 2
         parser.add_argument('-canvas-dimensions',
-                            help = 'Set the output canvas dimensions. If no canvas size is specified, margins are applied as a border around the image. CANVAS_DIMENSIONS must contain 2 values separated by a semicolon. Set the output canvas width. Set the output canvas height. All values the value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".')
+                            help = 'Set the output canvas dimensions. If no canvas size is specified, margins are applied as a border around the image. CANVAS_DIMENSIONS must contain 2 values separated by a semicolon. Set the output canvas width. Set the output canvas height. All values the value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".')
         parser.add_argument('-orientation',
                             help = 'Set the output canvas orientation. Allowed values are landscape, portrait. Default is portrait.')
         parser.add_argument('-position',
-                            help = 'Set the image position on the page. Allowed values are center, top, bottom, left, right, top-left, top-right, bottom-left, bottom-right. Default is center.')
+                            help = 'Set the image position on the canvas. Allowed values are center, top, bottom, left, right, top-left, top-right, bottom-left, bottom-right. Default is center.')
         parser.add_argument('-print-canvas-mode',
-                            help = 'Set the mode to print the image on the content area of the page. Allowed values are default, fit, stretch. Default is default.')
+                            help = 'Set the mode to print the image on the canvas. Allowed values are default, fit, stretch. Default is default.')
         parser.add_argument('-margin-top',
-                            help = 'Set the output canvas top margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".')
+                            help = 'Set the output canvas top margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".')
         parser.add_argument('-margin-right',
-                            help = 'Set the output canvas right margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".')
+                            help = 'Set the output canvas right margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".')
         parser.add_argument('-margin-bottom',
-                            help = 'Set the output canvas bottom margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".')
+                            help = 'Set the output canvas bottom margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".')
         parser.add_argument('-margin-left',
-                            help = 'Set the output canvas left margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".')
+                            help = 'Set the output canvas left margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".')
         multi_args['margins'] = 4
         parser.add_argument('-margins',
-                            help = 'Set the output canvas margins. MARGINS must contain 4 values separated by a semicolon. Set the output canvas top margin. Set the output canvas right margin. Set the output canvas bottom margin. Set the output canvas left margin. All values the value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".')
+                            help = 'Set the output canvas margins. MARGINS must contain 4 values separated by a semicolon. Set the output canvas top margin. Set the output canvas right margin. Set the output canvas bottom margin. Set the output canvas left margin. All values the value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".')
         parser.add_argument('-canvas-background-color',
                             help = 'The canvas background color in RGB or RGBA hexadecimal format. The color fills the entire canvas regardless of margins. If no canvas size is specified and the image format supports background (e.g. PDF, PNG), the background color is applied too. The value must be in RRGGBB or RRGGBBAA hexadecimal format.')
         parser.add_argument('-dpi',
@@ -7226,15 +7396,29 @@ available converters:
                             help = 'Resize the image. The resize percentage or new image dimensions. Default is 100%%.')
         parser.add_argument('-rotate',
                             help = 'Rotate the image. The rotation specified in degrees.')
+        parser.add_argument('-crop-area-x',
+                            help = 'Set the top left X coordinate of the content area. It is relative to the top left X coordinate of the print area. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt". Default is 0px.')
+        parser.add_argument('-crop-area-y',
+                            help = 'Set the top left Y coordinate of the content area. It is relative to the top left Y coordinate of the print area. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt". Default is 0px.')
+        parser.add_argument('-crop-area-width',
+                            help = 'Set the width of the content area. It should be at least 1 inch. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt". Default is The width of the print area..')
+        parser.add_argument('-crop-area-height',
+                            help = 'Set the height of the content area. It should be at least 1 inch. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt". Default is The height of the print area..')
+        multi_args['crop_area'] = 4
+        parser.add_argument('-crop-area',
+                            help = 'Set the content area position and size. The content area enables to specify the part to be converted. CROP_AREA must contain 4 values separated by a semicolon. Set the top left X coordinate of the content area. It is relative to the top left X coordinate of the print area. Set the top left Y coordinate of the content area. It is relative to the top left Y coordinate of the print area. Set the width of the content area. It should be at least 1 inch. Set the height of the content area. It should be at least 1 inch. All values the value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".')
+        parser.add_argument('-remove-borders',
+                            action = 'store_true',
+                            help = 'Remove borders of an image which does not change in color.')
         parser.add_argument('-page-size',
                             help = 'Set the output page size. Allowed values are A0, A1, A2, A3, A4, A5, A6, Letter.')
         parser.add_argument('-page-width',
-                            help = 'Set the output page width. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".')
+                            help = 'Set the output page width. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".')
         parser.add_argument('-page-height',
-                            help = 'Set the output page height. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".')
+                            help = 'Set the output page height. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".')
         multi_args['page_dimensions'] = 2
         parser.add_argument('-page-dimensions',
-                            help = 'Set the output page dimensions. If no page size is specified, margins are applied as a border around the image. PAGE_DIMENSIONS must contain 2 values separated by a semicolon. Set the output page width. Set the output page height. All values the value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".')
+                            help = 'Set the output page dimensions. If no page size is specified, margins are applied as a border around the image. PAGE_DIMENSIONS must contain 2 values separated by a semicolon. Set the output page width. Set the output page height. All values the value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".')
         parser.add_argument('-orientation',
                             help = 'Set the output page orientation. Allowed values are landscape, portrait. Default is portrait.')
         parser.add_argument('-position',
@@ -7242,16 +7426,16 @@ available converters:
         parser.add_argument('-print-page-mode',
                             help = 'Set the mode to print the image on the content area of the page. Allowed values are default, fit, stretch. Default is default.')
         parser.add_argument('-margin-top',
-                            help = 'Set the output page top margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".')
+                            help = 'Set the output page top margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".')
         parser.add_argument('-margin-right',
-                            help = 'Set the output page right margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".')
+                            help = 'Set the output page right margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".')
         parser.add_argument('-margin-bottom',
-                            help = 'Set the output page bottom margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".')
+                            help = 'Set the output page bottom margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".')
         parser.add_argument('-margin-left',
-                            help = 'Set the output page left margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".')
+                            help = 'Set the output page left margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".')
         multi_args['page_margins'] = 4
         parser.add_argument('-page-margins',
-                            help = 'Set the output page margins. PAGE_MARGINS must contain 4 values separated by a semicolon. Set the output page top margin. Set the output page right margin. Set the output page bottom margin. Set the output page left margin. All values the value must be specified in inches "in", millimeters "mm", centimeters "cm", or points "pt".')
+                            help = 'Set the output page margins. PAGE_MARGINS must contain 4 values separated by a semicolon. Set the output page top margin. Set the output page right margin. Set the output page bottom margin. Set the output page left margin. All values the value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".')
         parser.add_argument('-page-background-color',
                             help = 'The page background color in RGB or RGBA hexadecimal format. The color fills the entire page regardless of the margins. If not page size is specified and the image format supports background (e.g. PDF, PNG), the background color is applied too. The value must be in RRGGBB or RRGGBBAA hexadecimal format.')
         parser.add_argument('-dpi',
