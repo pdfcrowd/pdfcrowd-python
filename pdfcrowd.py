@@ -43,7 +43,7 @@ import os
 import ssl
 import time
 
-__version__ = '5.12.1'
+__version__ = '5.13.0'
 
 # ======================================
 # === PDFCrowd legacy version client ===
@@ -698,7 +698,7 @@ else:
 
 HOST = os.environ.get('PDFCROWD_HOST', 'api.pdfcrowd.com')
 MULTIPART_BOUNDARY = '----------ThIs_Is_tHe_bOUnDary_$'
-CLIENT_VERSION = '5.12.1'
+CLIENT_VERSION = '5.13.0'
 
 def get_utf8_string(string):
     if PYTHON_3:
@@ -791,7 +791,7 @@ class ConnectionHelper:
         self._reset_response_data()
         self.setProxy(None, None, None, None)
         self.setUseHttp(False)
-        self.setUserAgent('pdfcrowd_python_client/5.12.1 (https://pdfcrowd.com)')
+        self.setUserAgent('pdfcrowd_python_client/5.13.0 (https://pdfcrowd.com)')
 
         self.retry_count = 1
         self.converter_version = '20.10'
@@ -1395,6 +1395,19 @@ class HtmlToPdfClient:
             raise Error(create_invalid_value_message(mode, "setCssPageRuleMode", "html-to-pdf", 'Allowed values are default, mode1, mode2.', "set_css_page_rule_mode"), 470);
         
         self.fields['css_page_rule_mode'] = get_utf8_string(mode)
+        return self
+
+    def setRemoveBlankPages(self, pages):
+        """
+        Specifies which blank pages to exclude from the output document.
+
+        pages - The empty page behavior. Allowed values are trailing, none.
+        return - The converter object.
+        """
+        if not re.match('(?i)^(trailing|none)$', pages):
+            raise Error(create_invalid_value_message(pages, "setRemoveBlankPages", "html-to-pdf", 'Allowed values are trailing, none.', "set_remove_blank_pages"), 470);
+        
+        self.fields['remove_blank_pages'] = get_utf8_string(pages)
         return self
 
     def setHeaderUrl(self, url):
@@ -6793,6 +6806,8 @@ available converters:
                             help = 'Set the content area position and size. The content area enables to specify a web page area to be converted. CONTENT_AREA must contain 4 values separated by a semicolon. Set the top left X coordinate of the content area. It is relative to the top left X coordinate of the print area. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt". It may contain a negative value. Set the top left Y coordinate of the content area. It is relative to the top left Y coordinate of the print area. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt". It may contain a negative value. Set the width of the content area. It should be at least 1 inch. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt". Set the height of the content area. It should be at least 1 inch. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".')
         parser.add_argument('-css-page-rule-mode',
                             help = 'Specifies behavior in presence of CSS @page rules. It may affect the page size, margins and orientation. The page rule mode. Allowed values are default, mode1, mode2. Default is default.')
+        parser.add_argument('-remove-blank-pages',
+                            help = 'Specifies which blank pages to exclude from the output document. The empty page behavior. Allowed values are trailing, none. Default is trailing.')
         parser.add_argument('-header-url',
                             help = 'Load an HTML code from the specified URL and use it as the page header. The following classes can be used in the HTML. The content of the respective elements will be expanded as follows: pdfcrowd-page-count - the total page count of printed pages pdfcrowd-page-number - the current page number pdfcrowd-source-url - the source URL of the converted document pdfcrowd-source-title - the title of the converted document The following attributes can be used: data-pdfcrowd-number-format - specifies the type of the used numerals. Allowed values: arabic - Arabic numerals, they are used by default roman - Roman numerals eastern-arabic - Eastern Arabic numerals bengali - Bengali numerals devanagari - Devanagari numerals thai - Thai numerals east-asia - Chinese, Vietnamese, Japanese and Korean numerals chinese-formal - Chinese formal numerals Please contact us if you need another type of numerals. Example: <span class=\'pdfcrowd-page-number\' data-pdfcrowd-number-format=\'roman\'></span> data-pdfcrowd-placement - specifies where to place the source URL. Allowed values: The URL is inserted to the content Example: <span class=\'pdfcrowd-source-url\'></span> will produce <span>http://example.com</span> href - the URL is set to the href attribute Example: <a class=\'pdfcrowd-source-url\' data-pdfcrowd-placement=\'href\'>Link to source</a> will produce <a href=\'http://example.com\'>Link to source</a> href-and-content - the URL is set to the href attribute and to the content Example: <a class=\'pdfcrowd-source-url\' data-pdfcrowd-placement=\'href-and-content\'></a> will produce <a href=\'http://example.com\'>http://example.com</a> The supported protocols are http:// and https://.')
         parser.add_argument('-header-html',
