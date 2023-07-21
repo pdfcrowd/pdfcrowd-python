@@ -43,7 +43,7 @@ import os
 import ssl
 import time
 
-__version__ = '5.13.0'
+__version__ = '5.14.0'
 
 # ======================================
 # === PDFCrowd legacy version client ===
@@ -698,7 +698,7 @@ else:
 
 HOST = os.environ.get('PDFCROWD_HOST', 'api.pdfcrowd.com')
 MULTIPART_BOUNDARY = '----------ThIs_Is_tHe_bOUnDary_$'
-CLIENT_VERSION = '5.13.0'
+CLIENT_VERSION = '5.14.0'
 
 def get_utf8_string(string):
     if PYTHON_3:
@@ -791,7 +791,7 @@ class ConnectionHelper:
         self._reset_response_data()
         self.setProxy(None, None, None, None)
         self.setUseHttp(False)
-        self.setUserAgent('pdfcrowd_python_client/5.13.0 (https://pdfcrowd.com)')
+        self.setUserAgent('pdfcrowd_python_client/5.14.0 (https://pdfcrowd.com)')
 
         self.retry_count = 1
         self.converter_version = '20.10'
@@ -1857,6 +1857,19 @@ class HtmlToPdfClient:
         return - The converter object.
         """
         self.fields['no_xpdfcrowd_header'] = value
+        return self
+
+    def setCustomCss(self, css):
+        """
+        Apply custom CSS to the input HTML document. It allows you to modify the visual appearance and layout of your HTML content dynamically. Tip: Using !important in custom CSS provides a way to prioritize and override conflicting styles.
+
+        css - A string containing valid CSS. The string must not be empty.
+        return - The converter object.
+        """
+        if not (css):
+            raise Error(create_invalid_value_message(css, "setCustomCss", "html-to-pdf", 'The string must not be empty.', "set_custom_css"), 470);
+        
+        self.fields['custom_css'] = get_utf8_string(css)
         return self
 
     def setCustomJavascript(self, javascript):
@@ -3097,6 +3110,19 @@ class HtmlToImageClient:
         return - The converter object.
         """
         self.fields['no_xpdfcrowd_header'] = value
+        return self
+
+    def setCustomCss(self, css):
+        """
+        Apply custom CSS to the input HTML document. It allows you to modify the visual appearance and layout of your HTML content dynamically. Tip: Using !important in custom CSS provides a way to prioritize and override conflicting styles.
+
+        css - A string containing valid CSS. The string must not be empty.
+        return - The converter object.
+        """
+        if not (css):
+            raise Error(create_invalid_value_message(css, "setCustomCss", "html-to-image", 'The string must not be empty.', "set_custom_css"), 470);
+        
+        self.fields['custom_css'] = get_utf8_string(css)
         return self
 
     def setCustomJavascript(self, javascript):
@@ -6901,6 +6927,8 @@ available converters:
         parser.add_argument('-no-xpdfcrowd-header',
                             action = 'store_true',
                             help = 'Do not send the X-Pdfcrowd HTTP header in Pdfcrowd HTTP requests.')
+        parser.add_argument('-custom-css',
+                            help = 'Apply custom CSS to the input HTML document. It allows you to modify the visual appearance and layout of your HTML content dynamically. Tip: Using !important in custom CSS provides a way to prioritize and override conflicting styles. A string containing valid CSS. The string must not be empty.')
         parser.add_argument('-custom-javascript',
                             help = 'Run a custom JavaScript after the document is loaded and ready to print. The script is intended for post-load DOM manipulation (add/remove elements, update CSS, ...). In addition to the standard browser APIs, the custom JavaScript code can use helper functions from our JavaScript library. A string containing a JavaScript code. The string must not be empty.')
         parser.add_argument('-on-load-javascript',
@@ -7129,6 +7157,8 @@ available converters:
         parser.add_argument('-no-xpdfcrowd-header',
                             action = 'store_true',
                             help = 'Do not send the X-Pdfcrowd HTTP header in Pdfcrowd HTTP requests.')
+        parser.add_argument('-custom-css',
+                            help = 'Apply custom CSS to the input HTML document. It allows you to modify the visual appearance and layout of your HTML content dynamically. Tip: Using !important in custom CSS provides a way to prioritize and override conflicting styles. A string containing valid CSS. The string must not be empty.')
         parser.add_argument('-custom-javascript',
                             help = 'Run a custom JavaScript after the document is loaded and ready to print. The script is intended for post-load DOM manipulation (add/remove elements, update CSS, ...). In addition to the standard browser APIs, the custom JavaScript code can use helper functions from our JavaScript library. A string containing a JavaScript code. The string must not be empty.')
         parser.add_argument('-on-load-javascript',
