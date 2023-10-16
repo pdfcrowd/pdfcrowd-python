@@ -43,7 +43,7 @@ import os
 import ssl
 import time
 
-__version__ = '5.14.0'
+__version__ = '5.15.0'
 
 # ======================================
 # === PDFCrowd legacy version client ===
@@ -698,7 +698,7 @@ else:
 
 HOST = os.environ.get('PDFCROWD_HOST', 'api.pdfcrowd.com')
 MULTIPART_BOUNDARY = '----------ThIs_Is_tHe_bOUnDary_$'
-CLIENT_VERSION = '5.14.0'
+CLIENT_VERSION = '5.15.0'
 
 def get_utf8_string(string):
     if PYTHON_3:
@@ -791,7 +791,7 @@ class ConnectionHelper:
         self._reset_response_data()
         self.setProxy(None, None, None, None)
         self.setUseHttp(False)
-        self.setUserAgent('pdfcrowd_python_client/5.14.0 (https://pdfcrowd.com)')
+        self.setUserAgent('pdfcrowd_python_client/5.15.0 (https://pdfcrowd.com)')
 
         self.retry_count = 1
         self.converter_version = '20.10'
@@ -2652,6 +2652,19 @@ class HtmlToPdfClient:
         self.fields['header_footer_css_annotation'] = value
         return self
 
+    def setMaxLoadingTime(self, max_time):
+        """
+        Set the maximum time to load the page and its resources. After this time, all requests will be considered successful. This can be useful to ensure that the conversion does not timeout. Use this method if there is no other way to fix page loading.
+
+        max_time - The number of seconds to wait. The value must be in the range 10-30.
+        return - The converter object.
+        """
+        if not (int(max_time) >= 10 and int(max_time) <= 30):
+            raise Error(create_invalid_value_message(max_time, "setMaxLoadingTime", "html-to-pdf", 'The value must be in the range 10-30.', "set_max_loading_time"), 470);
+        
+        self.fields['max_loading_time'] = max_time
+        return self
+
     def setConverterVersion(self, version):
         """
         Set the converter version. Different versions may produce different output. Choose which one provides the best output for your case.
@@ -2925,6 +2938,58 @@ class HtmlToImageClient:
         return - The converter object.
         """
         self.fields['zip_main_filename'] = get_utf8_string(filename)
+        return self
+
+    def setScreenshotWidth(self, width):
+        """
+        Set the output image width in pixels.
+
+        width - The value must be in the range 96-65000.
+        return - The converter object.
+        """
+        if not (int(width) >= 96 and int(width) <= 65000):
+            raise Error(create_invalid_value_message(width, "setScreenshotWidth", "html-to-image", 'The value must be in the range 96-65000.', "set_screenshot_width"), 470);
+        
+        self.fields['screenshot_width'] = width
+        return self
+
+    def setScreenshotHeight(self, height):
+        """
+        Set the output image height in pixels. If it is not specified, actual document height is used.
+
+        height - Must be a positive integer number.
+        return - The converter object.
+        """
+        if not (int(height) > 0):
+            raise Error(create_invalid_value_message(height, "setScreenshotHeight", "html-to-image", 'Must be a positive integer number.', "set_screenshot_height"), 470);
+        
+        self.fields['screenshot_height'] = height
+        return self
+
+    def setScaleFactor(self, factor):
+        """
+        Set the scaling factor (zoom) for the output image.
+
+        factor - The percentage value. Must be a positive integer number.
+        return - The converter object.
+        """
+        if not (int(factor) > 0):
+            raise Error(create_invalid_value_message(factor, "setScaleFactor", "html-to-image", 'Must be a positive integer number.', "set_scale_factor"), 470);
+        
+        self.fields['scale_factor'] = factor
+        return self
+
+    def setBackgroundColor(self, color):
+        """
+        The output image background color.
+
+        color - The value must be in RRGGBB or RRGGBBAA hexadecimal format.
+        return - The converter object.
+        """
+        if not re.match('^[0-9a-fA-F]{6,8}$', color):
+            raise Error(create_invalid_value_message(color, "setBackgroundColor", "html-to-image", 'The value must be in RRGGBB or RRGGBBAA hexadecimal format.', "set_background_color"), 470);
+        
+        self.fields['background_color'] = get_utf8_string(color)
         return self
 
     def setUsePrintMedia(self, value):
@@ -3239,58 +3304,6 @@ class HtmlToImageClient:
         self.fields['readability_enhancements'] = get_utf8_string(enhancements)
         return self
 
-    def setScreenshotWidth(self, width):
-        """
-        Set the output image width in pixels.
-
-        width - The value must be in the range 96-65000.
-        return - The converter object.
-        """
-        if not (int(width) >= 96 and int(width) <= 65000):
-            raise Error(create_invalid_value_message(width, "setScreenshotWidth", "html-to-image", 'The value must be in the range 96-65000.', "set_screenshot_width"), 470);
-        
-        self.fields['screenshot_width'] = width
-        return self
-
-    def setScreenshotHeight(self, height):
-        """
-        Set the output image height in pixels. If it is not specified, actual document height is used.
-
-        height - Must be a positive integer number.
-        return - The converter object.
-        """
-        if not (int(height) > 0):
-            raise Error(create_invalid_value_message(height, "setScreenshotHeight", "html-to-image", 'Must be a positive integer number.', "set_screenshot_height"), 470);
-        
-        self.fields['screenshot_height'] = height
-        return self
-
-    def setScaleFactor(self, factor):
-        """
-        Set the scaling factor (zoom) for the output image.
-
-        factor - The percentage value. Must be a positive integer number.
-        return - The converter object.
-        """
-        if not (int(factor) > 0):
-            raise Error(create_invalid_value_message(factor, "setScaleFactor", "html-to-image", 'Must be a positive integer number.', "set_scale_factor"), 470);
-        
-        self.fields['scale_factor'] = factor
-        return self
-
-    def setBackgroundColor(self, color):
-        """
-        The output image background color.
-
-        color - The value must be in RRGGBB or RRGGBBAA hexadecimal format.
-        return - The converter object.
-        """
-        if not re.match('^[0-9a-fA-F]{6,8}$', color):
-            raise Error(create_invalid_value_message(color, "setBackgroundColor", "html-to-image", 'The value must be in RRGGBB or RRGGBBAA hexadecimal format.', "set_background_color"), 470);
-        
-        self.fields['background_color'] = get_utf8_string(color)
-        return self
-
     def setDataString(self, data_string):
         """
         Set the input data for template rendering. The data format can be JSON, XML, YAML or CSV.
@@ -3486,6 +3499,19 @@ class HtmlToImageClient:
         return - The converter object.
         """
         self.fields['client_certificate_password'] = get_utf8_string(password)
+        return self
+
+    def setMaxLoadingTime(self, max_time):
+        """
+        Set the maximum time to load the page and its resources. After this time, all requests will be considered successful. This can be useful to ensure that the conversion does not timeout. Use this method if there is no other way to fix page loading.
+
+        max_time - The number of seconds to wait. The value must be in the range 10-30.
+        return - The converter object.
+        """
+        if not (int(max_time) >= 10 and int(max_time) <= 30):
+            raise Error(create_invalid_value_message(max_time, "setMaxLoadingTime", "html-to-image", 'The value must be in the range 10-30.', "set_max_loading_time"), 470);
+        
+        self.fields['max_loading_time'] = max_time
         return self
 
     def setConverterVersion(self, version):
@@ -7080,6 +7106,8 @@ available converters:
         parser.add_argument('-header-footer-css-annotation',
                             action = 'store_true',
                             help = 'Add special CSS classes to the header/footer\'s body element. This allows applying custom styling based on these classes: pdfcrowd-page-X - where X is the current page number pdfcrowd-page-count-X - where X is the total page count pdfcrowd-page-first - the first page pdfcrowd-page-last - the last page pdfcrowd-page-odd - odd page pdfcrowd-page-even - even page')
+        parser.add_argument('-max-loading-time',
+                            help = 'Set the maximum time to load the page and its resources. After this time, all requests will be considered successful. This can be useful to ensure that the conversion does not timeout. Use this method if there is no other way to fix page loading. The number of seconds to wait. The value must be in the range 10-30.')
         parser.add_argument('-converter-version',
                             help = 'Set the converter version. Different versions may produce different output. Choose which one provides the best output for your case. The version identifier. Allowed values are latest, 20.10, 18.10. Default is 20.10.')
         parser.add_argument('-use-http',
@@ -7107,6 +7135,14 @@ available converters:
                             help = 'The format of the output file. Allowed values are png, jpg, gif, tiff, bmp, ico, ppm, pgm, pbm, pnm, psb, pct, ras, tga, sgi, sun, webp. Default is png.')
         parser.add_argument('-zip-main-filename',
                             help = 'Set the file name of the main HTML document stored in the input archive. If not specified, the first HTML file in the archive is used for conversion. Use this method if the input archive contains multiple HTML documents. The file name.')
+        parser.add_argument('-screenshot-width',
+                            help = 'Set the output image width in pixels. The value must be in the range 96-65000. Default is 1024.')
+        parser.add_argument('-screenshot-height',
+                            help = 'Set the output image height in pixels. If it is not specified, actual document height is used. Must be a positive integer number.')
+        parser.add_argument('-scale-factor',
+                            help = 'Set the scaling factor (zoom) for the output image. The percentage value. Must be a positive integer number. Default is 100.')
+        parser.add_argument('-background-color',
+                            help = 'The output image background color. The value must be in RRGGBB or RRGGBBAA hexadecimal format.')
         parser.add_argument('-use-print-media',
                             action = 'store_true',
                             help = 'Use the print version of the page if available (@media print).')
@@ -7178,14 +7214,6 @@ available converters:
                             help = 'The main HTML element for conversion is detected automatically.')
         parser.add_argument('-readability-enhancements',
                             help = 'The input HTML is automatically enhanced to improve the readability. Allowed values are none, readability-v1, readability-v2, readability-v3, readability-v4. Default is none.')
-        parser.add_argument('-screenshot-width',
-                            help = 'Set the output image width in pixels. The value must be in the range 96-65000. Default is 1024.')
-        parser.add_argument('-screenshot-height',
-                            help = 'Set the output image height in pixels. If it is not specified, actual document height is used. Must be a positive integer number.')
-        parser.add_argument('-scale-factor',
-                            help = 'Set the scaling factor (zoom) for the output image. The percentage value. Must be a positive integer number. Default is 100.')
-        parser.add_argument('-background-color',
-                            help = 'The output image background color. The value must be in RRGGBB or RRGGBBAA hexadecimal format.')
         parser.add_argument('-data-string',
                             help = 'Set the input data for template rendering. The data format can be JSON, XML, YAML or CSV. The input data string.')
         parser.add_argument('-data-file',
@@ -7218,6 +7246,8 @@ available converters:
                             help = 'A client certificate to authenticate Pdfcrowd converter on your web server. The certificate is used for two-way SSL/TLS authentication and adds extra security. The file must be in PKCS12 format. The file must exist and not be empty.')
         parser.add_argument('-client-certificate-password',
                             help = 'A password for PKCS12 file with a client certificate if it is needed.')
+        parser.add_argument('-max-loading-time',
+                            help = 'Set the maximum time to load the page and its resources. After this time, all requests will be considered successful. This can be useful to ensure that the conversion does not timeout. Use this method if there is no other way to fix page loading. The number of seconds to wait. The value must be in the range 10-30.')
         parser.add_argument('-converter-version',
                             help = 'Set the converter version. Different versions may produce different output. Choose which one provides the best output for your case. The version identifier. Allowed values are latest, 20.10, 18.10. Default is 20.10.')
         parser.add_argument('-use-http',
