@@ -43,7 +43,7 @@ import os
 import ssl
 import time
 
-__version__ = '5.15.0'
+__version__ = '5.16.0'
 
 # ======================================
 # === PDFCrowd legacy version client ===
@@ -698,7 +698,7 @@ else:
 
 HOST = os.environ.get('PDFCROWD_HOST', 'api.pdfcrowd.com')
 MULTIPART_BOUNDARY = '----------ThIs_Is_tHe_bOUnDary_$'
-CLIENT_VERSION = '5.15.0'
+CLIENT_VERSION = '5.16.0'
 
 def get_utf8_string(string):
     if PYTHON_3:
@@ -791,7 +791,7 @@ class ConnectionHelper:
         self._reset_response_data()
         self.setProxy(None, None, None, None)
         self.setUseHttp(False)
-        self.setUserAgent('pdfcrowd_python_client/5.15.0 (https://pdfcrowd.com)')
+        self.setUserAgent('pdfcrowd_python_client/5.16.0 (https://pdfcrowd.com)')
 
         self.retry_count = 1
         self.converter_version = '20.10'
@@ -5996,6 +5996,16 @@ class PdfToHtmlClient:
         self.fields['print_page_range'] = get_utf8_string(pages)
         return self
 
+    def setDpi(self, dpi):
+        """
+        Set the output graphics DPI.
+
+        dpi - The DPI value.
+        return - The converter object.
+        """
+        self.fields['dpi'] = dpi
+        return self
+
     def setImageMode(self, mode):
         """
         Specifies where the images are stored.
@@ -7620,6 +7630,8 @@ available converters:
                             help = 'Set the scaling factor (zoom) for the main page area. The percentage value. Must be a positive integer number. Default is 100.')
         parser.add_argument('-print-page-range',
                             help = 'Set the page range to print. A comma separated list of page numbers or ranges.')
+        parser.add_argument('-dpi',
+                            help = 'Set the output graphics DPI. The DPI value. Default is 144.')
         parser.add_argument('-image-mode',
                             help = 'Specifies where the images are stored. The image storage mode. Allowed values are embed, separate. Default is embed.')
         parser.add_argument('-css-mode',
