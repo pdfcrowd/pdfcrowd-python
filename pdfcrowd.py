@@ -43,7 +43,7 @@ import os
 import ssl
 import time
 
-__version__ = '5.16.0'
+__version__ = '5.17.0'
 
 # ======================================
 # === PDFCrowd legacy version client ===
@@ -698,7 +698,7 @@ else:
 
 HOST = os.environ.get('PDFCROWD_HOST', 'api.pdfcrowd.com')
 MULTIPART_BOUNDARY = '----------ThIs_Is_tHe_bOUnDary_$'
-CLIENT_VERSION = '5.16.0'
+CLIENT_VERSION = '5.17.0'
 
 def get_utf8_string(string):
     if PYTHON_3:
@@ -791,7 +791,7 @@ class ConnectionHelper:
         self._reset_response_data()
         self.setProxy(None, None, None, None)
         self.setUseHttp(False)
-        self.setUserAgent('pdfcrowd_python_client/5.16.0 (https://pdfcrowd.com)')
+        self.setUserAgent('pdfcrowd_python_client/5.17.0 (https://pdfcrowd.com)')
 
         self.retry_count = 1
         self.converter_version = '20.10'
@@ -6010,13 +6010,26 @@ class PdfToHtmlClient:
         """
         Specifies where the images are stored.
 
-        mode - The image storage mode. Allowed values are embed, separate.
+        mode - The image storage mode. Allowed values are embed, separate, none.
         return - The converter object.
         """
-        if not re.match('(?i)^(embed|separate)$', mode):
-            raise Error(create_invalid_value_message(mode, "setImageMode", "pdf-to-html", 'Allowed values are embed, separate.', "set_image_mode"), 470);
+        if not re.match('(?i)^(embed|separate|none)$', mode):
+            raise Error(create_invalid_value_message(mode, "setImageMode", "pdf-to-html", 'Allowed values are embed, separate, none.', "set_image_mode"), 470);
         
         self.fields['image_mode'] = get_utf8_string(mode)
+        return self
+
+    def setImageFormat(self, image_format):
+        """
+        Specifies a format for the output images.
+
+        image_format - The image format. Allowed values are png, jpg, svg.
+        return - The converter object.
+        """
+        if not re.match('(?i)^(png|jpg|svg)$', image_format):
+            raise Error(create_invalid_value_message(image_format, "setImageFormat", "pdf-to-html", 'Allowed values are png, jpg, svg.', "set_image_format"), 470);
+        
+        self.fields['image_format'] = get_utf8_string(image_format)
         return self
 
     def setCssMode(self, mode):
@@ -7633,7 +7646,9 @@ available converters:
         parser.add_argument('-dpi',
                             help = 'Set the output graphics DPI. The DPI value. Default is 144.')
         parser.add_argument('-image-mode',
-                            help = 'Specifies where the images are stored. The image storage mode. Allowed values are embed, separate. Default is embed.')
+                            help = 'Specifies where the images are stored. The image storage mode. Allowed values are embed, separate, none. Default is embed.')
+        parser.add_argument('-image-format',
+                            help = 'Specifies a format for the output images. The image format. Allowed values are png, jpg, svg. Default is png.')
         parser.add_argument('-css-mode',
                             help = 'Specifies where the style sheets are stored. The style sheet storage mode. Allowed values are embed, separate. Default is embed.')
         parser.add_argument('-font-mode',
