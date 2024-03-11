@@ -43,7 +43,7 @@ import os
 import ssl
 import time
 
-__version__ = '5.17.0'
+__version__ = '5.18.0'
 
 # ======================================
 # === PDFCrowd legacy version client ===
@@ -698,7 +698,7 @@ else:
 
 HOST = os.environ.get('PDFCROWD_HOST', 'api.pdfcrowd.com')
 MULTIPART_BOUNDARY = '----------ThIs_Is_tHe_bOUnDary_$'
-CLIENT_VERSION = '5.17.0'
+CLIENT_VERSION = '5.18.0'
 
 def get_utf8_string(string):
     if PYTHON_3:
@@ -791,7 +791,7 @@ class ConnectionHelper:
         self._reset_response_data()
         self.setProxy(None, None, None, None)
         self.setUseHttp(False)
-        self.setUserAgent('pdfcrowd_python_client/5.17.0 (https://pdfcrowd.com)')
+        self.setUserAgent('pdfcrowd_python_client/5.18.0 (https://pdfcrowd.com)')
 
         self.retry_count = 1
         self.converter_version = '20.10'
@@ -6021,7 +6021,7 @@ class PdfToHtmlClient:
 
     def setImageFormat(self, image_format):
         """
-        Specifies a format for the output images.
+        Specifies the format for the output images.
 
         image_format - The image format. Allowed values are png, jpg, svg.
         return - The converter object.
@@ -6056,6 +6056,16 @@ class PdfToHtmlClient:
             raise Error(create_invalid_value_message(mode, "setFontMode", "pdf-to-html", 'Allowed values are embed, separate.', "set_font_mode"), 470);
         
         self.fields['font_mode'] = get_utf8_string(mode)
+        return self
+
+    def setSplitLigatures(self, value):
+        """
+        Converts ligatures — two or more letters combined into a single glyph—back into their individual ASCII characters.
+
+        value - Set to True to split ligatures.
+        return - The converter object.
+        """
+        self.fields['split_ligatures'] = value
         return self
 
     def isZippedOutput(self):
@@ -7648,11 +7658,14 @@ available converters:
         parser.add_argument('-image-mode',
                             help = 'Specifies where the images are stored. The image storage mode. Allowed values are embed, separate, none. Default is embed.')
         parser.add_argument('-image-format',
-                            help = 'Specifies a format for the output images. The image format. Allowed values are png, jpg, svg. Default is png.')
+                            help = 'Specifies the format for the output images. The image format. Allowed values are png, jpg, svg. Default is png.')
         parser.add_argument('-css-mode',
                             help = 'Specifies where the style sheets are stored. The style sheet storage mode. Allowed values are embed, separate. Default is embed.')
         parser.add_argument('-font-mode',
                             help = 'Specifies where the fonts are stored. The font storage mode. Allowed values are embed, separate. Default is embed.')
+        parser.add_argument('-split-ligatures',
+                            action = 'store_true',
+                            help = 'Converts ligatures — two or more letters combined into a single glyph—back into their individual ASCII characters.')
         parser.add_argument('-force-zip',
                             action = 'store_true',
                             help = 'Enforces the zip output format.')
