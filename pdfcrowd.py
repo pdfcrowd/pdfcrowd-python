@@ -43,7 +43,7 @@ import os
 import ssl
 import time
 
-__version__ = '5.18.0'
+__version__ = '5.18.1'
 
 # ======================================
 # === PDFCrowd legacy version client ===
@@ -698,7 +698,7 @@ else:
 
 HOST = os.environ.get('PDFCROWD_HOST', 'api.pdfcrowd.com')
 MULTIPART_BOUNDARY = '----------ThIs_Is_tHe_bOUnDary_$'
-CLIENT_VERSION = '5.18.0'
+CLIENT_VERSION = '5.18.1'
 
 def get_utf8_string(string):
     if PYTHON_3:
@@ -791,7 +791,7 @@ class ConnectionHelper:
         self._reset_response_data()
         self.setProxy(None, None, None, None)
         self.setUseHttp(False)
-        self.setUserAgent('pdfcrowd_python_client/5.18.0 (https://pdfcrowd.com)')
+        self.setUserAgent('pdfcrowd_python_client/5.18.1 (https://pdfcrowd.com)')
 
         self.retry_count = 1
         self.converter_version = '20.10'
@@ -6060,7 +6060,7 @@ class PdfToHtmlClient:
 
     def setSplitLigatures(self, value):
         """
-        Converts ligatures — two or more letters combined into a single glyph—back into their individual ASCII characters.
+        Converts ligatures, two or more letters combined into a single glyph, back into their individual ASCII characters.
 
         value - Set to True to split ligatures.
         return - The converter object.
@@ -7665,7 +7665,7 @@ available converters:
                             help = 'Specifies where the fonts are stored. The font storage mode. Allowed values are embed, separate. Default is embed.')
         parser.add_argument('-split-ligatures',
                             action = 'store_true',
-                            help = 'Converts ligatures — two or more letters combined into a single glyph—back into their individual ASCII characters.')
+                            help = 'Converts ligatures, two or more letters combined into a single glyph, back into their individual ASCII characters.')
         parser.add_argument('-force-zip',
                             action = 'store_true',
                             help = 'Enforces the zip output format.')
