@@ -43,7 +43,7 @@ import os
 import ssl
 import time
 
-__version__ = '5.18.1'
+__version__ = '5.19.0'
 
 # ======================================
 # === PDFCrowd legacy version client ===
@@ -698,7 +698,7 @@ else:
 
 HOST = os.environ.get('PDFCROWD_HOST', 'api.pdfcrowd.com')
 MULTIPART_BOUNDARY = '----------ThIs_Is_tHe_bOUnDary_$'
-CLIENT_VERSION = '5.18.1'
+CLIENT_VERSION = '5.19.0'
 
 def get_utf8_string(string):
     if PYTHON_3:
@@ -791,7 +791,7 @@ class ConnectionHelper:
         self._reset_response_data()
         self.setProxy(None, None, None, None)
         self.setUseHttp(False)
-        self.setUserAgent('pdfcrowd_python_client/5.18.1 (https://pdfcrowd.com)')
+        self.setUserAgent('pdfcrowd_python_client/5.19.0 (https://pdfcrowd.com)')
 
         self.retry_count = 1
         self.converter_version = '20.10'
@@ -2026,7 +2026,7 @@ class HtmlToPdfClient:
 
     def setRenderingMode(self, mode):
         """
-        Set the rendering mode.
+        Set the rendering mode of the page, allowing control over how content is displayed.
 
         mode - The rendering mode. Allowed values are default, viewport.
         return - The converter object.
@@ -2669,11 +2669,11 @@ class HtmlToPdfClient:
         """
         Set the converter version. Different versions may produce different output. Choose which one provides the best output for your case.
 
-        version - The version identifier. Allowed values are latest, 20.10, 18.10.
+        version - The version identifier. Allowed values are latest, 24.04, 20.10, 18.10.
         return - The converter object.
         """
-        if not re.match('(?i)^(latest|20.10|18.10)$', version):
-            raise Error(create_invalid_value_message(version, "setConverterVersion", "html-to-pdf", 'Allowed values are latest, 20.10, 18.10.', "set_converter_version"), 470);
+        if not re.match('(?i)^(latest|24.04|20.10|18.10)$', version):
+            raise Error(create_invalid_value_message(version, "setConverterVersion", "html-to-pdf", 'Allowed values are latest, 24.04, 20.10, 18.10.', "set_converter_version"), 470);
         
         self.helper.setConverterVersion(version)
         return self
@@ -3518,11 +3518,11 @@ class HtmlToImageClient:
         """
         Set the converter version. Different versions may produce different output. Choose which one provides the best output for your case.
 
-        version - The version identifier. Allowed values are latest, 20.10, 18.10.
+        version - The version identifier. Allowed values are latest, 24.04, 20.10, 18.10.
         return - The converter object.
         """
-        if not re.match('(?i)^(latest|20.10|18.10)$', version):
-            raise Error(create_invalid_value_message(version, "setConverterVersion", "html-to-image", 'Allowed values are latest, 20.10, 18.10.', "set_converter_version"), 470);
+        if not re.match('(?i)^(latest|24.04|20.10|18.10)$', version):
+            raise Error(create_invalid_value_message(version, "setConverterVersion", "html-to-image", 'Allowed values are latest, 24.04, 20.10, 18.10.', "set_converter_version"), 470);
         
         self.helper.setConverterVersion(version)
         return self
@@ -4147,11 +4147,11 @@ class ImageToImageClient:
         """
         Set the converter version. Different versions may produce different output. Choose which one provides the best output for your case.
 
-        version - The version identifier. Allowed values are latest, 20.10, 18.10.
+        version - The version identifier. Allowed values are latest, 24.04, 20.10, 18.10.
         return - The converter object.
         """
-        if not re.match('(?i)^(latest|20.10|18.10)$', version):
-            raise Error(create_invalid_value_message(version, "setConverterVersion", "image-to-image", 'Allowed values are latest, 20.10, 18.10.', "set_converter_version"), 470);
+        if not re.match('(?i)^(latest|24.04|20.10|18.10)$', version):
+            raise Error(create_invalid_value_message(version, "setConverterVersion", "image-to-image", 'Allowed values are latest, 24.04, 20.10, 18.10.', "set_converter_version"), 470);
         
         self.helper.setConverterVersion(version)
         return self
@@ -4751,11 +4751,11 @@ class PdfToPdfClient:
         """
         Set the converter version. Different versions may produce different output. Choose which one provides the best output for your case.
 
-        version - The version identifier. Allowed values are latest, 20.10, 18.10.
+        version - The version identifier. Allowed values are latest, 24.04, 20.10, 18.10.
         return - The converter object.
         """
-        if not re.match('(?i)^(latest|20.10|18.10)$', version):
-            raise Error(create_invalid_value_message(version, "setConverterVersion", "pdf-to-pdf", 'Allowed values are latest, 20.10, 18.10.', "set_converter_version"), 470);
+        if not re.match('(?i)^(latest|24.04|20.10|18.10)$', version):
+            raise Error(create_invalid_value_message(version, "setConverterVersion", "pdf-to-pdf", 'Allowed values are latest, 24.04, 20.10, 18.10.', "set_converter_version"), 470);
         
         self.helper.setConverterVersion(version)
         return self
@@ -5706,11 +5706,11 @@ class ImageToPdfClient:
         """
         Set the converter version. Different versions may produce different output. Choose which one provides the best output for your case.
 
-        version - The version identifier. Allowed values are latest, 20.10, 18.10.
+        version - The version identifier. Allowed values are latest, 24.04, 20.10, 18.10.
         return - The converter object.
         """
-        if not re.match('(?i)^(latest|20.10|18.10)$', version):
-            raise Error(create_invalid_value_message(version, "setConverterVersion", "image-to-pdf", 'Allowed values are latest, 20.10, 18.10.', "set_converter_version"), 470);
+        if not re.match('(?i)^(latest|24.04|20.10|18.10)$', version):
+            raise Error(create_invalid_value_message(version, "setConverterVersion", "image-to-pdf", 'Allowed values are latest, 24.04, 20.10, 18.10.', "set_converter_version"), 470);
         
         self.helper.setConverterVersion(version)
         return self
@@ -7015,7 +7015,7 @@ available converters:
         parser.add_argument('-viewport',
                             help = 'Set the viewport size. The viewport is the user\'s visible area of the page. VIEWPORT must contain 2 values separated by a semicolon. Set the viewport width in pixels. The viewport is the user\'s visible area of the page. The value must be in the range 96-65000. Set the viewport height in pixels. The viewport is the user\'s visible area of the page. If the input HTML uses lazily loaded images, try using a large value that covers the entire height of the HTML, e.g. 100000. Must be a positive integer number.')
         parser.add_argument('-rendering-mode',
-                            help = 'Set the rendering mode. The rendering mode. Allowed values are default, viewport. Default is default.')
+                            help = 'Set the rendering mode of the page, allowing control over how content is displayed. The rendering mode. Allowed values are default, viewport. Default is default.')
         parser.add_argument('-smart-scaling-mode',
                             help = 'Specifies the scaling mode used for fitting the HTML contents to the print area. The smart scaling mode. Allowed values are default, disabled, viewport-fit, content-fit, single-page-fit, single-page-fit-ex, mode1. Default is default.')
         parser.add_argument('-scale-factor',
@@ -7142,7 +7142,7 @@ available converters:
         parser.add_argument('-max-loading-time',
                             help = 'Set the maximum time to load the page and its resources. After this time, all requests will be considered successful. This can be useful to ensure that the conversion does not timeout. Use this method if there is no other way to fix page loading. The number of seconds to wait. The value must be in the range 10-30.')
         parser.add_argument('-converter-version',
-                            help = 'Set the converter version. Different versions may produce different output. Choose which one provides the best output for your case. The version identifier. Allowed values are latest, 20.10, 18.10. Default is 20.10.')
+                            help = 'Set the converter version. Different versions may produce different output. Choose which one provides the best output for your case. The version identifier. Allowed values are latest, 24.04, 20.10, 18.10. Default is 20.10.')
         parser.add_argument('-use-http',
                             action = 'store_true',
                             help = 'Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API. Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.')
@@ -7282,7 +7282,7 @@ available converters:
         parser.add_argument('-max-loading-time',
                             help = 'Set the maximum time to load the page and its resources. After this time, all requests will be considered successful. This can be useful to ensure that the conversion does not timeout. Use this method if there is no other way to fix page loading. The number of seconds to wait. The value must be in the range 10-30.')
         parser.add_argument('-converter-version',
-                            help = 'Set the converter version. Different versions may produce different output. Choose which one provides the best output for your case. The version identifier. Allowed values are latest, 20.10, 18.10. Default is 20.10.')
+                            help = 'Set the converter version. Different versions may produce different output. Choose which one provides the best output for your case. The version identifier. Allowed values are latest, 24.04, 20.10, 18.10. Default is 20.10.')
         parser.add_argument('-use-http',
                             action = 'store_true',
                             help = 'Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API. Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.')
@@ -7364,7 +7364,7 @@ available converters:
         parser.add_argument('-https-proxy',
                             help = 'A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTPS scheme. It can help to circumvent regional restrictions or provide limited access to your intranet. The value must have format DOMAIN_OR_IP_ADDRESS:PORT.')
         parser.add_argument('-converter-version',
-                            help = 'Set the converter version. Different versions may produce different output. Choose which one provides the best output for your case. The version identifier. Allowed values are latest, 20.10, 18.10. Default is 20.10.')
+                            help = 'Set the converter version. Different versions may produce different output. Choose which one provides the best output for your case. The version identifier. Allowed values are latest, 24.04, 20.10, 18.10. Default is 20.10.')
         parser.add_argument('-use-http',
                             action = 'store_true',
                             help = 'Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API. Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.')
@@ -7474,7 +7474,7 @@ available converters:
         parser.add_argument('-tag',
                             help = 'Tag the conversion with a custom value. The tag is used in conversion statistics. A value longer than 32 characters is cut off. A string with the custom tag.')
         parser.add_argument('-converter-version',
-                            help = 'Set the converter version. Different versions may produce different output. Choose which one provides the best output for your case. The version identifier. Allowed values are latest, 20.10, 18.10. Default is 20.10.')
+                            help = 'Set the converter version. Different versions may produce different output. Choose which one provides the best output for your case. The version identifier. Allowed values are latest, 24.04, 20.10, 18.10. Default is 20.10.')
         parser.add_argument('-use-http',
                             action = 'store_true',
                             help = 'Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API. Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.')
@@ -7625,7 +7625,7 @@ available converters:
         parser.add_argument('-https-proxy',
                             help = 'A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTPS scheme. It can help to circumvent regional restrictions or provide limited access to your intranet. The value must have format DOMAIN_OR_IP_ADDRESS:PORT.')
         parser.add_argument('-converter-version',
-                            help = 'Set the converter version. Different versions may produce different output. Choose which one provides the best output for your case. The version identifier. Allowed values are latest, 20.10, 18.10. Default is 20.10.')
+                            help = 'Set the converter version. Different versions may produce different output. Choose which one provides the best output for your case. The version identifier. Allowed values are latest, 24.04, 20.10, 18.10. Default is 20.10.')
         parser.add_argument('-use-http',
                             action = 'store_true',
                             help = 'Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API. Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.')
