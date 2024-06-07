@@ -43,7 +43,7 @@ import os
 import ssl
 import time
 
-__version__ = '5.19.0'
+__version__ = '5.20.0'
 
 # ======================================
 # === PDFCrowd legacy version client ===
@@ -698,7 +698,7 @@ else:
 
 HOST = os.environ.get('PDFCROWD_HOST', 'api.pdfcrowd.com')
 MULTIPART_BOUNDARY = '----------ThIs_Is_tHe_bOUnDary_$'
-CLIENT_VERSION = '5.19.0'
+CLIENT_VERSION = '5.20.0'
 
 def get_utf8_string(string):
     if PYTHON_3:
@@ -791,7 +791,7 @@ class ConnectionHelper:
         self._reset_response_data()
         self.setProxy(None, None, None, None)
         self.setUseHttp(False)
-        self.setUserAgent('pdfcrowd_python_client/5.19.0 (https://pdfcrowd.com)')
+        self.setUserAgent('pdfcrowd_python_client/5.20.0 (https://pdfcrowd.com)')
 
         self.retry_count = 1
         self.converter_version = '20.10'
@@ -6784,6 +6784,488 @@ class PdfToTextClient:
         self.helper.setRetryCount(count)
         return self
 
+class PdfToImageClient:
+    """
+    Conversion from PDF to image.
+    """
+
+    def __init__(self, user_name, api_key):
+        """
+        Constructor for the Pdfcrowd API client.
+
+        user_name - Your username at Pdfcrowd.
+        api_key - Your API key.
+        """
+        self.helper = ConnectionHelper(user_name, api_key)
+        self.fields = {
+            'input_format': 'pdf',
+            'output_format': 'png'
+        }
+        self.file_id = 1
+        self.files = {}
+        self.raw_data = {}
+
+    def convertUrl(self, url):
+        """
+        Convert an image.
+
+        url - The address of the image to convert. The supported protocols are http:// and https://.
+        return - Byte array containing the conversion output.
+        """
+        if not re.match('(?i)^https?://.*$', url):
+            raise Error(create_invalid_value_message(url, "convertUrl", "pdf-to-image", 'The supported protocols are http:// and https://.', "convert_url"), 470);
+        
+        self.fields['url'] = get_utf8_string(url)
+        return self.helper.post(self.fields, self.files, self.raw_data)
+
+    def convertUrlToStream(self, url, out_stream):
+        """
+        Convert an image and write the result to an output stream.
+
+        url - The address of the image to convert. The supported protocols are http:// and https://.
+        out_stream - The output stream that will contain the conversion output.
+        """
+        if not re.match('(?i)^https?://.*$', url):
+            raise Error(create_invalid_value_message(url, "convertUrlToStream::url", "pdf-to-image", 'The supported protocols are http:// and https://.', "convert_url_to_stream"), 470);
+        
+        self.fields['url'] = get_utf8_string(url)
+        self.helper.post(self.fields, self.files, self.raw_data, out_stream)
+
+    def convertUrlToFile(self, url, file_path):
+        """
+        Convert an image and write the result to a local file.
+
+        url - The address of the image to convert. The supported protocols are http:// and https://.
+        file_path - The output file path. The string must not be empty.
+        """
+        if not (file_path):
+            raise Error(create_invalid_value_message(file_path, "convertUrlToFile::file_path", "pdf-to-image", 'The string must not be empty.', "convert_url_to_file"), 470);
+        
+        output_file = open(file_path, 'wb')
+        try:
+            self.convertUrlToStream(url, output_file)
+            output_file.close()
+        except Error:
+            output_file.close()
+            os.remove(file_path)
+            raise
+
+    def convertFile(self, file):
+        """
+        Convert a local file.
+
+        file - The path to a local file to convert. The file must exist and not be empty.
+        return - Byte array containing the conversion output.
+        """
+        if not (os.path.isfile(file) and os.path.getsize(file)):
+            raise Error(create_invalid_value_message(file, "convertFile", "pdf-to-image", 'The file must exist and not be empty.', "convert_file"), 470);
+        
+        self.files['file'] = get_utf8_string(file)
+        return self.helper.post(self.fields, self.files, self.raw_data)
+
+    def convertFileToStream(self, file, out_stream):
+        """
+        Convert a local file and write the result to an output stream.
+
+        file - The path to a local file to convert. The file must exist and not be empty.
+        out_stream - The output stream that will contain the conversion output.
+        """
+        if not (os.path.isfile(file) and os.path.getsize(file)):
+            raise Error(create_invalid_value_message(file, "convertFileToStream::file", "pdf-to-image", 'The file must exist and not be empty.', "convert_file_to_stream"), 470);
+        
+        self.files['file'] = get_utf8_string(file)
+        self.helper.post(self.fields, self.files, self.raw_data, out_stream)
+
+    def convertFileToFile(self, file, file_path):
+        """
+        Convert a local file and write the result to a local file.
+
+        file - The path to a local file to convert. The file must exist and not be empty.
+        file_path - The output file path. The string must not be empty.
+        """
+        if not (file_path):
+            raise Error(create_invalid_value_message(file_path, "convertFileToFile::file_path", "pdf-to-image", 'The string must not be empty.', "convert_file_to_file"), 470);
+        
+        output_file = open(file_path, 'wb')
+        try:
+            self.convertFileToStream(file, output_file)
+            output_file.close()
+        except Error:
+            output_file.close()
+            os.remove(file_path)
+            raise
+
+    def convertRawData(self, data):
+        """
+        Convert raw data.
+
+        data - The raw content to be converted.
+        return - Byte array with the output.
+        """
+        self.raw_data['file'] = data
+        return self.helper.post(self.fields, self.files, self.raw_data)
+
+    def convertRawDataToStream(self, data, out_stream):
+        """
+        Convert raw data and write the result to an output stream.
+
+        data - The raw content to be converted.
+        out_stream - The output stream that will contain the conversion output.
+        """
+        self.raw_data['file'] = data
+        self.helper.post(self.fields, self.files, self.raw_data, out_stream)
+
+    def convertRawDataToFile(self, data, file_path):
+        """
+        Convert raw data to a file.
+
+        data - The raw content to be converted.
+        file_path - The output file path. The string must not be empty.
+        """
+        if not (file_path):
+            raise Error(create_invalid_value_message(file_path, "convertRawDataToFile::file_path", "pdf-to-image", 'The string must not be empty.', "convert_raw_data_to_file"), 470);
+        
+        output_file = open(file_path, 'wb')
+        try:
+            self.convertRawDataToStream(data, output_file)
+            output_file.close()
+        except Error:
+            output_file.close()
+            os.remove(file_path)
+            raise
+
+    def convertStream(self, in_stream):
+        """
+        Convert the contents of an input stream.
+
+        in_stream - The input stream with source data.
+        return - Byte array containing the conversion output.
+        """
+        self.raw_data['stream'] = in_stream.read()
+        return self.helper.post(self.fields, self.files, self.raw_data)
+
+    def convertStreamToStream(self, in_stream, out_stream):
+        """
+        Convert the contents of an input stream and write the result to an output stream.
+
+        in_stream - The input stream with source data.
+        out_stream - The output stream that will contain the conversion output.
+        """
+        self.raw_data['stream'] = in_stream.read()
+        self.helper.post(self.fields, self.files, self.raw_data, out_stream)
+
+    def convertStreamToFile(self, in_stream, file_path):
+        """
+        Convert the contents of an input stream and write the result to a local file.
+
+        in_stream - The input stream with source data.
+        file_path - The output file path. The string must not be empty.
+        """
+        if not (file_path):
+            raise Error(create_invalid_value_message(file_path, "convertStreamToFile::file_path", "pdf-to-image", 'The string must not be empty.', "convert_stream_to_file"), 470);
+        
+        output_file = open(file_path, 'wb')
+        try:
+            self.convertStreamToStream(in_stream, output_file)
+            output_file.close()
+        except Error:
+            output_file.close()
+            os.remove(file_path)
+            raise
+
+    def setOutputFormat(self, output_format):
+        """
+        The format of the output file.
+
+        output_format - Allowed values are png, jpg, gif, tiff, bmp, ico, ppm, pgm, pbm, pnm, psb, pct, ras, tga, sgi, sun, webp.
+        return - The converter object.
+        """
+        if not re.match('(?i)^(png|jpg|gif|tiff|bmp|ico|ppm|pgm|pbm|pnm|psb|pct|ras|tga|sgi|sun|webp)$', output_format):
+            raise Error(create_invalid_value_message(output_format, "setOutputFormat", "pdf-to-image", 'Allowed values are png, jpg, gif, tiff, bmp, ico, ppm, pgm, pbm, pnm, psb, pct, ras, tga, sgi, sun, webp.', "set_output_format"), 470);
+        
+        self.fields['output_format'] = get_utf8_string(output_format)
+        return self
+
+    def setPdfPassword(self, password):
+        """
+        Password to open the encrypted PDF file.
+
+        password - The input PDF password.
+        return - The converter object.
+        """
+        self.fields['pdf_password'] = get_utf8_string(password)
+        return self
+
+    def setPrintPageRange(self, pages):
+        """
+        Set the page range to print.
+
+        pages - A comma separated list of page numbers or ranges.
+        return - The converter object.
+        """
+        if not re.match('^(?:\s*(?:\d+|(?:\d*\s*\-\s*\d+)|(?:\d+\s*\-\s*\d*))\s*,\s*)*\s*(?:\d+|(?:\d*\s*\-\s*\d+)|(?:\d+\s*\-\s*\d*))\s*$', pages):
+            raise Error(create_invalid_value_message(pages, "setPrintPageRange", "pdf-to-image", 'A comma separated list of page numbers or ranges.', "set_print_page_range"), 470);
+        
+        self.fields['print_page_range'] = get_utf8_string(pages)
+        return self
+
+    def setDpi(self, dpi):
+        """
+        Set the output graphics DPI.
+
+        dpi - The DPI value.
+        return - The converter object.
+        """
+        self.fields['dpi'] = dpi
+        return self
+
+    def isZippedOutput(self):
+        """
+        A helper method to determine if the output file from a conversion process is a zip archive. The conversion output can be either a single image file or a zip file containing one or more image files. This method should be called after the conversion has been successfully completed.
+        return - True if the conversion output is a zip archive, otherwise False.
+        """
+        return self.fields.get('force_zip') == True or self.getPageCount() > 1
+
+    def setForceZip(self, value):
+        """
+        Enforces the zip output format.
+
+        value - Set to True to get the output as a zip archive.
+        return - The converter object.
+        """
+        self.fields['force_zip'] = value
+        return self
+
+    def setUseCropbox(self, value):
+        """
+        Use the crop box rather than media box.
+
+        value - Set to True to use crop box.
+        return - The converter object.
+        """
+        self.fields['use_cropbox'] = value
+        return self
+
+    def setCropAreaX(self, x):
+        """
+        Set the top left X coordinate of the crop area in points.
+
+        x - Must be a positive integer number or 0.
+        return - The converter object.
+        """
+        if not (int(x) >= 0):
+            raise Error(create_invalid_value_message(x, "setCropAreaX", "pdf-to-image", 'Must be a positive integer number or 0.', "set_crop_area_x"), 470);
+        
+        self.fields['crop_area_x'] = x
+        return self
+
+    def setCropAreaY(self, y):
+        """
+        Set the top left Y coordinate of the crop area in points.
+
+        y - Must be a positive integer number or 0.
+        return - The converter object.
+        """
+        if not (int(y) >= 0):
+            raise Error(create_invalid_value_message(y, "setCropAreaY", "pdf-to-image", 'Must be a positive integer number or 0.', "set_crop_area_y"), 470);
+        
+        self.fields['crop_area_y'] = y
+        return self
+
+    def setCropAreaWidth(self, width):
+        """
+        Set the width of the crop area in points.
+
+        width - Must be a positive integer number or 0.
+        return - The converter object.
+        """
+        if not (int(width) >= 0):
+            raise Error(create_invalid_value_message(width, "setCropAreaWidth", "pdf-to-image", 'Must be a positive integer number or 0.', "set_crop_area_width"), 470);
+        
+        self.fields['crop_area_width'] = width
+        return self
+
+    def setCropAreaHeight(self, height):
+        """
+        Set the height of the crop area in points.
+
+        height - Must be a positive integer number or 0.
+        return - The converter object.
+        """
+        if not (int(height) >= 0):
+            raise Error(create_invalid_value_message(height, "setCropAreaHeight", "pdf-to-image", 'Must be a positive integer number or 0.', "set_crop_area_height"), 470);
+        
+        self.fields['crop_area_height'] = height
+        return self
+
+    def setCropArea(self, x, y, width, height):
+        """
+        Set the crop area. It allows to extract just a part of a PDF page.
+
+        x - Set the top left X coordinate of the crop area in points. Must be a positive integer number or 0.
+        y - Set the top left Y coordinate of the crop area in points. Must be a positive integer number or 0.
+        width - Set the width of the crop area in points. Must be a positive integer number or 0.
+        height - Set the height of the crop area in points. Must be a positive integer number or 0.
+        return - The converter object.
+        """
+        self.setCropAreaX(x)
+        self.setCropAreaY(y)
+        self.setCropAreaWidth(width)
+        self.setCropAreaHeight(height)
+        return self
+
+    def setUseGrayscale(self, value):
+        """
+        Generate a grayscale image.
+
+        value - Set to True to generate a grayscale image.
+        return - The converter object.
+        """
+        self.fields['use_grayscale'] = value
+        return self
+
+    def setDebugLog(self, value):
+        """
+        Turn on the debug logging. Details about the conversion are stored in the debug log. The URL of the log can be obtained from the getDebugLogUrl method or available in conversion statistics.
+
+        value - Set to True to enable the debug logging.
+        return - The converter object.
+        """
+        self.fields['debug_log'] = value
+        return self
+
+    def getDebugLogUrl(self):
+        """
+        Get the URL of the debug log for the last conversion.
+        return - The link to the debug log.
+        """
+        return self.helper.getDebugLogUrl()
+
+    def getRemainingCreditCount(self):
+        """
+        Get the number of conversion credits available in your account.
+        This method can only be called after a call to one of the convertXtoY methods.
+        The returned value can differ from the actual count if you run parallel conversions.
+        The special value 999999 is returned if the information is not available.
+        return - The number of credits.
+        """
+        return self.helper.getRemainingCreditCount()
+
+    def getConsumedCreditCount(self):
+        """
+        Get the number of credits consumed by the last conversion.
+        return - The number of credits.
+        """
+        return self.helper.getConsumedCreditCount()
+
+    def getJobId(self):
+        """
+        Get the job id.
+        return - The unique job identifier.
+        """
+        return self.helper.getJobId()
+
+    def getPageCount(self):
+        """
+        Get the number of pages in the output document.
+        return - The page count.
+        """
+        return self.helper.getPageCount()
+
+    def getOutputSize(self):
+        """
+        Get the size of the output in bytes.
+        return - The count of bytes.
+        """
+        return self.helper.getOutputSize()
+
+    def getVersion(self):
+        """
+        Get the version details.
+        return - API version, converter version, and client version.
+        """
+        return 'client {}, API v2, converter {}'.format(CLIENT_VERSION, self.helper.getConverterVersion())
+
+    def setTag(self, tag):
+        """
+        Tag the conversion with a custom value. The tag is used in conversion statistics. A value longer than 32 characters is cut off.
+
+        tag - A string with the custom tag.
+        return - The converter object.
+        """
+        self.fields['tag'] = get_utf8_string(tag)
+        return self
+
+    def setHttpProxy(self, proxy):
+        """
+        A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTP scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
+
+        proxy - The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
+        return - The converter object.
+        """
+        if not re.match('(?i)^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z0-9]{1,}:\d+$', proxy):
+            raise Error(create_invalid_value_message(proxy, "setHttpProxy", "pdf-to-image", 'The value must have format DOMAIN_OR_IP_ADDRESS:PORT.', "set_http_proxy"), 470);
+        
+        self.fields['http_proxy'] = get_utf8_string(proxy)
+        return self
+
+    def setHttpsProxy(self, proxy):
+        """
+        A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTPS scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
+
+        proxy - The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
+        return - The converter object.
+        """
+        if not re.match('(?i)^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z0-9]{1,}:\d+$', proxy):
+            raise Error(create_invalid_value_message(proxy, "setHttpsProxy", "pdf-to-image", 'The value must have format DOMAIN_OR_IP_ADDRESS:PORT.', "set_https_proxy"), 470);
+        
+        self.fields['https_proxy'] = get_utf8_string(proxy)
+        return self
+
+    def setUseHttp(self, value):
+        """
+        Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API.
+        Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.
+
+        value - Set to True to use HTTP.
+        return - The converter object.
+        """
+        self.helper.setUseHttp(value)
+        return self
+
+    def setUserAgent(self, agent):
+        """
+        Set a custom user agent HTTP header. It can be useful if you are behind a proxy or a firewall.
+
+        agent - The user agent string.
+        return - The converter object.
+        """
+        self.helper.setUserAgent(agent)
+        return self
+
+    def setProxy(self, host, port, user_name, password):
+        """
+        Specifies an HTTP proxy that the API client library will use to connect to the internet.
+
+        host - The proxy hostname.
+        port - The proxy port.
+        user_name - The username.
+        password - The password.
+        return - The converter object.
+        """
+        self.helper.setProxy(host, port, user_name, password)
+        return self
+
+    def setRetryCount(self, count):
+        """
+        Specifies the number of automatic retries when the 502 or 503 HTTP status code is received. The status code indicates a temporary network issue. This feature can be disabled by setting to 0.
+
+        count - Number of retries.
+        return - The converter object.
+        """
+        self.helper.setRetryCount(count)
+        return self
+
 
 def main(argv, converter_known = False):
     def show_help():
@@ -6799,6 +7281,7 @@ available converters:
   image2pdf - Conversion from an image to PDF.
   pdf2html - Conversion from PDF to HTML.
   pdf2text - Conversion from PDF to text.
+  pdf2image - Conversion from PDF to image.
         """)
 
     def term_error(message):
@@ -7741,6 +8224,64 @@ available converters:
         multi_args['crop_area'] = 4
         parser.add_argument('-crop-area',
                             help = 'Set the crop area. It allows to extract just a part of a PDF page. CROP_AREA must contain 4 values separated by a semicolon. Set the top left X coordinate of the crop area in points. Set the top left Y coordinate of the crop area in points. Set the width of the crop area in points. Set the height of the crop area in points. All values must be a positive integer number or 0.')
+        parser.add_argument('-debug-log',
+                            action = 'store_true',
+                            help = 'Turn on the debug logging. Details about the conversion are stored in the debug log.')
+        parser.add_argument('-tag',
+                            help = 'Tag the conversion with a custom value. The tag is used in conversion statistics. A value longer than 32 characters is cut off. A string with the custom tag.')
+        parser.add_argument('-http-proxy',
+                            help = 'A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTP scheme. It can help to circumvent regional restrictions or provide limited access to your intranet. The value must have format DOMAIN_OR_IP_ADDRESS:PORT.')
+        parser.add_argument('-https-proxy',
+                            help = 'A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTPS scheme. It can help to circumvent regional restrictions or provide limited access to your intranet. The value must have format DOMAIN_OR_IP_ADDRESS:PORT.')
+        parser.add_argument('-use-http',
+                            action = 'store_true',
+                            help = 'Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API. Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.')
+        parser.add_argument('-user-agent',
+                            help = 'Set a custom user agent HTTP header. It can be useful if you are behind a proxy or a firewall. The user agent string.')
+        multi_args['proxy'] = 4
+        parser.add_argument('-proxy',
+                            help = 'Specifies an HTTP proxy that the API client library will use to connect to the internet. PROXY must contain 4 values separated by a semicolon. The proxy hostname. The proxy port. The username. The password.')
+        parser.add_argument('-retry-count',
+                            help = 'Specifies the number of automatic retries when the 502 or 503 HTTP status code is received. The status code indicates a temporary network issue. This feature can be disabled by setting to 0. Number of retries. Default is 1.')
+
+    if converter == 'pdf2image':
+        converter_name = 'PdfToImageClient'
+
+        parser = argparse.ArgumentParser(usage = usage,
+                                         description = 'Conversion from PDF to image.',
+                                         add_help = False,
+                                         epilog = epilog)
+
+        add_generic_args(parser)
+
+        parser.add_argument('-output-format',
+                            help = 'The format of the output file. Allowed values are png, jpg, gif, tiff, bmp, ico, ppm, pgm, pbm, pnm, psb, pct, ras, tga, sgi, sun, webp. Default is png.')
+        parser.add_argument('-pdf-password',
+                            help = 'Password to open the encrypted PDF file. The input PDF password.')
+        parser.add_argument('-print-page-range',
+                            help = 'Set the page range to print. A comma separated list of page numbers or ranges.')
+        parser.add_argument('-dpi',
+                            help = 'Set the output graphics DPI. The DPI value. Default is 144.')
+        parser.add_argument('-force-zip',
+                            action = 'store_true',
+                            help = 'Enforces the zip output format.')
+        parser.add_argument('-use-cropbox',
+                            action = 'store_true',
+                            help = 'Use the crop box rather than media box.')
+        parser.add_argument('-crop-area-x',
+                            help = 'Set the top left X coordinate of the crop area in points. Must be a positive integer number or 0.')
+        parser.add_argument('-crop-area-y',
+                            help = 'Set the top left Y coordinate of the crop area in points. Must be a positive integer number or 0.')
+        parser.add_argument('-crop-area-width',
+                            help = 'Set the width of the crop area in points. Must be a positive integer number or 0. Default is PDF page width..')
+        parser.add_argument('-crop-area-height',
+                            help = 'Set the height of the crop area in points. Must be a positive integer number or 0. Default is PDF page height..')
+        multi_args['crop_area'] = 4
+        parser.add_argument('-crop-area',
+                            help = 'Set the crop area. It allows to extract just a part of a PDF page. CROP_AREA must contain 4 values separated by a semicolon. Set the top left X coordinate of the crop area in points. Set the top left Y coordinate of the crop area in points. Set the width of the crop area in points. Set the height of the crop area in points. All values must be a positive integer number or 0.')
+        parser.add_argument('-use-grayscale',
+                            action = 'store_true',
+                            help = 'Generate a grayscale image.')
         parser.add_argument('-debug-log',
                             action = 'store_true',
                             help = 'Turn on the debug logging. Details about the conversion are stored in the debug log.')
