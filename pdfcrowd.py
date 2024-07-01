@@ -43,7 +43,7 @@ import os
 import ssl
 import time
 
-__version__ = '5.20.0'
+__version__ = '6.0.0'
 
 # ======================================
 # === PDFCrowd legacy version client ===
@@ -698,7 +698,7 @@ else:
 
 HOST = os.environ.get('PDFCROWD_HOST', 'api.pdfcrowd.com')
 MULTIPART_BOUNDARY = '----------ThIs_Is_tHe_bOUnDary_$'
-CLIENT_VERSION = '5.20.0'
+CLIENT_VERSION = '6.0.0'
 
 def get_utf8_string(string):
     if PYTHON_3:
@@ -791,10 +791,10 @@ class ConnectionHelper:
         self._reset_response_data()
         self.setProxy(None, None, None, None)
         self.setUseHttp(False)
-        self.setUserAgent('pdfcrowd_python_client/5.20.0 (https://pdfcrowd.com)')
+        self.setUserAgent('pdfcrowd_python_client/6.0.0 (https://pdfcrowd.com)')
 
         self.retry_count = 1
-        self.converter_version = '20.10'
+        self.converter_version = '24.04'
 
     def _reset_response_data(self):
         self.debug_log_url = None
@@ -1316,6 +1316,45 @@ class HtmlToPdfClient:
         self.fields['page_numbering_offset'] = offset
         return self
 
+    def setContentViewportWidth(self, width):
+        """
+        Set the viewport width for formatting the HTML content when generating a PDF. By specifying a viewport width, you can control how the content is rendered, ensuring it mimics the appearance on various devices or matches specific design requirements.
+
+        width - The width of the viewport. The value must be "balanced", "small", "medium", "large", "extra-large", or a number in the range 96-65000.
+        return - The converter object.
+        """
+        if not re.match('(?i)^(balanced|small|medium|large|extra-large|[0-9]+)$', width):
+            raise Error(create_invalid_value_message(width, "setContentViewportWidth", "html-to-pdf", 'The value must be "balanced", "small", "medium", "large", "extra-large", or a number in the range 96-65000.', "set_content_viewport_width"), 470);
+        
+        self.fields['content_viewport_width'] = get_utf8_string(width)
+        return self
+
+    def setContentViewportHeight(self, height):
+        """
+        Set the viewport height for formatting the HTML content when generating a PDF. By specifying a viewport height, you can enforce loading of lazy-loaded images and also affect vertical positioning of absolutely positioned elements within the content.
+
+        height - The viewport height. The value must be "auto", "large", or a number.
+        return - The converter object.
+        """
+        if not re.match('(?i)^(auto|large|[0-9]+)$', height):
+            raise Error(create_invalid_value_message(height, "setContentViewportHeight", "html-to-pdf", 'The value must be "auto", "large", or a number.', "set_content_viewport_height"), 470);
+        
+        self.fields['content_viewport_height'] = get_utf8_string(height)
+        return self
+
+    def setContentFitMode(self, mode):
+        """
+        Specifies the mode for fitting the HTML content to the print area by upscaling or downscaling it.
+
+        mode - The fitting mode. Allowed values are auto, smart-scaling, no-scaling, viewport-width, content-width, single-page, single-page-ratio.
+        return - The converter object.
+        """
+        if not re.match('(?i)^(auto|smart-scaling|no-scaling|viewport-width|content-width|single-page|single-page-ratio)$', mode):
+            raise Error(create_invalid_value_message(mode, "setContentFitMode", "html-to-pdf", 'Allowed values are auto, smart-scaling, no-scaling, viewport-width, content-width, single-page, single-page-ratio.', "set_content_fit_mode"), 470);
+        
+        self.fields['content_fit_mode'] = get_utf8_string(mode)
+        return self
+
     def setContentAreaX(self, x):
         """
         Set the top left X coordinate of the content area. It is relative to the top left X coordinate of the print area.
@@ -1401,11 +1440,11 @@ class HtmlToPdfClient:
         """
         Specifies which blank pages to exclude from the output document.
 
-        pages - The empty page behavior. Allowed values are trailing, none.
+        pages - The empty page behavior. Allowed values are trailing, all, none.
         return - The converter object.
         """
-        if not re.match('(?i)^(trailing|none)$', pages):
-            raise Error(create_invalid_value_message(pages, "setRemoveBlankPages", "html-to-pdf", 'Allowed values are trailing, none.', "set_remove_blank_pages"), 470);
+        if not re.match('(?i)^(trailing|all|none)$', pages):
+            raise Error(create_invalid_value_message(pages, "setRemoveBlankPages", "html-to-pdf", 'Allowed values are trailing, all, none.', "set_remove_blank_pages"), 470);
         
         self.fields['remove_blank_pages'] = get_utf8_string(pages)
         return self
@@ -2669,11 +2708,11 @@ class HtmlToPdfClient:
         """
         Set the converter version. Different versions may produce different output. Choose which one provides the best output for your case.
 
-        version - The version identifier. Allowed values are latest, 24.04, 20.10, 18.10.
+        version - The version identifier. Allowed values are 24.04, 20.10, 18.10, latest.
         return - The converter object.
         """
-        if not re.match('(?i)^(latest|24.04|20.10|18.10)$', version):
-            raise Error(create_invalid_value_message(version, "setConverterVersion", "html-to-pdf", 'Allowed values are latest, 24.04, 20.10, 18.10.', "set_converter_version"), 470);
+        if not re.match('(?i)^(24.04|20.10|18.10|latest)$', version):
+            raise Error(create_invalid_value_message(version, "setConverterVersion", "html-to-pdf", 'Allowed values are 24.04, 20.10, 18.10, latest.', "set_converter_version"), 470);
         
         self.helper.setConverterVersion(version)
         return self
@@ -3518,11 +3557,11 @@ class HtmlToImageClient:
         """
         Set the converter version. Different versions may produce different output. Choose which one provides the best output for your case.
 
-        version - The version identifier. Allowed values are latest, 24.04, 20.10, 18.10.
+        version - The version identifier. Allowed values are 24.04, 20.10, 18.10, latest.
         return - The converter object.
         """
-        if not re.match('(?i)^(latest|24.04|20.10|18.10)$', version):
-            raise Error(create_invalid_value_message(version, "setConverterVersion", "html-to-image", 'Allowed values are latest, 24.04, 20.10, 18.10.', "set_converter_version"), 470);
+        if not re.match('(?i)^(24.04|20.10|18.10|latest)$', version):
+            raise Error(create_invalid_value_message(version, "setConverterVersion", "html-to-image", 'Allowed values are 24.04, 20.10, 18.10, latest.', "set_converter_version"), 470);
         
         self.helper.setConverterVersion(version)
         return self
@@ -4147,11 +4186,11 @@ class ImageToImageClient:
         """
         Set the converter version. Different versions may produce different output. Choose which one provides the best output for your case.
 
-        version - The version identifier. Allowed values are latest, 24.04, 20.10, 18.10.
+        version - The version identifier. Allowed values are 24.04, 20.10, 18.10, latest.
         return - The converter object.
         """
-        if not re.match('(?i)^(latest|24.04|20.10|18.10)$', version):
-            raise Error(create_invalid_value_message(version, "setConverterVersion", "image-to-image", 'Allowed values are latest, 24.04, 20.10, 18.10.', "set_converter_version"), 470);
+        if not re.match('(?i)^(24.04|20.10|18.10|latest)$', version):
+            raise Error(create_invalid_value_message(version, "setConverterVersion", "image-to-image", 'Allowed values are 24.04, 20.10, 18.10, latest.', "set_converter_version"), 470);
         
         self.helper.setConverterVersion(version)
         return self
@@ -4751,11 +4790,11 @@ class PdfToPdfClient:
         """
         Set the converter version. Different versions may produce different output. Choose which one provides the best output for your case.
 
-        version - The version identifier. Allowed values are latest, 24.04, 20.10, 18.10.
+        version - The version identifier. Allowed values are 24.04, 20.10, 18.10, latest.
         return - The converter object.
         """
-        if not re.match('(?i)^(latest|24.04|20.10|18.10)$', version):
-            raise Error(create_invalid_value_message(version, "setConverterVersion", "pdf-to-pdf", 'Allowed values are latest, 24.04, 20.10, 18.10.', "set_converter_version"), 470);
+        if not re.match('(?i)^(24.04|20.10|18.10|latest)$', version):
+            raise Error(create_invalid_value_message(version, "setConverterVersion", "pdf-to-pdf", 'Allowed values are 24.04, 20.10, 18.10, latest.', "set_converter_version"), 470);
         
         self.helper.setConverterVersion(version)
         return self
@@ -5706,11 +5745,11 @@ class ImageToPdfClient:
         """
         Set the converter version. Different versions may produce different output. Choose which one provides the best output for your case.
 
-        version - The version identifier. Allowed values are latest, 24.04, 20.10, 18.10.
+        version - The version identifier. Allowed values are 24.04, 20.10, 18.10, latest.
         return - The converter object.
         """
-        if not re.match('(?i)^(latest|24.04|20.10|18.10)$', version):
-            raise Error(create_invalid_value_message(version, "setConverterVersion", "image-to-pdf", 'Allowed values are latest, 24.04, 20.10, 18.10.', "set_converter_version"), 470);
+        if not re.match('(?i)^(24.04|20.10|18.10|latest)$', version):
+            raise Error(create_invalid_value_message(version, "setConverterVersion", "image-to-pdf", 'Allowed values are 24.04, 20.10, 18.10, latest.', "set_converter_version"), 470);
         
         self.helper.setConverterVersion(version)
         return self
@@ -7361,6 +7400,12 @@ available converters:
                             help = 'Set the page range to print. A comma separated list of page numbers or ranges.')
         parser.add_argument('-page-numbering-offset',
                             help = 'Set an offset between physical and logical page numbers. Integer specifying page offset.')
+        parser.add_argument('-content-viewport-width',
+                            help = 'Set the viewport width for formatting the HTML content when generating a PDF. By specifying a viewport width, you can control how the content is rendered, ensuring it mimics the appearance on various devices or matches specific design requirements. The width of the viewport. The value must be "balanced", "small", "medium", "large", "extra-large", or a number in the range 96-65000. Default is medium.')
+        parser.add_argument('-content-viewport-height',
+                            help = 'Set the viewport height for formatting the HTML content when generating a PDF. By specifying a viewport height, you can enforce loading of lazy-loaded images and also affect vertical positioning of absolutely positioned elements within the content. The viewport height. The value must be "auto", "large", or a number. Default is auto.')
+        parser.add_argument('-content-fit-mode',
+                            help = 'Specifies the mode for fitting the HTML content to the print area by upscaling or downscaling it. The fitting mode. Allowed values are auto, smart-scaling, no-scaling, viewport-width, content-width, single-page, single-page-ratio. Default is auto.')
         parser.add_argument('-content-area-x',
                             help = 'Set the top left X coordinate of the content area. It is relative to the top left X coordinate of the print area. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt". It may contain a negative value. Default is 0in.')
         parser.add_argument('-content-area-y',
@@ -7375,7 +7420,7 @@ available converters:
         parser.add_argument('-css-page-rule-mode',
                             help = 'Specifies behavior in presence of CSS @page rules. It may affect the page size, margins and orientation. The page rule mode. Allowed values are default, mode1, mode2. Default is default.')
         parser.add_argument('-remove-blank-pages',
-                            help = 'Specifies which blank pages to exclude from the output document. The empty page behavior. Allowed values are trailing, none. Default is trailing.')
+                            help = 'Specifies which blank pages to exclude from the output document. The empty page behavior. Allowed values are trailing, all, none. Default is trailing.')
         parser.add_argument('-header-url',
                             help = 'Load an HTML code from the specified URL and use it as the page header. The following classes can be used in the HTML. The content of the respective elements will be expanded as follows: pdfcrowd-page-count - the total page count of printed pages pdfcrowd-page-number - the current page number pdfcrowd-source-url - the source URL of the converted document pdfcrowd-source-title - the title of the converted document The following attributes can be used: data-pdfcrowd-number-format - specifies the type of the used numerals. Allowed values: arabic - Arabic numerals, they are used by default roman - Roman numerals eastern-arabic - Eastern Arabic numerals bengali - Bengali numerals devanagari - Devanagari numerals thai - Thai numerals east-asia - Chinese, Vietnamese, Japanese and Korean numerals chinese-formal - Chinese formal numerals Please contact us if you need another type of numerals. Example: <span class=\'pdfcrowd-page-number\' data-pdfcrowd-number-format=\'roman\'></span> data-pdfcrowd-placement - specifies where to place the source URL. Allowed values: The URL is inserted to the content Example: <span class=\'pdfcrowd-source-url\'></span> will produce <span>http://example.com</span> href - the URL is set to the href attribute Example: <a class=\'pdfcrowd-source-url\' data-pdfcrowd-placement=\'href\'>Link to source</a> will produce <a href=\'http://example.com\'>Link to source</a> href-and-content - the URL is set to the href attribute and to the content Example: <a class=\'pdfcrowd-source-url\' data-pdfcrowd-placement=\'href-and-content\'></a> will produce <a href=\'http://example.com\'>http://example.com</a> The supported protocols are http:// and https://.')
         parser.add_argument('-header-html',
@@ -7625,7 +7670,7 @@ available converters:
         parser.add_argument('-max-loading-time',
                             help = 'Set the maximum time to load the page and its resources. After this time, all requests will be considered successful. This can be useful to ensure that the conversion does not timeout. Use this method if there is no other way to fix page loading. The number of seconds to wait. The value must be in the range 10-30.')
         parser.add_argument('-converter-version',
-                            help = 'Set the converter version. Different versions may produce different output. Choose which one provides the best output for your case. The version identifier. Allowed values are latest, 24.04, 20.10, 18.10. Default is 20.10.')
+                            help = 'Set the converter version. Different versions may produce different output. Choose which one provides the best output for your case. The version identifier. Allowed values are 24.04, 20.10, 18.10, latest. Default is 24.04.')
         parser.add_argument('-use-http',
                             action = 'store_true',
                             help = 'Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API. Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.')
@@ -7765,7 +7810,7 @@ available converters:
         parser.add_argument('-max-loading-time',
                             help = 'Set the maximum time to load the page and its resources. After this time, all requests will be considered successful. This can be useful to ensure that the conversion does not timeout. Use this method if there is no other way to fix page loading. The number of seconds to wait. The value must be in the range 10-30.')
         parser.add_argument('-converter-version',
-                            help = 'Set the converter version. Different versions may produce different output. Choose which one provides the best output for your case. The version identifier. Allowed values are latest, 24.04, 20.10, 18.10. Default is 20.10.')
+                            help = 'Set the converter version. Different versions may produce different output. Choose which one provides the best output for your case. The version identifier. Allowed values are 24.04, 20.10, 18.10, latest. Default is 24.04.')
         parser.add_argument('-use-http',
                             action = 'store_true',
                             help = 'Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API. Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.')
@@ -7847,7 +7892,7 @@ available converters:
         parser.add_argument('-https-proxy',
                             help = 'A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTPS scheme. It can help to circumvent regional restrictions or provide limited access to your intranet. The value must have format DOMAIN_OR_IP_ADDRESS:PORT.')
         parser.add_argument('-converter-version',
-                            help = 'Set the converter version. Different versions may produce different output. Choose which one provides the best output for your case. The version identifier. Allowed values are latest, 24.04, 20.10, 18.10. Default is 20.10.')
+                            help = 'Set the converter version. Different versions may produce different output. Choose which one provides the best output for your case. The version identifier. Allowed values are 24.04, 20.10, 18.10, latest. Default is 24.04.')
         parser.add_argument('-use-http',
                             action = 'store_true',
                             help = 'Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API. Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.')
@@ -7957,7 +8002,7 @@ available converters:
         parser.add_argument('-tag',
                             help = 'Tag the conversion with a custom value. The tag is used in conversion statistics. A value longer than 32 characters is cut off. A string with the custom tag.')
         parser.add_argument('-converter-version',
-                            help = 'Set the converter version. Different versions may produce different output. Choose which one provides the best output for your case. The version identifier. Allowed values are latest, 24.04, 20.10, 18.10. Default is 20.10.')
+                            help = 'Set the converter version. Different versions may produce different output. Choose which one provides the best output for your case. The version identifier. Allowed values are 24.04, 20.10, 18.10, latest. Default is 24.04.')
         parser.add_argument('-use-http',
                             action = 'store_true',
                             help = 'Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API. Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.')
@@ -8108,7 +8153,7 @@ available converters:
         parser.add_argument('-https-proxy',
                             help = 'A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTPS scheme. It can help to circumvent regional restrictions or provide limited access to your intranet. The value must have format DOMAIN_OR_IP_ADDRESS:PORT.')
         parser.add_argument('-converter-version',
-                            help = 'Set the converter version. Different versions may produce different output. Choose which one provides the best output for your case. The version identifier. Allowed values are latest, 24.04, 20.10, 18.10. Default is 20.10.')
+                            help = 'Set the converter version. Different versions may produce different output. Choose which one provides the best output for your case. The version identifier. Allowed values are 24.04, 20.10, 18.10, latest. Default is 24.04.')
         parser.add_argument('-use-http',
                             action = 'store_true',
                             help = 'Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API. Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.')
