@@ -43,7 +43,7 @@ import os
 import ssl
 import time
 
-__version__ = '6.0.0'
+__version__ = '6.0.1'
 
 # ======================================
 # === PDFCrowd legacy version client ===
@@ -698,7 +698,7 @@ else:
 
 HOST = os.environ.get('PDFCROWD_HOST', 'api.pdfcrowd.com')
 MULTIPART_BOUNDARY = '----------ThIs_Is_tHe_bOUnDary_$'
-CLIENT_VERSION = '6.0.0'
+CLIENT_VERSION = '6.0.1'
 
 def get_utf8_string(string):
     if PYTHON_3:
@@ -791,7 +791,7 @@ class ConnectionHelper:
         self._reset_response_data()
         self.setProxy(None, None, None, None)
         self.setUseHttp(False)
-        self.setUserAgent('pdfcrowd_python_client/6.0.0 (https://pdfcrowd.com)')
+        self.setUserAgent('pdfcrowd_python_client/6.0.1 (https://pdfcrowd.com)')
 
         self.retry_count = 1
         self.converter_version = '24.04'
@@ -1355,87 +1355,6 @@ class HtmlToPdfClient:
         self.fields['content_fit_mode'] = get_utf8_string(mode)
         return self
 
-    def setContentAreaX(self, x):
-        """
-        Set the top left X coordinate of the content area. It is relative to the top left X coordinate of the print area.
-
-        x - The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt". It may contain a negative value.
-        return - The converter object.
-        """
-        if not re.match('(?i)^0$|^\-?[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', x):
-            raise Error(create_invalid_value_message(x, "setContentAreaX", "html-to-pdf", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt". It may contain a negative value.', "set_content_area_x"), 470);
-        
-        self.fields['content_area_x'] = get_utf8_string(x)
-        return self
-
-    def setContentAreaY(self, y):
-        """
-        Set the top left Y coordinate of the content area. It is relative to the top left Y coordinate of the print area.
-
-        y - The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt". It may contain a negative value.
-        return - The converter object.
-        """
-        if not re.match('(?i)^0$|^\-?[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', y):
-            raise Error(create_invalid_value_message(y, "setContentAreaY", "html-to-pdf", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt". It may contain a negative value.', "set_content_area_y"), 470);
-        
-        self.fields['content_area_y'] = get_utf8_string(y)
-        return self
-
-    def setContentAreaWidth(self, width):
-        """
-        Set the width of the content area. It should be at least 1 inch.
-
-        width - The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
-        return - The converter object.
-        """
-        if not re.match('(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', width):
-            raise Error(create_invalid_value_message(width, "setContentAreaWidth", "html-to-pdf", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".', "set_content_area_width"), 470);
-        
-        self.fields['content_area_width'] = get_utf8_string(width)
-        return self
-
-    def setContentAreaHeight(self, height):
-        """
-        Set the height of the content area. It should be at least 1 inch.
-
-        height - The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
-        return - The converter object.
-        """
-        if not re.match('(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', height):
-            raise Error(create_invalid_value_message(height, "setContentAreaHeight", "html-to-pdf", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".', "set_content_area_height"), 470);
-        
-        self.fields['content_area_height'] = get_utf8_string(height)
-        return self
-
-    def setContentArea(self, x, y, width, height):
-        """
-        Set the content area position and size. The content area enables to specify a web page area to be converted.
-
-        x - Set the top left X coordinate of the content area. It is relative to the top left X coordinate of the print area. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt". It may contain a negative value.
-        y - Set the top left Y coordinate of the content area. It is relative to the top left Y coordinate of the print area. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt". It may contain a negative value.
-        width - Set the width of the content area. It should be at least 1 inch. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
-        height - Set the height of the content area. It should be at least 1 inch. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
-        return - The converter object.
-        """
-        self.setContentAreaX(x)
-        self.setContentAreaY(y)
-        self.setContentAreaWidth(width)
-        self.setContentAreaHeight(height)
-        return self
-
-    def setCssPageRuleMode(self, mode):
-        """
-        Specifies behavior in presence of CSS @page rules. It may affect the page size, margins and orientation.
-
-        mode - The page rule mode. Allowed values are default, mode1, mode2.
-        return - The converter object.
-        """
-        if not re.match('(?i)^(default|mode1|mode2)$', mode):
-            raise Error(create_invalid_value_message(mode, "setCssPageRuleMode", "html-to-pdf", 'Allowed values are default, mode1, mode2.', "set_css_page_rule_mode"), 470);
-        
-        self.fields['css_page_rule_mode'] = get_utf8_string(mode)
-        return self
-
     def setRemoveBlankPages(self, pages):
         """
         Specifies which blank pages to exclude from the output document.
@@ -1896,6 +1815,19 @@ class HtmlToPdfClient:
         return - The converter object.
         """
         self.fields['no_xpdfcrowd_header'] = value
+        return self
+
+    def setCssPageRuleMode(self, mode):
+        """
+        Specifies behavior in presence of CSS @page rules. It may affect the page size, margins and orientation.
+
+        mode - The page rule mode. Allowed values are default, mode1, mode2.
+        return - The converter object.
+        """
+        if not re.match('(?i)^(default|mode1|mode2)$', mode):
+            raise Error(create_invalid_value_message(mode, "setCssPageRuleMode", "html-to-pdf", 'Allowed values are default, mode1, mode2.', "set_css_page_rule_mode"), 470);
+        
+        self.fields['css_page_rule_mode'] = get_utf8_string(mode)
         return self
 
     def setCustomCss(self, css):
@@ -2628,6 +2560,74 @@ class HtmlToPdfClient:
             raise Error(create_invalid_value_message(dpi, "setLayoutDpi", "html-to-pdf", 'The value must be in the range of 72-600.', "set_layout_dpi"), 470);
         
         self.fields['layout_dpi'] = dpi
+        return self
+
+    def setContentAreaX(self, x):
+        """
+        Set the top left X coordinate of the content area. It is relative to the top left X coordinate of the print area.
+
+        x - The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt". It may contain a negative value.
+        return - The converter object.
+        """
+        if not re.match('(?i)^0$|^\-?[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', x):
+            raise Error(create_invalid_value_message(x, "setContentAreaX", "html-to-pdf", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt". It may contain a negative value.', "set_content_area_x"), 470);
+        
+        self.fields['content_area_x'] = get_utf8_string(x)
+        return self
+
+    def setContentAreaY(self, y):
+        """
+        Set the top left Y coordinate of the content area. It is relative to the top left Y coordinate of the print area.
+
+        y - The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt". It may contain a negative value.
+        return - The converter object.
+        """
+        if not re.match('(?i)^0$|^\-?[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', y):
+            raise Error(create_invalid_value_message(y, "setContentAreaY", "html-to-pdf", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt". It may contain a negative value.', "set_content_area_y"), 470);
+        
+        self.fields['content_area_y'] = get_utf8_string(y)
+        return self
+
+    def setContentAreaWidth(self, width):
+        """
+        Set the width of the content area. It should be at least 1 inch.
+
+        width - The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+        return - The converter object.
+        """
+        if not re.match('(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', width):
+            raise Error(create_invalid_value_message(width, "setContentAreaWidth", "html-to-pdf", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".', "set_content_area_width"), 470);
+        
+        self.fields['content_area_width'] = get_utf8_string(width)
+        return self
+
+    def setContentAreaHeight(self, height):
+        """
+        Set the height of the content area. It should be at least 1 inch.
+
+        height - The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+        return - The converter object.
+        """
+        if not re.match('(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', height):
+            raise Error(create_invalid_value_message(height, "setContentAreaHeight", "html-to-pdf", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".', "set_content_area_height"), 470);
+        
+        self.fields['content_area_height'] = get_utf8_string(height)
+        return self
+
+    def setContentArea(self, x, y, width, height):
+        """
+        Set the content area position and size. The content area enables to specify a web page area to be converted.
+
+        x - Set the top left X coordinate of the content area. It is relative to the top left X coordinate of the print area. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt". It may contain a negative value.
+        y - Set the top left Y coordinate of the content area. It is relative to the top left Y coordinate of the print area. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt". It may contain a negative value.
+        width - Set the width of the content area. It should be at least 1 inch. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+        height - Set the height of the content area. It should be at least 1 inch. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+        return - The converter object.
+        """
+        self.setContentAreaX(x)
+        self.setContentAreaY(y)
+        self.setContentAreaWidth(width)
+        self.setContentAreaHeight(height)
         return self
 
     def setContentsMatrix(self, matrix):
@@ -7406,19 +7406,6 @@ available converters:
                             help = 'Set the viewport height for formatting the HTML content when generating a PDF. By specifying a viewport height, you can enforce loading of lazy-loaded images and also affect vertical positioning of absolutely positioned elements within the content. The viewport height. The value must be "auto", "large", or a number. Default is auto.')
         parser.add_argument('-content-fit-mode',
                             help = 'Specifies the mode for fitting the HTML content to the print area by upscaling or downscaling it. The fitting mode. Allowed values are auto, smart-scaling, no-scaling, viewport-width, content-width, single-page, single-page-ratio. Default is auto.')
-        parser.add_argument('-content-area-x',
-                            help = 'Set the top left X coordinate of the content area. It is relative to the top left X coordinate of the print area. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt". It may contain a negative value. Default is 0in.')
-        parser.add_argument('-content-area-y',
-                            help = 'Set the top left Y coordinate of the content area. It is relative to the top left Y coordinate of the print area. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt". It may contain a negative value. Default is 0in.')
-        parser.add_argument('-content-area-width',
-                            help = 'Set the width of the content area. It should be at least 1 inch. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt". Default is The width of the print area..')
-        parser.add_argument('-content-area-height',
-                            help = 'Set the height of the content area. It should be at least 1 inch. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt". Default is The height of the print area..')
-        multi_args['content_area'] = 4
-        parser.add_argument('-content-area',
-                            help = 'Set the content area position and size. The content area enables to specify a web page area to be converted. CONTENT_AREA must contain 4 values separated by a semicolon. Set the top left X coordinate of the content area. It is relative to the top left X coordinate of the print area. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt". It may contain a negative value. Set the top left Y coordinate of the content area. It is relative to the top left Y coordinate of the print area. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt". It may contain a negative value. Set the width of the content area. It should be at least 1 inch. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt". Set the height of the content area. It should be at least 1 inch. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".')
-        parser.add_argument('-css-page-rule-mode',
-                            help = 'Specifies behavior in presence of CSS @page rules. It may affect the page size, margins and orientation. The page rule mode. Allowed values are default, mode1, mode2. Default is default.')
         parser.add_argument('-remove-blank-pages',
                             help = 'Specifies which blank pages to exclude from the output document. The empty page behavior. Allowed values are trailing, all, none. Default is trailing.')
         parser.add_argument('-header-url',
@@ -7514,6 +7501,8 @@ available converters:
         parser.add_argument('-no-xpdfcrowd-header',
                             action = 'store_true',
                             help = 'Do not send the X-Pdfcrowd HTTP header in Pdfcrowd HTTP requests.')
+        parser.add_argument('-css-page-rule-mode',
+                            help = 'Specifies behavior in presence of CSS @page rules. It may affect the page size, margins and orientation. The page rule mode. Allowed values are default, mode1, mode2. Default is default.')
         parser.add_argument('-custom-css',
                             help = 'Apply custom CSS to the input HTML document. It allows you to modify the visual appearance and layout of your HTML content dynamically. Tip: Using !important in custom CSS provides a way to prioritize and override conflicting styles. A string containing valid CSS. The string must not be empty.')
         parser.add_argument('-custom-javascript',
@@ -7536,16 +7525,16 @@ available converters:
         parser.add_argument('-readability-enhancements',
                             help = 'The input HTML is automatically enhanced to improve the readability. Allowed values are none, readability-v1, readability-v2, readability-v3, readability-v4. Default is none.')
         parser.add_argument('-viewport-width',
-                            help = 'Set the viewport width in pixels. The viewport is the user\'s visible area of the page. The value must be in the range 96-65000. Default is 1024.')
+                            help = 'Set the viewport width in pixels. The viewport is the user\'s visible area of the page. The value must be in the range 96-65000.')
         parser.add_argument('-viewport-height',
-                            help = 'Set the viewport height in pixels. The viewport is the user\'s visible area of the page. If the input HTML uses lazily loaded images, try using a large value that covers the entire height of the HTML, e.g. 100000. Must be a positive integer number. Default is 768.')
+                            help = 'Set the viewport height in pixels. The viewport is the user\'s visible area of the page. If the input HTML uses lazily loaded images, try using a large value that covers the entire height of the HTML, e.g. 100000. Must be a positive integer number.')
         multi_args['viewport'] = 2
         parser.add_argument('-viewport',
                             help = 'Set the viewport size. The viewport is the user\'s visible area of the page. VIEWPORT must contain 2 values separated by a semicolon. Set the viewport width in pixels. The viewport is the user\'s visible area of the page. The value must be in the range 96-65000. Set the viewport height in pixels. The viewport is the user\'s visible area of the page. If the input HTML uses lazily loaded images, try using a large value that covers the entire height of the HTML, e.g. 100000. Must be a positive integer number.')
         parser.add_argument('-rendering-mode',
-                            help = 'Set the rendering mode of the page, allowing control over how content is displayed. The rendering mode. Allowed values are default, viewport. Default is default.')
+                            help = 'Set the rendering mode of the page, allowing control over how content is displayed. The rendering mode. Allowed values are default, viewport.')
         parser.add_argument('-smart-scaling-mode',
-                            help = 'Specifies the scaling mode used for fitting the HTML contents to the print area. The smart scaling mode. Allowed values are default, disabled, viewport-fit, content-fit, single-page-fit, single-page-fit-ex, mode1. Default is default.')
+                            help = 'Specifies the scaling mode used for fitting the HTML contents to the print area. The smart scaling mode. Allowed values are default, disabled, viewport-fit, content-fit, single-page-fit, single-page-fit-ex, mode1.')
         parser.add_argument('-scale-factor',
                             help = 'Set the scaling factor (zoom) for the main page area. The percentage value. The value must be in the range 10-500. Default is 100.')
         parser.add_argument('-jpeg-quality',
@@ -7652,6 +7641,17 @@ available converters:
                             help = 'A password for PKCS12 file with a client certificate if it is needed.')
         parser.add_argument('-layout-dpi',
                             help = 'Set the internal DPI resolution used for positioning of PDF contents. It can help in situations when there are small inaccuracies in the PDF. It is recommended to use values that are a multiple of 72, such as 288 or 360. The DPI value. The value must be in the range of 72-600. Default is 300.')
+        parser.add_argument('-content-area-x',
+                            help = 'Set the top left X coordinate of the content area. It is relative to the top left X coordinate of the print area. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt". It may contain a negative value. Default is 0in.')
+        parser.add_argument('-content-area-y',
+                            help = 'Set the top left Y coordinate of the content area. It is relative to the top left Y coordinate of the print area. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt". It may contain a negative value. Default is 0in.')
+        parser.add_argument('-content-area-width',
+                            help = 'Set the width of the content area. It should be at least 1 inch. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt". Default is The width of the print area..')
+        parser.add_argument('-content-area-height',
+                            help = 'Set the height of the content area. It should be at least 1 inch. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt". Default is The height of the print area..')
+        multi_args['content_area'] = 4
+        parser.add_argument('-content-area',
+                            help = 'Set the content area position and size. The content area enables to specify a web page area to be converted. CONTENT_AREA must contain 4 values separated by a semicolon. Set the top left X coordinate of the content area. It is relative to the top left X coordinate of the print area. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt". It may contain a negative value. Set the top left Y coordinate of the content area. It is relative to the top left Y coordinate of the print area. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt". It may contain a negative value. Set the width of the content area. It should be at least 1 inch. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt". Set the height of the content area. It should be at least 1 inch. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".')
         parser.add_argument('-contents-matrix',
                             help = 'A 2D transformation matrix applied to the main contents on each page. The origin [0,0] is located at the top-left corner of the contents. The resolution is 72 dpi. A comma separated string of matrix elements: "scaleX,skewX,transX,skewY,scaleY,transY" Default is 1,0,0,0,1,0.')
         parser.add_argument('-header-matrix',
