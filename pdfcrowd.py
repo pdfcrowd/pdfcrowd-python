@@ -43,7 +43,7 @@ import os
 import ssl
 import time
 
-__version__ = '6.0.1'
+__version__ = '6.1.0'
 
 # ======================================
 # === PDFCrowd legacy version client ===
@@ -698,7 +698,7 @@ else:
 
 HOST = os.environ.get('PDFCROWD_HOST', 'api.pdfcrowd.com')
 MULTIPART_BOUNDARY = '----------ThIs_Is_tHe_bOUnDary_$'
-CLIENT_VERSION = '6.0.1'
+CLIENT_VERSION = '6.1.0'
 
 def get_utf8_string(string):
     if PYTHON_3:
@@ -791,7 +791,7 @@ class ConnectionHelper:
         self._reset_response_data()
         self.setProxy(None, None, None, None)
         self.setUseHttp(False)
-        self.setUserAgent('pdfcrowd_python_client/6.0.1 (https://pdfcrowd.com)')
+        self.setUserAgent('pdfcrowd_python_client/6.1.0 (https://pdfcrowd.com)')
 
         self.retry_count = 1
         self.converter_version = '24.04'
@@ -1306,16 +1306,6 @@ class HtmlToPdfClient:
         self.fields['print_page_range'] = get_utf8_string(pages)
         return self
 
-    def setPageNumberingOffset(self, offset):
-        """
-        Set an offset between physical and logical page numbers.
-
-        offset - Integer specifying page offset.
-        return - The converter object.
-        """
-        self.fields['page_numbering_offset'] = offset
-        return self
-
     def setContentViewportWidth(self, width):
         """
         Set the viewport width for formatting the HTML content when generating a PDF. By specifying a viewport width, you can control how the content is rendered, ensuring it mimics the appearance on various devices or matches specific design requirements.
@@ -1513,6 +1503,16 @@ class HtmlToPdfClient:
             raise Error(create_invalid_value_message(factor, "setHeaderFooterScaleFactor", "html-to-pdf", 'The value must be in the range 10-500.', "set_header_footer_scale_factor"), 470);
         
         self.fields['header_footer_scale_factor'] = factor
+        return self
+
+    def setPageNumberingOffset(self, offset):
+        """
+        Set an offset between physical and logical page numbers.
+
+        offset - Integer specifying page offset.
+        return - The converter object.
+        """
+        self.fields['page_numbering_offset'] = offset
         return self
 
     def setPageWatermark(self, watermark):
@@ -2702,6 +2702,29 @@ class HtmlToPdfClient:
             raise Error(create_invalid_value_message(max_time, "setMaxLoadingTime", "html-to-pdf", 'The value must be in the range 10-30.', "set_max_loading_time"), 470);
         
         self.fields['max_loading_time'] = max_time
+        return self
+
+    def setConversionConfig(self, json_string):
+        """
+        Allows to configure conversion via JSON. The configuration defines various page settings for individual PDF pages or ranges of pages. It provides flexibility in designing each page of the PDF, giving control over each page's size, header, footer etc. If a page or parameter is not explicitly specified, the system will use the default settings for that page or attribute. If a JSON configuration is provided, the settings in the JSON will take precedence over the global options. The structure of the JSON must be: pageSetup: An array of objects where each object defines the configuration for a specific page or range of pages. The following properties can be set for each page object: pages: A comma-separated list of page numbers or ranges. For example: 1-: from page 1 to the end of the document 2: only the 2nd page 2, 4, 6: pages 2, 4, and 6 2-5: pages 2 through 5 pageSize: The page size (optional). Possible values: A0, A1, A2, A3, A4, A5, A6, Letter. pageWidth: The width of the page (optional). pageHeight: The height of the page (optional). marginLeft: Left margin (optional). marginRight: Right margin (optional). marginTop: Top margin (optional). marginBottom: Bottom margin (optional). displayHeader: Header appearance (optional). Possible values: none: completely excluded space: only the content is excluded, the space is used content: the content is printed (default) displayFooter: Footer appearance (optional). Possible values: none: completely excluded space: only the content is excluded, the space is used content: the content is printed (default) headerHeight: Height of the header (optional). footerHeight: Height of the footer (optional). orientation: Page orientation, such as "portrait" or "landscape" (optional). Dimensions may be empty, 0 or specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+
+        json_string - The JSON string.
+        return - The converter object.
+        """
+        self.fields['conversion_config'] = get_utf8_string(json_string)
+        return self
+
+    def setConversionConfigFile(self, filepath):
+        """
+        Allows to configure the conversion process via JSON file. See details of the JSON string.
+
+        filepath - The file path to a local file. The file must exist and not be empty.
+        return - The converter object.
+        """
+        if not (os.path.isfile(filepath) and os.path.getsize(filepath)):
+            raise Error(create_invalid_value_message(filepath, "setConversionConfigFile", "html-to-pdf", 'The file must exist and not be empty.', "set_conversion_config_file"), 470);
+        
+        self.files['conversion_config_file'] = get_utf8_string(filepath)
         return self
 
     def setConverterVersion(self, version):
@@ -7398,8 +7421,6 @@ available converters:
                             help = 'Set the output page margins. PAGE_MARGINS must contain 4 values separated by a semicolon. Set the output page top margin. Set the output page right margin. Set the output page bottom margin. Set the output page left margin. All values the value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".')
         parser.add_argument('-print-page-range',
                             help = 'Set the page range to print. A comma separated list of page numbers or ranges.')
-        parser.add_argument('-page-numbering-offset',
-                            help = 'Set an offset between physical and logical page numbers. Integer specifying page offset.')
         parser.add_argument('-content-viewport-width',
                             help = 'Set the viewport width for formatting the HTML content when generating a PDF. By specifying a viewport width, you can control how the content is rendered, ensuring it mimics the appearance on various devices or matches specific design requirements. The width of the viewport. The value must be "balanced", "small", "medium", "large", "extra-large", or a number in the range 96-65000. Default is medium.')
         parser.add_argument('-content-viewport-height',
@@ -7433,6 +7454,8 @@ available converters:
                             help = 'The page footer is not printed on the specified pages. List of physical page numbers. Negative numbers count backwards from the last page: -1 is the last page, -2 is the last but one page, and so on. A comma separated list of page numbers.')
         parser.add_argument('-header-footer-scale-factor',
                             help = 'Set the scaling factor (zoom) for the header and footer. The percentage value. The value must be in the range 10-500. Default is 100.')
+        parser.add_argument('-page-numbering-offset',
+                            help = 'Set an offset between physical and logical page numbers. Integer specifying page offset.')
         parser.add_argument('-page-watermark',
                             help = 'Apply a watermark to each page of the output PDF file. A watermark can be either a PDF or an image. If a multi-page file (PDF or TIFF) is used, the first page is used as the watermark. The file path to a local file. The file must exist and not be empty.')
         parser.add_argument('-page-watermark-url',
@@ -7669,6 +7692,10 @@ available converters:
                             help = 'Add special CSS classes to the header/footer\'s body element. This allows applying custom styling based on these classes: pdfcrowd-page-X - where X is the current page number pdfcrowd-page-count-X - where X is the total page count pdfcrowd-page-first - the first page pdfcrowd-page-last - the last page pdfcrowd-page-odd - odd page pdfcrowd-page-even - even page')
         parser.add_argument('-max-loading-time',
                             help = 'Set the maximum time to load the page and its resources. After this time, all requests will be considered successful. This can be useful to ensure that the conversion does not timeout. Use this method if there is no other way to fix page loading. The number of seconds to wait. The value must be in the range 10-30.')
+        parser.add_argument('-conversion-config',
+                            help = 'Allows to configure conversion via JSON. The configuration defines various page settings for individual PDF pages or ranges of pages. It provides flexibility in designing each page of the PDF, giving control over each page\'s size, header, footer etc. If a page or parameter is not explicitly specified, the system will use the default settings for that page or attribute. If a JSON configuration is provided, the settings in the JSON will take precedence over the global options. The structure of the JSON must be: pageSetup: An array of objects where each object defines the configuration for a specific page or range of pages. The following properties can be set for each page object: pages: A comma-separated list of page numbers or ranges. For example: 1-: from page 1 to the end of the document 2: only the 2nd page 2, 4, 6: pages 2, 4, and 6 2-5: pages 2 through 5 pageSize: The page size (optional). Possible values: A0, A1, A2, A3, A4, A5, A6, Letter. pageWidth: The width of the page (optional). pageHeight: The height of the page (optional). marginLeft: Left margin (optional). marginRight: Right margin (optional). marginTop: Top margin (optional). marginBottom: Bottom margin (optional). displayHeader: Header appearance (optional). Possible values: none: completely excluded space: only the content is excluded, the space is used content: the content is printed (default) displayFooter: Footer appearance (optional). Possible values: none: completely excluded space: only the content is excluded, the space is used content: the content is printed (default) headerHeight: Height of the header (optional). footerHeight: Height of the footer (optional). orientation: Page orientation, such as "portrait" or "landscape" (optional). Dimensions may be empty, 0 or specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt". The JSON string.')
+        parser.add_argument('-conversion-config-file',
+                            help = 'Allows to configure the conversion process via JSON file. See details of the JSON string. The file path to a local file. The file must exist and not be empty.')
         parser.add_argument('-converter-version',
                             help = 'Set the converter version. Different versions may produce different output. Choose which one provides the best output for your case. The version identifier. Allowed values are 24.04, 20.10, 18.10, latest. Default is 24.04.')
         parser.add_argument('-use-http',
