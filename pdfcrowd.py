@@ -43,7 +43,7 @@ import os
 import ssl
 import time
 
-__version__ = '6.2.0'
+__version__ = '6.2.1'
 
 # ======================================
 # === PDFCrowd legacy version client ===
@@ -698,7 +698,7 @@ else:
 
 HOST = os.environ.get('PDFCROWD_HOST', 'api.pdfcrowd.com')
 MULTIPART_BOUNDARY = '----------ThIs_Is_tHe_bOUnDary_$'
-CLIENT_VERSION = '6.2.0'
+CLIENT_VERSION = '6.2.1'
 
 def get_utf8_string(string):
     if PYTHON_3:
@@ -791,7 +791,7 @@ class ConnectionHelper:
         self._reset_response_data()
         self.setProxy(None, None, None, None)
         self.setUseHttp(False)
-        self.setUserAgent('pdfcrowd_python_client/6.2.0 (https://pdfcrowd.com)')
+        self.setUserAgent('pdfcrowd_python_client/6.2.1 (https://pdfcrowd.com)')
 
         self.retry_count = 1
         self.converter_version = '24.04'
@@ -1310,11 +1310,11 @@ class HtmlToPdfClient:
         """
         Set the viewport width for formatting the HTML content when generating a PDF. By specifying a viewport width, you can control how the content is rendered, ensuring it mimics the appearance on various devices or matches specific design requirements.
 
-        width - The width of the viewport. The value must be "balanced", "small", "medium", "large", "extra-large", or a number in the range 96-65000.
+        width - The width of the viewport. The value must be "balanced", "small", "medium", "large", "extra-large", or a number in the range 96-65000px.
         return - The converter object.
         """
-        if not re.match('(?i)^(balanced|small|medium|large|extra-large|[0-9]+)$', width):
-            raise Error(create_invalid_value_message(width, "setContentViewportWidth", "html-to-pdf", 'The value must be "balanced", "small", "medium", "large", "extra-large", or a number in the range 96-65000.', "set_content_viewport_width"), 470);
+        if not re.match('(?i)^(balanced|small|medium|large|extra-large|[0-9]+(px)?)$', width):
+            raise Error(create_invalid_value_message(width, "setContentViewportWidth", "html-to-pdf", 'The value must be "balanced", "small", "medium", "large", "extra-large", or a number in the range 96-65000px.', "set_content_viewport_width"), 470);
         
         self.fields['content_viewport_width'] = get_utf8_string(width)
         return self
@@ -1326,7 +1326,7 @@ class HtmlToPdfClient:
         height - The viewport height. The value must be "auto", "large", or a number.
         return - The converter object.
         """
-        if not re.match('(?i)^(auto|large|[0-9]+)$', height):
+        if not re.match('(?i)^(auto|large|[0-9]+(px)?)$', height):
             raise Error(create_invalid_value_message(height, "setContentViewportHeight", "html-to-pdf", 'The value must be "auto", "large", or a number.', "set_content_viewport_height"), 470);
         
         self.fields['content_viewport_height'] = get_utf8_string(height)
@@ -7448,7 +7448,7 @@ available converters:
         parser.add_argument('-print-page-range',
                             help = 'Set the page range to print. A comma separated list of page numbers or ranges. Special strings may be used, such as `odd`, `even` and `last`.')
         parser.add_argument('-content-viewport-width',
-                            help = 'Set the viewport width for formatting the HTML content when generating a PDF. By specifying a viewport width, you can control how the content is rendered, ensuring it mimics the appearance on various devices or matches specific design requirements. The width of the viewport. The value must be "balanced", "small", "medium", "large", "extra-large", or a number in the range 96-65000. Default is medium.')
+                            help = 'Set the viewport width for formatting the HTML content when generating a PDF. By specifying a viewport width, you can control how the content is rendered, ensuring it mimics the appearance on various devices or matches specific design requirements. The width of the viewport. The value must be "balanced", "small", "medium", "large", "extra-large", or a number in the range 96-65000px. Default is medium.')
         parser.add_argument('-content-viewport-height',
                             help = 'Set the viewport height for formatting the HTML content when generating a PDF. By specifying a viewport height, you can enforce loading of lazy-loaded images and also affect vertical positioning of absolutely positioned elements within the content. The viewport height. The value must be "auto", "large", or a number. Default is auto.')
         parser.add_argument('-content-fit-mode',
