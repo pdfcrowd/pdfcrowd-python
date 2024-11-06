@@ -43,7 +43,7 @@ import os
 import ssl
 import time
 
-__version__ = '6.2.1'
+__version__ = '6.3.0'
 
 # ======================================
 # === PDFCrowd legacy version client ===
@@ -698,7 +698,7 @@ else:
 
 HOST = os.environ.get('PDFCROWD_HOST', 'api.pdfcrowd.com')
 MULTIPART_BOUNDARY = '----------ThIs_Is_tHe_bOUnDary_$'
-CLIENT_VERSION = '6.2.1'
+CLIENT_VERSION = '6.3.0'
 
 def get_utf8_string(string):
     if PYTHON_3:
@@ -791,7 +791,7 @@ class ConnectionHelper:
         self._reset_response_data()
         self.setProxy(None, None, None, None)
         self.setUseHttp(False)
-        self.setUserAgent('pdfcrowd_python_client/6.2.1 (https://pdfcrowd.com)')
+        self.setUserAgent('pdfcrowd_python_client/6.3.0 (https://pdfcrowd.com)')
 
         self.retry_count = 1
         self.converter_version = '24.04'
@@ -6156,6 +6156,19 @@ class PdfToHtmlClient:
         self.fields['custom_css'] = get_utf8_string(css)
         return self
 
+    def setHtmlNamespace(self, prefix):
+        """
+        Add a specified prefix to all id and class attributes in the HTML content, creating a namespace for safe integration into another HTML document. This process ensures unique identifiers, preventing conflicts when merging with other HTML.
+
+        prefix - The prefix to add before each id and class attribute name. Start with a letter or underscore, and use only letters, numbers, hyphens, underscores, or colons.
+        return - The converter object.
+        """
+        if not re.match('(?i)^[a-z_][a-z0-9_:-]*$', prefix):
+            raise Error(create_invalid_value_message(prefix, "setHtmlNamespace", "pdf-to-html", 'Start with a letter or underscore, and use only letters, numbers, hyphens, underscores, or colons.', "set_html_namespace"), 470);
+        
+        self.fields['html_namespace'] = get_utf8_string(prefix)
+        return self
+
     def isZippedOutput(self):
         """
         A helper method to determine if the output file is a zip archive. The output of the conversion may be either an HTML file or a zip file containing the HTML and its external assets.
@@ -6309,6 +6322,19 @@ class PdfToHtmlClient:
             raise Error(create_invalid_value_message(proxy, "setHttpsProxy", "pdf-to-html", 'The value must have format DOMAIN_OR_IP_ADDRESS:PORT.', "set_https_proxy"), 470);
         
         self.fields['https_proxy'] = get_utf8_string(proxy)
+        return self
+
+    def setConverterVersion(self, version):
+        """
+        Set the converter version. Different versions may produce different output. Choose which one provides the best output for your case.
+
+        version - The version identifier. Allowed values are 24.04, 20.10, 18.10, latest.
+        return - The converter object.
+        """
+        if not re.match('(?i)^(24.04|20.10|18.10|latest)$', version):
+            raise Error(create_invalid_value_message(version, "setConverterVersion", "pdf-to-html", 'Allowed values are 24.04, 20.10, 18.10, latest.', "set_converter_version"), 470);
+        
+        self.helper.setConverterVersion(version)
         return self
 
     def setUseHttp(self, value):
@@ -8251,6 +8277,8 @@ available converters:
                             help = 'Converts ligatures, two or more letters combined into a single glyph, back into their individual ASCII characters.')
         parser.add_argument('-custom-css',
                             help = 'Apply custom CSS to the output HTML document. It allows you to modify the visual appearance and layout. Tip: Using !important in custom CSS provides a way to prioritize and override conflicting styles. A string containing valid CSS. The string must not be empty.')
+        parser.add_argument('-html-namespace',
+                            help = 'Add a specified prefix to all id and class attributes in the HTML content, creating a namespace for safe integration into another HTML document. This process ensures unique identifiers, preventing conflicts when merging with other HTML. The prefix to add before each id and class attribute name. Start with a letter or underscore, and use only letters, numbers, hyphens, underscores, or colons.')
         parser.add_argument('-force-zip',
                             action = 'store_true',
                             help = 'Enforces the zip output format.')
@@ -8271,6 +8299,8 @@ available converters:
                             help = 'A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTP scheme. It can help to circumvent regional restrictions or provide limited access to your intranet. The value must have format DOMAIN_OR_IP_ADDRESS:PORT.')
         parser.add_argument('-https-proxy',
                             help = 'A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTPS scheme. It can help to circumvent regional restrictions or provide limited access to your intranet. The value must have format DOMAIN_OR_IP_ADDRESS:PORT.')
+        parser.add_argument('-converter-version',
+                            help = 'Set the converter version. Different versions may produce different output. Choose which one provides the best output for your case. The version identifier. Allowed values are 24.04, 20.10, 18.10, latest. Default is 24.04.')
         parser.add_argument('-use-http',
                             action = 'store_true',
                             help = 'Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API. Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.')
