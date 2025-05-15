@@ -13,5 +13,5 @@ args.append('pdf2text')
 try:
     pdfcrowd.main(args + sys.argv[1:], converter_known = True)
 except pdfcrowd.Error as why:
-    sys.stderr.write('Pdfcrowd Error: {}\n'.format(why))
+    sys.stderr.write('PDFCrowd Error: {}\n'.format(why))
     sys.exit(1)

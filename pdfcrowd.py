@@ -42,8 +42,55 @@ import sys
 import os
 import ssl
 import time
+import warnings
 
-__version__ = '6.4.0'
+__version__ = '6.5.0'
+
+class BaseError(Exception):
+    def __init__(self, error, http_code):
+        self.error = error
+
+        error_match = re.match(
+            r'^(\d+)\.(\d+)\s+-\s+(.*?)(?:\s+Documentation link:\s+(.*))?$',
+            self.error,
+            re.DOTALL)
+
+        if error_match:
+            self.http_code = error_match.group(1)
+            self.reason_code = error_match.group(2)
+            self.message = error_match.group(3)
+            self.doc_link = error_match.group(4) or ''
+        else:
+            self.http_code = http_code
+            self.reason_code = -1
+            self.message = self.error
+            if self.http_code:
+                self.error = "%s - %s" % (self.http_code, self.error)
+            self.doc_link = ''
+
+    def __str__(self):
+        return self.error
+
+    def getCode(self):
+        warnings.warn(
+            '`getCode` is obsolete and will be removed in future '
+            'versions. Use `getStatusCode` instead.',
+            DeprecationWarning,
+            stacklevel=2
+        )
+        return self.http_code
+
+    def getStatusCode(self):
+        return self.http_code
+
+    def getReasonCode(self):
+        return self.reason_code
+
+    def getMessage(self):
+        return self.message
+
+    def getDocumentationLink(self):
+        return self.doc_link
 
 # ======================================
 # === PDFCrowd legacy version client ===
@@ -60,23 +107,12 @@ if PYTHON_3:
     FIT_WIDTH, FIT_HEIGHT, FIT_PAGE = range(1, 4)
 
 
-    class Error(Exception):
+    class Error(BaseError):
         """Thrown when an error occurs."""
         def __init__(self, error, http_code=None):
-            self.http_code = http_code
-            self.error = error if isinstance(error, str) else str(error, "utf-8")
-
-        def __str__(self):
-            if self.http_code:
-                return "%d - %s" % (self.http_code, self.error)
-            else:
-                return self.error
-
-        def getCode(self):
-            return self.http_code
-
-        def getMessage(self):
-            return self.error
+            super().__init__(
+                error if isinstance(error, str) else str(error, "utf-8"),
+                http_code)
 
     class Client:
         """Pdfcrowd API client."""
@@ -384,23 +420,10 @@ else:
     FIT_WIDTH, FIT_HEIGHT, FIT_PAGE = range(1, 4)
 
 
-    class Error(Exception):
+    class Error(BaseError):
         """Thrown when an error occurs."""
         def __init__(self, error, http_code=None):
-            self.http_code = http_code
-            self.error = error
-
-        def __str__(self):
-            if self.http_code:
-                return "%d - %s" % (self.http_code, self.error)
-            else:
-                return self.error
-
-        def getCode(self):
-            return self.http_code
-
-        def getMessage(self):
-            return self.error
+            BaseError.__init__(self, error, http_code)
 
     class Client:
         """Pdfcrowd API client."""
@@ -698,7 +721,7 @@ else:
 
 HOST = os.environ.get('PDFCROWD_HOST', 'api.pdfcrowd.com')
 MULTIPART_BOUNDARY = '----------ThIs_Is_tHe_bOUnDary_$'
-CLIENT_VERSION = '6.4.0'
+CLIENT_VERSION = '6.5.0'
 
 def get_utf8_string(string):
     if PYTHON_3:
@@ -714,10 +737,10 @@ def get_utf8_string(string):
     return string
 
 def create_invalid_value_message(value, field, converter, hint, id):
-    message = "Invalid value '%s' for %s." % (value, field)
+    message = "400.311 - Invalid value '%s' for the '%s' option." % (value, field)
     if hint:
         message += " " + hint
-    return message + ' ' + "Details: https://www.pdfcrowd.com/api/%s-python/ref/#%s" % (converter, id)
+    return message + ' ' + "Documentation link: https://www.pdfcrowd.com/api/%s-python/ref/#%s" % (converter, id)
 
 def iter_items(dictionary):
     if PYTHON_3:
@@ -791,7 +814,7 @@ class ConnectionHelper:
         self._reset_response_data()
         self.setProxy(None, None, None, None)
         self.setUseHttp(False)
-        self.setUserAgent('pdfcrowd_python_client/6.4.0 (https://pdfcrowd.com)')
+        self.setUserAgent('pdfcrowd_python_client/6.5.0 (https://pdfcrowd.com)')
 
         self.retry_count = 1
         self.converter_version = '24.04'
@@ -843,7 +866,7 @@ class ConnectionHelper:
             try:
                 return self._exec_request(body, content_type, out_stream)
             except Error as err:
-                if (err.getCode() == 502 or err.getCode() == 503) and self.retry_count > self.retry:
+                if (err.getStatusCode() == 502 or err.getStatusCode() == 503) and self.retry_count > self.retry:
                     self.retry += 1
                     time.sleep(self.retry * 0.1)
                 else:
@@ -887,10 +910,10 @@ class ConnectionHelper:
         except httplib.HTTPException as err:
             raise Error(str(err))
         except ssl.SSLError as err:
-            raise Error("There was a problem connecting to Pdfcrowd servers over HTTPS:\n" +
+            raise Error("400.356 - There was a problem connecting to PDFCrowd servers over HTTPS:\n" +
                         "{} ({})".format(err.reason, err.errno) +
-                        "\nYou can still use the API over HTTP, you just need to add the following line right after Pdfcrowd client initialization:\nclient.setUseHttp(True)",
-                        481)
+                        "\nYou can still use the API over HTTP, you just need to add the following line right after PDFCrowd client initialization:\nclient.setUseHttp(True)",
+                        0)
         except socket.gaierror as err:
             raise Error(str(err))
         except socket.error as err:
@@ -971,11 +994,11 @@ class HtmlToPdfClient:
         """
         Convert a web page.
 
-        url - The address of the web page to convert. The supported protocols are http:// and https://.
+        url - The address of the web page to convert. Supported protocols are http:// and https://.
         return - Byte array containing the conversion output.
         """
-        if not re.match('(?i)^https?://.*$', url):
-            raise Error(create_invalid_value_message(url, "convertUrl", "html-to-pdf", 'The supported protocols are http:// and https://.', "convert_url"), 470);
+        if not re.match(r'(?i)^https?://.*$', url):
+            raise Error(create_invalid_value_message(url, "convertUrl", "html-to-pdf", 'Supported protocols are http:// and https://.', "convert_url"), 470);
         
         self.fields['url'] = get_utf8_string(url)
         return self.helper.post(self.fields, self.files, self.raw_data)
@@ -984,11 +1007,11 @@ class HtmlToPdfClient:
         """
         Convert a web page and write the result to an output stream.
 
-        url - The address of the web page to convert. The supported protocols are http:// and https://.
+        url - The address of the web page to convert. Supported protocols are http:// and https://.
         out_stream - The output stream that will contain the conversion output.
         """
-        if not re.match('(?i)^https?://.*$', url):
-            raise Error(create_invalid_value_message(url, "convertUrlToStream::url", "html-to-pdf", 'The supported protocols are http:// and https://.', "convert_url_to_stream"), 470);
+        if not re.match(r'(?i)^https?://.*$', url):
+            raise Error(create_invalid_value_message(url, "convertUrlToStream::url", "html-to-pdf", 'Supported protocols are http:// and https://.', "convert_url_to_stream"), 470);
         
         self.fields['url'] = get_utf8_string(url)
         self.helper.post(self.fields, self.files, self.raw_data, out_stream)
@@ -997,7 +1020,7 @@ class HtmlToPdfClient:
         """
         Convert a web page and write the result to a local file.
 
-        url - The address of the web page to convert. The supported protocols are http:// and https://.
+        url - The address of the web page to convert. Supported protocols are http:// and https://.
         file_path - The output file path. The string must not be empty.
         """
         if not (file_path):
@@ -1158,7 +1181,7 @@ class HtmlToPdfClient:
         size - Allowed values are A0, A1, A2, A3, A4, A5, A6, Letter.
         return - The converter object.
         """
-        if not re.match('(?i)^(A0|A1|A2|A3|A4|A5|A6|Letter)$', size):
+        if not re.match(r'(?i)^(A0|A1|A2|A3|A4|A5|A6|Letter)$', size):
             raise Error(create_invalid_value_message(size, "setPageSize", "html-to-pdf", 'Allowed values are A0, A1, A2, A3, A4, A5, A6, Letter.', "set_page_size"), 470);
         
         self.fields['page_size'] = get_utf8_string(size)
@@ -1168,11 +1191,11 @@ class HtmlToPdfClient:
         """
         Set the output page width. The safe maximum is 200in otherwise some PDF viewers may be unable to open the PDF.
 
-        width - The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+        width - The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
         return - The converter object.
         """
-        if not re.match('(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', width):
-            raise Error(create_invalid_value_message(width, "setPageWidth", "html-to-pdf", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".', "set_page_width"), 470);
+        if not re.match(r'(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', width):
+            raise Error(create_invalid_value_message(width, "setPageWidth", "html-to-pdf", 'The value must be specified in inches \'in\', millimeters \'mm\', centimeters \'cm\', pixels \'px\', or points \'pt\'.', "set_page_width"), 470);
         
         self.fields['page_width'] = get_utf8_string(width)
         return self
@@ -1181,11 +1204,11 @@ class HtmlToPdfClient:
         """
         Set the output page height. Use -1 for a single page PDF. The safe maximum is 200in otherwise some PDF viewers may be unable to open the PDF.
 
-        height - The value must be -1 or specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+        height - The value must be -1 or specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
         return - The converter object.
         """
-        if not re.match('(?i)^0$|^\-1$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', height):
-            raise Error(create_invalid_value_message(height, "setPageHeight", "html-to-pdf", 'The value must be -1 or specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".', "set_page_height"), 470);
+        if not re.match(r'(?i)^0$|^\-1$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', height):
+            raise Error(create_invalid_value_message(height, "setPageHeight", "html-to-pdf", 'The value must be -1 or specified in inches \'in\', millimeters \'mm\', centimeters \'cm\', pixels \'px\', or points \'pt\'.', "set_page_height"), 470);
         
         self.fields['page_height'] = get_utf8_string(height)
         return self
@@ -1194,8 +1217,8 @@ class HtmlToPdfClient:
         """
         Set the output page dimensions.
 
-        width - Set the output page width. The safe maximum is 200in otherwise some PDF viewers may be unable to open the PDF. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
-        height - Set the output page height. Use -1 for a single page PDF. The safe maximum is 200in otherwise some PDF viewers may be unable to open the PDF. The value must be -1 or specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+        width - Set the output page width. The safe maximum is 200in otherwise some PDF viewers may be unable to open the PDF. The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
+        height - Set the output page height. Use -1 for a single page PDF. The safe maximum is 200in otherwise some PDF viewers may be unable to open the PDF. The value must be -1 or specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
         return - The converter object.
         """
         self.setPageWidth(width)
@@ -1209,7 +1232,7 @@ class HtmlToPdfClient:
         orientation - Allowed values are landscape, portrait.
         return - The converter object.
         """
-        if not re.match('(?i)^(landscape|portrait)$', orientation):
+        if not re.match(r'(?i)^(landscape|portrait)$', orientation):
             raise Error(create_invalid_value_message(orientation, "setOrientation", "html-to-pdf", 'Allowed values are landscape, portrait.', "set_orientation"), 470);
         
         self.fields['orientation'] = get_utf8_string(orientation)
@@ -1219,11 +1242,11 @@ class HtmlToPdfClient:
         """
         Set the output page top margin.
 
-        top - The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+        top - The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
         return - The converter object.
         """
-        if not re.match('(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', top):
-            raise Error(create_invalid_value_message(top, "setMarginTop", "html-to-pdf", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".', "set_margin_top"), 470);
+        if not re.match(r'(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', top):
+            raise Error(create_invalid_value_message(top, "setMarginTop", "html-to-pdf", 'The value must be specified in inches \'in\', millimeters \'mm\', centimeters \'cm\', pixels \'px\', or points \'pt\'.', "set_margin_top"), 470);
         
         self.fields['margin_top'] = get_utf8_string(top)
         return self
@@ -1232,11 +1255,11 @@ class HtmlToPdfClient:
         """
         Set the output page right margin.
 
-        right - The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+        right - The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
         return - The converter object.
         """
-        if not re.match('(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', right):
-            raise Error(create_invalid_value_message(right, "setMarginRight", "html-to-pdf", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".', "set_margin_right"), 470);
+        if not re.match(r'(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', right):
+            raise Error(create_invalid_value_message(right, "setMarginRight", "html-to-pdf", 'The value must be specified in inches \'in\', millimeters \'mm\', centimeters \'cm\', pixels \'px\', or points \'pt\'.', "set_margin_right"), 470);
         
         self.fields['margin_right'] = get_utf8_string(right)
         return self
@@ -1245,11 +1268,11 @@ class HtmlToPdfClient:
         """
         Set the output page bottom margin.
 
-        bottom - The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+        bottom - The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
         return - The converter object.
         """
-        if not re.match('(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', bottom):
-            raise Error(create_invalid_value_message(bottom, "setMarginBottom", "html-to-pdf", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".', "set_margin_bottom"), 470);
+        if not re.match(r'(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', bottom):
+            raise Error(create_invalid_value_message(bottom, "setMarginBottom", "html-to-pdf", 'The value must be specified in inches \'in\', millimeters \'mm\', centimeters \'cm\', pixels \'px\', or points \'pt\'.', "set_margin_bottom"), 470);
         
         self.fields['margin_bottom'] = get_utf8_string(bottom)
         return self
@@ -1258,11 +1281,11 @@ class HtmlToPdfClient:
         """
         Set the output page left margin.
 
-        left - The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+        left - The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
         return - The converter object.
         """
-        if not re.match('(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', left):
-            raise Error(create_invalid_value_message(left, "setMarginLeft", "html-to-pdf", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".', "set_margin_left"), 470);
+        if not re.match(r'(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', left):
+            raise Error(create_invalid_value_message(left, "setMarginLeft", "html-to-pdf", 'The value must be specified in inches \'in\', millimeters \'mm\', centimeters \'cm\', pixels \'px\', or points \'pt\'.', "set_margin_left"), 470);
         
         self.fields['margin_left'] = get_utf8_string(left)
         return self
@@ -1281,10 +1304,10 @@ class HtmlToPdfClient:
         """
         Set the output page margins.
 
-        top - Set the output page top margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
-        right - Set the output page right margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
-        bottom - Set the output page bottom margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
-        left - Set the output page left margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+        top - Set the output page top margin. The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
+        right - Set the output page right margin. The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
+        bottom - Set the output page bottom margin. The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
+        left - Set the output page left margin. The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
         return - The converter object.
         """
         self.setMarginTop(top)
@@ -1297,11 +1320,11 @@ class HtmlToPdfClient:
         """
         Set the page range to print.
 
-        pages - A comma separated list of page numbers or ranges. Special strings may be used, such as `odd`, `even` and `last`.
+        pages - A comma separated list of page numbers or ranges. Special strings may be used, such as 'odd', 'even' and 'last'.
         return - The converter object.
         """
-        if not re.match('^(?:\s*(?:\d+|(?:\d*\s*\-\s*\d+)|(?:\d+\s*\-\s*\d*)|odd|even|last)\s*,\s*)*\s*(?:\d+|(?:\d*\s*\-\s*\d+)|(?:\d+\s*\-\s*\d*)|odd|even|last)\s*$', pages):
-            raise Error(create_invalid_value_message(pages, "setPrintPageRange", "html-to-pdf", 'A comma separated list of page numbers or ranges. Special strings may be used, such as `odd`, `even` and `last`.', "set_print_page_range"), 470);
+        if not re.match(r'^(?:\s*(?:\d+|(?:\d*\s*\-\s*\d+)|(?:\d+\s*\-\s*\d*)|odd|even|last)\s*,\s*)*\s*(?:\d+|(?:\d*\s*\-\s*\d+)|(?:\d+\s*\-\s*\d*)|odd|even|last)\s*$', pages):
+            raise Error(create_invalid_value_message(pages, "setPrintPageRange", "html-to-pdf", 'A comma separated list of page numbers or ranges. Special strings may be used, such as \'odd\', \'even\' and \'last\'.', "set_print_page_range"), 470);
         
         self.fields['print_page_range'] = get_utf8_string(pages)
         return self
@@ -1310,11 +1333,11 @@ class HtmlToPdfClient:
         """
         Set the viewport width for formatting the HTML content when generating a PDF. By specifying a viewport width, you can control how the content is rendered, ensuring it mimics the appearance on various devices or matches specific design requirements.
 
-        width - The width of the viewport. The value must be "balanced", "small", "medium", "large", "extra-large", or a number in the range 96-65000px.
+        width - The width of the viewport. The value must be 'balanced', 'small', 'medium', 'large', 'extra-large', or a number in the range 96-65000px.
         return - The converter object.
         """
-        if not re.match('(?i)^(balanced|small|medium|large|extra-large|[0-9]+(px)?)$', width):
-            raise Error(create_invalid_value_message(width, "setContentViewportWidth", "html-to-pdf", 'The value must be "balanced", "small", "medium", "large", "extra-large", or a number in the range 96-65000px.', "set_content_viewport_width"), 470);
+        if not re.match(r'(?i)^(balanced|small|medium|large|extra-large|[0-9]+(px)?)$', width):
+            raise Error(create_invalid_value_message(width, "setContentViewportWidth", "html-to-pdf", 'The value must be \'balanced\', \'small\', \'medium\', \'large\', \'extra-large\', or a number in the range 96-65000px.', "set_content_viewport_width"), 470);
         
         self.fields['content_viewport_width'] = get_utf8_string(width)
         return self
@@ -1323,11 +1346,11 @@ class HtmlToPdfClient:
         """
         Set the viewport height for formatting the HTML content when generating a PDF. By specifying a viewport height, you can enforce loading of lazy-loaded images and also affect vertical positioning of absolutely positioned elements within the content.
 
-        height - The viewport height. The value must be "auto", "large", or a number.
+        height - The viewport height. The value must be 'auto', 'large', or a number.
         return - The converter object.
         """
-        if not re.match('(?i)^(auto|large|[0-9]+(px)?)$', height):
-            raise Error(create_invalid_value_message(height, "setContentViewportHeight", "html-to-pdf", 'The value must be "auto", "large", or a number.', "set_content_viewport_height"), 470);
+        if not re.match(r'(?i)^(auto|large|[0-9]+(px)?)$', height):
+            raise Error(create_invalid_value_message(height, "setContentViewportHeight", "html-to-pdf", 'The value must be \'auto\', \'large\', or a number.', "set_content_viewport_height"), 470);
         
         self.fields['content_viewport_height'] = get_utf8_string(height)
         return self
@@ -1339,7 +1362,7 @@ class HtmlToPdfClient:
         mode - The fitting mode. Allowed values are auto, smart-scaling, no-scaling, viewport-width, content-width, single-page, single-page-ratio.
         return - The converter object.
         """
-        if not re.match('(?i)^(auto|smart-scaling|no-scaling|viewport-width|content-width|single-page|single-page-ratio)$', mode):
+        if not re.match(r'(?i)^(auto|smart-scaling|no-scaling|viewport-width|content-width|single-page|single-page-ratio)$', mode):
             raise Error(create_invalid_value_message(mode, "setContentFitMode", "html-to-pdf", 'Allowed values are auto, smart-scaling, no-scaling, viewport-width, content-width, single-page, single-page-ratio.', "set_content_fit_mode"), 470);
         
         self.fields['content_fit_mode'] = get_utf8_string(mode)
@@ -1352,7 +1375,7 @@ class HtmlToPdfClient:
         pages - The empty page behavior. Allowed values are trailing, all, none.
         return - The converter object.
         """
-        if not re.match('(?i)^(trailing|all|none)$', pages):
+        if not re.match(r'(?i)^(trailing|all|none)$', pages):
             raise Error(create_invalid_value_message(pages, "setRemoveBlankPages", "html-to-pdf", 'Allowed values are trailing, all, none.', "set_remove_blank_pages"), 470);
         
         self.fields['remove_blank_pages'] = get_utf8_string(pages)
@@ -1362,11 +1385,11 @@ class HtmlToPdfClient:
         """
         Load an HTML code from the specified URL and use it as the page header. The following classes can be used in the HTML. The content of the respective elements will be expanded as follows: pdfcrowd-page-count - the total page count of printed pages pdfcrowd-page-number - the current page number pdfcrowd-source-url - the source URL of the converted document pdfcrowd-source-title - the title of the converted document The following attributes can be used: data-pdfcrowd-number-format - specifies the type of the used numerals. Allowed values: arabic - Arabic numerals, they are used by default roman - Roman numerals eastern-arabic - Eastern Arabic numerals bengali - Bengali numerals devanagari - Devanagari numerals thai - Thai numerals east-asia - Chinese, Vietnamese, Japanese and Korean numerals chinese-formal - Chinese formal numerals Please contact us if you need another type of numerals. Example: <span class='pdfcrowd-page-number' data-pdfcrowd-number-format='roman'></span> data-pdfcrowd-placement - specifies where to place the source URL. Allowed values: The URL is inserted to the content Example: <span class='pdfcrowd-source-url'></span> will produce <span>http://example.com</span> href - the URL is set to the href attribute Example: <a class='pdfcrowd-source-url' data-pdfcrowd-placement='href'>Link to source</a> will produce <a href='http://example.com'>Link to source</a> href-and-content - the URL is set to the href attribute and to the content Example: <a class='pdfcrowd-source-url' data-pdfcrowd-placement='href-and-content'></a> will produce <a href='http://example.com'>http://example.com</a>
 
-        url - The supported protocols are http:// and https://.
+        url - Supported protocols are http:// and https://.
         return - The converter object.
         """
-        if not re.match('(?i)^https?://.*$', url):
-            raise Error(create_invalid_value_message(url, "setHeaderUrl", "html-to-pdf", 'The supported protocols are http:// and https://.', "set_header_url"), 470);
+        if not re.match(r'(?i)^https?://.*$', url):
+            raise Error(create_invalid_value_message(url, "setHeaderUrl", "html-to-pdf", 'Supported protocols are http:// and https://.', "set_header_url"), 470);
         
         self.fields['header_url'] = get_utf8_string(url)
         return self
@@ -1388,11 +1411,11 @@ class HtmlToPdfClient:
         """
         Set the header height.
 
-        height - The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+        height - The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
         return - The converter object.
         """
-        if not re.match('(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', height):
-            raise Error(create_invalid_value_message(height, "setHeaderHeight", "html-to-pdf", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".', "set_header_height"), 470);
+        if not re.match(r'(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', height):
+            raise Error(create_invalid_value_message(height, "setHeaderHeight", "html-to-pdf", 'The value must be specified in inches \'in\', millimeters \'mm\', centimeters \'cm\', pixels \'px\', or points \'pt\'.', "set_header_height"), 470);
         
         self.fields['header_height'] = get_utf8_string(height)
         return self
@@ -1411,11 +1434,11 @@ class HtmlToPdfClient:
         """
         Load an HTML code from the specified URL and use it as the page footer. The following classes can be used in the HTML. The content of the respective elements will be expanded as follows: pdfcrowd-page-count - the total page count of printed pages pdfcrowd-page-number - the current page number pdfcrowd-source-url - the source URL of the converted document pdfcrowd-source-title - the title of the converted document The following attributes can be used: data-pdfcrowd-number-format - specifies the type of the used numerals. Allowed values: arabic - Arabic numerals, they are used by default roman - Roman numerals eastern-arabic - Eastern Arabic numerals bengali - Bengali numerals devanagari - Devanagari numerals thai - Thai numerals east-asia - Chinese, Vietnamese, Japanese and Korean numerals chinese-formal - Chinese formal numerals Please contact us if you need another type of numerals. Example: <span class='pdfcrowd-page-number' data-pdfcrowd-number-format='roman'></span> data-pdfcrowd-placement - specifies where to place the source URL. Allowed values: The URL is inserted to the content Example: <span class='pdfcrowd-source-url'></span> will produce <span>http://example.com</span> href - the URL is set to the href attribute Example: <a class='pdfcrowd-source-url' data-pdfcrowd-placement='href'>Link to source</a> will produce <a href='http://example.com'>Link to source</a> href-and-content - the URL is set to the href attribute and to the content Example: <a class='pdfcrowd-source-url' data-pdfcrowd-placement='href-and-content'></a> will produce <a href='http://example.com'>http://example.com</a>
 
-        url - The supported protocols are http:// and https://.
+        url - Supported protocols are http:// and https://.
         return - The converter object.
         """
-        if not re.match('(?i)^https?://.*$', url):
-            raise Error(create_invalid_value_message(url, "setFooterUrl", "html-to-pdf", 'The supported protocols are http:// and https://.', "set_footer_url"), 470);
+        if not re.match(r'(?i)^https?://.*$', url):
+            raise Error(create_invalid_value_message(url, "setFooterUrl", "html-to-pdf", 'Supported protocols are http:// and https://.', "set_footer_url"), 470);
         
         self.fields['footer_url'] = get_utf8_string(url)
         return self
@@ -1437,11 +1460,11 @@ class HtmlToPdfClient:
         """
         Set the footer height.
 
-        height - The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+        height - The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
         return - The converter object.
         """
-        if not re.match('(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', height):
-            raise Error(create_invalid_value_message(height, "setFooterHeight", "html-to-pdf", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".', "set_footer_height"), 470);
+        if not re.match(r'(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', height):
+            raise Error(create_invalid_value_message(height, "setFooterHeight", "html-to-pdf", 'The value must be specified in inches \'in\', millimeters \'mm\', centimeters \'cm\', pixels \'px\', or points \'pt\'.', "set_footer_height"), 470);
         
         self.fields['footer_height'] = get_utf8_string(height)
         return self
@@ -1473,7 +1496,7 @@ class HtmlToPdfClient:
         pages - List of physical page numbers. Negative numbers count backwards from the last page: -1 is the last page, -2 is the last but one page, and so on. A comma separated list of page numbers.
         return - The converter object.
         """
-        if not re.match('^(?:\s*\-?\d+\s*,)*\s*\-?\d+\s*$', pages):
+        if not re.match(r'^(?:\s*\-?\d+\s*,)*\s*\-?\d+\s*$', pages):
             raise Error(create_invalid_value_message(pages, "setExcludeHeaderOnPages", "html-to-pdf", 'A comma separated list of page numbers.', "set_exclude_header_on_pages"), 470);
         
         self.fields['exclude_header_on_pages'] = get_utf8_string(pages)
@@ -1486,7 +1509,7 @@ class HtmlToPdfClient:
         pages - List of physical page numbers. Negative numbers count backwards from the last page: -1 is the last page, -2 is the last but one page, and so on. A comma separated list of page numbers.
         return - The converter object.
         """
-        if not re.match('^(?:\s*\-?\d+\s*,)*\s*\-?\d+\s*$', pages):
+        if not re.match(r'^(?:\s*\-?\d+\s*,)*\s*\-?\d+\s*$', pages):
             raise Error(create_invalid_value_message(pages, "setExcludeFooterOnPages", "html-to-pdf", 'A comma separated list of page numbers.', "set_exclude_footer_on_pages"), 470);
         
         self.fields['exclude_footer_on_pages'] = get_utf8_string(pages)
@@ -1496,11 +1519,11 @@ class HtmlToPdfClient:
         """
         Set the scaling factor (zoom) for the header and footer.
 
-        factor - The percentage value. The value must be in the range 10-500.
+        factor - The percentage value. The accepted range is 10-500.
         return - The converter object.
         """
         if not (int(factor) >= 10 and int(factor) <= 500):
-            raise Error(create_invalid_value_message(factor, "setHeaderFooterScaleFactor", "html-to-pdf", 'The value must be in the range 10-500.', "set_header_footer_scale_factor"), 470);
+            raise Error(create_invalid_value_message(factor, "setHeaderFooterScaleFactor", "html-to-pdf", 'The accepted range is 10-500.', "set_header_footer_scale_factor"), 470);
         
         self.fields['header_footer_scale_factor'] = factor
         return self
@@ -1532,11 +1555,11 @@ class HtmlToPdfClient:
         """
         Load a file from the specified URL and apply the file as a watermark to each page of the output PDF. A watermark can be either a PDF or an image. If a multi-page file (PDF or TIFF) is used, the first page is used as the watermark.
 
-        url - The supported protocols are http:// and https://.
+        url - Supported protocols are http:// and https://.
         return - The converter object.
         """
-        if not re.match('(?i)^https?://.*$', url):
-            raise Error(create_invalid_value_message(url, "setPageWatermarkUrl", "html-to-pdf", 'The supported protocols are http:// and https://.', "set_page_watermark_url"), 470);
+        if not re.match(r'(?i)^https?://.*$', url):
+            raise Error(create_invalid_value_message(url, "setPageWatermarkUrl", "html-to-pdf", 'Supported protocols are http:// and https://.', "set_page_watermark_url"), 470);
         
         self.fields['page_watermark_url'] = get_utf8_string(url)
         return self
@@ -1558,11 +1581,11 @@ class HtmlToPdfClient:
         """
         Load a file from the specified URL and apply each page of the file as a watermark to the corresponding page of the output PDF. A watermark can be either a PDF or an image.
 
-        url - The supported protocols are http:// and https://.
+        url - Supported protocols are http:// and https://.
         return - The converter object.
         """
-        if not re.match('(?i)^https?://.*$', url):
-            raise Error(create_invalid_value_message(url, "setMultipageWatermarkUrl", "html-to-pdf", 'The supported protocols are http:// and https://.', "set_multipage_watermark_url"), 470);
+        if not re.match(r'(?i)^https?://.*$', url):
+            raise Error(create_invalid_value_message(url, "setMultipageWatermarkUrl", "html-to-pdf", 'Supported protocols are http:// and https://.', "set_multipage_watermark_url"), 470);
         
         self.fields['multipage_watermark_url'] = get_utf8_string(url)
         return self
@@ -1584,11 +1607,11 @@ class HtmlToPdfClient:
         """
         Load a file from the specified URL and apply the file as a background to each page of the output PDF. A background can be either a PDF or an image. If a multi-page file (PDF or TIFF) is used, the first page is used as the background.
 
-        url - The supported protocols are http:// and https://.
+        url - Supported protocols are http:// and https://.
         return - The converter object.
         """
-        if not re.match('(?i)^https?://.*$', url):
-            raise Error(create_invalid_value_message(url, "setPageBackgroundUrl", "html-to-pdf", 'The supported protocols are http:// and https://.', "set_page_background_url"), 470);
+        if not re.match(r'(?i)^https?://.*$', url):
+            raise Error(create_invalid_value_message(url, "setPageBackgroundUrl", "html-to-pdf", 'Supported protocols are http:// and https://.', "set_page_background_url"), 470);
         
         self.fields['page_background_url'] = get_utf8_string(url)
         return self
@@ -1610,11 +1633,11 @@ class HtmlToPdfClient:
         """
         Load a file from the specified URL and apply each page of the file as a background to the corresponding page of the output PDF. A background can be either a PDF or an image.
 
-        url - The supported protocols are http:// and https://.
+        url - Supported protocols are http:// and https://.
         return - The converter object.
         """
-        if not re.match('(?i)^https?://.*$', url):
-            raise Error(create_invalid_value_message(url, "setMultipageBackgroundUrl", "html-to-pdf", 'The supported protocols are http:// and https://.', "set_multipage_background_url"), 470);
+        if not re.match(r'(?i)^https?://.*$', url):
+            raise Error(create_invalid_value_message(url, "setMultipageBackgroundUrl", "html-to-pdf", 'Supported protocols are http:// and https://.', "set_multipage_background_url"), 470);
         
         self.fields['multipage_background_url'] = get_utf8_string(url)
         return self
@@ -1626,7 +1649,7 @@ class HtmlToPdfClient:
         color - The value must be in RRGGBB or RRGGBBAA hexadecimal format.
         return - The converter object.
         """
-        if not re.match('^[0-9a-fA-F]{6,8}$', color):
+        if not re.match(r'^[0-9a-fA-F]{6,8}$', color):
             raise Error(create_invalid_value_message(color, "setPageBackgroundColor", "html-to-pdf", 'The value must be in RRGGBB or RRGGBBAA hexadecimal format.', "set_page_background_color"), 470);
         
         self.fields['page_background_color'] = get_utf8_string(color)
@@ -1699,7 +1722,7 @@ class HtmlToPdfClient:
         iframes - Allowed values are all, same-origin, none.
         return - The converter object.
         """
-        if not re.match('(?i)^(all|same-origin|none)$', iframes):
+        if not re.match(r'(?i)^(all|same-origin|none)$', iframes):
             raise Error(create_invalid_value_message(iframes, "setLoadIframes", "html-to-pdf", 'Allowed values are all, same-origin, none.', "set_load_iframes"), 470);
         
         self.fields['load_iframes'] = get_utf8_string(iframes)
@@ -1814,7 +1837,7 @@ class HtmlToPdfClient:
         mode - The page rule mode. Allowed values are default, mode1, mode2.
         return - The converter object.
         """
-        if not re.match('(?i)^(default|mode1|mode2)$', mode):
+        if not re.match(r'(?i)^(default|mode1|mode2)$', mode):
             raise Error(create_invalid_value_message(mode, "setCssPageRuleMode", "html-to-pdf", 'Allowed values are default, mode1, mode2.', "set_css_page_rule_mode"), 470);
         
         self.fields['css_page_rule_mode'] = get_utf8_string(mode)
@@ -1866,7 +1889,7 @@ class HtmlToPdfClient:
         header - A string containing the header name and value separated by a colon.
         return - The converter object.
         """
-        if not re.match('^.+:.+$', header):
+        if not re.match(r'^.+:.+$', header):
             raise Error(create_invalid_value_message(header, "setCustomHttpHeader", "html-to-pdf", 'A string containing the header name and value separated by a colon.', "set_custom_http_header"), 470);
         
         self.fields['custom_http_header'] = get_utf8_string(header)
@@ -1876,11 +1899,11 @@ class HtmlToPdfClient:
         """
         Wait the specified number of milliseconds to finish all JavaScript after the document is loaded. Your API license defines the maximum wait time by "Max Delay" parameter.
 
-        delay - The number of milliseconds to wait. Must be a positive integer number or 0.
+        delay - The number of milliseconds to wait. Must be a positive integer or 0.
         return - The converter object.
         """
         if not (int(delay) >= 0):
-            raise Error(create_invalid_value_message(delay, "setJavascriptDelay", "html-to-pdf", 'Must be a positive integer number or 0.', "set_javascript_delay"), 470);
+            raise Error(create_invalid_value_message(delay, "setJavascriptDelay", "html-to-pdf", 'Must be a positive integer or 0.', "set_javascript_delay"), 470);
         
         self.fields['javascript_delay'] = delay
         return self
@@ -1905,7 +1928,7 @@ class HtmlToPdfClient:
         mode - Allowed values are cut-out, remove-siblings, hide-siblings.
         return - The converter object.
         """
-        if not re.match('(?i)^(cut-out|remove-siblings|hide-siblings)$', mode):
+        if not re.match(r'(?i)^(cut-out|remove-siblings|hide-siblings)$', mode):
             raise Error(create_invalid_value_message(mode, "setElementToConvertMode", "html-to-pdf", 'Allowed values are cut-out, remove-siblings, hide-siblings.', "set_element_to_convert_mode"), 470);
         
         self.fields['element_to_convert_mode'] = get_utf8_string(mode)
@@ -1941,7 +1964,7 @@ class HtmlToPdfClient:
         enhancements - Allowed values are none, readability-v1, readability-v2, readability-v3, readability-v4.
         return - The converter object.
         """
-        if not re.match('(?i)^(none|readability-v1|readability-v2|readability-v3|readability-v4)$', enhancements):
+        if not re.match(r'(?i)^(none|readability-v1|readability-v2|readability-v3|readability-v4)$', enhancements):
             raise Error(create_invalid_value_message(enhancements, "setReadabilityEnhancements", "html-to-pdf", 'Allowed values are none, readability-v1, readability-v2, readability-v3, readability-v4.', "set_readability_enhancements"), 470);
         
         self.fields['readability_enhancements'] = get_utf8_string(enhancements)
@@ -1951,11 +1974,11 @@ class HtmlToPdfClient:
         """
         Set the viewport width in pixels. The viewport is the user's visible area of the page.
 
-        width - The value must be in the range 96-65000.
+        width - The accepted range is 96-65000.
         return - The converter object.
         """
         if not (int(width) >= 96 and int(width) <= 65000):
-            raise Error(create_invalid_value_message(width, "setViewportWidth", "html-to-pdf", 'The value must be in the range 96-65000.', "set_viewport_width"), 470);
+            raise Error(create_invalid_value_message(width, "setViewportWidth", "html-to-pdf", 'The accepted range is 96-65000.', "set_viewport_width"), 470);
         
         self.fields['viewport_width'] = width
         return self
@@ -1964,11 +1987,11 @@ class HtmlToPdfClient:
         """
         Set the viewport height in pixels. The viewport is the user's visible area of the page. If the input HTML uses lazily loaded images, try using a large value that covers the entire height of the HTML, e.g. 100000.
 
-        height - Must be a positive integer number.
+        height - Must be a positive integer.
         return - The converter object.
         """
         if not (int(height) > 0):
-            raise Error(create_invalid_value_message(height, "setViewportHeight", "html-to-pdf", 'Must be a positive integer number.', "set_viewport_height"), 470);
+            raise Error(create_invalid_value_message(height, "setViewportHeight", "html-to-pdf", 'Must be a positive integer.', "set_viewport_height"), 470);
         
         self.fields['viewport_height'] = height
         return self
@@ -1977,8 +2000,8 @@ class HtmlToPdfClient:
         """
         Set the viewport size. The viewport is the user's visible area of the page.
 
-        width - Set the viewport width in pixels. The viewport is the user's visible area of the page. The value must be in the range 96-65000.
-        height - Set the viewport height in pixels. The viewport is the user's visible area of the page. If the input HTML uses lazily loaded images, try using a large value that covers the entire height of the HTML, e.g. 100000. Must be a positive integer number.
+        width - Set the viewport width in pixels. The viewport is the user's visible area of the page. The accepted range is 96-65000.
+        height - Set the viewport height in pixels. The viewport is the user's visible area of the page. If the input HTML uses lazily loaded images, try using a large value that covers the entire height of the HTML, e.g. 100000. Must be a positive integer.
         return - The converter object.
         """
         self.setViewportWidth(width)
@@ -1992,7 +2015,7 @@ class HtmlToPdfClient:
         mode - The rendering mode. Allowed values are default, viewport.
         return - The converter object.
         """
-        if not re.match('(?i)^(default|viewport)$', mode):
+        if not re.match(r'(?i)^(default|viewport)$', mode):
             raise Error(create_invalid_value_message(mode, "setRenderingMode", "html-to-pdf", 'Allowed values are default, viewport.', "set_rendering_mode"), 470);
         
         self.fields['rendering_mode'] = get_utf8_string(mode)
@@ -2005,7 +2028,7 @@ class HtmlToPdfClient:
         mode - The smart scaling mode. Allowed values are default, disabled, viewport-fit, content-fit, single-page-fit, single-page-fit-ex, mode1.
         return - The converter object.
         """
-        if not re.match('(?i)^(default|disabled|viewport-fit|content-fit|single-page-fit|single-page-fit-ex|mode1)$', mode):
+        if not re.match(r'(?i)^(default|disabled|viewport-fit|content-fit|single-page-fit|single-page-fit-ex|mode1)$', mode):
             raise Error(create_invalid_value_message(mode, "setSmartScalingMode", "html-to-pdf", 'Allowed values are default, disabled, viewport-fit, content-fit, single-page-fit, single-page-fit-ex, mode1.', "set_smart_scaling_mode"), 470);
         
         self.fields['smart_scaling_mode'] = get_utf8_string(mode)
@@ -2015,11 +2038,11 @@ class HtmlToPdfClient:
         """
         Set the scaling factor (zoom) for the main page area.
 
-        factor - The percentage value. The value must be in the range 10-500.
+        factor - The percentage value. The accepted range is 10-500.
         return - The converter object.
         """
         if not (int(factor) >= 10 and int(factor) <= 500):
-            raise Error(create_invalid_value_message(factor, "setScaleFactor", "html-to-pdf", 'The value must be in the range 10-500.', "set_scale_factor"), 470);
+            raise Error(create_invalid_value_message(factor, "setScaleFactor", "html-to-pdf", 'The accepted range is 10-500.', "set_scale_factor"), 470);
         
         self.fields['scale_factor'] = factor
         return self
@@ -2028,11 +2051,11 @@ class HtmlToPdfClient:
         """
         Set the quality of embedded JPEG images. A lower quality results in a smaller PDF file but can lead to compression artifacts.
 
-        quality - The percentage value. The value must be in the range 1-100.
+        quality - The percentage value. The accepted range is 1-100.
         return - The converter object.
         """
         if not (int(quality) >= 1 and int(quality) <= 100):
-            raise Error(create_invalid_value_message(quality, "setJpegQuality", "html-to-pdf", 'The value must be in the range 1-100.', "set_jpeg_quality"), 470);
+            raise Error(create_invalid_value_message(quality, "setJpegQuality", "html-to-pdf", 'The accepted range is 1-100.', "set_jpeg_quality"), 470);
         
         self.fields['jpeg_quality'] = quality
         return self
@@ -2044,7 +2067,7 @@ class HtmlToPdfClient:
         images - The image category. Allowed values are none, opaque, all.
         return - The converter object.
         """
-        if not re.match('(?i)^(none|opaque|all)$', images):
+        if not re.match(r'(?i)^(none|opaque|all)$', images):
             raise Error(create_invalid_value_message(images, "setConvertImagesToJpeg", "html-to-pdf", 'Allowed values are none, opaque, all.', "set_convert_images_to_jpeg"), 470);
         
         self.fields['convert_images_to_jpeg'] = get_utf8_string(images)
@@ -2054,11 +2077,11 @@ class HtmlToPdfClient:
         """
         Set the DPI of images in PDF. A lower DPI may result in a smaller PDF file. If the specified DPI is higher than the actual image DPI, the original image DPI is retained (no upscaling is performed). Use 0 to leave the images unaltered.
 
-        dpi - The DPI value. Must be a positive integer number or 0.
+        dpi - The DPI value. Must be a positive integer or 0.
         return - The converter object.
         """
         if not (int(dpi) >= 0):
-            raise Error(create_invalid_value_message(dpi, "setImageDpi", "html-to-pdf", 'Must be a positive integer number or 0.', "set_image_dpi"), 470);
+            raise Error(create_invalid_value_message(dpi, "setImageDpi", "html-to-pdf", 'Must be a positive integer or 0.', "set_image_dpi"), 470);
         
         self.fields['image_dpi'] = dpi
         return self
@@ -2200,7 +2223,7 @@ class HtmlToPdfClient:
         layout - Allowed values are single-page, one-column, two-column-left, two-column-right.
         return - The converter object.
         """
-        if not re.match('(?i)^(single-page|one-column|two-column-left|two-column-right)$', layout):
+        if not re.match(r'(?i)^(single-page|one-column|two-column-left|two-column-right)$', layout):
             raise Error(create_invalid_value_message(layout, "setPageLayout", "html-to-pdf", 'Allowed values are single-page, one-column, two-column-left, two-column-right.', "set_page_layout"), 470);
         
         self.fields['page_layout'] = get_utf8_string(layout)
@@ -2213,7 +2236,7 @@ class HtmlToPdfClient:
         mode - Allowed values are full-screen, thumbnails, outlines.
         return - The converter object.
         """
-        if not re.match('(?i)^(full-screen|thumbnails|outlines)$', mode):
+        if not re.match(r'(?i)^(full-screen|thumbnails|outlines)$', mode):
             raise Error(create_invalid_value_message(mode, "setPageMode", "html-to-pdf", 'Allowed values are full-screen, thumbnails, outlines.', "set_page_mode"), 470);
         
         self.fields['page_mode'] = get_utf8_string(mode)
@@ -2226,7 +2249,7 @@ class HtmlToPdfClient:
         zoom_type - Allowed values are fit-width, fit-height, fit-page.
         return - The converter object.
         """
-        if not re.match('(?i)^(fit-width|fit-height|fit-page)$', zoom_type):
+        if not re.match(r'(?i)^(fit-width|fit-height|fit-page)$', zoom_type):
             raise Error(create_invalid_value_message(zoom_type, "setInitialZoomType", "html-to-pdf", 'Allowed values are fit-width, fit-height, fit-page.', "set_initial_zoom_type"), 470);
         
         self.fields['initial_zoom_type'] = get_utf8_string(zoom_type)
@@ -2236,11 +2259,11 @@ class HtmlToPdfClient:
         """
         Display the specified page when the document is opened.
 
-        page - Must be a positive integer number.
+        page - Must be a positive integer.
         return - The converter object.
         """
         if not (int(page) > 0):
-            raise Error(create_invalid_value_message(page, "setInitialPage", "html-to-pdf", 'Must be a positive integer number.', "set_initial_page"), 470);
+            raise Error(create_invalid_value_message(page, "setInitialPage", "html-to-pdf", 'Must be a positive integer.', "set_initial_page"), 470);
         
         self.fields['initial_page'] = page
         return self
@@ -2249,11 +2272,11 @@ class HtmlToPdfClient:
         """
         Specify the initial page zoom in percents when the document is opened.
 
-        zoom - Must be a positive integer number.
+        zoom - Must be a positive integer.
         return - The converter object.
         """
         if not (int(zoom) > 0):
-            raise Error(create_invalid_value_message(zoom, "setInitialZoom", "html-to-pdf", 'Must be a positive integer number.', "set_initial_zoom"), 470);
+            raise Error(create_invalid_value_message(zoom, "setInitialZoom", "html-to-pdf", 'Must be a positive integer.', "set_initial_zoom"), 470);
         
         self.fields['initial_zoom'] = zoom
         return self
@@ -2355,7 +2378,7 @@ class HtmlToPdfClient:
         data_format - The data format. Allowed values are auto, json, xml, yaml, csv.
         return - The converter object.
         """
-        if not re.match('(?i)^(auto|json|xml|yaml|csv)$', data_format):
+        if not re.match(r'(?i)^(auto|json|xml|yaml|csv)$', data_format):
             raise Error(create_invalid_value_message(data_format, "setDataFormat", "html-to-pdf", 'Allowed values are auto, json, xml, yaml, csv.', "set_data_format"), 470);
         
         self.fields['data_format'] = get_utf8_string(data_format)
@@ -2497,7 +2520,7 @@ class HtmlToPdfClient:
         proxy - The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
         return - The converter object.
         """
-        if not re.match('(?i)^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z0-9]{1,}:\d+$', proxy):
+        if not re.match(r'(?i)^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z0-9]{1,}:\d+$', proxy):
             raise Error(create_invalid_value_message(proxy, "setHttpProxy", "html-to-pdf", 'The value must have format DOMAIN_OR_IP_ADDRESS:PORT.', "set_http_proxy"), 470);
         
         self.fields['http_proxy'] = get_utf8_string(proxy)
@@ -2510,7 +2533,7 @@ class HtmlToPdfClient:
         proxy - The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
         return - The converter object.
         """
-        if not re.match('(?i)^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z0-9]{1,}:\d+$', proxy):
+        if not re.match(r'(?i)^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z0-9]{1,}:\d+$', proxy):
             raise Error(create_invalid_value_message(proxy, "setHttpsProxy", "html-to-pdf", 'The value must have format DOMAIN_OR_IP_ADDRESS:PORT.', "set_https_proxy"), 470);
         
         self.fields['https_proxy'] = get_utf8_string(proxy)
@@ -2543,11 +2566,11 @@ class HtmlToPdfClient:
         """
         Set the internal DPI resolution used for positioning of PDF contents. It can help in situations when there are small inaccuracies in the PDF. It is recommended to use values that are a multiple of 72, such as 288 or 360.
 
-        dpi - The DPI value. The value must be in the range of 72-600.
+        dpi - The DPI value. The accepted range is 72-600.
         return - The converter object.
         """
         if not (int(dpi) >= 72 and int(dpi) <= 600):
-            raise Error(create_invalid_value_message(dpi, "setLayoutDpi", "html-to-pdf", 'The value must be in the range of 72-600.', "set_layout_dpi"), 470);
+            raise Error(create_invalid_value_message(dpi, "setLayoutDpi", "html-to-pdf", 'The accepted range is 72-600.', "set_layout_dpi"), 470);
         
         self.fields['layout_dpi'] = dpi
         return self
@@ -2556,11 +2579,11 @@ class HtmlToPdfClient:
         """
         Set the top left X coordinate of the content area. It is relative to the top left X coordinate of the print area.
 
-        x - The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt". It may contain a negative value.
+        x - The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'. It may contain a negative value.
         return - The converter object.
         """
-        if not re.match('(?i)^0$|^\-?[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', x):
-            raise Error(create_invalid_value_message(x, "setContentAreaX", "html-to-pdf", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt". It may contain a negative value.', "set_content_area_x"), 470);
+        if not re.match(r'(?i)^0$|^\-?[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', x):
+            raise Error(create_invalid_value_message(x, "setContentAreaX", "html-to-pdf", 'The value must be specified in inches \'in\', millimeters \'mm\', centimeters \'cm\', pixels \'px\', or points \'pt\'. It may contain a negative value.', "set_content_area_x"), 470);
         
         self.fields['content_area_x'] = get_utf8_string(x)
         return self
@@ -2569,11 +2592,11 @@ class HtmlToPdfClient:
         """
         Set the top left Y coordinate of the content area. It is relative to the top left Y coordinate of the print area.
 
-        y - The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt". It may contain a negative value.
+        y - The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'. It may contain a negative value.
         return - The converter object.
         """
-        if not re.match('(?i)^0$|^\-?[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', y):
-            raise Error(create_invalid_value_message(y, "setContentAreaY", "html-to-pdf", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt". It may contain a negative value.', "set_content_area_y"), 470);
+        if not re.match(r'(?i)^0$|^\-?[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', y):
+            raise Error(create_invalid_value_message(y, "setContentAreaY", "html-to-pdf", 'The value must be specified in inches \'in\', millimeters \'mm\', centimeters \'cm\', pixels \'px\', or points \'pt\'. It may contain a negative value.', "set_content_area_y"), 470);
         
         self.fields['content_area_y'] = get_utf8_string(y)
         return self
@@ -2582,11 +2605,11 @@ class HtmlToPdfClient:
         """
         Set the width of the content area. It should be at least 1 inch.
 
-        width - The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+        width - The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
         return - The converter object.
         """
-        if not re.match('(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', width):
-            raise Error(create_invalid_value_message(width, "setContentAreaWidth", "html-to-pdf", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".', "set_content_area_width"), 470);
+        if not re.match(r'(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', width):
+            raise Error(create_invalid_value_message(width, "setContentAreaWidth", "html-to-pdf", 'The value must be specified in inches \'in\', millimeters \'mm\', centimeters \'cm\', pixels \'px\', or points \'pt\'.', "set_content_area_width"), 470);
         
         self.fields['content_area_width'] = get_utf8_string(width)
         return self
@@ -2595,11 +2618,11 @@ class HtmlToPdfClient:
         """
         Set the height of the content area. It should be at least 1 inch.
 
-        height - The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+        height - The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
         return - The converter object.
         """
-        if not re.match('(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', height):
-            raise Error(create_invalid_value_message(height, "setContentAreaHeight", "html-to-pdf", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".', "set_content_area_height"), 470);
+        if not re.match(r'(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', height):
+            raise Error(create_invalid_value_message(height, "setContentAreaHeight", "html-to-pdf", 'The value must be specified in inches \'in\', millimeters \'mm\', centimeters \'cm\', pixels \'px\', or points \'pt\'.', "set_content_area_height"), 470);
         
         self.fields['content_area_height'] = get_utf8_string(height)
         return self
@@ -2608,10 +2631,10 @@ class HtmlToPdfClient:
         """
         Set the content area position and size. The content area enables to specify a web page area to be converted.
 
-        x - Set the top left X coordinate of the content area. It is relative to the top left X coordinate of the print area. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt". It may contain a negative value.
-        y - Set the top left Y coordinate of the content area. It is relative to the top left Y coordinate of the print area. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt". It may contain a negative value.
-        width - Set the width of the content area. It should be at least 1 inch. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
-        height - Set the height of the content area. It should be at least 1 inch. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+        x - Set the top left X coordinate of the content area. It is relative to the top left X coordinate of the print area. The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'. It may contain a negative value.
+        y - Set the top left Y coordinate of the content area. It is relative to the top left Y coordinate of the print area. The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'. It may contain a negative value.
+        width - Set the width of the content area. It should be at least 1 inch. The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
+        height - Set the height of the content area. It should be at least 1 inch. The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
         return - The converter object.
         """
         self.setContentAreaX(x)
@@ -2685,18 +2708,18 @@ class HtmlToPdfClient:
         """
         Set the maximum time to load the page and its resources. After this time, all requests will be considered successful. This can be useful to ensure that the conversion does not timeout. Use this method if there is no other way to fix page loading.
 
-        max_time - The number of seconds to wait. The value must be in the range 10-30.
+        max_time - The number of seconds to wait. The accepted range is 10-30.
         return - The converter object.
         """
         if not (int(max_time) >= 10 and int(max_time) <= 30):
-            raise Error(create_invalid_value_message(max_time, "setMaxLoadingTime", "html-to-pdf", 'The value must be in the range 10-30.', "set_max_loading_time"), 470);
+            raise Error(create_invalid_value_message(max_time, "setMaxLoadingTime", "html-to-pdf", 'The accepted range is 10-30.', "set_max_loading_time"), 470);
         
         self.fields['max_loading_time'] = max_time
         return self
 
     def setConversionConfig(self, json_string):
         """
-        Allows to configure conversion via JSON. The configuration defines various page settings for individual PDF pages or ranges of pages. It provides flexibility in designing each page of the PDF, giving control over each page's size, header, footer etc. If a page or parameter is not explicitly specified, the system will use the default settings for that page or attribute. If a JSON configuration is provided, the settings in the JSON will take precedence over the global options. The structure of the JSON must be: pageSetup: An array of objects where each object defines the configuration for a specific page or range of pages. The following properties can be set for each page object: pages: A comma-separated list of page numbers or ranges. Special strings may be used, such as `odd`, `even` and `last`. For example: 1-: from page 1 to the end of the document 2: only the 2nd page 2,4,6: pages 2, 4, and 6 2-5: pages 2 through 5 odd,2: the 2nd page and all odd pages pageSize: The page size (optional). Possible values: A0, A1, A2, A3, A4, A5, A6, Letter. pageWidth: The width of the page (optional). pageHeight: The height of the page (optional). marginLeft: Left margin (optional). marginRight: Right margin (optional). marginTop: Top margin (optional). marginBottom: Bottom margin (optional). displayHeader: Header appearance (optional). Possible values: none: completely excluded space: only the content is excluded, the space is used content: the content is printed (default) displayFooter: Footer appearance (optional). Possible values: none: completely excluded space: only the content is excluded, the space is used content: the content is printed (default) headerHeight: Height of the header (optional). footerHeight: Height of the footer (optional). orientation: Page orientation, such as "portrait" or "landscape" (optional). backgroundColor: Page background color in RRGGBB or RRGGBBAA hexadecimal format (optional). Dimensions may be empty, 0 or specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+        Allows to configure conversion via JSON. The configuration defines various page settings for individual PDF pages or ranges of pages. It provides flexibility in designing each page of the PDF, giving control over each page's size, header, footer etc. If a page or parameter is not explicitly specified, the system will use the default settings for that page or attribute. If a JSON configuration is provided, the settings in the JSON will take precedence over the global options. The structure of the JSON must be: pageSetup: An array of objects where each object defines the configuration for a specific page or range of pages. The following properties can be set for each page object: pages: A comma-separated list of page numbers or ranges. Special strings may be used, such as `odd`, `even` and `last`. For example: 1-: from page 1 to the end of the document 2: only the 2nd page 2,4,6: pages 2, 4, and 6 2-5: pages 2 through 5 odd,2: the 2nd page and all odd pages pageSize: The page size (optional). Possible values: A0, A1, A2, A3, A4, A5, A6, Letter. pageWidth: The width of the page (optional). pageHeight: The height of the page (optional). marginLeft: Left margin (optional). marginRight: Right margin (optional). marginTop: Top margin (optional). marginBottom: Bottom margin (optional). displayHeader: Header appearance (optional). Possible values: none: completely excluded space: only the content is excluded, the space is used content: the content is printed (default) displayFooter: Footer appearance (optional). Possible values: none: completely excluded space: only the content is excluded, the space is used content: the content is printed (default) headerHeight: Height of the header (optional). footerHeight: Height of the footer (optional). orientation: Page orientation, such as "portrait" or "landscape" (optional). backgroundColor: Page background color in RRGGBB or RRGGBBAA hexadecimal format (optional). Dimensions may be empty, 0 or specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
 
         json_string - The JSON string.
         return - The converter object.
@@ -2739,7 +2762,7 @@ class HtmlToPdfClient:
         version - The version identifier. Allowed values are 24.04, 20.10, 18.10, latest.
         return - The converter object.
         """
-        if not re.match('(?i)^(24.04|20.10|18.10|latest)$', version):
+        if not re.match(r'(?i)^(24.04|20.10|18.10|latest)$', version):
             raise Error(create_invalid_value_message(version, "setConverterVersion", "html-to-pdf", 'Allowed values are 24.04, 20.10, 18.10, latest.', "set_converter_version"), 470);
         
         self.helper.setConverterVersion(version)
@@ -2827,7 +2850,7 @@ class HtmlToImageClient:
         output_format - Allowed values are png, jpg, gif, tiff, bmp, ico, ppm, pgm, pbm, pnm, psb, pct, ras, tga, sgi, sun, webp.
         return - The converter object.
         """
-        if not re.match('(?i)^(png|jpg|gif|tiff|bmp|ico|ppm|pgm|pbm|pnm|psb|pct|ras|tga|sgi|sun|webp)$', output_format):
+        if not re.match(r'(?i)^(png|jpg|gif|tiff|bmp|ico|ppm|pgm|pbm|pnm|psb|pct|ras|tga|sgi|sun|webp)$', output_format):
             raise Error(create_invalid_value_message(output_format, "setOutputFormat", "html-to-image", 'Allowed values are png, jpg, gif, tiff, bmp, ico, ppm, pgm, pbm, pnm, psb, pct, ras, tga, sgi, sun, webp.', "set_output_format"), 470);
         
         self.fields['output_format'] = get_utf8_string(output_format)
@@ -2837,11 +2860,11 @@ class HtmlToImageClient:
         """
         Convert a web page.
 
-        url - The address of the web page to convert. The supported protocols are http:// and https://.
+        url - The address of the web page to convert. Supported protocols are http:// and https://.
         return - Byte array containing the conversion output.
         """
-        if not re.match('(?i)^https?://.*$', url):
-            raise Error(create_invalid_value_message(url, "convertUrl", "html-to-image", 'The supported protocols are http:// and https://.', "convert_url"), 470);
+        if not re.match(r'(?i)^https?://.*$', url):
+            raise Error(create_invalid_value_message(url, "convertUrl", "html-to-image", 'Supported protocols are http:// and https://.', "convert_url"), 470);
         
         self.fields['url'] = get_utf8_string(url)
         return self.helper.post(self.fields, self.files, self.raw_data)
@@ -2850,11 +2873,11 @@ class HtmlToImageClient:
         """
         Convert a web page and write the result to an output stream.
 
-        url - The address of the web page to convert. The supported protocols are http:// and https://.
+        url - The address of the web page to convert. Supported protocols are http:// and https://.
         out_stream - The output stream that will contain the conversion output.
         """
-        if not re.match('(?i)^https?://.*$', url):
-            raise Error(create_invalid_value_message(url, "convertUrlToStream::url", "html-to-image", 'The supported protocols are http:// and https://.', "convert_url_to_stream"), 470);
+        if not re.match(r'(?i)^https?://.*$', url):
+            raise Error(create_invalid_value_message(url, "convertUrlToStream::url", "html-to-image", 'Supported protocols are http:// and https://.', "convert_url_to_stream"), 470);
         
         self.fields['url'] = get_utf8_string(url)
         self.helper.post(self.fields, self.files, self.raw_data, out_stream)
@@ -2863,7 +2886,7 @@ class HtmlToImageClient:
         """
         Convert a web page and write the result to a local file.
 
-        url - The address of the web page to convert. The supported protocols are http:// and https://.
+        url - The address of the web page to convert. Supported protocols are http:// and https://.
         file_path - The output file path. The string must not be empty.
         """
         if not (file_path):
@@ -3021,11 +3044,11 @@ class HtmlToImageClient:
         """
         Set the output image width in pixels.
 
-        width - The value must be in the range 96-65000.
+        width - The accepted range is 96-65000.
         return - The converter object.
         """
         if not (int(width) >= 96 and int(width) <= 65000):
-            raise Error(create_invalid_value_message(width, "setScreenshotWidth", "html-to-image", 'The value must be in the range 96-65000.', "set_screenshot_width"), 470);
+            raise Error(create_invalid_value_message(width, "setScreenshotWidth", "html-to-image", 'The accepted range is 96-65000.', "set_screenshot_width"), 470);
         
         self.fields['screenshot_width'] = width
         return self
@@ -3034,11 +3057,11 @@ class HtmlToImageClient:
         """
         Set the output image height in pixels. If it is not specified, actual document height is used.
 
-        height - Must be a positive integer number.
+        height - Must be a positive integer.
         return - The converter object.
         """
         if not (int(height) > 0):
-            raise Error(create_invalid_value_message(height, "setScreenshotHeight", "html-to-image", 'Must be a positive integer number.', "set_screenshot_height"), 470);
+            raise Error(create_invalid_value_message(height, "setScreenshotHeight", "html-to-image", 'Must be a positive integer.', "set_screenshot_height"), 470);
         
         self.fields['screenshot_height'] = height
         return self
@@ -3047,11 +3070,11 @@ class HtmlToImageClient:
         """
         Set the scaling factor (zoom) for the output image.
 
-        factor - The percentage value. Must be a positive integer number.
+        factor - The percentage value. Must be a positive integer.
         return - The converter object.
         """
         if not (int(factor) > 0):
-            raise Error(create_invalid_value_message(factor, "setScaleFactor", "html-to-image", 'Must be a positive integer number.', "set_scale_factor"), 470);
+            raise Error(create_invalid_value_message(factor, "setScaleFactor", "html-to-image", 'Must be a positive integer.', "set_scale_factor"), 470);
         
         self.fields['scale_factor'] = factor
         return self
@@ -3063,7 +3086,7 @@ class HtmlToImageClient:
         color - The value must be in RRGGBB or RRGGBBAA hexadecimal format.
         return - The converter object.
         """
-        if not re.match('^[0-9a-fA-F]{6,8}$', color):
+        if not re.match(r'^[0-9a-fA-F]{6,8}$', color):
             raise Error(create_invalid_value_message(color, "setBackgroundColor", "html-to-image", 'The value must be in RRGGBB or RRGGBBAA hexadecimal format.', "set_background_color"), 470);
         
         self.fields['background_color'] = get_utf8_string(color)
@@ -3136,7 +3159,7 @@ class HtmlToImageClient:
         iframes - Allowed values are all, same-origin, none.
         return - The converter object.
         """
-        if not re.match('(?i)^(all|same-origin|none)$', iframes):
+        if not re.match(r'(?i)^(all|same-origin|none)$', iframes):
             raise Error(create_invalid_value_message(iframes, "setLoadIframes", "html-to-image", 'Allowed values are all, same-origin, none.', "set_load_iframes"), 470);
         
         self.fields['load_iframes'] = get_utf8_string(iframes)
@@ -3290,7 +3313,7 @@ class HtmlToImageClient:
         header - A string containing the header name and value separated by a colon.
         return - The converter object.
         """
-        if not re.match('^.+:.+$', header):
+        if not re.match(r'^.+:.+$', header):
             raise Error(create_invalid_value_message(header, "setCustomHttpHeader", "html-to-image", 'A string containing the header name and value separated by a colon.', "set_custom_http_header"), 470);
         
         self.fields['custom_http_header'] = get_utf8_string(header)
@@ -3300,11 +3323,11 @@ class HtmlToImageClient:
         """
         Wait the specified number of milliseconds to finish all JavaScript after the document is loaded. Your API license defines the maximum wait time by "Max Delay" parameter.
 
-        delay - The number of milliseconds to wait. Must be a positive integer number or 0.
+        delay - The number of milliseconds to wait. Must be a positive integer or 0.
         return - The converter object.
         """
         if not (int(delay) >= 0):
-            raise Error(create_invalid_value_message(delay, "setJavascriptDelay", "html-to-image", 'Must be a positive integer number or 0.', "set_javascript_delay"), 470);
+            raise Error(create_invalid_value_message(delay, "setJavascriptDelay", "html-to-image", 'Must be a positive integer or 0.', "set_javascript_delay"), 470);
         
         self.fields['javascript_delay'] = delay
         return self
@@ -3329,7 +3352,7 @@ class HtmlToImageClient:
         mode - Allowed values are cut-out, remove-siblings, hide-siblings.
         return - The converter object.
         """
-        if not re.match('(?i)^(cut-out|remove-siblings|hide-siblings)$', mode):
+        if not re.match(r'(?i)^(cut-out|remove-siblings|hide-siblings)$', mode):
             raise Error(create_invalid_value_message(mode, "setElementToConvertMode", "html-to-image", 'Allowed values are cut-out, remove-siblings, hide-siblings.', "set_element_to_convert_mode"), 470);
         
         self.fields['element_to_convert_mode'] = get_utf8_string(mode)
@@ -3365,7 +3388,7 @@ class HtmlToImageClient:
         enhancements - Allowed values are none, readability-v1, readability-v2, readability-v3, readability-v4.
         return - The converter object.
         """
-        if not re.match('(?i)^(none|readability-v1|readability-v2|readability-v3|readability-v4)$', enhancements):
+        if not re.match(r'(?i)^(none|readability-v1|readability-v2|readability-v3|readability-v4)$', enhancements):
             raise Error(create_invalid_value_message(enhancements, "setReadabilityEnhancements", "html-to-image", 'Allowed values are none, readability-v1, readability-v2, readability-v3, readability-v4.', "set_readability_enhancements"), 470);
         
         self.fields['readability_enhancements'] = get_utf8_string(enhancements)
@@ -3398,7 +3421,7 @@ class HtmlToImageClient:
         data_format - The data format. Allowed values are auto, json, xml, yaml, csv.
         return - The converter object.
         """
-        if not re.match('(?i)^(auto|json|xml|yaml|csv)$', data_format):
+        if not re.match(r'(?i)^(auto|json|xml|yaml|csv)$', data_format):
             raise Error(create_invalid_value_message(data_format, "setDataFormat", "html-to-image", 'Allowed values are auto, json, xml, yaml, csv.', "set_data_format"), 470);
         
         self.fields['data_format'] = get_utf8_string(data_format)
@@ -3526,7 +3549,7 @@ class HtmlToImageClient:
         proxy - The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
         return - The converter object.
         """
-        if not re.match('(?i)^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z0-9]{1,}:\d+$', proxy):
+        if not re.match(r'(?i)^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z0-9]{1,}:\d+$', proxy):
             raise Error(create_invalid_value_message(proxy, "setHttpProxy", "html-to-image", 'The value must have format DOMAIN_OR_IP_ADDRESS:PORT.', "set_http_proxy"), 470);
         
         self.fields['http_proxy'] = get_utf8_string(proxy)
@@ -3539,7 +3562,7 @@ class HtmlToImageClient:
         proxy - The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
         return - The converter object.
         """
-        if not re.match('(?i)^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z0-9]{1,}:\d+$', proxy):
+        if not re.match(r'(?i)^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z0-9]{1,}:\d+$', proxy):
             raise Error(create_invalid_value_message(proxy, "setHttpsProxy", "html-to-image", 'The value must have format DOMAIN_OR_IP_ADDRESS:PORT.', "set_https_proxy"), 470);
         
         self.fields['https_proxy'] = get_utf8_string(proxy)
@@ -3572,11 +3595,11 @@ class HtmlToImageClient:
         """
         Set the maximum time to load the page and its resources. After this time, all requests will be considered successful. This can be useful to ensure that the conversion does not timeout. Use this method if there is no other way to fix page loading.
 
-        max_time - The number of seconds to wait. The value must be in the range 10-30.
+        max_time - The number of seconds to wait. The accepted range is 10-30.
         return - The converter object.
         """
         if not (int(max_time) >= 10 and int(max_time) <= 30):
-            raise Error(create_invalid_value_message(max_time, "setMaxLoadingTime", "html-to-image", 'The value must be in the range 10-30.', "set_max_loading_time"), 470);
+            raise Error(create_invalid_value_message(max_time, "setMaxLoadingTime", "html-to-image", 'The accepted range is 10-30.', "set_max_loading_time"), 470);
         
         self.fields['max_loading_time'] = max_time
         return self
@@ -3603,7 +3626,7 @@ class HtmlToImageClient:
         version - The version identifier. Allowed values are 24.04, 20.10, 18.10, latest.
         return - The converter object.
         """
-        if not re.match('(?i)^(24.04|20.10|18.10|latest)$', version):
+        if not re.match(r'(?i)^(24.04|20.10|18.10|latest)$', version):
             raise Error(create_invalid_value_message(version, "setConverterVersion", "html-to-image", 'Allowed values are 24.04, 20.10, 18.10, latest.', "set_converter_version"), 470);
         
         self.helper.setConverterVersion(version)
@@ -3688,11 +3711,11 @@ class ImageToImageClient:
         """
         Convert an image.
 
-        url - The address of the image to convert. The supported protocols are http:// and https://.
+        url - The address of the image to convert. Supported protocols are http:// and https://.
         return - Byte array containing the conversion output.
         """
-        if not re.match('(?i)^https?://.*$', url):
-            raise Error(create_invalid_value_message(url, "convertUrl", "image-to-image", 'The supported protocols are http:// and https://.', "convert_url"), 470);
+        if not re.match(r'(?i)^https?://.*$', url):
+            raise Error(create_invalid_value_message(url, "convertUrl", "image-to-image", 'Supported protocols are http:// and https://.', "convert_url"), 470);
         
         self.fields['url'] = get_utf8_string(url)
         return self.helper.post(self.fields, self.files, self.raw_data)
@@ -3701,11 +3724,11 @@ class ImageToImageClient:
         """
         Convert an image and write the result to an output stream.
 
-        url - The address of the image to convert. The supported protocols are http:// and https://.
+        url - The address of the image to convert. Supported protocols are http:// and https://.
         out_stream - The output stream that will contain the conversion output.
         """
-        if not re.match('(?i)^https?://.*$', url):
-            raise Error(create_invalid_value_message(url, "convertUrlToStream::url", "image-to-image", 'The supported protocols are http:// and https://.', "convert_url_to_stream"), 470);
+        if not re.match(r'(?i)^https?://.*$', url):
+            raise Error(create_invalid_value_message(url, "convertUrlToStream::url", "image-to-image", 'Supported protocols are http:// and https://.', "convert_url_to_stream"), 470);
         
         self.fields['url'] = get_utf8_string(url)
         self.helper.post(self.fields, self.files, self.raw_data, out_stream)
@@ -3714,7 +3737,7 @@ class ImageToImageClient:
         """
         Convert an image and write the result to a local file.
 
-        url - The address of the image to convert. The supported protocols are http:// and https://.
+        url - The address of the image to convert. Supported protocols are http:// and https://.
         file_path - The output file path. The string must not be empty.
         """
         if not (file_path):
@@ -3859,7 +3882,7 @@ class ImageToImageClient:
         output_format - Allowed values are png, jpg, gif, tiff, bmp, ico, ppm, pgm, pbm, pnm, psb, pct, ras, tga, sgi, sun, webp.
         return - The converter object.
         """
-        if not re.match('(?i)^(png|jpg|gif|tiff|bmp|ico|ppm|pgm|pbm|pnm|psb|pct|ras|tga|sgi|sun|webp)$', output_format):
+        if not re.match(r'(?i)^(png|jpg|gif|tiff|bmp|ico|ppm|pgm|pbm|pnm|psb|pct|ras|tga|sgi|sun|webp)$', output_format):
             raise Error(create_invalid_value_message(output_format, "setOutputFormat", "image-to-image", 'Allowed values are png, jpg, gif, tiff, bmp, ico, ppm, pgm, pbm, pnm, psb, pct, ras, tga, sgi, sun, webp.', "set_output_format"), 470);
         
         self.fields['output_format'] = get_utf8_string(output_format)
@@ -3889,11 +3912,11 @@ class ImageToImageClient:
         """
         Set the top left X coordinate of the content area. It is relative to the top left X coordinate of the print area.
 
-        x - The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+        x - The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
         return - The converter object.
         """
-        if not re.match('(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', x):
-            raise Error(create_invalid_value_message(x, "setCropAreaX", "image-to-image", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".', "set_crop_area_x"), 470);
+        if not re.match(r'(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', x):
+            raise Error(create_invalid_value_message(x, "setCropAreaX", "image-to-image", 'The value must be specified in inches \'in\', millimeters \'mm\', centimeters \'cm\', pixels \'px\', or points \'pt\'.', "set_crop_area_x"), 470);
         
         self.fields['crop_area_x'] = get_utf8_string(x)
         return self
@@ -3902,11 +3925,11 @@ class ImageToImageClient:
         """
         Set the top left Y coordinate of the content area. It is relative to the top left Y coordinate of the print area.
 
-        y - The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+        y - The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
         return - The converter object.
         """
-        if not re.match('(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', y):
-            raise Error(create_invalid_value_message(y, "setCropAreaY", "image-to-image", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".', "set_crop_area_y"), 470);
+        if not re.match(r'(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', y):
+            raise Error(create_invalid_value_message(y, "setCropAreaY", "image-to-image", 'The value must be specified in inches \'in\', millimeters \'mm\', centimeters \'cm\', pixels \'px\', or points \'pt\'.', "set_crop_area_y"), 470);
         
         self.fields['crop_area_y'] = get_utf8_string(y)
         return self
@@ -3915,11 +3938,11 @@ class ImageToImageClient:
         """
         Set the width of the content area. It should be at least 1 inch.
 
-        width - The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+        width - The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
         return - The converter object.
         """
-        if not re.match('(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', width):
-            raise Error(create_invalid_value_message(width, "setCropAreaWidth", "image-to-image", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".', "set_crop_area_width"), 470);
+        if not re.match(r'(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', width):
+            raise Error(create_invalid_value_message(width, "setCropAreaWidth", "image-to-image", 'The value must be specified in inches \'in\', millimeters \'mm\', centimeters \'cm\', pixels \'px\', or points \'pt\'.', "set_crop_area_width"), 470);
         
         self.fields['crop_area_width'] = get_utf8_string(width)
         return self
@@ -3928,11 +3951,11 @@ class ImageToImageClient:
         """
         Set the height of the content area. It should be at least 1 inch.
 
-        height - The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+        height - The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
         return - The converter object.
         """
-        if not re.match('(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', height):
-            raise Error(create_invalid_value_message(height, "setCropAreaHeight", "image-to-image", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".', "set_crop_area_height"), 470);
+        if not re.match(r'(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', height):
+            raise Error(create_invalid_value_message(height, "setCropAreaHeight", "image-to-image", 'The value must be specified in inches \'in\', millimeters \'mm\', centimeters \'cm\', pixels \'px\', or points \'pt\'.', "set_crop_area_height"), 470);
         
         self.fields['crop_area_height'] = get_utf8_string(height)
         return self
@@ -3941,10 +3964,10 @@ class ImageToImageClient:
         """
         Set the content area position and size. The content area enables to specify the part to be converted.
 
-        x - Set the top left X coordinate of the content area. It is relative to the top left X coordinate of the print area. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
-        y - Set the top left Y coordinate of the content area. It is relative to the top left Y coordinate of the print area. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
-        width - Set the width of the content area. It should be at least 1 inch. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
-        height - Set the height of the content area. It should be at least 1 inch. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+        x - Set the top left X coordinate of the content area. It is relative to the top left X coordinate of the print area. The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
+        y - Set the top left Y coordinate of the content area. It is relative to the top left Y coordinate of the print area. The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
+        width - Set the width of the content area. It should be at least 1 inch. The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
+        height - Set the height of the content area. It should be at least 1 inch. The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
         return - The converter object.
         """
         self.setCropAreaX(x)
@@ -3970,7 +3993,7 @@ class ImageToImageClient:
         size - Allowed values are A0, A1, A2, A3, A4, A5, A6, Letter.
         return - The converter object.
         """
-        if not re.match('(?i)^(A0|A1|A2|A3|A4|A5|A6|Letter)$', size):
+        if not re.match(r'(?i)^(A0|A1|A2|A3|A4|A5|A6|Letter)$', size):
             raise Error(create_invalid_value_message(size, "setCanvasSize", "image-to-image", 'Allowed values are A0, A1, A2, A3, A4, A5, A6, Letter.', "set_canvas_size"), 470);
         
         self.fields['canvas_size'] = get_utf8_string(size)
@@ -3980,11 +4003,11 @@ class ImageToImageClient:
         """
         Set the output canvas width.
 
-        width - The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+        width - The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
         return - The converter object.
         """
-        if not re.match('(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', width):
-            raise Error(create_invalid_value_message(width, "setCanvasWidth", "image-to-image", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".', "set_canvas_width"), 470);
+        if not re.match(r'(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', width):
+            raise Error(create_invalid_value_message(width, "setCanvasWidth", "image-to-image", 'The value must be specified in inches \'in\', millimeters \'mm\', centimeters \'cm\', pixels \'px\', or points \'pt\'.', "set_canvas_width"), 470);
         
         self.fields['canvas_width'] = get_utf8_string(width)
         return self
@@ -3993,11 +4016,11 @@ class ImageToImageClient:
         """
         Set the output canvas height.
 
-        height - The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+        height - The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
         return - The converter object.
         """
-        if not re.match('(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', height):
-            raise Error(create_invalid_value_message(height, "setCanvasHeight", "image-to-image", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".', "set_canvas_height"), 470);
+        if not re.match(r'(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', height):
+            raise Error(create_invalid_value_message(height, "setCanvasHeight", "image-to-image", 'The value must be specified in inches \'in\', millimeters \'mm\', centimeters \'cm\', pixels \'px\', or points \'pt\'.', "set_canvas_height"), 470);
         
         self.fields['canvas_height'] = get_utf8_string(height)
         return self
@@ -4006,8 +4029,8 @@ class ImageToImageClient:
         """
         Set the output canvas dimensions. If no canvas size is specified, margins are applied as a border around the image.
 
-        width - Set the output canvas width. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
-        height - Set the output canvas height. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+        width - Set the output canvas width. The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
+        height - Set the output canvas height. The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
         return - The converter object.
         """
         self.setCanvasWidth(width)
@@ -4021,7 +4044,7 @@ class ImageToImageClient:
         orientation - Allowed values are landscape, portrait.
         return - The converter object.
         """
-        if not re.match('(?i)^(landscape|portrait)$', orientation):
+        if not re.match(r'(?i)^(landscape|portrait)$', orientation):
             raise Error(create_invalid_value_message(orientation, "setOrientation", "image-to-image", 'Allowed values are landscape, portrait.', "set_orientation"), 470);
         
         self.fields['orientation'] = get_utf8_string(orientation)
@@ -4034,7 +4057,7 @@ class ImageToImageClient:
         position - Allowed values are center, top, bottom, left, right, top-left, top-right, bottom-left, bottom-right.
         return - The converter object.
         """
-        if not re.match('(?i)^(center|top|bottom|left|right|top-left|top-right|bottom-left|bottom-right)$', position):
+        if not re.match(r'(?i)^(center|top|bottom|left|right|top-left|top-right|bottom-left|bottom-right)$', position):
             raise Error(create_invalid_value_message(position, "setPosition", "image-to-image", 'Allowed values are center, top, bottom, left, right, top-left, top-right, bottom-left, bottom-right.', "set_position"), 470);
         
         self.fields['position'] = get_utf8_string(position)
@@ -4047,7 +4070,7 @@ class ImageToImageClient:
         mode - Allowed values are default, fit, stretch.
         return - The converter object.
         """
-        if not re.match('(?i)^(default|fit|stretch)$', mode):
+        if not re.match(r'(?i)^(default|fit|stretch)$', mode):
             raise Error(create_invalid_value_message(mode, "setPrintCanvasMode", "image-to-image", 'Allowed values are default, fit, stretch.', "set_print_canvas_mode"), 470);
         
         self.fields['print_canvas_mode'] = get_utf8_string(mode)
@@ -4057,11 +4080,11 @@ class ImageToImageClient:
         """
         Set the output canvas top margin.
 
-        top - The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+        top - The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
         return - The converter object.
         """
-        if not re.match('(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', top):
-            raise Error(create_invalid_value_message(top, "setMarginTop", "image-to-image", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".', "set_margin_top"), 470);
+        if not re.match(r'(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', top):
+            raise Error(create_invalid_value_message(top, "setMarginTop", "image-to-image", 'The value must be specified in inches \'in\', millimeters \'mm\', centimeters \'cm\', pixels \'px\', or points \'pt\'.', "set_margin_top"), 470);
         
         self.fields['margin_top'] = get_utf8_string(top)
         return self
@@ -4070,11 +4093,11 @@ class ImageToImageClient:
         """
         Set the output canvas right margin.
 
-        right - The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+        right - The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
         return - The converter object.
         """
-        if not re.match('(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', right):
-            raise Error(create_invalid_value_message(right, "setMarginRight", "image-to-image", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".', "set_margin_right"), 470);
+        if not re.match(r'(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', right):
+            raise Error(create_invalid_value_message(right, "setMarginRight", "image-to-image", 'The value must be specified in inches \'in\', millimeters \'mm\', centimeters \'cm\', pixels \'px\', or points \'pt\'.', "set_margin_right"), 470);
         
         self.fields['margin_right'] = get_utf8_string(right)
         return self
@@ -4083,11 +4106,11 @@ class ImageToImageClient:
         """
         Set the output canvas bottom margin.
 
-        bottom - The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+        bottom - The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
         return - The converter object.
         """
-        if not re.match('(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', bottom):
-            raise Error(create_invalid_value_message(bottom, "setMarginBottom", "image-to-image", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".', "set_margin_bottom"), 470);
+        if not re.match(r'(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', bottom):
+            raise Error(create_invalid_value_message(bottom, "setMarginBottom", "image-to-image", 'The value must be specified in inches \'in\', millimeters \'mm\', centimeters \'cm\', pixels \'px\', or points \'pt\'.', "set_margin_bottom"), 470);
         
         self.fields['margin_bottom'] = get_utf8_string(bottom)
         return self
@@ -4096,11 +4119,11 @@ class ImageToImageClient:
         """
         Set the output canvas left margin.
 
-        left - The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+        left - The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
         return - The converter object.
         """
-        if not re.match('(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', left):
-            raise Error(create_invalid_value_message(left, "setMarginLeft", "image-to-image", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".', "set_margin_left"), 470);
+        if not re.match(r'(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', left):
+            raise Error(create_invalid_value_message(left, "setMarginLeft", "image-to-image", 'The value must be specified in inches \'in\', millimeters \'mm\', centimeters \'cm\', pixels \'px\', or points \'pt\'.', "set_margin_left"), 470);
         
         self.fields['margin_left'] = get_utf8_string(left)
         return self
@@ -4109,10 +4132,10 @@ class ImageToImageClient:
         """
         Set the output canvas margins.
 
-        top - Set the output canvas top margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
-        right - Set the output canvas right margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
-        bottom - Set the output canvas bottom margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
-        left - Set the output canvas left margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+        top - Set the output canvas top margin. The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
+        right - Set the output canvas right margin. The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
+        bottom - Set the output canvas bottom margin. The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
+        left - Set the output canvas left margin. The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
         return - The converter object.
         """
         self.setMarginTop(top)
@@ -4128,7 +4151,7 @@ class ImageToImageClient:
         color - The value must be in RRGGBB or RRGGBBAA hexadecimal format.
         return - The converter object.
         """
-        if not re.match('^[0-9a-fA-F]{6,8}$', color):
+        if not re.match(r'^[0-9a-fA-F]{6,8}$', color):
             raise Error(create_invalid_value_message(color, "setCanvasBackgroundColor", "image-to-image", 'The value must be in RRGGBB or RRGGBBAA hexadecimal format.', "set_canvas_background_color"), 470);
         
         self.fields['canvas_background_color'] = get_utf8_string(color)
@@ -4216,7 +4239,7 @@ class ImageToImageClient:
         proxy - The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
         return - The converter object.
         """
-        if not re.match('(?i)^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z0-9]{1,}:\d+$', proxy):
+        if not re.match(r'(?i)^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z0-9]{1,}:\d+$', proxy):
             raise Error(create_invalid_value_message(proxy, "setHttpProxy", "image-to-image", 'The value must have format DOMAIN_OR_IP_ADDRESS:PORT.', "set_http_proxy"), 470);
         
         self.fields['http_proxy'] = get_utf8_string(proxy)
@@ -4229,7 +4252,7 @@ class ImageToImageClient:
         proxy - The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
         return - The converter object.
         """
-        if not re.match('(?i)^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z0-9]{1,}:\d+$', proxy):
+        if not re.match(r'(?i)^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z0-9]{1,}:\d+$', proxy):
             raise Error(create_invalid_value_message(proxy, "setHttpsProxy", "image-to-image", 'The value must have format DOMAIN_OR_IP_ADDRESS:PORT.', "set_https_proxy"), 470);
         
         self.fields['https_proxy'] = get_utf8_string(proxy)
@@ -4242,7 +4265,7 @@ class ImageToImageClient:
         version - The version identifier. Allowed values are 24.04, 20.10, 18.10, latest.
         return - The converter object.
         """
-        if not re.match('(?i)^(24.04|20.10|18.10|latest)$', version):
+        if not re.match(r'(?i)^(24.04|20.10|18.10|latest)$', version):
             raise Error(create_invalid_value_message(version, "setConverterVersion", "image-to-image", 'Allowed values are 24.04, 20.10, 18.10, latest.', "set_converter_version"), 470);
         
         self.helper.setConverterVersion(version)
@@ -4330,7 +4353,7 @@ class PdfToPdfClient:
         action - Allowed values are join, shuffle, extract, delete.
         return - The converter object.
         """
-        if not re.match('(?i)^(join|shuffle|extract|delete)$', action):
+        if not re.match(r'(?i)^(join|shuffle|extract|delete)$', action):
             raise Error(create_invalid_value_message(action, "setAction", "pdf-to-pdf", 'Allowed values are join, shuffle, extract, delete.', "set_action"), 470);
         
         self.fields['action'] = get_utf8_string(action)
@@ -4409,7 +4432,7 @@ class PdfToPdfClient:
         pages - A comma separated list of page numbers or ranges.
         return - The converter object.
         """
-        if not re.match('^(?:\s*(?:\d+|(?:\d*\s*\-\s*\d+)|(?:\d+\s*\-\s*\d*))\s*,\s*)*\s*(?:\d+|(?:\d*\s*\-\s*\d+)|(?:\d+\s*\-\s*\d*))\s*$', pages):
+        if not re.match(r'^(?:\s*(?:\d+|(?:\d*\s*\-\s*\d+)|(?:\d+\s*\-\s*\d*))\s*,\s*)*\s*(?:\d+|(?:\d*\s*\-\s*\d+)|(?:\d+\s*\-\s*\d*))\s*$', pages):
             raise Error(create_invalid_value_message(pages, "setPageRange", "pdf-to-pdf", 'A comma separated list of page numbers or ranges.', "set_page_range"), 470);
         
         self.fields['page_range'] = get_utf8_string(pages)
@@ -4432,11 +4455,11 @@ class PdfToPdfClient:
         """
         Load a file from the specified URL and apply the file as a watermark to each page of the output PDF. A watermark can be either a PDF or an image. If a multi-page file (PDF or TIFF) is used, the first page is used as the watermark.
 
-        url - The supported protocols are http:// and https://.
+        url - Supported protocols are http:// and https://.
         return - The converter object.
         """
-        if not re.match('(?i)^https?://.*$', url):
-            raise Error(create_invalid_value_message(url, "setPageWatermarkUrl", "pdf-to-pdf", 'The supported protocols are http:// and https://.', "set_page_watermark_url"), 470);
+        if not re.match(r'(?i)^https?://.*$', url):
+            raise Error(create_invalid_value_message(url, "setPageWatermarkUrl", "pdf-to-pdf", 'Supported protocols are http:// and https://.', "set_page_watermark_url"), 470);
         
         self.fields['page_watermark_url'] = get_utf8_string(url)
         return self
@@ -4458,11 +4481,11 @@ class PdfToPdfClient:
         """
         Load a file from the specified URL and apply each page of the file as a watermark to the corresponding page of the output PDF. A watermark can be either a PDF or an image.
 
-        url - The supported protocols are http:// and https://.
+        url - Supported protocols are http:// and https://.
         return - The converter object.
         """
-        if not re.match('(?i)^https?://.*$', url):
-            raise Error(create_invalid_value_message(url, "setMultipageWatermarkUrl", "pdf-to-pdf", 'The supported protocols are http:// and https://.', "set_multipage_watermark_url"), 470);
+        if not re.match(r'(?i)^https?://.*$', url):
+            raise Error(create_invalid_value_message(url, "setMultipageWatermarkUrl", "pdf-to-pdf", 'Supported protocols are http:// and https://.', "set_multipage_watermark_url"), 470);
         
         self.fields['multipage_watermark_url'] = get_utf8_string(url)
         return self
@@ -4484,11 +4507,11 @@ class PdfToPdfClient:
         """
         Load a file from the specified URL and apply the file as a background to each page of the output PDF. A background can be either a PDF or an image. If a multi-page file (PDF or TIFF) is used, the first page is used as the background.
 
-        url - The supported protocols are http:// and https://.
+        url - Supported protocols are http:// and https://.
         return - The converter object.
         """
-        if not re.match('(?i)^https?://.*$', url):
-            raise Error(create_invalid_value_message(url, "setPageBackgroundUrl", "pdf-to-pdf", 'The supported protocols are http:// and https://.', "set_page_background_url"), 470);
+        if not re.match(r'(?i)^https?://.*$', url):
+            raise Error(create_invalid_value_message(url, "setPageBackgroundUrl", "pdf-to-pdf", 'Supported protocols are http:// and https://.', "set_page_background_url"), 470);
         
         self.fields['page_background_url'] = get_utf8_string(url)
         return self
@@ -4510,11 +4533,11 @@ class PdfToPdfClient:
         """
         Load a file from the specified URL and apply each page of the file as a background to the corresponding page of the output PDF. A background can be either a PDF or an image.
 
-        url - The supported protocols are http:// and https://.
+        url - Supported protocols are http:// and https://.
         return - The converter object.
         """
-        if not re.match('(?i)^https?://.*$', url):
-            raise Error(create_invalid_value_message(url, "setMultipageBackgroundUrl", "pdf-to-pdf", 'The supported protocols are http:// and https://.', "set_multipage_background_url"), 470);
+        if not re.match(r'(?i)^https?://.*$', url):
+            raise Error(create_invalid_value_message(url, "setMultipageBackgroundUrl", "pdf-to-pdf", 'Supported protocols are http:// and https://.', "set_multipage_background_url"), 470);
         
         self.fields['multipage_background_url'] = get_utf8_string(url)
         return self
@@ -4633,11 +4656,11 @@ class PdfToPdfClient:
         """
         Use metadata (title, subject, author and keywords) from the n-th input PDF.
 
-        index - Set the index of the input PDF file from which to use the metadata. 0 means no metadata. Must be a positive integer number or 0.
+        index - Set the index of the input PDF file from which to use the metadata. 0 means no metadata. Must be a positive integer or 0.
         return - The converter object.
         """
         if not (int(index) >= 0):
-            raise Error(create_invalid_value_message(index, "setUseMetadataFrom", "pdf-to-pdf", 'Must be a positive integer number or 0.', "set_use_metadata_from"), 470);
+            raise Error(create_invalid_value_message(index, "setUseMetadataFrom", "pdf-to-pdf", 'Must be a positive integer or 0.', "set_use_metadata_from"), 470);
         
         self.fields['use_metadata_from'] = index
         return self
@@ -4649,7 +4672,7 @@ class PdfToPdfClient:
         layout - Allowed values are single-page, one-column, two-column-left, two-column-right.
         return - The converter object.
         """
-        if not re.match('(?i)^(single-page|one-column|two-column-left|two-column-right)$', layout):
+        if not re.match(r'(?i)^(single-page|one-column|two-column-left|two-column-right)$', layout):
             raise Error(create_invalid_value_message(layout, "setPageLayout", "pdf-to-pdf", 'Allowed values are single-page, one-column, two-column-left, two-column-right.', "set_page_layout"), 470);
         
         self.fields['page_layout'] = get_utf8_string(layout)
@@ -4662,7 +4685,7 @@ class PdfToPdfClient:
         mode - Allowed values are full-screen, thumbnails, outlines.
         return - The converter object.
         """
-        if not re.match('(?i)^(full-screen|thumbnails|outlines)$', mode):
+        if not re.match(r'(?i)^(full-screen|thumbnails|outlines)$', mode):
             raise Error(create_invalid_value_message(mode, "setPageMode", "pdf-to-pdf", 'Allowed values are full-screen, thumbnails, outlines.', "set_page_mode"), 470);
         
         self.fields['page_mode'] = get_utf8_string(mode)
@@ -4675,7 +4698,7 @@ class PdfToPdfClient:
         zoom_type - Allowed values are fit-width, fit-height, fit-page.
         return - The converter object.
         """
-        if not re.match('(?i)^(fit-width|fit-height|fit-page)$', zoom_type):
+        if not re.match(r'(?i)^(fit-width|fit-height|fit-page)$', zoom_type):
             raise Error(create_invalid_value_message(zoom_type, "setInitialZoomType", "pdf-to-pdf", 'Allowed values are fit-width, fit-height, fit-page.', "set_initial_zoom_type"), 470);
         
         self.fields['initial_zoom_type'] = get_utf8_string(zoom_type)
@@ -4685,11 +4708,11 @@ class PdfToPdfClient:
         """
         Display the specified page when the document is opened.
 
-        page - Must be a positive integer number.
+        page - Must be a positive integer.
         return - The converter object.
         """
         if not (int(page) > 0):
-            raise Error(create_invalid_value_message(page, "setInitialPage", "pdf-to-pdf", 'Must be a positive integer number.', "set_initial_page"), 470);
+            raise Error(create_invalid_value_message(page, "setInitialPage", "pdf-to-pdf", 'Must be a positive integer.', "set_initial_page"), 470);
         
         self.fields['initial_page'] = page
         return self
@@ -4698,11 +4721,11 @@ class PdfToPdfClient:
         """
         Specify the initial page zoom in percents when the document is opened.
 
-        zoom - Must be a positive integer number.
+        zoom - Must be a positive integer.
         return - The converter object.
         """
         if not (int(zoom) > 0):
-            raise Error(create_invalid_value_message(zoom, "setInitialZoom", "pdf-to-pdf", 'Must be a positive integer number.', "set_initial_zoom"), 470);
+            raise Error(create_invalid_value_message(zoom, "setInitialZoom", "pdf-to-pdf", 'Must be a positive integer.', "set_initial_zoom"), 470);
         
         self.fields['initial_zoom'] = zoom
         return self
@@ -4856,7 +4879,7 @@ class PdfToPdfClient:
         version - The version identifier. Allowed values are 24.04, 20.10, 18.10, latest.
         return - The converter object.
         """
-        if not re.match('(?i)^(24.04|20.10|18.10|latest)$', version):
+        if not re.match(r'(?i)^(24.04|20.10|18.10|latest)$', version):
             raise Error(create_invalid_value_message(version, "setConverterVersion", "pdf-to-pdf", 'Allowed values are 24.04, 20.10, 18.10, latest.', "set_converter_version"), 470);
         
         self.helper.setConverterVersion(version)
@@ -4941,11 +4964,11 @@ class ImageToPdfClient:
         """
         Convert an image.
 
-        url - The address of the image to convert. The supported protocols are http:// and https://.
+        url - The address of the image to convert. Supported protocols are http:// and https://.
         return - Byte array containing the conversion output.
         """
-        if not re.match('(?i)^https?://.*$', url):
-            raise Error(create_invalid_value_message(url, "convertUrl", "image-to-pdf", 'The supported protocols are http:// and https://.', "convert_url"), 470);
+        if not re.match(r'(?i)^https?://.*$', url):
+            raise Error(create_invalid_value_message(url, "convertUrl", "image-to-pdf", 'Supported protocols are http:// and https://.', "convert_url"), 470);
         
         self.fields['url'] = get_utf8_string(url)
         return self.helper.post(self.fields, self.files, self.raw_data)
@@ -4954,11 +4977,11 @@ class ImageToPdfClient:
         """
         Convert an image and write the result to an output stream.
 
-        url - The address of the image to convert. The supported protocols are http:// and https://.
+        url - The address of the image to convert. Supported protocols are http:// and https://.
         out_stream - The output stream that will contain the conversion output.
         """
-        if not re.match('(?i)^https?://.*$', url):
-            raise Error(create_invalid_value_message(url, "convertUrlToStream::url", "image-to-pdf", 'The supported protocols are http:// and https://.', "convert_url_to_stream"), 470);
+        if not re.match(r'(?i)^https?://.*$', url):
+            raise Error(create_invalid_value_message(url, "convertUrlToStream::url", "image-to-pdf", 'Supported protocols are http:// and https://.', "convert_url_to_stream"), 470);
         
         self.fields['url'] = get_utf8_string(url)
         self.helper.post(self.fields, self.files, self.raw_data, out_stream)
@@ -4967,7 +4990,7 @@ class ImageToPdfClient:
         """
         Convert an image and write the result to a local file.
 
-        url - The address of the image to convert. The supported protocols are http:// and https://.
+        url - The address of the image to convert. Supported protocols are http:// and https://.
         file_path - The output file path. The string must not be empty.
         """
         if not (file_path):
@@ -5129,11 +5152,11 @@ class ImageToPdfClient:
         """
         Set the top left X coordinate of the content area. It is relative to the top left X coordinate of the print area.
 
-        x - The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+        x - The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
         return - The converter object.
         """
-        if not re.match('(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', x):
-            raise Error(create_invalid_value_message(x, "setCropAreaX", "image-to-pdf", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".', "set_crop_area_x"), 470);
+        if not re.match(r'(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', x):
+            raise Error(create_invalid_value_message(x, "setCropAreaX", "image-to-pdf", 'The value must be specified in inches \'in\', millimeters \'mm\', centimeters \'cm\', pixels \'px\', or points \'pt\'.', "set_crop_area_x"), 470);
         
         self.fields['crop_area_x'] = get_utf8_string(x)
         return self
@@ -5142,11 +5165,11 @@ class ImageToPdfClient:
         """
         Set the top left Y coordinate of the content area. It is relative to the top left Y coordinate of the print area.
 
-        y - The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+        y - The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
         return - The converter object.
         """
-        if not re.match('(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', y):
-            raise Error(create_invalid_value_message(y, "setCropAreaY", "image-to-pdf", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".', "set_crop_area_y"), 470);
+        if not re.match(r'(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', y):
+            raise Error(create_invalid_value_message(y, "setCropAreaY", "image-to-pdf", 'The value must be specified in inches \'in\', millimeters \'mm\', centimeters \'cm\', pixels \'px\', or points \'pt\'.', "set_crop_area_y"), 470);
         
         self.fields['crop_area_y'] = get_utf8_string(y)
         return self
@@ -5155,11 +5178,11 @@ class ImageToPdfClient:
         """
         Set the width of the content area. It should be at least 1 inch.
 
-        width - The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+        width - The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
         return - The converter object.
         """
-        if not re.match('(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', width):
-            raise Error(create_invalid_value_message(width, "setCropAreaWidth", "image-to-pdf", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".', "set_crop_area_width"), 470);
+        if not re.match(r'(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', width):
+            raise Error(create_invalid_value_message(width, "setCropAreaWidth", "image-to-pdf", 'The value must be specified in inches \'in\', millimeters \'mm\', centimeters \'cm\', pixels \'px\', or points \'pt\'.', "set_crop_area_width"), 470);
         
         self.fields['crop_area_width'] = get_utf8_string(width)
         return self
@@ -5168,11 +5191,11 @@ class ImageToPdfClient:
         """
         Set the height of the content area. It should be at least 1 inch.
 
-        height - The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+        height - The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
         return - The converter object.
         """
-        if not re.match('(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', height):
-            raise Error(create_invalid_value_message(height, "setCropAreaHeight", "image-to-pdf", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".', "set_crop_area_height"), 470);
+        if not re.match(r'(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', height):
+            raise Error(create_invalid_value_message(height, "setCropAreaHeight", "image-to-pdf", 'The value must be specified in inches \'in\', millimeters \'mm\', centimeters \'cm\', pixels \'px\', or points \'pt\'.', "set_crop_area_height"), 470);
         
         self.fields['crop_area_height'] = get_utf8_string(height)
         return self
@@ -5181,10 +5204,10 @@ class ImageToPdfClient:
         """
         Set the content area position and size. The content area enables to specify the part to be converted.
 
-        x - Set the top left X coordinate of the content area. It is relative to the top left X coordinate of the print area. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
-        y - Set the top left Y coordinate of the content area. It is relative to the top left Y coordinate of the print area. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
-        width - Set the width of the content area. It should be at least 1 inch. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
-        height - Set the height of the content area. It should be at least 1 inch. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+        x - Set the top left X coordinate of the content area. It is relative to the top left X coordinate of the print area. The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
+        y - Set the top left Y coordinate of the content area. It is relative to the top left Y coordinate of the print area. The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
+        width - Set the width of the content area. It should be at least 1 inch. The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
+        height - Set the height of the content area. It should be at least 1 inch. The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
         return - The converter object.
         """
         self.setCropAreaX(x)
@@ -5210,7 +5233,7 @@ class ImageToPdfClient:
         size - Allowed values are A0, A1, A2, A3, A4, A5, A6, Letter.
         return - The converter object.
         """
-        if not re.match('(?i)^(A0|A1|A2|A3|A4|A5|A6|Letter)$', size):
+        if not re.match(r'(?i)^(A0|A1|A2|A3|A4|A5|A6|Letter)$', size):
             raise Error(create_invalid_value_message(size, "setPageSize", "image-to-pdf", 'Allowed values are A0, A1, A2, A3, A4, A5, A6, Letter.', "set_page_size"), 470);
         
         self.fields['page_size'] = get_utf8_string(size)
@@ -5220,11 +5243,11 @@ class ImageToPdfClient:
         """
         Set the output page width.
 
-        width - The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+        width - The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
         return - The converter object.
         """
-        if not re.match('(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', width):
-            raise Error(create_invalid_value_message(width, "setPageWidth", "image-to-pdf", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".', "set_page_width"), 470);
+        if not re.match(r'(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', width):
+            raise Error(create_invalid_value_message(width, "setPageWidth", "image-to-pdf", 'The value must be specified in inches \'in\', millimeters \'mm\', centimeters \'cm\', pixels \'px\', or points \'pt\'.', "set_page_width"), 470);
         
         self.fields['page_width'] = get_utf8_string(width)
         return self
@@ -5233,11 +5256,11 @@ class ImageToPdfClient:
         """
         Set the output page height.
 
-        height - The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+        height - The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
         return - The converter object.
         """
-        if not re.match('(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', height):
-            raise Error(create_invalid_value_message(height, "setPageHeight", "image-to-pdf", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".', "set_page_height"), 470);
+        if not re.match(r'(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', height):
+            raise Error(create_invalid_value_message(height, "setPageHeight", "image-to-pdf", 'The value must be specified in inches \'in\', millimeters \'mm\', centimeters \'cm\', pixels \'px\', or points \'pt\'.', "set_page_height"), 470);
         
         self.fields['page_height'] = get_utf8_string(height)
         return self
@@ -5246,8 +5269,8 @@ class ImageToPdfClient:
         """
         Set the output page dimensions. If no page size is specified, margins are applied as a border around the image.
 
-        width - Set the output page width. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
-        height - Set the output page height. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+        width - Set the output page width. The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
+        height - Set the output page height. The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
         return - The converter object.
         """
         self.setPageWidth(width)
@@ -5261,7 +5284,7 @@ class ImageToPdfClient:
         orientation - Allowed values are landscape, portrait.
         return - The converter object.
         """
-        if not re.match('(?i)^(landscape|portrait)$', orientation):
+        if not re.match(r'(?i)^(landscape|portrait)$', orientation):
             raise Error(create_invalid_value_message(orientation, "setOrientation", "image-to-pdf", 'Allowed values are landscape, portrait.', "set_orientation"), 470);
         
         self.fields['orientation'] = get_utf8_string(orientation)
@@ -5274,7 +5297,7 @@ class ImageToPdfClient:
         position - Allowed values are center, top, bottom, left, right, top-left, top-right, bottom-left, bottom-right.
         return - The converter object.
         """
-        if not re.match('(?i)^(center|top|bottom|left|right|top-left|top-right|bottom-left|bottom-right)$', position):
+        if not re.match(r'(?i)^(center|top|bottom|left|right|top-left|top-right|bottom-left|bottom-right)$', position):
             raise Error(create_invalid_value_message(position, "setPosition", "image-to-pdf", 'Allowed values are center, top, bottom, left, right, top-left, top-right, bottom-left, bottom-right.', "set_position"), 470);
         
         self.fields['position'] = get_utf8_string(position)
@@ -5287,7 +5310,7 @@ class ImageToPdfClient:
         mode - Allowed values are default, fit, stretch.
         return - The converter object.
         """
-        if not re.match('(?i)^(default|fit|stretch)$', mode):
+        if not re.match(r'(?i)^(default|fit|stretch)$', mode):
             raise Error(create_invalid_value_message(mode, "setPrintPageMode", "image-to-pdf", 'Allowed values are default, fit, stretch.', "set_print_page_mode"), 470);
         
         self.fields['print_page_mode'] = get_utf8_string(mode)
@@ -5297,11 +5320,11 @@ class ImageToPdfClient:
         """
         Set the output page top margin.
 
-        top - The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+        top - The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
         return - The converter object.
         """
-        if not re.match('(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', top):
-            raise Error(create_invalid_value_message(top, "setMarginTop", "image-to-pdf", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".', "set_margin_top"), 470);
+        if not re.match(r'(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', top):
+            raise Error(create_invalid_value_message(top, "setMarginTop", "image-to-pdf", 'The value must be specified in inches \'in\', millimeters \'mm\', centimeters \'cm\', pixels \'px\', or points \'pt\'.', "set_margin_top"), 470);
         
         self.fields['margin_top'] = get_utf8_string(top)
         return self
@@ -5310,11 +5333,11 @@ class ImageToPdfClient:
         """
         Set the output page right margin.
 
-        right - The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+        right - The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
         return - The converter object.
         """
-        if not re.match('(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', right):
-            raise Error(create_invalid_value_message(right, "setMarginRight", "image-to-pdf", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".', "set_margin_right"), 470);
+        if not re.match(r'(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', right):
+            raise Error(create_invalid_value_message(right, "setMarginRight", "image-to-pdf", 'The value must be specified in inches \'in\', millimeters \'mm\', centimeters \'cm\', pixels \'px\', or points \'pt\'.', "set_margin_right"), 470);
         
         self.fields['margin_right'] = get_utf8_string(right)
         return self
@@ -5323,11 +5346,11 @@ class ImageToPdfClient:
         """
         Set the output page bottom margin.
 
-        bottom - The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+        bottom - The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
         return - The converter object.
         """
-        if not re.match('(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', bottom):
-            raise Error(create_invalid_value_message(bottom, "setMarginBottom", "image-to-pdf", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".', "set_margin_bottom"), 470);
+        if not re.match(r'(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', bottom):
+            raise Error(create_invalid_value_message(bottom, "setMarginBottom", "image-to-pdf", 'The value must be specified in inches \'in\', millimeters \'mm\', centimeters \'cm\', pixels \'px\', or points \'pt\'.', "set_margin_bottom"), 470);
         
         self.fields['margin_bottom'] = get_utf8_string(bottom)
         return self
@@ -5336,11 +5359,11 @@ class ImageToPdfClient:
         """
         Set the output page left margin.
 
-        left - The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+        left - The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
         return - The converter object.
         """
-        if not re.match('(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', left):
-            raise Error(create_invalid_value_message(left, "setMarginLeft", "image-to-pdf", 'The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".', "set_margin_left"), 470);
+        if not re.match(r'(?i)^0$|^[0-9]*\.?[0-9]+(pt|px|mm|cm|in)$', left):
+            raise Error(create_invalid_value_message(left, "setMarginLeft", "image-to-pdf", 'The value must be specified in inches \'in\', millimeters \'mm\', centimeters \'cm\', pixels \'px\', or points \'pt\'.', "set_margin_left"), 470);
         
         self.fields['margin_left'] = get_utf8_string(left)
         return self
@@ -5349,10 +5372,10 @@ class ImageToPdfClient:
         """
         Set the output page margins.
 
-        top - Set the output page top margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
-        right - Set the output page right margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
-        bottom - Set the output page bottom margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
-        left - Set the output page left margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".
+        top - Set the output page top margin. The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
+        right - Set the output page right margin. The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
+        bottom - Set the output page bottom margin. The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
+        left - Set the output page left margin. The value must be specified in inches 'in', millimeters 'mm', centimeters 'cm', pixels 'px', or points 'pt'.
         return - The converter object.
         """
         self.setMarginTop(top)
@@ -5368,7 +5391,7 @@ class ImageToPdfClient:
         color - The value must be in RRGGBB or RRGGBBAA hexadecimal format.
         return - The converter object.
         """
-        if not re.match('^[0-9a-fA-F]{6,8}$', color):
+        if not re.match(r'^[0-9a-fA-F]{6,8}$', color):
             raise Error(create_invalid_value_message(color, "setPageBackgroundColor", "image-to-pdf", 'The value must be in RRGGBB or RRGGBBAA hexadecimal format.', "set_page_background_color"), 470);
         
         self.fields['page_background_color'] = get_utf8_string(color)
@@ -5401,11 +5424,11 @@ class ImageToPdfClient:
         """
         Load a file from the specified URL and apply the file as a watermark to each page of the output PDF. A watermark can be either a PDF or an image. If a multi-page file (PDF or TIFF) is used, the first page is used as the watermark.
 
-        url - The supported protocols are http:// and https://.
+        url - Supported protocols are http:// and https://.
         return - The converter object.
         """
-        if not re.match('(?i)^https?://.*$', url):
-            raise Error(create_invalid_value_message(url, "setPageWatermarkUrl", "image-to-pdf", 'The supported protocols are http:// and https://.', "set_page_watermark_url"), 470);
+        if not re.match(r'(?i)^https?://.*$', url):
+            raise Error(create_invalid_value_message(url, "setPageWatermarkUrl", "image-to-pdf", 'Supported protocols are http:// and https://.', "set_page_watermark_url"), 470);
         
         self.fields['page_watermark_url'] = get_utf8_string(url)
         return self
@@ -5427,11 +5450,11 @@ class ImageToPdfClient:
         """
         Load a file from the specified URL and apply each page of the file as a watermark to the corresponding page of the output PDF. A watermark can be either a PDF or an image.
 
-        url - The supported protocols are http:// and https://.
+        url - Supported protocols are http:// and https://.
         return - The converter object.
         """
-        if not re.match('(?i)^https?://.*$', url):
-            raise Error(create_invalid_value_message(url, "setMultipageWatermarkUrl", "image-to-pdf", 'The supported protocols are http:// and https://.', "set_multipage_watermark_url"), 470);
+        if not re.match(r'(?i)^https?://.*$', url):
+            raise Error(create_invalid_value_message(url, "setMultipageWatermarkUrl", "image-to-pdf", 'Supported protocols are http:// and https://.', "set_multipage_watermark_url"), 470);
         
         self.fields['multipage_watermark_url'] = get_utf8_string(url)
         return self
@@ -5453,11 +5476,11 @@ class ImageToPdfClient:
         """
         Load a file from the specified URL and apply the file as a background to each page of the output PDF. A background can be either a PDF or an image. If a multi-page file (PDF or TIFF) is used, the first page is used as the background.
 
-        url - The supported protocols are http:// and https://.
+        url - Supported protocols are http:// and https://.
         return - The converter object.
         """
-        if not re.match('(?i)^https?://.*$', url):
-            raise Error(create_invalid_value_message(url, "setPageBackgroundUrl", "image-to-pdf", 'The supported protocols are http:// and https://.', "set_page_background_url"), 470);
+        if not re.match(r'(?i)^https?://.*$', url):
+            raise Error(create_invalid_value_message(url, "setPageBackgroundUrl", "image-to-pdf", 'Supported protocols are http:// and https://.', "set_page_background_url"), 470);
         
         self.fields['page_background_url'] = get_utf8_string(url)
         return self
@@ -5479,11 +5502,11 @@ class ImageToPdfClient:
         """
         Load a file from the specified URL and apply each page of the file as a background to the corresponding page of the output PDF. A background can be either a PDF or an image.
 
-        url - The supported protocols are http:// and https://.
+        url - Supported protocols are http:// and https://.
         return - The converter object.
         """
-        if not re.match('(?i)^https?://.*$', url):
-            raise Error(create_invalid_value_message(url, "setMultipageBackgroundUrl", "image-to-pdf", 'The supported protocols are http:// and https://.', "set_multipage_background_url"), 470);
+        if not re.match(r'(?i)^https?://.*$', url):
+            raise Error(create_invalid_value_message(url, "setMultipageBackgroundUrl", "image-to-pdf", 'Supported protocols are http:// and https://.', "set_multipage_background_url"), 470);
         
         self.fields['multipage_background_url'] = get_utf8_string(url)
         return self
@@ -5605,7 +5628,7 @@ class ImageToPdfClient:
         layout - Allowed values are single-page, one-column, two-column-left, two-column-right.
         return - The converter object.
         """
-        if not re.match('(?i)^(single-page|one-column|two-column-left|two-column-right)$', layout):
+        if not re.match(r'(?i)^(single-page|one-column|two-column-left|two-column-right)$', layout):
             raise Error(create_invalid_value_message(layout, "setPageLayout", "image-to-pdf", 'Allowed values are single-page, one-column, two-column-left, two-column-right.', "set_page_layout"), 470);
         
         self.fields['page_layout'] = get_utf8_string(layout)
@@ -5618,7 +5641,7 @@ class ImageToPdfClient:
         mode - Allowed values are full-screen, thumbnails, outlines.
         return - The converter object.
         """
-        if not re.match('(?i)^(full-screen|thumbnails|outlines)$', mode):
+        if not re.match(r'(?i)^(full-screen|thumbnails|outlines)$', mode):
             raise Error(create_invalid_value_message(mode, "setPageMode", "image-to-pdf", 'Allowed values are full-screen, thumbnails, outlines.', "set_page_mode"), 470);
         
         self.fields['page_mode'] = get_utf8_string(mode)
@@ -5631,7 +5654,7 @@ class ImageToPdfClient:
         zoom_type - Allowed values are fit-width, fit-height, fit-page.
         return - The converter object.
         """
-        if not re.match('(?i)^(fit-width|fit-height|fit-page)$', zoom_type):
+        if not re.match(r'(?i)^(fit-width|fit-height|fit-page)$', zoom_type):
             raise Error(create_invalid_value_message(zoom_type, "setInitialZoomType", "image-to-pdf", 'Allowed values are fit-width, fit-height, fit-page.', "set_initial_zoom_type"), 470);
         
         self.fields['initial_zoom_type'] = get_utf8_string(zoom_type)
@@ -5641,11 +5664,11 @@ class ImageToPdfClient:
         """
         Display the specified page when the document is opened.
 
-        page - Must be a positive integer number.
+        page - Must be a positive integer.
         return - The converter object.
         """
         if not (int(page) > 0):
-            raise Error(create_invalid_value_message(page, "setInitialPage", "image-to-pdf", 'Must be a positive integer number.', "set_initial_page"), 470);
+            raise Error(create_invalid_value_message(page, "setInitialPage", "image-to-pdf", 'Must be a positive integer.', "set_initial_page"), 470);
         
         self.fields['initial_page'] = page
         return self
@@ -5654,11 +5677,11 @@ class ImageToPdfClient:
         """
         Specify the initial page zoom in percents when the document is opened.
 
-        zoom - Must be a positive integer number.
+        zoom - Must be a positive integer.
         return - The converter object.
         """
         if not (int(zoom) > 0):
-            raise Error(create_invalid_value_message(zoom, "setInitialZoom", "image-to-pdf", 'Must be a positive integer number.', "set_initial_zoom"), 470);
+            raise Error(create_invalid_value_message(zoom, "setInitialZoom", "image-to-pdf", 'Must be a positive integer.', "set_initial_zoom"), 470);
         
         self.fields['initial_zoom'] = zoom
         return self
@@ -5795,7 +5818,7 @@ class ImageToPdfClient:
         proxy - The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
         return - The converter object.
         """
-        if not re.match('(?i)^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z0-9]{1,}:\d+$', proxy):
+        if not re.match(r'(?i)^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z0-9]{1,}:\d+$', proxy):
             raise Error(create_invalid_value_message(proxy, "setHttpProxy", "image-to-pdf", 'The value must have format DOMAIN_OR_IP_ADDRESS:PORT.', "set_http_proxy"), 470);
         
         self.fields['http_proxy'] = get_utf8_string(proxy)
@@ -5808,7 +5831,7 @@ class ImageToPdfClient:
         proxy - The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
         return - The converter object.
         """
-        if not re.match('(?i)^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z0-9]{1,}:\d+$', proxy):
+        if not re.match(r'(?i)^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z0-9]{1,}:\d+$', proxy):
             raise Error(create_invalid_value_message(proxy, "setHttpsProxy", "image-to-pdf", 'The value must have format DOMAIN_OR_IP_ADDRESS:PORT.', "set_https_proxy"), 470);
         
         self.fields['https_proxy'] = get_utf8_string(proxy)
@@ -5821,7 +5844,7 @@ class ImageToPdfClient:
         version - The version identifier. Allowed values are 24.04, 20.10, 18.10, latest.
         return - The converter object.
         """
-        if not re.match('(?i)^(24.04|20.10|18.10|latest)$', version):
+        if not re.match(r'(?i)^(24.04|20.10|18.10|latest)$', version):
             raise Error(create_invalid_value_message(version, "setConverterVersion", "image-to-pdf", 'Allowed values are 24.04, 20.10, 18.10, latest.', "set_converter_version"), 470);
         
         self.helper.setConverterVersion(version)
@@ -5906,11 +5929,11 @@ class PdfToHtmlClient:
         """
         Convert a PDF.
 
-        url - The address of the PDF to convert. The supported protocols are http:// and https://.
+        url - The address of the PDF to convert. Supported protocols are http:// and https://.
         return - Byte array containing the conversion output.
         """
-        if not re.match('(?i)^https?://.*$', url):
-            raise Error(create_invalid_value_message(url, "convertUrl", "pdf-to-html", 'The supported protocols are http:// and https://.', "convert_url"), 470);
+        if not re.match(r'(?i)^https?://.*$', url):
+            raise Error(create_invalid_value_message(url, "convertUrl", "pdf-to-html", 'Supported protocols are http:// and https://.', "convert_url"), 470);
         
         self.fields['url'] = get_utf8_string(url)
         return self.helper.post(self.fields, self.files, self.raw_data)
@@ -5919,11 +5942,11 @@ class PdfToHtmlClient:
         """
         Convert a PDF and write the result to an output stream.
 
-        url - The address of the PDF to convert. The supported protocols are http:// and https://.
+        url - The address of the PDF to convert. Supported protocols are http:// and https://.
         out_stream - The output stream that will contain the conversion output.
         """
-        if not re.match('(?i)^https?://.*$', url):
-            raise Error(create_invalid_value_message(url, "convertUrlToStream::url", "pdf-to-html", 'The supported protocols are http:// and https://.', "convert_url_to_stream"), 470);
+        if not re.match(r'(?i)^https?://.*$', url):
+            raise Error(create_invalid_value_message(url, "convertUrlToStream::url", "pdf-to-html", 'Supported protocols are http:// and https://.', "convert_url_to_stream"), 470);
         
         self.fields['url'] = get_utf8_string(url)
         self.helper.post(self.fields, self.files, self.raw_data, out_stream)
@@ -5932,7 +5955,7 @@ class PdfToHtmlClient:
         """
         Convert a PDF and write the result to a local file.
 
-        url - The address of the PDF to convert. The supported protocols are http:// and https://.
+        url - The address of the PDF to convert. Supported protocols are http:// and https://.
         file_path - The output file path. The string must not be empty. The converter generates an HTML or ZIP file. If ZIP file is generated, the file path must have a ZIP or zip extension.
         """
         if not (file_path):
@@ -6096,11 +6119,11 @@ class PdfToHtmlClient:
         """
         Set the scaling factor (zoom) for the main page area.
 
-        factor - The percentage value. Must be a positive integer number.
+        factor - The percentage value. Must be a positive integer.
         return - The converter object.
         """
         if not (int(factor) > 0):
-            raise Error(create_invalid_value_message(factor, "setScaleFactor", "pdf-to-html", 'Must be a positive integer number.', "set_scale_factor"), 470);
+            raise Error(create_invalid_value_message(factor, "setScaleFactor", "pdf-to-html", 'Must be a positive integer.', "set_scale_factor"), 470);
         
         self.fields['scale_factor'] = factor
         return self
@@ -6112,7 +6135,7 @@ class PdfToHtmlClient:
         pages - A comma separated list of page numbers or ranges.
         return - The converter object.
         """
-        if not re.match('^(?:\s*(?:\d+|(?:\d*\s*\-\s*\d+)|(?:\d+\s*\-\s*\d*))\s*,\s*)*\s*(?:\d+|(?:\d*\s*\-\s*\d+)|(?:\d+\s*\-\s*\d*))\s*$', pages):
+        if not re.match(r'^(?:\s*(?:\d+|(?:\d*\s*\-\s*\d+)|(?:\d+\s*\-\s*\d*))\s*,\s*)*\s*(?:\d+|(?:\d*\s*\-\s*\d+)|(?:\d+\s*\-\s*\d*))\s*$', pages):
             raise Error(create_invalid_value_message(pages, "setPrintPageRange", "pdf-to-html", 'A comma separated list of page numbers or ranges.', "set_print_page_range"), 470);
         
         self.fields['print_page_range'] = get_utf8_string(pages)
@@ -6135,7 +6158,7 @@ class PdfToHtmlClient:
         mode - The image storage mode. Allowed values are embed, separate, none.
         return - The converter object.
         """
-        if not re.match('(?i)^(embed|separate|none)$', mode):
+        if not re.match(r'(?i)^(embed|separate|none)$', mode):
             raise Error(create_invalid_value_message(mode, "setImageMode", "pdf-to-html", 'Allowed values are embed, separate, none.', "set_image_mode"), 470);
         
         self.fields['image_mode'] = get_utf8_string(mode)
@@ -6148,7 +6171,7 @@ class PdfToHtmlClient:
         image_format - The image format. Allowed values are png, jpg, svg.
         return - The converter object.
         """
-        if not re.match('(?i)^(png|jpg|svg)$', image_format):
+        if not re.match(r'(?i)^(png|jpg|svg)$', image_format):
             raise Error(create_invalid_value_message(image_format, "setImageFormat", "pdf-to-html", 'Allowed values are png, jpg, svg.', "set_image_format"), 470);
         
         self.fields['image_format'] = get_utf8_string(image_format)
@@ -6161,7 +6184,7 @@ class PdfToHtmlClient:
         mode - The style sheet storage mode. Allowed values are embed, separate.
         return - The converter object.
         """
-        if not re.match('(?i)^(embed|separate)$', mode):
+        if not re.match(r'(?i)^(embed|separate)$', mode):
             raise Error(create_invalid_value_message(mode, "setCssMode", "pdf-to-html", 'Allowed values are embed, separate.', "set_css_mode"), 470);
         
         self.fields['css_mode'] = get_utf8_string(mode)
@@ -6174,7 +6197,7 @@ class PdfToHtmlClient:
         mode - The font storage mode. Allowed values are embed, separate.
         return - The converter object.
         """
-        if not re.match('(?i)^(embed|separate)$', mode):
+        if not re.match(r'(?i)^(embed|separate)$', mode):
             raise Error(create_invalid_value_message(mode, "setFontMode", "pdf-to-html", 'Allowed values are embed, separate.', "set_font_mode"), 470);
         
         self.fields['font_mode'] = get_utf8_string(mode)
@@ -6187,7 +6210,7 @@ class PdfToHtmlClient:
         mode - The type3 font mode. Allowed values are raster, convert.
         return - The converter object.
         """
-        if not re.match('(?i)^(raster|convert)$', mode):
+        if not re.match(r'(?i)^(raster|convert)$', mode):
             raise Error(create_invalid_value_message(mode, "setType3Mode", "pdf-to-html", 'Allowed values are raster, convert.', "set_type3_mode"), 470);
         
         self.fields['type3_mode'] = get_utf8_string(mode)
@@ -6223,7 +6246,7 @@ class PdfToHtmlClient:
         prefix - The prefix to add before each id and class attribute name. Start with a letter or underscore, and use only letters, numbers, hyphens, underscores, or colons.
         return - The converter object.
         """
-        if not re.match('(?i)^[a-z_][a-z0-9_:-]*$', prefix):
+        if not re.match(r'(?i)^[a-z_][a-z0-9_:-]*$', prefix):
             raise Error(create_invalid_value_message(prefix, "setHtmlNamespace", "pdf-to-html", 'Start with a letter or underscore, and use only letters, numbers, hyphens, underscores, or colons.', "set_html_namespace"), 470);
         
         self.fields['html_namespace'] = get_utf8_string(prefix)
@@ -6365,7 +6388,7 @@ class PdfToHtmlClient:
         proxy - The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
         return - The converter object.
         """
-        if not re.match('(?i)^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z0-9]{1,}:\d+$', proxy):
+        if not re.match(r'(?i)^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z0-9]{1,}:\d+$', proxy):
             raise Error(create_invalid_value_message(proxy, "setHttpProxy", "pdf-to-html", 'The value must have format DOMAIN_OR_IP_ADDRESS:PORT.', "set_http_proxy"), 470);
         
         self.fields['http_proxy'] = get_utf8_string(proxy)
@@ -6378,7 +6401,7 @@ class PdfToHtmlClient:
         proxy - The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
         return - The converter object.
         """
-        if not re.match('(?i)^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z0-9]{1,}:\d+$', proxy):
+        if not re.match(r'(?i)^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z0-9]{1,}:\d+$', proxy):
             raise Error(create_invalid_value_message(proxy, "setHttpsProxy", "pdf-to-html", 'The value must have format DOMAIN_OR_IP_ADDRESS:PORT.', "set_https_proxy"), 470);
         
         self.fields['https_proxy'] = get_utf8_string(proxy)
@@ -6391,7 +6414,7 @@ class PdfToHtmlClient:
         version - The version identifier. Allowed values are 24.04, 20.10, 18.10, latest.
         return - The converter object.
         """
-        if not re.match('(?i)^(24.04|20.10|18.10|latest)$', version):
+        if not re.match(r'(?i)^(24.04|20.10|18.10|latest)$', version):
             raise Error(create_invalid_value_message(version, "setConverterVersion", "pdf-to-html", 'Allowed values are 24.04, 20.10, 18.10, latest.', "set_converter_version"), 470);
         
         self.helper.setConverterVersion(version)
@@ -6479,11 +6502,11 @@ class PdfToTextClient:
         """
         Convert a PDF.
 
-        url - The address of the PDF to convert. The supported protocols are http:// and https://.
+        url - The address of the PDF to convert. Supported protocols are http:// and https://.
         return - Byte array containing the conversion output.
         """
-        if not re.match('(?i)^https?://.*$', url):
-            raise Error(create_invalid_value_message(url, "convertUrl", "pdf-to-text", 'The supported protocols are http:// and https://.', "convert_url"), 470);
+        if not re.match(r'(?i)^https?://.*$', url):
+            raise Error(create_invalid_value_message(url, "convertUrl", "pdf-to-text", 'Supported protocols are http:// and https://.', "convert_url"), 470);
         
         self.fields['url'] = get_utf8_string(url)
         return self.helper.post(self.fields, self.files, self.raw_data)
@@ -6492,11 +6515,11 @@ class PdfToTextClient:
         """
         Convert a PDF and write the result to an output stream.
 
-        url - The address of the PDF to convert. The supported protocols are http:// and https://.
+        url - The address of the PDF to convert. Supported protocols are http:// and https://.
         out_stream - The output stream that will contain the conversion output.
         """
-        if not re.match('(?i)^https?://.*$', url):
-            raise Error(create_invalid_value_message(url, "convertUrlToStream::url", "pdf-to-text", 'The supported protocols are http:// and https://.', "convert_url_to_stream"), 470);
+        if not re.match(r'(?i)^https?://.*$', url):
+            raise Error(create_invalid_value_message(url, "convertUrlToStream::url", "pdf-to-text", 'Supported protocols are http:// and https://.', "convert_url_to_stream"), 470);
         
         self.fields['url'] = get_utf8_string(url)
         self.helper.post(self.fields, self.files, self.raw_data, out_stream)
@@ -6505,7 +6528,7 @@ class PdfToTextClient:
         """
         Convert a PDF and write the result to a local file.
 
-        url - The address of the PDF to convert. The supported protocols are http:// and https://.
+        url - The address of the PDF to convert. Supported protocols are http:// and https://.
         file_path - The output file path. The string must not be empty.
         """
         if not (file_path):
@@ -6660,7 +6683,7 @@ class PdfToTextClient:
         pages - A comma separated list of page numbers or ranges.
         return - The converter object.
         """
-        if not re.match('^(?:\s*(?:\d+|(?:\d*\s*\-\s*\d+)|(?:\d+\s*\-\s*\d*))\s*,\s*)*\s*(?:\d+|(?:\d*\s*\-\s*\d+)|(?:\d+\s*\-\s*\d*))\s*$', pages):
+        if not re.match(r'^(?:\s*(?:\d+|(?:\d*\s*\-\s*\d+)|(?:\d+\s*\-\s*\d*))\s*,\s*)*\s*(?:\d+|(?:\d*\s*\-\s*\d+)|(?:\d+\s*\-\s*\d*))\s*$', pages):
             raise Error(create_invalid_value_message(pages, "setPrintPageRange", "pdf-to-text", 'A comma separated list of page numbers or ranges.', "set_print_page_range"), 470);
         
         self.fields['print_page_range'] = get_utf8_string(pages)
@@ -6683,7 +6706,7 @@ class PdfToTextClient:
         eol - Allowed values are unix, dos, mac.
         return - The converter object.
         """
-        if not re.match('(?i)^(unix|dos|mac)$', eol):
+        if not re.match(r'(?i)^(unix|dos|mac)$', eol):
             raise Error(create_invalid_value_message(eol, "setEol", "pdf-to-text", 'Allowed values are unix, dos, mac.', "set_eol"), 470);
         
         self.fields['eol'] = get_utf8_string(eol)
@@ -6696,7 +6719,7 @@ class PdfToTextClient:
         mode - Allowed values are none, default, custom.
         return - The converter object.
         """
-        if not re.match('(?i)^(none|default|custom)$', mode):
+        if not re.match(r'(?i)^(none|default|custom)$', mode):
             raise Error(create_invalid_value_message(mode, "setPageBreakMode", "pdf-to-text", 'Allowed values are none, default, custom.', "set_page_break_mode"), 470);
         
         self.fields['page_break_mode'] = get_utf8_string(mode)
@@ -6719,7 +6742,7 @@ class PdfToTextClient:
         mode - Allowed values are none, bounding-box, characters.
         return - The converter object.
         """
-        if not re.match('(?i)^(none|bounding-box|characters)$', mode):
+        if not re.match(r'(?i)^(none|bounding-box|characters)$', mode):
             raise Error(create_invalid_value_message(mode, "setParagraphMode", "pdf-to-text", 'Allowed values are none, bounding-box, characters.', "set_paragraph_mode"), 470);
         
         self.fields['paragraph_mode'] = get_utf8_string(mode)
@@ -6732,7 +6755,7 @@ class PdfToTextClient:
         threshold - The value must be a positive integer percentage.
         return - The converter object.
         """
-        if not re.match('(?i)^0$|^[0-9]+%$', threshold):
+        if not re.match(r'(?i)^0$|^[0-9]+%$', threshold):
             raise Error(create_invalid_value_message(threshold, "setLineSpacingThreshold", "pdf-to-text", 'The value must be a positive integer percentage.', "set_line_spacing_threshold"), 470);
         
         self.fields['line_spacing_threshold'] = get_utf8_string(threshold)
@@ -6762,11 +6785,11 @@ class PdfToTextClient:
         """
         Set the top left X coordinate of the crop area in points.
 
-        x - Must be a positive integer number or 0.
+        x - Must be a positive integer or 0.
         return - The converter object.
         """
         if not (int(x) >= 0):
-            raise Error(create_invalid_value_message(x, "setCropAreaX", "pdf-to-text", 'Must be a positive integer number or 0.', "set_crop_area_x"), 470);
+            raise Error(create_invalid_value_message(x, "setCropAreaX", "pdf-to-text", 'Must be a positive integer or 0.', "set_crop_area_x"), 470);
         
         self.fields['crop_area_x'] = x
         return self
@@ -6775,11 +6798,11 @@ class PdfToTextClient:
         """
         Set the top left Y coordinate of the crop area in points.
 
-        y - Must be a positive integer number or 0.
+        y - Must be a positive integer or 0.
         return - The converter object.
         """
         if not (int(y) >= 0):
-            raise Error(create_invalid_value_message(y, "setCropAreaY", "pdf-to-text", 'Must be a positive integer number or 0.', "set_crop_area_y"), 470);
+            raise Error(create_invalid_value_message(y, "setCropAreaY", "pdf-to-text", 'Must be a positive integer or 0.', "set_crop_area_y"), 470);
         
         self.fields['crop_area_y'] = y
         return self
@@ -6788,11 +6811,11 @@ class PdfToTextClient:
         """
         Set the width of the crop area in points.
 
-        width - Must be a positive integer number or 0.
+        width - Must be a positive integer or 0.
         return - The converter object.
         """
         if not (int(width) >= 0):
-            raise Error(create_invalid_value_message(width, "setCropAreaWidth", "pdf-to-text", 'Must be a positive integer number or 0.', "set_crop_area_width"), 470);
+            raise Error(create_invalid_value_message(width, "setCropAreaWidth", "pdf-to-text", 'Must be a positive integer or 0.', "set_crop_area_width"), 470);
         
         self.fields['crop_area_width'] = width
         return self
@@ -6801,11 +6824,11 @@ class PdfToTextClient:
         """
         Set the height of the crop area in points.
 
-        height - Must be a positive integer number or 0.
+        height - Must be a positive integer or 0.
         return - The converter object.
         """
         if not (int(height) >= 0):
-            raise Error(create_invalid_value_message(height, "setCropAreaHeight", "pdf-to-text", 'Must be a positive integer number or 0.', "set_crop_area_height"), 470);
+            raise Error(create_invalid_value_message(height, "setCropAreaHeight", "pdf-to-text", 'Must be a positive integer or 0.', "set_crop_area_height"), 470);
         
         self.fields['crop_area_height'] = height
         return self
@@ -6814,10 +6837,10 @@ class PdfToTextClient:
         """
         Set the crop area. It allows to extract just a part of a PDF page.
 
-        x - Set the top left X coordinate of the crop area in points. Must be a positive integer number or 0.
-        y - Set the top left Y coordinate of the crop area in points. Must be a positive integer number or 0.
-        width - Set the width of the crop area in points. Must be a positive integer number or 0.
-        height - Set the height of the crop area in points. Must be a positive integer number or 0.
+        x - Set the top left X coordinate of the crop area in points. Must be a positive integer or 0.
+        y - Set the top left Y coordinate of the crop area in points. Must be a positive integer or 0.
+        width - Set the width of the crop area in points. Must be a positive integer or 0.
+        height - Set the height of the crop area in points. Must be a positive integer or 0.
         return - The converter object.
         """
         self.setCropAreaX(x)
@@ -6905,7 +6928,7 @@ class PdfToTextClient:
         proxy - The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
         return - The converter object.
         """
-        if not re.match('(?i)^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z0-9]{1,}:\d+$', proxy):
+        if not re.match(r'(?i)^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z0-9]{1,}:\d+$', proxy):
             raise Error(create_invalid_value_message(proxy, "setHttpProxy", "pdf-to-text", 'The value must have format DOMAIN_OR_IP_ADDRESS:PORT.', "set_http_proxy"), 470);
         
         self.fields['http_proxy'] = get_utf8_string(proxy)
@@ -6918,7 +6941,7 @@ class PdfToTextClient:
         proxy - The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
         return - The converter object.
         """
-        if not re.match('(?i)^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z0-9]{1,}:\d+$', proxy):
+        if not re.match(r'(?i)^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z0-9]{1,}:\d+$', proxy):
             raise Error(create_invalid_value_message(proxy, "setHttpsProxy", "pdf-to-text", 'The value must have format DOMAIN_OR_IP_ADDRESS:PORT.', "set_https_proxy"), 470);
         
         self.fields['https_proxy'] = get_utf8_string(proxy)
@@ -7003,11 +7026,11 @@ class PdfToImageClient:
         """
         Convert an image.
 
-        url - The address of the image to convert. The supported protocols are http:// and https://.
+        url - The address of the image to convert. Supported protocols are http:// and https://.
         return - Byte array containing the conversion output.
         """
-        if not re.match('(?i)^https?://.*$', url):
-            raise Error(create_invalid_value_message(url, "convertUrl", "pdf-to-image", 'The supported protocols are http:// and https://.', "convert_url"), 470);
+        if not re.match(r'(?i)^https?://.*$', url):
+            raise Error(create_invalid_value_message(url, "convertUrl", "pdf-to-image", 'Supported protocols are http:// and https://.', "convert_url"), 470);
         
         self.fields['url'] = get_utf8_string(url)
         return self.helper.post(self.fields, self.files, self.raw_data)
@@ -7016,11 +7039,11 @@ class PdfToImageClient:
         """
         Convert an image and write the result to an output stream.
 
-        url - The address of the image to convert. The supported protocols are http:// and https://.
+        url - The address of the image to convert. Supported protocols are http:// and https://.
         out_stream - The output stream that will contain the conversion output.
         """
-        if not re.match('(?i)^https?://.*$', url):
-            raise Error(create_invalid_value_message(url, "convertUrlToStream::url", "pdf-to-image", 'The supported protocols are http:// and https://.', "convert_url_to_stream"), 470);
+        if not re.match(r'(?i)^https?://.*$', url):
+            raise Error(create_invalid_value_message(url, "convertUrlToStream::url", "pdf-to-image", 'Supported protocols are http:// and https://.', "convert_url_to_stream"), 470);
         
         self.fields['url'] = get_utf8_string(url)
         self.helper.post(self.fields, self.files, self.raw_data, out_stream)
@@ -7029,7 +7052,7 @@ class PdfToImageClient:
         """
         Convert an image and write the result to a local file.
 
-        url - The address of the image to convert. The supported protocols are http:// and https://.
+        url - The address of the image to convert. Supported protocols are http:// and https://.
         file_path - The output file path. The string must not be empty.
         """
         if not (file_path):
@@ -7174,7 +7197,7 @@ class PdfToImageClient:
         output_format - Allowed values are png, jpg, gif, tiff, bmp, ico, ppm, pgm, pbm, pnm, psb, pct, ras, tga, sgi, sun, webp.
         return - The converter object.
         """
-        if not re.match('(?i)^(png|jpg|gif|tiff|bmp|ico|ppm|pgm|pbm|pnm|psb|pct|ras|tga|sgi|sun|webp)$', output_format):
+        if not re.match(r'(?i)^(png|jpg|gif|tiff|bmp|ico|ppm|pgm|pbm|pnm|psb|pct|ras|tga|sgi|sun|webp)$', output_format):
             raise Error(create_invalid_value_message(output_format, "setOutputFormat", "pdf-to-image", 'Allowed values are png, jpg, gif, tiff, bmp, ico, ppm, pgm, pbm, pnm, psb, pct, ras, tga, sgi, sun, webp.', "set_output_format"), 470);
         
         self.fields['output_format'] = get_utf8_string(output_format)
@@ -7197,7 +7220,7 @@ class PdfToImageClient:
         pages - A comma separated list of page numbers or ranges.
         return - The converter object.
         """
-        if not re.match('^(?:\s*(?:\d+|(?:\d*\s*\-\s*\d+)|(?:\d+\s*\-\s*\d*))\s*,\s*)*\s*(?:\d+|(?:\d*\s*\-\s*\d+)|(?:\d+\s*\-\s*\d*))\s*$', pages):
+        if not re.match(r'^(?:\s*(?:\d+|(?:\d*\s*\-\s*\d+)|(?:\d+\s*\-\s*\d*))\s*,\s*)*\s*(?:\d+|(?:\d*\s*\-\s*\d+)|(?:\d+\s*\-\s*\d*))\s*$', pages):
             raise Error(create_invalid_value_message(pages, "setPrintPageRange", "pdf-to-image", 'A comma separated list of page numbers or ranges.', "set_print_page_range"), 470);
         
         self.fields['print_page_range'] = get_utf8_string(pages)
@@ -7244,11 +7267,11 @@ class PdfToImageClient:
         """
         Set the top left X coordinate of the crop area in points.
 
-        x - Must be a positive integer number or 0.
+        x - Must be a positive integer or 0.
         return - The converter object.
         """
         if not (int(x) >= 0):
-            raise Error(create_invalid_value_message(x, "setCropAreaX", "pdf-to-image", 'Must be a positive integer number or 0.', "set_crop_area_x"), 470);
+            raise Error(create_invalid_value_message(x, "setCropAreaX", "pdf-to-image", 'Must be a positive integer or 0.', "set_crop_area_x"), 470);
         
         self.fields['crop_area_x'] = x
         return self
@@ -7257,11 +7280,11 @@ class PdfToImageClient:
         """
         Set the top left Y coordinate of the crop area in points.
 
-        y - Must be a positive integer number or 0.
+        y - Must be a positive integer or 0.
         return - The converter object.
         """
         if not (int(y) >= 0):
-            raise Error(create_invalid_value_message(y, "setCropAreaY", "pdf-to-image", 'Must be a positive integer number or 0.', "set_crop_area_y"), 470);
+            raise Error(create_invalid_value_message(y, "setCropAreaY", "pdf-to-image", 'Must be a positive integer or 0.', "set_crop_area_y"), 470);
         
         self.fields['crop_area_y'] = y
         return self
@@ -7270,11 +7293,11 @@ class PdfToImageClient:
         """
         Set the width of the crop area in points.
 
-        width - Must be a positive integer number or 0.
+        width - Must be a positive integer or 0.
         return - The converter object.
         """
         if not (int(width) >= 0):
-            raise Error(create_invalid_value_message(width, "setCropAreaWidth", "pdf-to-image", 'Must be a positive integer number or 0.', "set_crop_area_width"), 470);
+            raise Error(create_invalid_value_message(width, "setCropAreaWidth", "pdf-to-image", 'Must be a positive integer or 0.', "set_crop_area_width"), 470);
         
         self.fields['crop_area_width'] = width
         return self
@@ -7283,11 +7306,11 @@ class PdfToImageClient:
         """
         Set the height of the crop area in points.
 
-        height - Must be a positive integer number or 0.
+        height - Must be a positive integer or 0.
         return - The converter object.
         """
         if not (int(height) >= 0):
-            raise Error(create_invalid_value_message(height, "setCropAreaHeight", "pdf-to-image", 'Must be a positive integer number or 0.', "set_crop_area_height"), 470);
+            raise Error(create_invalid_value_message(height, "setCropAreaHeight", "pdf-to-image", 'Must be a positive integer or 0.', "set_crop_area_height"), 470);
         
         self.fields['crop_area_height'] = height
         return self
@@ -7296,10 +7319,10 @@ class PdfToImageClient:
         """
         Set the crop area. It allows to extract just a part of a PDF page.
 
-        x - Set the top left X coordinate of the crop area in points. Must be a positive integer number or 0.
-        y - Set the top left Y coordinate of the crop area in points. Must be a positive integer number or 0.
-        width - Set the width of the crop area in points. Must be a positive integer number or 0.
-        height - Set the height of the crop area in points. Must be a positive integer number or 0.
+        x - Set the top left X coordinate of the crop area in points. Must be a positive integer or 0.
+        y - Set the top left Y coordinate of the crop area in points. Must be a positive integer or 0.
+        width - Set the width of the crop area in points. Must be a positive integer or 0.
+        height - Set the height of the crop area in points. Must be a positive integer or 0.
         return - The converter object.
         """
         self.setCropAreaX(x)
@@ -7397,7 +7420,7 @@ class PdfToImageClient:
         proxy - The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
         return - The converter object.
         """
-        if not re.match('(?i)^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z0-9]{1,}:\d+$', proxy):
+        if not re.match(r'(?i)^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z0-9]{1,}:\d+$', proxy):
             raise Error(create_invalid_value_message(proxy, "setHttpProxy", "pdf-to-image", 'The value must have format DOMAIN_OR_IP_ADDRESS:PORT.', "set_http_proxy"), 470);
         
         self.fields['http_proxy'] = get_utf8_string(proxy)
@@ -7410,7 +7433,7 @@ class PdfToImageClient:
         proxy - The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
         return - The converter object.
         """
-        if not re.match('(?i)^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z0-9]{1,}:\d+$', proxy):
+        if not re.match(r'(?i)^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z0-9]{1,}:\d+$', proxy):
             raise Error(create_invalid_value_message(proxy, "setHttpsProxy", "pdf-to-image", 'The value must have format DOMAIN_OR_IP_ADDRESS:PORT.', "set_https_proxy"), 470);
         
         self.fields['https_proxy'] = get_utf8_string(proxy)
@@ -7539,52 +7562,52 @@ available converters:
         parser.add_argument('-page-size',
                             help = 'Set the output page size. Allowed values are A0, A1, A2, A3, A4, A5, A6, Letter. Default is A4.')
         parser.add_argument('-page-width',
-                            help = 'Set the output page width. The safe maximum is 200in otherwise some PDF viewers may be unable to open the PDF. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt". Default is 8.27in.')
+                            help = 'Set the output page width. The safe maximum is 200in otherwise some PDF viewers may be unable to open the PDF. The value must be specified in inches \'in\', millimeters \'mm\', centimeters \'cm\', pixels \'px\', or points \'pt\'. Default is 8.27in.')
         parser.add_argument('-page-height',
-                            help = 'Set the output page height. Use -1 for a single page PDF. The safe maximum is 200in otherwise some PDF viewers may be unable to open the PDF. The value must be -1 or specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt". Default is 11.7in.')
+                            help = 'Set the output page height. Use -1 for a single page PDF. The safe maximum is 200in otherwise some PDF viewers may be unable to open the PDF. The value must be -1 or specified in inches \'in\', millimeters \'mm\', centimeters \'cm\', pixels \'px\', or points \'pt\'. Default is 11.7in.')
         multi_args['page_dimensions'] = 2
         parser.add_argument('-page-dimensions',
-                            help = 'Set the output page dimensions. PAGE_DIMENSIONS must contain 2 values separated by a semicolon. Set the output page width. The safe maximum is 200in otherwise some PDF viewers may be unable to open the PDF. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt". Set the output page height. Use -1 for a single page PDF. The safe maximum is 200in otherwise some PDF viewers may be unable to open the PDF. The value must be -1 or specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".')
+                            help = 'Set the output page dimensions. PAGE_DIMENSIONS must contain 2 values separated by a semicolon. Set the output page width. The safe maximum is 200in otherwise some PDF viewers may be unable to open the PDF. The value must be specified in inches \'in\', millimeters \'mm\', centimeters \'cm\', pixels \'px\', or points \'pt\'. Set the output page height. Use -1 for a single page PDF. The safe maximum is 200in otherwise some PDF viewers may be unable to open the PDF. The value must be -1 or specified in inches \'in\', millimeters \'mm\', centimeters \'cm\', pixels \'px\', or points \'pt\'.')
         parser.add_argument('-orientation',
                             help = 'Set the output page orientation. Allowed values are landscape, portrait. Default is portrait.')
         parser.add_argument('-margin-top',
-                            help = 'Set the output page top margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt". Default is 0.4in.')
+                            help = 'Set the output page top margin. The value must be specified in inches \'in\', millimeters \'mm\', centimeters \'cm\', pixels \'px\', or points \'pt\'. Default is 0.4in.')
         parser.add_argument('-margin-right',
-                            help = 'Set the output page right margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt". Default is 0.4in.')
+                            help = 'Set the output page right margin. The value must be specified in inches \'in\', millimeters \'mm\', centimeters \'cm\', pixels \'px\', or points \'pt\'. Default is 0.4in.')
         parser.add_argument('-margin-bottom',
-                            help = 'Set the output page bottom margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt". Default is 0.4in.')
+                            help = 'Set the output page bottom margin. The value must be specified in inches \'in\', millimeters \'mm\', centimeters \'cm\', pixels \'px\', or points \'pt\'. Default is 0.4in.')
         parser.add_argument('-margin-left',
-                            help = 'Set the output page left margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt". Default is 0.4in.')
+                            help = 'Set the output page left margin. The value must be specified in inches \'in\', millimeters \'mm\', centimeters \'cm\', pixels \'px\', or points \'pt\'. Default is 0.4in.')
         parser.add_argument('-no-margins',
                             action = 'store_true',
                             help = 'Disable page margins.')
         multi_args['page_margins'] = 4
         parser.add_argument('-page-margins',
-                            help = 'Set the output page margins. PAGE_MARGINS must contain 4 values separated by a semicolon. Set the output page top margin. Set the output page right margin. Set the output page bottom margin. Set the output page left margin. All values the value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".')
+                            help = 'Set the output page margins. PAGE_MARGINS must contain 4 values separated by a semicolon. Set the output page top margin. Set the output page right margin. Set the output page bottom margin. Set the output page left margin. All values the value must be specified in inches \'in\', millimeters \'mm\', centimeters \'cm\', pixels \'px\', or points \'pt\'.')
         parser.add_argument('-print-page-range',
-                            help = 'Set the page range to print. A comma separated list of page numbers or ranges. Special strings may be used, such as `odd`, `even` and `last`.')
+                            help = 'Set the page range to print. A comma separated list of page numbers or ranges. Special strings may be used, such as \'odd\', \'even\' and \'last\'.')
         parser.add_argument('-content-viewport-width',
-                            help = 'Set the viewport width for formatting the HTML content when generating a PDF. By specifying a viewport width, you can control how the content is rendered, ensuring it mimics the appearance on various devices or matches specific design requirements. The width of the viewport. The value must be "balanced", "small", "medium", "large", "extra-large", or a number in the range 96-65000px. Default is medium.')
+                            help = 'Set the viewport width for formatting the HTML content when generating a PDF. By specifying a viewport width, you can control how the content is rendered, ensuring it mimics the appearance on various devices or matches specific design requirements. The width of the viewport. The value must be \'balanced\', \'small\', \'medium\', \'large\', \'extra-large\', or a number in the range 96-65000px. Default is medium.')
         parser.add_argument('-content-viewport-height',
-                            help = 'Set the viewport height for formatting the HTML content when generating a PDF. By specifying a viewport height, you can enforce loading of lazy-loaded images and also affect vertical positioning of absolutely positioned elements within the content. The viewport height. The value must be "auto", "large", or a number. Default is auto.')
+                            help = 'Set the viewport height for formatting the HTML content when generating a PDF. By specifying a viewport height, you can enforce loading of lazy-loaded images and also affect vertical positioning of absolutely positioned elements within the content. The viewport height. The value must be \'auto\', \'large\', or a number. Default is auto.')
         parser.add_argument('-content-fit-mode',
                             help = 'Specifies the mode for fitting the HTML content to the print area by upscaling or downscaling it. The fitting mode. Allowed values are auto, smart-scaling, no-scaling, viewport-width, content-width, single-page, single-page-ratio. Default is auto.')
         parser.add_argument('-remove-blank-pages',
                             help = 'Specifies which blank pages to exclude from the output document. The empty page behavior. Allowed values are trailing, all, none. Default is trailing.')
         parser.add_argument('-header-url',
-                            help = 'Load an HTML code from the specified URL and use it as the page header. The following classes can be used in the HTML. The content of the respective elements will be expanded as follows: pdfcrowd-page-count - the total page count of printed pages pdfcrowd-page-number - the current page number pdfcrowd-source-url - the source URL of the converted document pdfcrowd-source-title - the title of the converted document The following attributes can be used: data-pdfcrowd-number-format - specifies the type of the used numerals. Allowed values: arabic - Arabic numerals, they are used by default roman - Roman numerals eastern-arabic - Eastern Arabic numerals bengali - Bengali numerals devanagari - Devanagari numerals thai - Thai numerals east-asia - Chinese, Vietnamese, Japanese and Korean numerals chinese-formal - Chinese formal numerals Please contact us if you need another type of numerals. Example: <span class=\'pdfcrowd-page-number\' data-pdfcrowd-number-format=\'roman\'></span> data-pdfcrowd-placement - specifies where to place the source URL. Allowed values: The URL is inserted to the content Example: <span class=\'pdfcrowd-source-url\'></span> will produce <span>http://example.com</span> href - the URL is set to the href attribute Example: <a class=\'pdfcrowd-source-url\' data-pdfcrowd-placement=\'href\'>Link to source</a> will produce <a href=\'http://example.com\'>Link to source</a> href-and-content - the URL is set to the href attribute and to the content Example: <a class=\'pdfcrowd-source-url\' data-pdfcrowd-placement=\'href-and-content\'></a> will produce <a href=\'http://example.com\'>http://example.com</a> The supported protocols are http:// and https://.')
+                            help = 'Load an HTML code from the specified URL and use it as the page header. The following classes can be used in the HTML. The content of the respective elements will be expanded as follows: pdfcrowd-page-count - the total page count of printed pages pdfcrowd-page-number - the current page number pdfcrowd-source-url - the source URL of the converted document pdfcrowd-source-title - the title of the converted document The following attributes can be used: data-pdfcrowd-number-format - specifies the type of the used numerals. Allowed values: arabic - Arabic numerals, they are used by default roman - Roman numerals eastern-arabic - Eastern Arabic numerals bengali - Bengali numerals devanagari - Devanagari numerals thai - Thai numerals east-asia - Chinese, Vietnamese, Japanese and Korean numerals chinese-formal - Chinese formal numerals Please contact us if you need another type of numerals. Example: <span class=\'pdfcrowd-page-number\' data-pdfcrowd-number-format=\'roman\'></span> data-pdfcrowd-placement - specifies where to place the source URL. Allowed values: The URL is inserted to the content Example: <span class=\'pdfcrowd-source-url\'></span> will produce <span>http://example.com</span> href - the URL is set to the href attribute Example: <a class=\'pdfcrowd-source-url\' data-pdfcrowd-placement=\'href\'>Link to source</a> will produce <a href=\'http://example.com\'>Link to source</a> href-and-content - the URL is set to the href attribute and to the content Example: <a class=\'pdfcrowd-source-url\' data-pdfcrowd-placement=\'href-and-content\'></a> will produce <a href=\'http://example.com\'>http://example.com</a> Supported protocols are http:// and https://.')
         parser.add_argument('-header-html',
                             help = 'Use the specified HTML code as the page header. The following classes can be used in the HTML. The content of the respective elements will be expanded as follows: pdfcrowd-page-count - the total page count of printed pages pdfcrowd-page-number - the current page number pdfcrowd-source-url - the source URL of the converted document pdfcrowd-source-title - the title of the converted document The following attributes can be used: data-pdfcrowd-number-format - specifies the type of the used numerals. Allowed values: arabic - Arabic numerals, they are used by default roman - Roman numerals eastern-arabic - Eastern Arabic numerals bengali - Bengali numerals devanagari - Devanagari numerals thai - Thai numerals east-asia - Chinese, Vietnamese, Japanese and Korean numerals chinese-formal - Chinese formal numerals Please contact us if you need another type of numerals. Example: <span class=\'pdfcrowd-page-number\' data-pdfcrowd-number-format=\'roman\'></span> data-pdfcrowd-placement - specifies where to place the source URL. Allowed values: The URL is inserted to the content Example: <span class=\'pdfcrowd-source-url\'></span> will produce <span>http://example.com</span> href - the URL is set to the href attribute Example: <a class=\'pdfcrowd-source-url\' data-pdfcrowd-placement=\'href\'>Link to source</a> will produce <a href=\'http://example.com\'>Link to source</a> href-and-content - the URL is set to the href attribute and to the content Example: <a class=\'pdfcrowd-source-url\' data-pdfcrowd-placement=\'href-and-content\'></a> will produce <a href=\'http://example.com\'>http://example.com</a> The string must not be empty.')
         parser.add_argument('-header-height',
-                            help = 'Set the header height. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt". Default is 0.5in.')
+                            help = 'Set the header height. The value must be specified in inches \'in\', millimeters \'mm\', centimeters \'cm\', pixels \'px\', or points \'pt\'. Default is 0.5in.')
         parser.add_argument('-zip-header-filename',
                             help = 'Set the file name of the header HTML document stored in the input archive. Use this method if the input archive contains multiple HTML documents. The file name.')
         parser.add_argument('-footer-url',
-                            help = 'Load an HTML code from the specified URL and use it as the page footer. The following classes can be used in the HTML. The content of the respective elements will be expanded as follows: pdfcrowd-page-count - the total page count of printed pages pdfcrowd-page-number - the current page number pdfcrowd-source-url - the source URL of the converted document pdfcrowd-source-title - the title of the converted document The following attributes can be used: data-pdfcrowd-number-format - specifies the type of the used numerals. Allowed values: arabic - Arabic numerals, they are used by default roman - Roman numerals eastern-arabic - Eastern Arabic numerals bengali - Bengali numerals devanagari - Devanagari numerals thai - Thai numerals east-asia - Chinese, Vietnamese, Japanese and Korean numerals chinese-formal - Chinese formal numerals Please contact us if you need another type of numerals. Example: <span class=\'pdfcrowd-page-number\' data-pdfcrowd-number-format=\'roman\'></span> data-pdfcrowd-placement - specifies where to place the source URL. Allowed values: The URL is inserted to the content Example: <span class=\'pdfcrowd-source-url\'></span> will produce <span>http://example.com</span> href - the URL is set to the href attribute Example: <a class=\'pdfcrowd-source-url\' data-pdfcrowd-placement=\'href\'>Link to source</a> will produce <a href=\'http://example.com\'>Link to source</a> href-and-content - the URL is set to the href attribute and to the content Example: <a class=\'pdfcrowd-source-url\' data-pdfcrowd-placement=\'href-and-content\'></a> will produce <a href=\'http://example.com\'>http://example.com</a> The supported protocols are http:// and https://.')
+                            help = 'Load an HTML code from the specified URL and use it as the page footer. The following classes can be used in the HTML. The content of the respective elements will be expanded as follows: pdfcrowd-page-count - the total page count of printed pages pdfcrowd-page-number - the current page number pdfcrowd-source-url - the source URL of the converted document pdfcrowd-source-title - the title of the converted document The following attributes can be used: data-pdfcrowd-number-format - specifies the type of the used numerals. Allowed values: arabic - Arabic numerals, they are used by default roman - Roman numerals eastern-arabic - Eastern Arabic numerals bengali - Bengali numerals devanagari - Devanagari numerals thai - Thai numerals east-asia - Chinese, Vietnamese, Japanese and Korean numerals chinese-formal - Chinese formal numerals Please contact us if you need another type of numerals. Example: <span class=\'pdfcrowd-page-number\' data-pdfcrowd-number-format=\'roman\'></span> data-pdfcrowd-placement - specifies where to place the source URL. Allowed values: The URL is inserted to the content Example: <span class=\'pdfcrowd-source-url\'></span> will produce <span>http://example.com</span> href - the URL is set to the href attribute Example: <a class=\'pdfcrowd-source-url\' data-pdfcrowd-placement=\'href\'>Link to source</a> will produce <a href=\'http://example.com\'>Link to source</a> href-and-content - the URL is set to the href attribute and to the content Example: <a class=\'pdfcrowd-source-url\' data-pdfcrowd-placement=\'href-and-content\'></a> will produce <a href=\'http://example.com\'>http://example.com</a> Supported protocols are http:// and https://.')
         parser.add_argument('-footer-html',
                             help = 'Use the specified HTML as the page footer. The following classes can be used in the HTML. The content of the respective elements will be expanded as follows: pdfcrowd-page-count - the total page count of printed pages pdfcrowd-page-number - the current page number pdfcrowd-source-url - the source URL of the converted document pdfcrowd-source-title - the title of the converted document The following attributes can be used: data-pdfcrowd-number-format - specifies the type of the used numerals. Allowed values: arabic - Arabic numerals, they are used by default roman - Roman numerals eastern-arabic - Eastern Arabic numerals bengali - Bengali numerals devanagari - Devanagari numerals thai - Thai numerals east-asia - Chinese, Vietnamese, Japanese and Korean numerals chinese-formal - Chinese formal numerals Please contact us if you need another type of numerals. Example: <span class=\'pdfcrowd-page-number\' data-pdfcrowd-number-format=\'roman\'></span> data-pdfcrowd-placement - specifies where to place the source URL. Allowed values: The URL is inserted to the content Example: <span class=\'pdfcrowd-source-url\'></span> will produce <span>http://example.com</span> href - the URL is set to the href attribute Example: <a class=\'pdfcrowd-source-url\' data-pdfcrowd-placement=\'href\'>Link to source</a> will produce <a href=\'http://example.com\'>Link to source</a> href-and-content - the URL is set to the href attribute and to the content Example: <a class=\'pdfcrowd-source-url\' data-pdfcrowd-placement=\'href-and-content\'></a> will produce <a href=\'http://example.com\'>http://example.com</a> The string must not be empty.')
         parser.add_argument('-footer-height',
-                            help = 'Set the footer height. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt". Default is 0.5in.')
+                            help = 'Set the footer height. The value must be specified in inches \'in\', millimeters \'mm\', centimeters \'cm\', pixels \'px\', or points \'pt\'. Default is 0.5in.')
         parser.add_argument('-zip-footer-filename',
                             help = 'Set the file name of the footer HTML document stored in the input archive. Use this method if the input archive contains multiple HTML documents. The file name.')
         parser.add_argument('-no-header-footer-horizontal-margins',
@@ -7595,25 +7618,25 @@ available converters:
         parser.add_argument('-exclude-footer-on-pages',
                             help = 'The page footer content is not printed on the specified pages. To remove the entire footer area, use the conversion config. List of physical page numbers. Negative numbers count backwards from the last page: -1 is the last page, -2 is the last but one page, and so on. A comma separated list of page numbers.')
         parser.add_argument('-header-footer-scale-factor',
-                            help = 'Set the scaling factor (zoom) for the header and footer. The percentage value. The value must be in the range 10-500. Default is 100.')
+                            help = 'Set the scaling factor (zoom) for the header and footer. The percentage value. The accepted range is 10-500. Default is 100.')
         parser.add_argument('-page-numbering-offset',
                             help = 'Set an offset between physical and logical page numbers. Integer specifying page offset.')
         parser.add_argument('-page-watermark',
                             help = 'Apply a watermark to each page of the output PDF file. A watermark can be either a PDF or an image. If a multi-page file (PDF or TIFF) is used, the first page is used as the watermark. The file path to a local file. The file must exist and not be empty.')
         parser.add_argument('-page-watermark-url',
-                            help = 'Load a file from the specified URL and apply the file as a watermark to each page of the output PDF. A watermark can be either a PDF or an image. If a multi-page file (PDF or TIFF) is used, the first page is used as the watermark. The supported protocols are http:// and https://.')
+                            help = 'Load a file from the specified URL and apply the file as a watermark to each page of the output PDF. A watermark can be either a PDF or an image. If a multi-page file (PDF or TIFF) is used, the first page is used as the watermark. Supported protocols are http:// and https://.')
         parser.add_argument('-multipage-watermark',
                             help = 'Apply each page of a watermark to the corresponding page of the output PDF. A watermark can be either a PDF or an image. The file path to a local file. The file must exist and not be empty.')
         parser.add_argument('-multipage-watermark-url',
-                            help = 'Load a file from the specified URL and apply each page of the file as a watermark to the corresponding page of the output PDF. A watermark can be either a PDF or an image. The supported protocols are http:// and https://.')
+                            help = 'Load a file from the specified URL and apply each page of the file as a watermark to the corresponding page of the output PDF. A watermark can be either a PDF or an image. Supported protocols are http:// and https://.')
         parser.add_argument('-page-background',
                             help = 'Apply a background to each page of the output PDF file. A background can be either a PDF or an image. If a multi-page file (PDF or TIFF) is used, the first page is used as the background. The file path to a local file. The file must exist and not be empty.')
         parser.add_argument('-page-background-url',
-                            help = 'Load a file from the specified URL and apply the file as a background to each page of the output PDF. A background can be either a PDF or an image. If a multi-page file (PDF or TIFF) is used, the first page is used as the background. The supported protocols are http:// and https://.')
+                            help = 'Load a file from the specified URL and apply the file as a background to each page of the output PDF. A background can be either a PDF or an image. If a multi-page file (PDF or TIFF) is used, the first page is used as the background. Supported protocols are http:// and https://.')
         parser.add_argument('-multipage-background',
                             help = 'Apply each page of a background to the corresponding page of the output PDF. A background can be either a PDF or an image. The file path to a local file. The file must exist and not be empty.')
         parser.add_argument('-multipage-background-url',
-                            help = 'Load a file from the specified URL and apply each page of the file as a background to the corresponding page of the output PDF. A background can be either a PDF or an image. The supported protocols are http:// and https://.')
+                            help = 'Load a file from the specified URL and apply each page of the file as a background to the corresponding page of the output PDF. A background can be either a PDF or an image. Supported protocols are http:// and https://.')
         parser.add_argument('-page-background-color',
                             help = 'The page background color in RGB or RGBA hexadecimal format. The color fills the entire page regardless of the margins. The value must be in RRGGBB or RRGGBBAA hexadecimal format.')
         parser.add_argument('-use-print-media',
@@ -7677,7 +7700,7 @@ available converters:
         parser.add_argument('-custom-http-header',
                             help = 'Set a custom HTTP header that is sent in Pdfcrowd HTTP requests. A string containing the header name and value separated by a colon.')
         parser.add_argument('-javascript-delay',
-                            help = 'Wait the specified number of milliseconds to finish all JavaScript after the document is loaded. Your API license defines the maximum wait time by "Max Delay" parameter. The number of milliseconds to wait. Must be a positive integer number or 0. Default is 200.')
+                            help = 'Wait the specified number of milliseconds to finish all JavaScript after the document is loaded. Your API license defines the maximum wait time by "Max Delay" parameter. The number of milliseconds to wait. Must be a positive integer or 0. Default is 200.')
         parser.add_argument('-element-to-convert',
                             help = 'Convert only the specified element from the main document and its children. The element is specified by one or more CSS selectors. If the element is not found, the conversion fails. If multiple elements are found, the first one is used. One or more CSS selectors separated by commas. The string must not be empty.')
         parser.add_argument('-element-to-convert-mode',
@@ -7690,24 +7713,24 @@ available converters:
         parser.add_argument('-readability-enhancements',
                             help = 'The input HTML is automatically enhanced to improve the readability. Allowed values are none, readability-v1, readability-v2, readability-v3, readability-v4. Default is none.')
         parser.add_argument('-viewport-width',
-                            help = 'Set the viewport width in pixels. The viewport is the user\'s visible area of the page. The value must be in the range 96-65000.')
+                            help = 'Set the viewport width in pixels. The viewport is the user\'s visible area of the page. The accepted range is 96-65000.')
         parser.add_argument('-viewport-height',
-                            help = 'Set the viewport height in pixels. The viewport is the user\'s visible area of the page. If the input HTML uses lazily loaded images, try using a large value that covers the entire height of the HTML, e.g. 100000. Must be a positive integer number.')
+                            help = 'Set the viewport height in pixels. The viewport is the user\'s visible area of the page. If the input HTML uses lazily loaded images, try using a large value that covers the entire height of the HTML, e.g. 100000. Must be a positive integer.')
         multi_args['viewport'] = 2
         parser.add_argument('-viewport',
-                            help = 'Set the viewport size. The viewport is the user\'s visible area of the page. VIEWPORT must contain 2 values separated by a semicolon. Set the viewport width in pixels. The viewport is the user\'s visible area of the page. The value must be in the range 96-65000. Set the viewport height in pixels. The viewport is the user\'s visible area of the page. If the input HTML uses lazily loaded images, try using a large value that covers the entire height of the HTML, e.g. 100000. Must be a positive integer number.')
+                            help = 'Set the viewport size. The viewport is the user\'s visible area of the page. VIEWPORT must contain 2 values separated by a semicolon. Set the viewport width in pixels. The viewport is the user\'s visible area of the page. The accepted range is 96-65000. Set the viewport height in pixels. The viewport is the user\'s visible area of the page. If the input HTML uses lazily loaded images, try using a large value that covers the entire height of the HTML, e.g. 100000. Must be a positive integer.')
         parser.add_argument('-rendering-mode',
                             help = 'Set the rendering mode of the page, allowing control over how content is displayed. The rendering mode. Allowed values are default, viewport.')
         parser.add_argument('-smart-scaling-mode',
                             help = 'Specifies the scaling mode used for fitting the HTML contents to the print area. The smart scaling mode. Allowed values are default, disabled, viewport-fit, content-fit, single-page-fit, single-page-fit-ex, mode1.')
         parser.add_argument('-scale-factor',
-                            help = 'Set the scaling factor (zoom) for the main page area. The percentage value. The value must be in the range 10-500. Default is 100.')
+                            help = 'Set the scaling factor (zoom) for the main page area. The percentage value. The accepted range is 10-500. Default is 100.')
         parser.add_argument('-jpeg-quality',
-                            help = 'Set the quality of embedded JPEG images. A lower quality results in a smaller PDF file but can lead to compression artifacts. The percentage value. The value must be in the range 1-100. Default is 100.')
+                            help = 'Set the quality of embedded JPEG images. A lower quality results in a smaller PDF file but can lead to compression artifacts. The percentage value. The accepted range is 1-100. Default is 100.')
         parser.add_argument('-convert-images-to-jpeg',
                             help = 'Specify which image types will be converted to JPEG. Converting lossless compression image formats (PNG, GIF, ...) to JPEG may result in a smaller PDF file. The image category. Allowed values are none, opaque, all. Default is none.')
         parser.add_argument('-image-dpi',
-                            help = 'Set the DPI of images in PDF. A lower DPI may result in a smaller PDF file. If the specified DPI is higher than the actual image DPI, the original image DPI is retained (no upscaling is performed). Use 0 to leave the images unaltered. The DPI value. Must be a positive integer number or 0.')
+                            help = 'Set the DPI of images in PDF. A lower DPI may result in a smaller PDF file. If the specified DPI is higher than the actual image DPI, the original image DPI is retained (no upscaling is performed). Use 0 to leave the images unaltered. The DPI value. Must be a positive integer or 0.')
         parser.add_argument('-enable-pdf-forms',
                             action = 'store_true',
                             help = 'Convert HTML forms to fillable PDF forms. Details can be found in the blog post.')
@@ -7748,9 +7771,9 @@ available converters:
         parser.add_argument('-initial-zoom-type',
                             help = 'Specify how the page should be displayed when opened. Allowed values are fit-width, fit-height, fit-page.')
         parser.add_argument('-initial-page',
-                            help = 'Display the specified page when the document is opened. Must be a positive integer number.')
+                            help = 'Display the specified page when the document is opened. Must be a positive integer.')
         parser.add_argument('-initial-zoom',
-                            help = 'Specify the initial page zoom in percents when the document is opened. Must be a positive integer number.')
+                            help = 'Specify the initial page zoom in percents when the document is opened. Must be a positive integer.')
         parser.add_argument('-hide-toolbar',
                             action = 'store_true',
                             help = 'Specify whether to hide the viewer application\'s tool bars when the document is active.')
@@ -7805,18 +7828,18 @@ available converters:
         parser.add_argument('-client-certificate-password',
                             help = 'A password for PKCS12 file with a client certificate if it is needed.')
         parser.add_argument('-layout-dpi',
-                            help = 'Set the internal DPI resolution used for positioning of PDF contents. It can help in situations when there are small inaccuracies in the PDF. It is recommended to use values that are a multiple of 72, such as 288 or 360. The DPI value. The value must be in the range of 72-600. Default is 300.')
+                            help = 'Set the internal DPI resolution used for positioning of PDF contents. It can help in situations when there are small inaccuracies in the PDF. It is recommended to use values that are a multiple of 72, such as 288 or 360. The DPI value. The accepted range is 72-600. Default is 300.')
         parser.add_argument('-content-area-x',
-                            help = 'Set the top left X coordinate of the content area. It is relative to the top left X coordinate of the print area. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt". It may contain a negative value. Default is 0in.')
+                            help = 'Set the top left X coordinate of the content area. It is relative to the top left X coordinate of the print area. The value must be specified in inches \'in\', millimeters \'mm\', centimeters \'cm\', pixels \'px\', or points \'pt\'. It may contain a negative value. Default is 0in.')
         parser.add_argument('-content-area-y',
-                            help = 'Set the top left Y coordinate of the content area. It is relative to the top left Y coordinate of the print area. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt". It may contain a negative value. Default is 0in.')
+                            help = 'Set the top left Y coordinate of the content area. It is relative to the top left Y coordinate of the print area. The value must be specified in inches \'in\', millimeters \'mm\', centimeters \'cm\', pixels \'px\', or points \'pt\'. It may contain a negative value. Default is 0in.')
         parser.add_argument('-content-area-width',
-                            help = 'Set the width of the content area. It should be at least 1 inch. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt". Default is The width of the print area..')
+                            help = 'Set the width of the content area. It should be at least 1 inch. The value must be specified in inches \'in\', millimeters \'mm\', centimeters \'cm\', pixels \'px\', or points \'pt\'. Default is The width of the print area..')
         parser.add_argument('-content-area-height',
-                            help = 'Set the height of the content area. It should be at least 1 inch. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt". Default is The height of the print area..')
+                            help = 'Set the height of the content area. It should be at least 1 inch. The value must be specified in inches \'in\', millimeters \'mm\', centimeters \'cm\', pixels \'px\', or points \'pt\'. Default is The height of the print area..')
         multi_args['content_area'] = 4
         parser.add_argument('-content-area',
-                            help = 'Set the content area position and size. The content area enables to specify a web page area to be converted. CONTENT_AREA must contain 4 values separated by a semicolon. Set the top left X coordinate of the content area. It is relative to the top left X coordinate of the print area. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt". It may contain a negative value. Set the top left Y coordinate of the content area. It is relative to the top left Y coordinate of the print area. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt". It may contain a negative value. Set the width of the content area. It should be at least 1 inch. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt". Set the height of the content area. It should be at least 1 inch. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".')
+                            help = 'Set the content area position and size. The content area enables to specify a web page area to be converted. CONTENT_AREA must contain 4 values separated by a semicolon. Set the top left X coordinate of the content area. It is relative to the top left X coordinate of the print area. The value must be specified in inches \'in\', millimeters \'mm\', centimeters \'cm\', pixels \'px\', or points \'pt\'. It may contain a negative value. Set the top left Y coordinate of the content area. It is relative to the top left Y coordinate of the print area. The value must be specified in inches \'in\', millimeters \'mm\', centimeters \'cm\', pixels \'px\', or points \'pt\'. It may contain a negative value. Set the width of the content area. It should be at least 1 inch. The value must be specified in inches \'in\', millimeters \'mm\', centimeters \'cm\', pixels \'px\', or points \'pt\'. Set the height of the content area. It should be at least 1 inch. The value must be specified in inches \'in\', millimeters \'mm\', centimeters \'cm\', pixels \'px\', or points \'pt\'.')
         parser.add_argument('-contents-matrix',
                             help = 'A 2D transformation matrix applied to the main contents on each page. The origin [0,0] is located at the top-left corner of the contents. The resolution is 72 dpi. A comma separated string of matrix elements: "scaleX,skewX,transX,skewY,scaleY,transY" Default is 1,0,0,0,1,0.')
         parser.add_argument('-header-matrix',
@@ -7833,16 +7856,16 @@ available converters:
                             action = 'store_true',
                             help = 'Add special CSS classes to the header/footer\'s body element. This allows applying custom styling based on these classes: pdfcrowd-page-X - where X is the current page number pdfcrowd-page-count-X - where X is the total page count pdfcrowd-page-first - the first page pdfcrowd-page-last - the last page pdfcrowd-page-odd - odd page pdfcrowd-page-even - even page')
         parser.add_argument('-max-loading-time',
-                            help = 'Set the maximum time to load the page and its resources. After this time, all requests will be considered successful. This can be useful to ensure that the conversion does not timeout. Use this method if there is no other way to fix page loading. The number of seconds to wait. The value must be in the range 10-30.')
+                            help = 'Set the maximum time to load the page and its resources. After this time, all requests will be considered successful. This can be useful to ensure that the conversion does not timeout. Use this method if there is no other way to fix page loading. The number of seconds to wait. The accepted range is 10-30.')
         parser.add_argument('-conversion-config',
-                            help = 'Allows to configure conversion via JSON. The configuration defines various page settings for individual PDF pages or ranges of pages. It provides flexibility in designing each page of the PDF, giving control over each page\'s size, header, footer etc. If a page or parameter is not explicitly specified, the system will use the default settings for that page or attribute. If a JSON configuration is provided, the settings in the JSON will take precedence over the global options. The structure of the JSON must be: pageSetup: An array of objects where each object defines the configuration for a specific page or range of pages. The following properties can be set for each page object: pages: A comma-separated list of page numbers or ranges. Special strings may be used, such as `odd`, `even` and `last`. For example: 1-: from page 1 to the end of the document 2: only the 2nd page 2,4,6: pages 2, 4, and 6 2-5: pages 2 through 5 odd,2: the 2nd page and all odd pages pageSize: The page size (optional). Possible values: A0, A1, A2, A3, A4, A5, A6, Letter. pageWidth: The width of the page (optional). pageHeight: The height of the page (optional). marginLeft: Left margin (optional). marginRight: Right margin (optional). marginTop: Top margin (optional). marginBottom: Bottom margin (optional). displayHeader: Header appearance (optional). Possible values: none: completely excluded space: only the content is excluded, the space is used content: the content is printed (default) displayFooter: Footer appearance (optional). Possible values: none: completely excluded space: only the content is excluded, the space is used content: the content is printed (default) headerHeight: Height of the header (optional). footerHeight: Height of the footer (optional). orientation: Page orientation, such as "portrait" or "landscape" (optional). backgroundColor: Page background color in RRGGBB or RRGGBBAA hexadecimal format (optional). Dimensions may be empty, 0 or specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt". The JSON string.')
+                            help = 'Allows to configure conversion via JSON. The configuration defines various page settings for individual PDF pages or ranges of pages. It provides flexibility in designing each page of the PDF, giving control over each page\'s size, header, footer etc. If a page or parameter is not explicitly specified, the system will use the default settings for that page or attribute. If a JSON configuration is provided, the settings in the JSON will take precedence over the global options. The structure of the JSON must be: pageSetup: An array of objects where each object defines the configuration for a specific page or range of pages. The following properties can be set for each page object: pages: A comma-separated list of page numbers or ranges. Special strings may be used, such as `odd`, `even` and `last`. For example: 1-: from page 1 to the end of the document 2: only the 2nd page 2,4,6: pages 2, 4, and 6 2-5: pages 2 through 5 odd,2: the 2nd page and all odd pages pageSize: The page size (optional). Possible values: A0, A1, A2, A3, A4, A5, A6, Letter. pageWidth: The width of the page (optional). pageHeight: The height of the page (optional). marginLeft: Left margin (optional). marginRight: Right margin (optional). marginTop: Top margin (optional). marginBottom: Bottom margin (optional). displayHeader: Header appearance (optional). Possible values: none: completely excluded space: only the content is excluded, the space is used content: the content is printed (default) displayFooter: Footer appearance (optional). Possible values: none: completely excluded space: only the content is excluded, the space is used content: the content is printed (default) headerHeight: Height of the header (optional). footerHeight: Height of the footer (optional). orientation: Page orientation, such as "portrait" or "landscape" (optional). backgroundColor: Page background color in RRGGBB or RRGGBBAA hexadecimal format (optional). Dimensions may be empty, 0 or specified in inches \'in\', millimeters \'mm\', centimeters \'cm\', pixels \'px\', or points \'pt\'. The JSON string.')
         parser.add_argument('-conversion-config-file',
                             help = 'Allows to configure the conversion process via JSON file. See details of the JSON string. The file path to a local file. The file must exist and not be empty.')
         parser.add_argument('-subprocess-referrer',
                             help = argparse.SUPPRESS
 )
         parser.add_argument('-converter-user-agent',
-                            help = 'Specifies the User-Agent HTTP header that will be used by the converter when a request is made to the converted web page. The user agent. Default is auto.')
+                            help = 'Specifies the User-Agent HTTP header that will be used by the converter when a request is made to the converted web page. The user agent. Default is chrome-desktop.')
         parser.add_argument('-converter-version',
                             help = 'Set the converter version. Different versions may produce different output. Choose which one provides the best output for your case. The version identifier. Allowed values are 24.04, 20.10, 18.10, latest. Default is 24.04.')
         parser.add_argument('-use-http',
@@ -7873,11 +7896,11 @@ available converters:
         parser.add_argument('-zip-main-filename',
                             help = 'Set the file name of the main HTML document stored in the input archive. If not specified, the first HTML file in the archive is used for conversion. Use this method if the input archive contains multiple HTML documents. The file name.')
         parser.add_argument('-screenshot-width',
-                            help = 'Set the output image width in pixels. The value must be in the range 96-65000. Default is 1024.')
+                            help = 'Set the output image width in pixels. The accepted range is 96-65000. Default is 1024.')
         parser.add_argument('-screenshot-height',
-                            help = 'Set the output image height in pixels. If it is not specified, actual document height is used. Must be a positive integer number.')
+                            help = 'Set the output image height in pixels. If it is not specified, actual document height is used. Must be a positive integer.')
         parser.add_argument('-scale-factor',
-                            help = 'Set the scaling factor (zoom) for the output image. The percentage value. Must be a positive integer number. Default is 100.')
+                            help = 'Set the scaling factor (zoom) for the output image. The percentage value. Must be a positive integer. Default is 100.')
         parser.add_argument('-background-color',
                             help = 'The output image background color. The value must be in RRGGBB or RRGGBBAA hexadecimal format.')
         parser.add_argument('-use-print-media',
@@ -7939,7 +7962,7 @@ available converters:
         parser.add_argument('-custom-http-header',
                             help = 'Set a custom HTTP header that is sent in Pdfcrowd HTTP requests. A string containing the header name and value separated by a colon.')
         parser.add_argument('-javascript-delay',
-                            help = 'Wait the specified number of milliseconds to finish all JavaScript after the document is loaded. Your API license defines the maximum wait time by "Max Delay" parameter. The number of milliseconds to wait. Must be a positive integer number or 0. Default is 200.')
+                            help = 'Wait the specified number of milliseconds to finish all JavaScript after the document is loaded. Your API license defines the maximum wait time by "Max Delay" parameter. The number of milliseconds to wait. Must be a positive integer or 0. Default is 200.')
         parser.add_argument('-element-to-convert',
                             help = 'Convert only the specified element from the main document and its children. The element is specified by one or more CSS selectors. If the element is not found, the conversion fails. If multiple elements are found, the first one is used. One or more CSS selectors separated by commas. The string must not be empty.')
         parser.add_argument('-element-to-convert-mode',
@@ -7984,12 +8007,12 @@ available converters:
         parser.add_argument('-client-certificate-password',
                             help = 'A password for PKCS12 file with a client certificate if it is needed.')
         parser.add_argument('-max-loading-time',
-                            help = 'Set the maximum time to load the page and its resources. After this time, all requests will be considered successful. This can be useful to ensure that the conversion does not timeout. Use this method if there is no other way to fix page loading. The number of seconds to wait. The value must be in the range 10-30.')
+                            help = 'Set the maximum time to load the page and its resources. After this time, all requests will be considered successful. This can be useful to ensure that the conversion does not timeout. Use this method if there is no other way to fix page loading. The number of seconds to wait. The accepted range is 10-30.')
         parser.add_argument('-subprocess-referrer',
                             help = argparse.SUPPRESS
 )
         parser.add_argument('-converter-user-agent',
-                            help = 'Specifies the User-Agent HTTP header that will be used by the converter when a request is made to the converted web page. The user agent. Default is auto.')
+                            help = 'Specifies the User-Agent HTTP header that will be used by the converter when a request is made to the converted web page. The user agent. Default is chrome-desktop.')
         parser.add_argument('-converter-version',
                             help = 'Set the converter version. Different versions may produce different output. Choose which one provides the best output for your case. The version identifier. Allowed values are 24.04, 20.10, 18.10, latest. Default is 24.04.')
         parser.add_argument('-use-http',
@@ -8022,28 +8045,28 @@ available converters:
         parser.add_argument('-rotate',
                             help = 'Rotate the image. The rotation specified in degrees.')
         parser.add_argument('-crop-area-x',
-                            help = 'Set the top left X coordinate of the content area. It is relative to the top left X coordinate of the print area. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt". Default is 0px.')
+                            help = 'Set the top left X coordinate of the content area. It is relative to the top left X coordinate of the print area. The value must be specified in inches \'in\', millimeters \'mm\', centimeters \'cm\', pixels \'px\', or points \'pt\'. Default is 0px.')
         parser.add_argument('-crop-area-y',
-                            help = 'Set the top left Y coordinate of the content area. It is relative to the top left Y coordinate of the print area. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt". Default is 0px.')
+                            help = 'Set the top left Y coordinate of the content area. It is relative to the top left Y coordinate of the print area. The value must be specified in inches \'in\', millimeters \'mm\', centimeters \'cm\', pixels \'px\', or points \'pt\'. Default is 0px.')
         parser.add_argument('-crop-area-width',
-                            help = 'Set the width of the content area. It should be at least 1 inch. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt". Default is The width of the print area..')
+                            help = 'Set the width of the content area. It should be at least 1 inch. The value must be specified in inches \'in\', millimeters \'mm\', centimeters \'cm\', pixels \'px\', or points \'pt\'. Default is The width of the print area..')
         parser.add_argument('-crop-area-height',
-                            help = 'Set the height of the content area. It should be at least 1 inch. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt". Default is The height of the print area..')
+                            help = 'Set the height of the content area. It should be at least 1 inch. The value must be specified in inches \'in\', millimeters \'mm\', centimeters \'cm\', pixels \'px\', or points \'pt\'. Default is The height of the print area..')
         multi_args['crop_area'] = 4
         parser.add_argument('-crop-area',
-                            help = 'Set the content area position and size. The content area enables to specify the part to be converted. CROP_AREA must contain 4 values separated by a semicolon. Set the top left X coordinate of the content area. It is relative to the top left X coordinate of the print area. Set the top left Y coordinate of the content area. It is relative to the top left Y coordinate of the print area. Set the width of the content area. It should be at least 1 inch. Set the height of the content area. It should be at least 1 inch. All values the value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".')
+                            help = 'Set the content area position and size. The content area enables to specify the part to be converted. CROP_AREA must contain 4 values separated by a semicolon. Set the top left X coordinate of the content area. It is relative to the top left X coordinate of the print area. Set the top left Y coordinate of the content area. It is relative to the top left Y coordinate of the print area. Set the width of the content area. It should be at least 1 inch. Set the height of the content area. It should be at least 1 inch. All values the value must be specified in inches \'in\', millimeters \'mm\', centimeters \'cm\', pixels \'px\', or points \'pt\'.')
         parser.add_argument('-remove-borders',
                             action = 'store_true',
                             help = 'Remove borders of an image which does not change in color.')
         parser.add_argument('-canvas-size',
                             help = 'Set the output canvas size. Allowed values are A0, A1, A2, A3, A4, A5, A6, Letter.')
         parser.add_argument('-canvas-width',
-                            help = 'Set the output canvas width. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".')
+                            help = 'Set the output canvas width. The value must be specified in inches \'in\', millimeters \'mm\', centimeters \'cm\', pixels \'px\', or points \'pt\'.')
         parser.add_argument('-canvas-height',
-                            help = 'Set the output canvas height. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".')
+                            help = 'Set the output canvas height. The value must be specified in inches \'in\', millimeters \'mm\', centimeters \'cm\', pixels \'px\', or points \'pt\'.')
         multi_args['canvas_dimensions'] = 2
         parser.add_argument('-canvas-dimensions',
-                            help = 'Set the output canvas dimensions. If no canvas size is specified, margins are applied as a border around the image. CANVAS_DIMENSIONS must contain 2 values separated by a semicolon. Set the output canvas width. Set the output canvas height. All values the value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".')
+                            help = 'Set the output canvas dimensions. If no canvas size is specified, margins are applied as a border around the image. CANVAS_DIMENSIONS must contain 2 values separated by a semicolon. Set the output canvas width. Set the output canvas height. All values the value must be specified in inches \'in\', millimeters \'mm\', centimeters \'cm\', pixels \'px\', or points \'pt\'.')
         parser.add_argument('-orientation',
                             help = 'Set the output canvas orientation. Allowed values are landscape, portrait. Default is portrait.')
         parser.add_argument('-position',
@@ -8051,16 +8074,16 @@ available converters:
         parser.add_argument('-print-canvas-mode',
                             help = 'Set the mode to print the image on the canvas. Allowed values are default, fit, stretch. Default is default.')
         parser.add_argument('-margin-top',
-                            help = 'Set the output canvas top margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".')
+                            help = 'Set the output canvas top margin. The value must be specified in inches \'in\', millimeters \'mm\', centimeters \'cm\', pixels \'px\', or points \'pt\'.')
         parser.add_argument('-margin-right',
-                            help = 'Set the output canvas right margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".')
+                            help = 'Set the output canvas right margin. The value must be specified in inches \'in\', millimeters \'mm\', centimeters \'cm\', pixels \'px\', or points \'pt\'.')
         parser.add_argument('-margin-bottom',
-                            help = 'Set the output canvas bottom margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".')
+                            help = 'Set the output canvas bottom margin. The value must be specified in inches \'in\', millimeters \'mm\', centimeters \'cm\', pixels \'px\', or points \'pt\'.')
         parser.add_argument('-margin-left',
-                            help = 'Set the output canvas left margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".')
+                            help = 'Set the output canvas left margin. The value must be specified in inches \'in\', millimeters \'mm\', centimeters \'cm\', pixels \'px\', or points \'pt\'.')
         multi_args['margins'] = 4
         parser.add_argument('-margins',
-                            help = 'Set the output canvas margins. MARGINS must contain 4 values separated by a semicolon. Set the output canvas top margin. Set the output canvas right margin. Set the output canvas bottom margin. Set the output canvas left margin. All values the value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".')
+                            help = 'Set the output canvas margins. MARGINS must contain 4 values separated by a semicolon. Set the output canvas top margin. Set the output canvas right margin. Set the output canvas bottom margin. Set the output canvas left margin. All values the value must be specified in inches \'in\', millimeters \'mm\', centimeters \'cm\', pixels \'px\', or points \'pt\'.')
         parser.add_argument('-canvas-background-color',
                             help = 'The canvas background color in RGB or RGBA hexadecimal format. The color fills the entire canvas regardless of margins. If no canvas size is specified and the image format supports background (e.g. PDF, PNG), the background color is applied too. The value must be in RRGGBB or RRGGBBAA hexadecimal format.')
         parser.add_argument('-dpi',
@@ -8108,19 +8131,19 @@ available converters:
         parser.add_argument('-page-watermark',
                             help = 'Apply a watermark to each page of the output PDF file. A watermark can be either a PDF or an image. If a multi-page file (PDF or TIFF) is used, the first page is used as the watermark. The file path to a local file. The file must exist and not be empty.')
         parser.add_argument('-page-watermark-url',
-                            help = 'Load a file from the specified URL and apply the file as a watermark to each page of the output PDF. A watermark can be either a PDF or an image. If a multi-page file (PDF or TIFF) is used, the first page is used as the watermark. The supported protocols are http:// and https://.')
+                            help = 'Load a file from the specified URL and apply the file as a watermark to each page of the output PDF. A watermark can be either a PDF or an image. If a multi-page file (PDF or TIFF) is used, the first page is used as the watermark. Supported protocols are http:// and https://.')
         parser.add_argument('-multipage-watermark',
                             help = 'Apply each page of a watermark to the corresponding page of the output PDF. A watermark can be either a PDF or an image. The file path to a local file. The file must exist and not be empty.')
         parser.add_argument('-multipage-watermark-url',
-                            help = 'Load a file from the specified URL and apply each page of the file as a watermark to the corresponding page of the output PDF. A watermark can be either a PDF or an image. The supported protocols are http:// and https://.')
+                            help = 'Load a file from the specified URL and apply each page of the file as a watermark to the corresponding page of the output PDF. A watermark can be either a PDF or an image. Supported protocols are http:// and https://.')
         parser.add_argument('-page-background',
                             help = 'Apply a background to each page of the output PDF file. A background can be either a PDF or an image. If a multi-page file (PDF or TIFF) is used, the first page is used as the background. The file path to a local file. The file must exist and not be empty.')
         parser.add_argument('-page-background-url',
-                            help = 'Load a file from the specified URL and apply the file as a background to each page of the output PDF. A background can be either a PDF or an image. If a multi-page file (PDF or TIFF) is used, the first page is used as the background. The supported protocols are http:// and https://.')
+                            help = 'Load a file from the specified URL and apply the file as a background to each page of the output PDF. A background can be either a PDF or an image. If a multi-page file (PDF or TIFF) is used, the first page is used as the background. Supported protocols are http:// and https://.')
         parser.add_argument('-multipage-background',
                             help = 'Apply each page of a background to the corresponding page of the output PDF. A background can be either a PDF or an image. The file path to a local file. The file must exist and not be empty.')
         parser.add_argument('-multipage-background-url',
-                            help = 'Load a file from the specified URL and apply each page of the file as a background to the corresponding page of the output PDF. A background can be either a PDF or an image. The supported protocols are http:// and https://.')
+                            help = 'Load a file from the specified URL and apply each page of the file as a background to the corresponding page of the output PDF. A background can be either a PDF or an image. Supported protocols are http:// and https://.')
         parser.add_argument('-linearize',
                             action = 'store_true',
                             help = 'Create linearized PDF. This is also known as Fast Web View.')
@@ -8149,7 +8172,7 @@ available converters:
         parser.add_argument('-keywords',
                             help = 'Associate keywords with the document. The string with the keywords.')
         parser.add_argument('-use-metadata-from',
-                            help = 'Use metadata (title, subject, author and keywords) from the n-th input PDF. Set the index of the input PDF file from which to use the metadata. 0 means no metadata. Must be a positive integer number or 0.')
+                            help = 'Use metadata (title, subject, author and keywords) from the n-th input PDF. Set the index of the input PDF file from which to use the metadata. 0 means no metadata. Must be a positive integer or 0.')
         parser.add_argument('-page-layout',
                             help = 'Specify the page layout to be used when the document is opened. Allowed values are single-page, one-column, two-column-left, two-column-right.')
         parser.add_argument('-page-mode',
@@ -8157,9 +8180,9 @@ available converters:
         parser.add_argument('-initial-zoom-type',
                             help = 'Specify how the page should be displayed when opened. Allowed values are fit-width, fit-height, fit-page.')
         parser.add_argument('-initial-page',
-                            help = 'Display the specified page when the document is opened. Must be a positive integer number.')
+                            help = 'Display the specified page when the document is opened. Must be a positive integer.')
         parser.add_argument('-initial-zoom',
-                            help = 'Specify the initial page zoom in percents when the document is opened. Must be a positive integer number.')
+                            help = 'Specify the initial page zoom in percents when the document is opened. Must be a positive integer.')
         parser.add_argument('-hide-toolbar',
                             action = 'store_true',
                             help = 'Specify whether to hide the viewer application\'s tool bars when the document is active.')
@@ -8216,28 +8239,28 @@ available converters:
         parser.add_argument('-rotate',
                             help = 'Rotate the image. The rotation specified in degrees.')
         parser.add_argument('-crop-area-x',
-                            help = 'Set the top left X coordinate of the content area. It is relative to the top left X coordinate of the print area. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt". Default is 0px.')
+                            help = 'Set the top left X coordinate of the content area. It is relative to the top left X coordinate of the print area. The value must be specified in inches \'in\', millimeters \'mm\', centimeters \'cm\', pixels \'px\', or points \'pt\'. Default is 0px.')
         parser.add_argument('-crop-area-y',
-                            help = 'Set the top left Y coordinate of the content area. It is relative to the top left Y coordinate of the print area. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt". Default is 0px.')
+                            help = 'Set the top left Y coordinate of the content area. It is relative to the top left Y coordinate of the print area. The value must be specified in inches \'in\', millimeters \'mm\', centimeters \'cm\', pixels \'px\', or points \'pt\'. Default is 0px.')
         parser.add_argument('-crop-area-width',
-                            help = 'Set the width of the content area. It should be at least 1 inch. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt". Default is The width of the print area..')
+                            help = 'Set the width of the content area. It should be at least 1 inch. The value must be specified in inches \'in\', millimeters \'mm\', centimeters \'cm\', pixels \'px\', or points \'pt\'. Default is The width of the print area..')
         parser.add_argument('-crop-area-height',
-                            help = 'Set the height of the content area. It should be at least 1 inch. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt". Default is The height of the print area..')
+                            help = 'Set the height of the content area. It should be at least 1 inch. The value must be specified in inches \'in\', millimeters \'mm\', centimeters \'cm\', pixels \'px\', or points \'pt\'. Default is The height of the print area..')
         multi_args['crop_area'] = 4
         parser.add_argument('-crop-area',
-                            help = 'Set the content area position and size. The content area enables to specify the part to be converted. CROP_AREA must contain 4 values separated by a semicolon. Set the top left X coordinate of the content area. It is relative to the top left X coordinate of the print area. Set the top left Y coordinate of the content area. It is relative to the top left Y coordinate of the print area. Set the width of the content area. It should be at least 1 inch. Set the height of the content area. It should be at least 1 inch. All values the value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".')
+                            help = 'Set the content area position and size. The content area enables to specify the part to be converted. CROP_AREA must contain 4 values separated by a semicolon. Set the top left X coordinate of the content area. It is relative to the top left X coordinate of the print area. Set the top left Y coordinate of the content area. It is relative to the top left Y coordinate of the print area. Set the width of the content area. It should be at least 1 inch. Set the height of the content area. It should be at least 1 inch. All values the value must be specified in inches \'in\', millimeters \'mm\', centimeters \'cm\', pixels \'px\', or points \'pt\'.')
         parser.add_argument('-remove-borders',
                             action = 'store_true',
                             help = 'Remove borders of an image which does not change in color.')
         parser.add_argument('-page-size',
                             help = 'Set the output page size. Allowed values are A0, A1, A2, A3, A4, A5, A6, Letter.')
         parser.add_argument('-page-width',
-                            help = 'Set the output page width. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".')
+                            help = 'Set the output page width. The value must be specified in inches \'in\', millimeters \'mm\', centimeters \'cm\', pixels \'px\', or points \'pt\'.')
         parser.add_argument('-page-height',
-                            help = 'Set the output page height. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".')
+                            help = 'Set the output page height. The value must be specified in inches \'in\', millimeters \'mm\', centimeters \'cm\', pixels \'px\', or points \'pt\'.')
         multi_args['page_dimensions'] = 2
         parser.add_argument('-page-dimensions',
-                            help = 'Set the output page dimensions. If no page size is specified, margins are applied as a border around the image. PAGE_DIMENSIONS must contain 2 values separated by a semicolon. Set the output page width. Set the output page height. All values the value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".')
+                            help = 'Set the output page dimensions. If no page size is specified, margins are applied as a border around the image. PAGE_DIMENSIONS must contain 2 values separated by a semicolon. Set the output page width. Set the output page height. All values the value must be specified in inches \'in\', millimeters \'mm\', centimeters \'cm\', pixels \'px\', or points \'pt\'.')
         parser.add_argument('-orientation',
                             help = 'Set the output page orientation. Allowed values are landscape, portrait. Default is portrait.')
         parser.add_argument('-position',
@@ -8245,16 +8268,16 @@ available converters:
         parser.add_argument('-print-page-mode',
                             help = 'Set the mode to print the image on the content area of the page. Allowed values are default, fit, stretch. Default is default.')
         parser.add_argument('-margin-top',
-                            help = 'Set the output page top margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".')
+                            help = 'Set the output page top margin. The value must be specified in inches \'in\', millimeters \'mm\', centimeters \'cm\', pixels \'px\', or points \'pt\'.')
         parser.add_argument('-margin-right',
-                            help = 'Set the output page right margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".')
+                            help = 'Set the output page right margin. The value must be specified in inches \'in\', millimeters \'mm\', centimeters \'cm\', pixels \'px\', or points \'pt\'.')
         parser.add_argument('-margin-bottom',
-                            help = 'Set the output page bottom margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".')
+                            help = 'Set the output page bottom margin. The value must be specified in inches \'in\', millimeters \'mm\', centimeters \'cm\', pixels \'px\', or points \'pt\'.')
         parser.add_argument('-margin-left',
-                            help = 'Set the output page left margin. The value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".')
+                            help = 'Set the output page left margin. The value must be specified in inches \'in\', millimeters \'mm\', centimeters \'cm\', pixels \'px\', or points \'pt\'.')
         multi_args['page_margins'] = 4
         parser.add_argument('-page-margins',
-                            help = 'Set the output page margins. PAGE_MARGINS must contain 4 values separated by a semicolon. Set the output page top margin. Set the output page right margin. Set the output page bottom margin. Set the output page left margin. All values the value must be specified in inches "in", millimeters "mm", centimeters "cm", pixels "px", or points "pt".')
+                            help = 'Set the output page margins. PAGE_MARGINS must contain 4 values separated by a semicolon. Set the output page top margin. Set the output page right margin. Set the output page bottom margin. Set the output page left margin. All values the value must be specified in inches \'in\', millimeters \'mm\', centimeters \'cm\', pixels \'px\', or points \'pt\'.')
         parser.add_argument('-page-background-color',
                             help = 'The page background color in RGB or RGBA hexadecimal format. The color fills the entire page regardless of the margins. If not page size is specified and the image format supports background (e.g. PDF, PNG), the background color is applied too. The value must be in RRGGBB or RRGGBBAA hexadecimal format.')
         parser.add_argument('-dpi',
@@ -8262,19 +8285,19 @@ available converters:
         parser.add_argument('-page-watermark',
                             help = 'Apply a watermark to each page of the output PDF file. A watermark can be either a PDF or an image. If a multi-page file (PDF or TIFF) is used, the first page is used as the watermark. The file path to a local file. The file must exist and not be empty.')
         parser.add_argument('-page-watermark-url',
-                            help = 'Load a file from the specified URL and apply the file as a watermark to each page of the output PDF. A watermark can be either a PDF or an image. If a multi-page file (PDF or TIFF) is used, the first page is used as the watermark. The supported protocols are http:// and https://.')
+                            help = 'Load a file from the specified URL and apply the file as a watermark to each page of the output PDF. A watermark can be either a PDF or an image. If a multi-page file (PDF or TIFF) is used, the first page is used as the watermark. Supported protocols are http:// and https://.')
         parser.add_argument('-multipage-watermark',
                             help = 'Apply each page of a watermark to the corresponding page of the output PDF. A watermark can be either a PDF or an image. The file path to a local file. The file must exist and not be empty.')
         parser.add_argument('-multipage-watermark-url',
-                            help = 'Load a file from the specified URL and apply each page of the file as a watermark to the corresponding page of the output PDF. A watermark can be either a PDF or an image. The supported protocols are http:// and https://.')
+                            help = 'Load a file from the specified URL and apply each page of the file as a watermark to the corresponding page of the output PDF. A watermark can be either a PDF or an image. Supported protocols are http:// and https://.')
         parser.add_argument('-page-background',
                             help = 'Apply a background to each page of the output PDF file. A background can be either a PDF or an image. If a multi-page file (PDF or TIFF) is used, the first page is used as the background. The file path to a local file. The file must exist and not be empty.')
         parser.add_argument('-page-background-url',
-                            help = 'Load a file from the specified URL and apply the file as a background to each page of the output PDF. A background can be either a PDF or an image. If a multi-page file (PDF or TIFF) is used, the first page is used as the background. The supported protocols are http:// and https://.')
+                            help = 'Load a file from the specified URL and apply the file as a background to each page of the output PDF. A background can be either a PDF or an image. If a multi-page file (PDF or TIFF) is used, the first page is used as the background. Supported protocols are http:// and https://.')
         parser.add_argument('-multipage-background',
                             help = 'Apply each page of a background to the corresponding page of the output PDF. A background can be either a PDF or an image. The file path to a local file. The file must exist and not be empty.')
         parser.add_argument('-multipage-background-url',
-                            help = 'Load a file from the specified URL and apply each page of the file as a background to the corresponding page of the output PDF. A background can be either a PDF or an image. The supported protocols are http:// and https://.')
+                            help = 'Load a file from the specified URL and apply each page of the file as a background to the corresponding page of the output PDF. A background can be either a PDF or an image. Supported protocols are http:// and https://.')
         parser.add_argument('-linearize',
                             action = 'store_true',
                             help = 'Create linearized PDF. This is also known as Fast Web View.')
@@ -8309,9 +8332,9 @@ available converters:
         parser.add_argument('-initial-zoom-type',
                             help = 'Specify how the page should be displayed when opened. Allowed values are fit-width, fit-height, fit-page.')
         parser.add_argument('-initial-page',
-                            help = 'Display the specified page when the document is opened. Must be a positive integer number.')
+                            help = 'Display the specified page when the document is opened. Must be a positive integer.')
         parser.add_argument('-initial-zoom',
-                            help = 'Specify the initial page zoom in percents when the document is opened. Must be a positive integer number.')
+                            help = 'Specify the initial page zoom in percents when the document is opened. Must be a positive integer.')
         parser.add_argument('-hide-toolbar',
                             action = 'store_true',
                             help = 'Specify whether to hide the viewer application\'s tool bars when the document is active.')
@@ -8367,7 +8390,7 @@ available converters:
         parser.add_argument('-pdf-password',
                             help = 'Password to open the encrypted PDF file. The input PDF password.')
         parser.add_argument('-scale-factor',
-                            help = 'Set the scaling factor (zoom) for the main page area. The percentage value. Must be a positive integer number. Default is 100.')
+                            help = 'Set the scaling factor (zoom) for the main page area. The percentage value. Must be a positive integer. Default is 100.')
         parser.add_argument('-print-page-range',
                             help = 'Set the page range to print. A comma separated list of page numbers or ranges.')
         parser.add_argument('-dpi',
@@ -8458,16 +8481,16 @@ available converters:
                             action = 'store_true',
                             help = 'Remove empty lines from the text output.')
         parser.add_argument('-crop-area-x',
-                            help = 'Set the top left X coordinate of the crop area in points. Must be a positive integer number or 0.')
+                            help = 'Set the top left X coordinate of the crop area in points. Must be a positive integer or 0.')
         parser.add_argument('-crop-area-y',
-                            help = 'Set the top left Y coordinate of the crop area in points. Must be a positive integer number or 0.')
+                            help = 'Set the top left Y coordinate of the crop area in points. Must be a positive integer or 0.')
         parser.add_argument('-crop-area-width',
-                            help = 'Set the width of the crop area in points. Must be a positive integer number or 0. Default is PDF page width..')
+                            help = 'Set the width of the crop area in points. Must be a positive integer or 0. Default is PDF page width..')
         parser.add_argument('-crop-area-height',
-                            help = 'Set the height of the crop area in points. Must be a positive integer number or 0. Default is PDF page height..')
+                            help = 'Set the height of the crop area in points. Must be a positive integer or 0. Default is PDF page height..')
         multi_args['crop_area'] = 4
         parser.add_argument('-crop-area',
-                            help = 'Set the crop area. It allows to extract just a part of a PDF page. CROP_AREA must contain 4 values separated by a semicolon. Set the top left X coordinate of the crop area in points. Set the top left Y coordinate of the crop area in points. Set the width of the crop area in points. Set the height of the crop area in points. All values must be a positive integer number or 0.')
+                            help = 'Set the crop area. It allows to extract just a part of a PDF page. CROP_AREA must contain 4 values separated by a semicolon. Set the top left X coordinate of the crop area in points. Set the top left Y coordinate of the crop area in points. Set the width of the crop area in points. Set the height of the crop area in points. All values must be a positive integer or 0.')
         parser.add_argument('-debug-log',
                             action = 'store_true',
                             help = 'Turn on the debug logging. Details about the conversion are stored in the debug log.')
@@ -8515,16 +8538,16 @@ available converters:
                             action = 'store_true',
                             help = 'Use the crop box rather than media box.')
         parser.add_argument('-crop-area-x',
-                            help = 'Set the top left X coordinate of the crop area in points. Must be a positive integer number or 0.')
+                            help = 'Set the top left X coordinate of the crop area in points. Must be a positive integer or 0.')
         parser.add_argument('-crop-area-y',
-                            help = 'Set the top left Y coordinate of the crop area in points. Must be a positive integer number or 0.')
+                            help = 'Set the top left Y coordinate of the crop area in points. Must be a positive integer or 0.')
         parser.add_argument('-crop-area-width',
-                            help = 'Set the width of the crop area in points. Must be a positive integer number or 0. Default is PDF page width..')
+                            help = 'Set the width of the crop area in points. Must be a positive integer or 0. Default is PDF page width..')
         parser.add_argument('-crop-area-height',
-                            help = 'Set the height of the crop area in points. Must be a positive integer number or 0. Default is PDF page height..')
+                            help = 'Set the height of the crop area in points. Must be a positive integer or 0. Default is PDF page height..')
         multi_args['crop_area'] = 4
         parser.add_argument('-crop-area',
-                            help = 'Set the crop area. It allows to extract just a part of a PDF page. CROP_AREA must contain 4 values separated by a semicolon. Set the top left X coordinate of the crop area in points. Set the top left Y coordinate of the crop area in points. Set the width of the crop area in points. Set the height of the crop area in points. All values must be a positive integer number or 0.')
+                            help = 'Set the crop area. It allows to extract just a part of a PDF page. CROP_AREA must contain 4 values separated by a semicolon. Set the top left X coordinate of the crop area in points. Set the top left Y coordinate of the crop area in points. Set the width of the crop area in points. Set the height of the crop area in points. All values must be a positive integer or 0.')
         parser.add_argument('-use-grayscale',
                             action = 'store_true',
                             help = 'Generate a grayscale image.')
@@ -8588,7 +8611,7 @@ available converters:
         if os.path.isfile(source):
             return 'convertFile', source
 
-        term_error("Invalid source '{}'. Must be valid file, URL or '-'.".format(source))
+        term_error("Invalid source '{}'. Must be a valid file, URL, or '-'.".format(source))
 
     args.user_name = None
     args.api_key = None
