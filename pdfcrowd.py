@@ -44,7 +44,7 @@ import ssl
 import time
 import warnings
 
-__version__ = '6.5.0'
+__version__ = '6.5.1'
 
 class BaseError(Exception):
     def __init__(self, error, http_code):
@@ -721,7 +721,7 @@ else:
 
 HOST = os.environ.get('PDFCROWD_HOST', 'api.pdfcrowd.com')
 MULTIPART_BOUNDARY = '----------ThIs_Is_tHe_bOUnDary_$'
-CLIENT_VERSION = '6.5.0'
+CLIENT_VERSION = '6.5.1'
 
 def get_utf8_string(string):
     if PYTHON_3:
@@ -814,7 +814,7 @@ class ConnectionHelper:
         self._reset_response_data()
         self.setProxy(None, None, None, None)
         self.setUseHttp(False)
-        self.setUserAgent('pdfcrowd_python_client/6.5.0 (https://pdfcrowd.com)')
+        self.setUserAgent('pdfcrowd_python_client/6.5.1 (https://pdfcrowd.com)')
 
         self.retry_count = 1
         self.converter_version = '24.04'
@@ -7865,7 +7865,7 @@ available converters:
                             help = argparse.SUPPRESS
 )
         parser.add_argument('-converter-user-agent',
-                            help = 'Specifies the User-Agent HTTP header that will be used by the converter when a request is made to the converted web page. The user agent. Default is chrome-desktop.')
+                            help = 'Specifies the User-Agent HTTP header that will be used by the converter when a request is made to the converted web page. The user agent. Default is latest-chrome-desktop.')
         parser.add_argument('-converter-version',
                             help = 'Set the converter version. Different versions may produce different output. Choose which one provides the best output for your case. The version identifier. Allowed values are 24.04, 20.10, 18.10, latest. Default is 24.04.')
         parser.add_argument('-use-http',
@@ -8012,7 +8012,7 @@ available converters:
                             help = argparse.SUPPRESS
 )
         parser.add_argument('-converter-user-agent',
-                            help = 'Specifies the User-Agent HTTP header that will be used by the converter when a request is made to the converted web page. The user agent. Default is chrome-desktop.')
+                            help = 'Specifies the User-Agent HTTP header that will be used by the converter when a request is made to the converted web page. The user agent. Default is latest-chrome-desktop.')
         parser.add_argument('-converter-version',
                             help = 'Set the converter version. Different versions may produce different output. Choose which one provides the best output for your case. The version identifier. Allowed values are 24.04, 20.10, 18.10, latest. Default is 24.04.')
         parser.add_argument('-use-http',

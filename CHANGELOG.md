@@ -1,6 +1,11 @@
 Change Log
 ==========
 
+6.5.1
+-----
+
+- NEW: Minor help string update.
+
 6.5.0
 -----
 
