@@ -44,7 +44,7 @@ import ssl
 import time
 import warnings
 
-__version__ = '6.5.1'
+__version__ = '6.5.2'
 
 class BaseError(Exception):
     def __init__(self, error, http_code):
@@ -115,12 +115,12 @@ if PYTHON_3:
                 http_code)
 
     class Client:
-        """Pdfcrowd API client."""
+        """PDFCrowd API client."""
 
         def __init__(self, username, apikey, host=None, http_port=None):
             """Client constructor.
 
-            username -- your username at Pdfcrowd
+            username -- your username at PDFCrowd
             apikey  -- your API key
             host     -- API host, defaults to pdfcrowd.com
 
@@ -426,12 +426,12 @@ else:
             BaseError.__init__(self, error, http_code)
 
     class Client:
-        """Pdfcrowd API client."""
+        """PDFCrowd API client."""
 
         def __init__(self, username, apikey, host=None, http_port=None):
             """Client constructor.
 
-            username -- your username at Pdfcrowd
+            username -- your username at PDFCrowd
             apikey  -- your API key
             host     -- API host, defaults to pdfcrowd.com
 
@@ -721,7 +721,7 @@ else:
 
 HOST = os.environ.get('PDFCROWD_HOST', 'api.pdfcrowd.com')
 MULTIPART_BOUNDARY = '----------ThIs_Is_tHe_bOUnDary_$'
-CLIENT_VERSION = '6.5.1'
+CLIENT_VERSION = '6.5.2'
 
 def get_utf8_string(string):
     if PYTHON_3:
@@ -814,7 +814,7 @@ class ConnectionHelper:
         self._reset_response_data()
         self.setProxy(None, None, None, None)
         self.setUseHttp(False)
-        self.setUserAgent('pdfcrowd_python_client/6.5.1 (https://pdfcrowd.com)')
+        self.setUserAgent('pdfcrowd_python_client/6.5.2 (https://pdfcrowd.com)')
 
         self.retry_count = 1
         self.converter_version = '24.04'
@@ -976,9 +976,9 @@ class HtmlToPdfClient:
 
     def __init__(self, user_name, api_key):
         """
-        Constructor for the Pdfcrowd API client.
+        Constructor for the PDFCrowd API client.
 
-        user_name - Your username at Pdfcrowd.
+        user_name - Your username at PDFCrowd.
         api_key - Your API key.
         """
         self.helper = ConnectionHelper(user_name, api_key)
@@ -1782,7 +1782,7 @@ class HtmlToPdfClient:
 
     def setCookies(self, cookies):
         """
-        Set cookies that are sent in Pdfcrowd HTTP requests.
+        Set HTTP cookies to be included in all requests made by the converter.
 
         cookies - The cookie string.
         return - The converter object.
@@ -1822,7 +1822,7 @@ class HtmlToPdfClient:
 
     def setNoXpdfcrowdHeader(self, value):
         """
-        Do not send the X-Pdfcrowd HTTP header in Pdfcrowd HTTP requests.
+        Do not send the X-Pdfcrowd HTTP header in PDFCrowd HTTP requests.
 
         value - Set to True to disable sending X-Pdfcrowd HTTP header.
         return - The converter object.
@@ -1884,7 +1884,7 @@ class HtmlToPdfClient:
 
     def setCustomHttpHeader(self, header):
         """
-        Set a custom HTTP header that is sent in Pdfcrowd HTTP requests.
+        Set a custom HTTP header to be included in all requests made by the converter.
 
         header - A string containing the header name and value separated by a colon.
         return - The converter object.
@@ -1897,7 +1897,7 @@ class HtmlToPdfClient:
 
     def setJavascriptDelay(self, delay):
         """
-        Wait the specified number of milliseconds to finish all JavaScript after the document is loaded. Your API license defines the maximum wait time by "Max Delay" parameter.
+        Wait the specified number of milliseconds to finish all JavaScript after the document is loaded. Your license defines the maximum wait time by "Max Delay" parameter.
 
         delay - The number of milliseconds to wait. Must be a positive integer or 0.
         return - The converter object.
@@ -1936,7 +1936,7 @@ class HtmlToPdfClient:
 
     def setWaitForElement(self, selectors):
         """
-        Wait for the specified element in a source document. The element is specified by one or more CSS selectors. The element is searched for in the main document and all iframes. If the element is not found, the conversion fails. Your API license defines the maximum wait time by "Max Delay" parameter.
+        Wait for the specified element in a source document. The element is specified by one or more CSS selectors. The element is searched for in the main document and all iframes. If the element is not found, the conversion fails. Your license defines the maximum wait time by "Max Delay" parameter.
 
         selectors - One or more CSS selectors separated by commas. The string must not be empty.
         return - The converter object.
@@ -2515,7 +2515,7 @@ class HtmlToPdfClient:
 
     def setHttpProxy(self, proxy):
         """
-        A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTP scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
+        A proxy server used by the conversion process for accessing the source URLs with HTTP scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
 
         proxy - The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
         return - The converter object.
@@ -2528,7 +2528,7 @@ class HtmlToPdfClient:
 
     def setHttpsProxy(self, proxy):
         """
-        A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTPS scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
+        A proxy server used by the conversion process for accessing the source URLs with HTTPS scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
 
         proxy - The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
         return - The converter object.
@@ -2541,7 +2541,7 @@ class HtmlToPdfClient:
 
     def setClientCertificate(self, certificate):
         """
-        A client certificate to authenticate Pdfcrowd converter on your web server. The certificate is used for two-way SSL/TLS authentication and adds extra security.
+        A client certificate to authenticate the converter on your web server. The certificate is used for two-way SSL/TLS authentication and adds extra security.
 
         certificate - The file must be in PKCS12 format. The file must exist and not be empty.
         return - The converter object.
@@ -2770,7 +2770,7 @@ class HtmlToPdfClient:
 
     def setUseHttp(self, value):
         """
-        Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API.
+        Specify whether to use HTTP or HTTPS when connecting to the PDFCrowd API.
         Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.
 
         value - Set to True to use HTTP.
@@ -2829,9 +2829,9 @@ class HtmlToImageClient:
 
     def __init__(self, user_name, api_key):
         """
-        Constructor for the Pdfcrowd API client.
+        Constructor for the PDFCrowd API client.
 
-        user_name - Your username at Pdfcrowd.
+        user_name - Your username at PDFCrowd.
         api_key - Your API key.
         """
         self.helper = ConnectionHelper(user_name, api_key)
@@ -3219,7 +3219,7 @@ class HtmlToImageClient:
 
     def setCookies(self, cookies):
         """
-        Set cookies that are sent in Pdfcrowd HTTP requests.
+        Set HTTP cookies to be included in all requests made by the converter.
 
         cookies - The cookie string.
         return - The converter object.
@@ -3259,7 +3259,7 @@ class HtmlToImageClient:
 
     def setNoXpdfcrowdHeader(self, value):
         """
-        Do not send the X-Pdfcrowd HTTP header in Pdfcrowd HTTP requests.
+        Do not send the X-Pdfcrowd HTTP header in PDFCrowd HTTP requests.
 
         value - Set to True to disable sending X-Pdfcrowd HTTP header.
         return - The converter object.
@@ -3308,7 +3308,7 @@ class HtmlToImageClient:
 
     def setCustomHttpHeader(self, header):
         """
-        Set a custom HTTP header that is sent in Pdfcrowd HTTP requests.
+        Set a custom HTTP header to be included in all requests made by the converter.
 
         header - A string containing the header name and value separated by a colon.
         return - The converter object.
@@ -3321,7 +3321,7 @@ class HtmlToImageClient:
 
     def setJavascriptDelay(self, delay):
         """
-        Wait the specified number of milliseconds to finish all JavaScript after the document is loaded. Your API license defines the maximum wait time by "Max Delay" parameter.
+        Wait the specified number of milliseconds to finish all JavaScript after the document is loaded. Your license defines the maximum wait time by "Max Delay" parameter.
 
         delay - The number of milliseconds to wait. Must be a positive integer or 0.
         return - The converter object.
@@ -3360,7 +3360,7 @@ class HtmlToImageClient:
 
     def setWaitForElement(self, selectors):
         """
-        Wait for the specified element in a source document. The element is specified by one or more CSS selectors. The element is searched for in the main document and all iframes. If the element is not found, the conversion fails. Your API license defines the maximum wait time by "Max Delay" parameter.
+        Wait for the specified element in a source document. The element is specified by one or more CSS selectors. The element is searched for in the main document and all iframes. If the element is not found, the conversion fails. Your license defines the maximum wait time by "Max Delay" parameter.
 
         selectors - One or more CSS selectors separated by commas. The string must not be empty.
         return - The converter object.
@@ -3544,7 +3544,7 @@ class HtmlToImageClient:
 
     def setHttpProxy(self, proxy):
         """
-        A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTP scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
+        A proxy server used by the conversion process for accessing the source URLs with HTTP scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
 
         proxy - The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
         return - The converter object.
@@ -3557,7 +3557,7 @@ class HtmlToImageClient:
 
     def setHttpsProxy(self, proxy):
         """
-        A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTPS scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
+        A proxy server used by the conversion process for accessing the source URLs with HTTPS scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
 
         proxy - The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
         return - The converter object.
@@ -3570,7 +3570,7 @@ class HtmlToImageClient:
 
     def setClientCertificate(self, certificate):
         """
-        A client certificate to authenticate Pdfcrowd converter on your web server. The certificate is used for two-way SSL/TLS authentication and adds extra security.
+        A client certificate to authenticate the converter on your web server. The certificate is used for two-way SSL/TLS authentication and adds extra security.
 
         certificate - The file must be in PKCS12 format. The file must exist and not be empty.
         return - The converter object.
@@ -3634,7 +3634,7 @@ class HtmlToImageClient:
 
     def setUseHttp(self, value):
         """
-        Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API.
+        Specify whether to use HTTP or HTTPS when connecting to the PDFCrowd API.
         Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.
 
         value - Set to True to use HTTP.
@@ -3693,9 +3693,9 @@ class ImageToImageClient:
 
     def __init__(self, user_name, api_key):
         """
-        Constructor for the Pdfcrowd API client.
+        Constructor for the PDFCrowd API client.
 
-        user_name - Your username at Pdfcrowd.
+        user_name - Your username at PDFCrowd.
         api_key - Your API key.
         """
         self.helper = ConnectionHelper(user_name, api_key)
@@ -4234,7 +4234,7 @@ class ImageToImageClient:
 
     def setHttpProxy(self, proxy):
         """
-        A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTP scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
+        A proxy server used by the conversion process for accessing the source URLs with HTTP scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
 
         proxy - The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
         return - The converter object.
@@ -4247,7 +4247,7 @@ class ImageToImageClient:
 
     def setHttpsProxy(self, proxy):
         """
-        A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTPS scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
+        A proxy server used by the conversion process for accessing the source URLs with HTTPS scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
 
         proxy - The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
         return - The converter object.
@@ -4273,7 +4273,7 @@ class ImageToImageClient:
 
     def setUseHttp(self, value):
         """
-        Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API.
+        Specify whether to use HTTP or HTTPS when connecting to the PDFCrowd API.
         Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.
 
         value - Set to True to use HTTP.
@@ -4332,9 +4332,9 @@ class PdfToPdfClient:
 
     def __init__(self, user_name, api_key):
         """
-        Constructor for the Pdfcrowd API client.
+        Constructor for the PDFCrowd API client.
 
-        user_name - Your username at Pdfcrowd.
+        user_name - Your username at PDFCrowd.
         api_key - Your API key.
         """
         self.helper = ConnectionHelper(user_name, api_key)
@@ -4403,7 +4403,7 @@ class PdfToPdfClient:
 
     def addPdfRawData(self, data):
         """
-        Add in-memory raw PDF data to the list of the input PDFs.Typical usage is for adding PDF created by another Pdfcrowd converter. Example in PHP: $clientPdf2Pdf->addPdfRawData($clientHtml2Pdf->convertUrl('http://www.example.com'));
+        Add in-memory raw PDF data to the list of the input PDFs.Typical usage is for adding PDF created by another PDFCrowd converter. Example in PHP: $clientPdf2Pdf->addPdfRawData($clientHtml2Pdf->convertUrl('http://www.example.com'));
 
         data - The raw PDF data. The input data must be PDF content.
         return - The converter object.
@@ -4887,7 +4887,7 @@ class PdfToPdfClient:
 
     def setUseHttp(self, value):
         """
-        Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API.
+        Specify whether to use HTTP or HTTPS when connecting to the PDFCrowd API.
         Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.
 
         value - Set to True to use HTTP.
@@ -4946,9 +4946,9 @@ class ImageToPdfClient:
 
     def __init__(self, user_name, api_key):
         """
-        Constructor for the Pdfcrowd API client.
+        Constructor for the PDFCrowd API client.
 
-        user_name - Your username at Pdfcrowd.
+        user_name - Your username at PDFCrowd.
         api_key - Your API key.
         """
         self.helper = ConnectionHelper(user_name, api_key)
@@ -5813,7 +5813,7 @@ class ImageToPdfClient:
 
     def setHttpProxy(self, proxy):
         """
-        A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTP scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
+        A proxy server used by the conversion process for accessing the source URLs with HTTP scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
 
         proxy - The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
         return - The converter object.
@@ -5826,7 +5826,7 @@ class ImageToPdfClient:
 
     def setHttpsProxy(self, proxy):
         """
-        A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTPS scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
+        A proxy server used by the conversion process for accessing the source URLs with HTTPS scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
 
         proxy - The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
         return - The converter object.
@@ -5852,7 +5852,7 @@ class ImageToPdfClient:
 
     def setUseHttp(self, value):
         """
-        Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API.
+        Specify whether to use HTTP or HTTPS when connecting to the PDFCrowd API.
         Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.
 
         value - Set to True to use HTTP.
@@ -5911,9 +5911,9 @@ class PdfToHtmlClient:
 
     def __init__(self, user_name, api_key):
         """
-        Constructor for the Pdfcrowd API client.
+        Constructor for the PDFCrowd API client.
 
-        user_name - Your username at Pdfcrowd.
+        user_name - Your username at PDFCrowd.
         api_key - Your API key.
         """
         self.helper = ConnectionHelper(user_name, api_key)
@@ -6383,7 +6383,7 @@ class PdfToHtmlClient:
 
     def setHttpProxy(self, proxy):
         """
-        A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTP scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
+        A proxy server used by the conversion process for accessing the source URLs with HTTP scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
 
         proxy - The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
         return - The converter object.
@@ -6396,7 +6396,7 @@ class PdfToHtmlClient:
 
     def setHttpsProxy(self, proxy):
         """
-        A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTPS scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
+        A proxy server used by the conversion process for accessing the source URLs with HTTPS scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
 
         proxy - The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
         return - The converter object.
@@ -6422,7 +6422,7 @@ class PdfToHtmlClient:
 
     def setUseHttp(self, value):
         """
-        Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API.
+        Specify whether to use HTTP or HTTPS when connecting to the PDFCrowd API.
         Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.
 
         value - Set to True to use HTTP.
@@ -6484,9 +6484,9 @@ class PdfToTextClient:
 
     def __init__(self, user_name, api_key):
         """
-        Constructor for the Pdfcrowd API client.
+        Constructor for the PDFCrowd API client.
 
-        user_name - Your username at Pdfcrowd.
+        user_name - Your username at PDFCrowd.
         api_key - Your API key.
         """
         self.helper = ConnectionHelper(user_name, api_key)
@@ -6923,7 +6923,7 @@ class PdfToTextClient:
 
     def setHttpProxy(self, proxy):
         """
-        A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTP scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
+        A proxy server used by the conversion process for accessing the source URLs with HTTP scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
 
         proxy - The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
         return - The converter object.
@@ -6936,7 +6936,7 @@ class PdfToTextClient:
 
     def setHttpsProxy(self, proxy):
         """
-        A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTPS scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
+        A proxy server used by the conversion process for accessing the source URLs with HTTPS scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
 
         proxy - The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
         return - The converter object.
@@ -6949,7 +6949,7 @@ class PdfToTextClient:
 
     def setUseHttp(self, value):
         """
-        Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API.
+        Specify whether to use HTTP or HTTPS when connecting to the PDFCrowd API.
         Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.
 
         value - Set to True to use HTTP.
@@ -7008,9 +7008,9 @@ class PdfToImageClient:
 
     def __init__(self, user_name, api_key):
         """
-        Constructor for the Pdfcrowd API client.
+        Constructor for the PDFCrowd API client.
 
-        user_name - Your username at Pdfcrowd.
+        user_name - Your username at PDFCrowd.
         api_key - Your API key.
         """
         self.helper = ConnectionHelper(user_name, api_key)
@@ -7415,7 +7415,7 @@ class PdfToImageClient:
 
     def setHttpProxy(self, proxy):
         """
-        A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTP scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
+        A proxy server used by the conversion process for accessing the source URLs with HTTP scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
 
         proxy - The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
         return - The converter object.
@@ -7428,7 +7428,7 @@ class PdfToImageClient:
 
     def setHttpsProxy(self, proxy):
         """
-        A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTPS scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
+        A proxy server used by the conversion process for accessing the source URLs with HTTPS scheme. It can help to circumvent regional restrictions or provide limited access to your intranet.
 
         proxy - The value must have format DOMAIN_OR_IP_ADDRESS:PORT.
         return - The converter object.
@@ -7441,7 +7441,7 @@ class PdfToImageClient:
 
     def setUseHttp(self, value):
         """
-        Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API.
+        Specify whether to use HTTP or HTTPS when connecting to the PDFCrowd API.
         Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.
 
         value - Set to True to use HTTP.
@@ -7676,7 +7676,7 @@ available converters:
         parser.add_argument('-http-auth',
                             help = 'Set credentials to access HTTP base authentication protected websites. HTTP_AUTH must contain 2 values separated by a semicolon. Set the HTTP authentication user name. Set the HTTP authentication password.')
         parser.add_argument('-cookies',
-                            help = 'Set cookies that are sent in Pdfcrowd HTTP requests. The cookie string.')
+                            help = 'Set HTTP cookies to be included in all requests made by the converter. The cookie string.')
         parser.add_argument('-verify-ssl-certificates',
                             action = 'store_true',
                             help = 'Do not allow insecure HTTPS connections.')
@@ -7688,7 +7688,7 @@ available converters:
                             help = 'Abort the conversion if any of the sub-request HTTP status code is greater than or equal to 400 or if some sub-requests are still pending. See details in a debug log.')
         parser.add_argument('-no-xpdfcrowd-header',
                             action = 'store_true',
-                            help = 'Do not send the X-Pdfcrowd HTTP header in Pdfcrowd HTTP requests.')
+                            help = 'Do not send the X-Pdfcrowd HTTP header in PDFCrowd HTTP requests.')
         parser.add_argument('-css-page-rule-mode',
                             help = 'Specifies behavior in presence of CSS @page rules. It may affect the page size, margins and orientation. The page rule mode. Allowed values are default, mode1, mode2. Default is default.')
         parser.add_argument('-custom-css',
@@ -7698,15 +7698,15 @@ available converters:
         parser.add_argument('-on-load-javascript',
                             help = 'Run a custom JavaScript right after the document is loaded. The script is intended for early DOM manipulation (add/remove elements, update CSS, ...). In addition to the standard browser APIs, the custom JavaScript code can use helper functions from our JavaScript library. A string containing a JavaScript code. The string must not be empty.')
         parser.add_argument('-custom-http-header',
-                            help = 'Set a custom HTTP header that is sent in Pdfcrowd HTTP requests. A string containing the header name and value separated by a colon.')
+                            help = 'Set a custom HTTP header to be included in all requests made by the converter. A string containing the header name and value separated by a colon.')
         parser.add_argument('-javascript-delay',
-                            help = 'Wait the specified number of milliseconds to finish all JavaScript after the document is loaded. Your API license defines the maximum wait time by "Max Delay" parameter. The number of milliseconds to wait. Must be a positive integer or 0. Default is 200.')
+                            help = 'Wait the specified number of milliseconds to finish all JavaScript after the document is loaded. Your license defines the maximum wait time by "Max Delay" parameter. The number of milliseconds to wait. Must be a positive integer or 0. Default is 200.')
         parser.add_argument('-element-to-convert',
                             help = 'Convert only the specified element from the main document and its children. The element is specified by one or more CSS selectors. If the element is not found, the conversion fails. If multiple elements are found, the first one is used. One or more CSS selectors separated by commas. The string must not be empty.')
         parser.add_argument('-element-to-convert-mode',
                             help = 'Specify the DOM handling when only a part of the document is converted. This can affect the CSS rules used. Allowed values are cut-out, remove-siblings, hide-siblings. Default is cut-out.')
         parser.add_argument('-wait-for-element',
-                            help = 'Wait for the specified element in a source document. The element is specified by one or more CSS selectors. The element is searched for in the main document and all iframes. If the element is not found, the conversion fails. Your API license defines the maximum wait time by "Max Delay" parameter. One or more CSS selectors separated by commas. The string must not be empty.')
+                            help = 'Wait for the specified element in a source document. The element is specified by one or more CSS selectors. The element is searched for in the main document and all iframes. If the element is not found, the conversion fails. Your license defines the maximum wait time by "Max Delay" parameter. One or more CSS selectors separated by commas. The string must not be empty.')
         parser.add_argument('-auto-detect-element-to-convert',
                             action = 'store_true',
                             help = 'The main HTML element for conversion is detected automatically.')
@@ -7820,11 +7820,11 @@ available converters:
         parser.add_argument('-tag',
                             help = 'Tag the conversion with a custom value. The tag is used in conversion statistics. A value longer than 32 characters is cut off. A string with the custom tag.')
         parser.add_argument('-http-proxy',
-                            help = 'A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTP scheme. It can help to circumvent regional restrictions or provide limited access to your intranet. The value must have format DOMAIN_OR_IP_ADDRESS:PORT.')
+                            help = 'A proxy server used by the conversion process for accessing the source URLs with HTTP scheme. It can help to circumvent regional restrictions or provide limited access to your intranet. The value must have format DOMAIN_OR_IP_ADDRESS:PORT.')
         parser.add_argument('-https-proxy',
-                            help = 'A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTPS scheme. It can help to circumvent regional restrictions or provide limited access to your intranet. The value must have format DOMAIN_OR_IP_ADDRESS:PORT.')
+                            help = 'A proxy server used by the conversion process for accessing the source URLs with HTTPS scheme. It can help to circumvent regional restrictions or provide limited access to your intranet. The value must have format DOMAIN_OR_IP_ADDRESS:PORT.')
         parser.add_argument('-client-certificate',
-                            help = 'A client certificate to authenticate Pdfcrowd converter on your web server. The certificate is used for two-way SSL/TLS authentication and adds extra security. The file must be in PKCS12 format. The file must exist and not be empty.')
+                            help = 'A client certificate to authenticate the converter on your web server. The certificate is used for two-way SSL/TLS authentication and adds extra security. The file must be in PKCS12 format. The file must exist and not be empty.')
         parser.add_argument('-client-certificate-password',
                             help = 'A password for PKCS12 file with a client certificate if it is needed.')
         parser.add_argument('-layout-dpi',
@@ -7870,7 +7870,7 @@ available converters:
                             help = 'Set the converter version. Different versions may produce different output. Choose which one provides the best output for your case. The version identifier. Allowed values are 24.04, 20.10, 18.10, latest. Default is 24.04.')
         parser.add_argument('-use-http',
                             action = 'store_true',
-                            help = 'Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API. Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.')
+                            help = 'Specify whether to use HTTP or HTTPS when connecting to the PDFCrowd API. Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.')
         parser.add_argument('-client-user-agent',
                             help = 'Specifies the User-Agent HTTP header that the client library will use when interacting with the API. The user agent string.')
         parser.add_argument('-user-agent',
@@ -7940,7 +7940,7 @@ available converters:
         parser.add_argument('-http-auth',
                             help = 'Set credentials to access HTTP base authentication protected websites. HTTP_AUTH must contain 2 values separated by a semicolon. Set the HTTP authentication user name. Set the HTTP authentication password.')
         parser.add_argument('-cookies',
-                            help = 'Set cookies that are sent in Pdfcrowd HTTP requests. The cookie string.')
+                            help = 'Set HTTP cookies to be included in all requests made by the converter. The cookie string.')
         parser.add_argument('-verify-ssl-certificates',
                             action = 'store_true',
                             help = 'Do not allow insecure HTTPS connections.')
@@ -7952,7 +7952,7 @@ available converters:
                             help = 'Abort the conversion if any of the sub-request HTTP status code is greater than or equal to 400 or if some sub-requests are still pending. See details in a debug log.')
         parser.add_argument('-no-xpdfcrowd-header',
                             action = 'store_true',
-                            help = 'Do not send the X-Pdfcrowd HTTP header in Pdfcrowd HTTP requests.')
+                            help = 'Do not send the X-Pdfcrowd HTTP header in PDFCrowd HTTP requests.')
         parser.add_argument('-custom-css',
                             help = 'Apply custom CSS to the input HTML document. It allows you to modify the visual appearance and layout of your HTML content dynamically. Tip: Using !important in custom CSS provides a way to prioritize and override conflicting styles. A string containing valid CSS. The string must not be empty.')
         parser.add_argument('-custom-javascript',
@@ -7960,15 +7960,15 @@ available converters:
         parser.add_argument('-on-load-javascript',
                             help = 'Run a custom JavaScript right after the document is loaded. The script is intended for early DOM manipulation (add/remove elements, update CSS, ...). In addition to the standard browser APIs, the custom JavaScript code can use helper functions from our JavaScript library. A string containing a JavaScript code. The string must not be empty.')
         parser.add_argument('-custom-http-header',
-                            help = 'Set a custom HTTP header that is sent in Pdfcrowd HTTP requests. A string containing the header name and value separated by a colon.')
+                            help = 'Set a custom HTTP header to be included in all requests made by the converter. A string containing the header name and value separated by a colon.')
         parser.add_argument('-javascript-delay',
-                            help = 'Wait the specified number of milliseconds to finish all JavaScript after the document is loaded. Your API license defines the maximum wait time by "Max Delay" parameter. The number of milliseconds to wait. Must be a positive integer or 0. Default is 200.')
+                            help = 'Wait the specified number of milliseconds to finish all JavaScript after the document is loaded. Your license defines the maximum wait time by "Max Delay" parameter. The number of milliseconds to wait. Must be a positive integer or 0. Default is 200.')
         parser.add_argument('-element-to-convert',
                             help = 'Convert only the specified element from the main document and its children. The element is specified by one or more CSS selectors. If the element is not found, the conversion fails. If multiple elements are found, the first one is used. One or more CSS selectors separated by commas. The string must not be empty.')
         parser.add_argument('-element-to-convert-mode',
                             help = 'Specify the DOM handling when only a part of the document is converted. This can affect the CSS rules used. Allowed values are cut-out, remove-siblings, hide-siblings. Default is cut-out.')
         parser.add_argument('-wait-for-element',
-                            help = 'Wait for the specified element in a source document. The element is specified by one or more CSS selectors. The element is searched for in the main document and all iframes. If the element is not found, the conversion fails. Your API license defines the maximum wait time by "Max Delay" parameter. One or more CSS selectors separated by commas. The string must not be empty.')
+                            help = 'Wait for the specified element in a source document. The element is specified by one or more CSS selectors. The element is searched for in the main document and all iframes. If the element is not found, the conversion fails. Your license defines the maximum wait time by "Max Delay" parameter. One or more CSS selectors separated by commas. The string must not be empty.')
         parser.add_argument('-auto-detect-element-to-convert',
                             action = 'store_true',
                             help = 'The main HTML element for conversion is detected automatically.')
@@ -7999,11 +7999,11 @@ available converters:
         parser.add_argument('-tag',
                             help = 'Tag the conversion with a custom value. The tag is used in conversion statistics. A value longer than 32 characters is cut off. A string with the custom tag.')
         parser.add_argument('-http-proxy',
-                            help = 'A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTP scheme. It can help to circumvent regional restrictions or provide limited access to your intranet. The value must have format DOMAIN_OR_IP_ADDRESS:PORT.')
+                            help = 'A proxy server used by the conversion process for accessing the source URLs with HTTP scheme. It can help to circumvent regional restrictions or provide limited access to your intranet. The value must have format DOMAIN_OR_IP_ADDRESS:PORT.')
         parser.add_argument('-https-proxy',
-                            help = 'A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTPS scheme. It can help to circumvent regional restrictions or provide limited access to your intranet. The value must have format DOMAIN_OR_IP_ADDRESS:PORT.')
+                            help = 'A proxy server used by the conversion process for accessing the source URLs with HTTPS scheme. It can help to circumvent regional restrictions or provide limited access to your intranet. The value must have format DOMAIN_OR_IP_ADDRESS:PORT.')
         parser.add_argument('-client-certificate',
-                            help = 'A client certificate to authenticate Pdfcrowd converter on your web server. The certificate is used for two-way SSL/TLS authentication and adds extra security. The file must be in PKCS12 format. The file must exist and not be empty.')
+                            help = 'A client certificate to authenticate the converter on your web server. The certificate is used for two-way SSL/TLS authentication and adds extra security. The file must be in PKCS12 format. The file must exist and not be empty.')
         parser.add_argument('-client-certificate-password',
                             help = 'A password for PKCS12 file with a client certificate if it is needed.')
         parser.add_argument('-max-loading-time',
@@ -8017,7 +8017,7 @@ available converters:
                             help = 'Set the converter version. Different versions may produce different output. Choose which one provides the best output for your case. The version identifier. Allowed values are 24.04, 20.10, 18.10, latest. Default is 24.04.')
         parser.add_argument('-use-http',
                             action = 'store_true',
-                            help = 'Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API. Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.')
+                            help = 'Specify whether to use HTTP or HTTPS when connecting to the PDFCrowd API. Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.')
         parser.add_argument('-client-user-agent',
                             help = 'Specifies the User-Agent HTTP header that the client library will use when interacting with the API. The user agent string.')
         parser.add_argument('-user-agent',
@@ -8094,14 +8094,14 @@ available converters:
         parser.add_argument('-tag',
                             help = 'Tag the conversion with a custom value. The tag is used in conversion statistics. A value longer than 32 characters is cut off. A string with the custom tag.')
         parser.add_argument('-http-proxy',
-                            help = 'A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTP scheme. It can help to circumvent regional restrictions or provide limited access to your intranet. The value must have format DOMAIN_OR_IP_ADDRESS:PORT.')
+                            help = 'A proxy server used by the conversion process for accessing the source URLs with HTTP scheme. It can help to circumvent regional restrictions or provide limited access to your intranet. The value must have format DOMAIN_OR_IP_ADDRESS:PORT.')
         parser.add_argument('-https-proxy',
-                            help = 'A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTPS scheme. It can help to circumvent regional restrictions or provide limited access to your intranet. The value must have format DOMAIN_OR_IP_ADDRESS:PORT.')
+                            help = 'A proxy server used by the conversion process for accessing the source URLs with HTTPS scheme. It can help to circumvent regional restrictions or provide limited access to your intranet. The value must have format DOMAIN_OR_IP_ADDRESS:PORT.')
         parser.add_argument('-converter-version',
                             help = 'Set the converter version. Different versions may produce different output. Choose which one provides the best output for your case. The version identifier. Allowed values are 24.04, 20.10, 18.10, latest. Default is 24.04.')
         parser.add_argument('-use-http',
                             action = 'store_true',
-                            help = 'Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API. Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.')
+                            help = 'Specify whether to use HTTP or HTTPS when connecting to the PDFCrowd API. Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.')
         parser.add_argument('-client-user-agent',
                             help = 'Specifies the User-Agent HTTP header that the client library will use when interacting with the API. The user agent string.')
         parser.add_argument('-user-agent',
@@ -8213,7 +8213,7 @@ available converters:
                             help = 'Set the converter version. Different versions may produce different output. Choose which one provides the best output for your case. The version identifier. Allowed values are 24.04, 20.10, 18.10, latest. Default is 24.04.')
         parser.add_argument('-use-http',
                             action = 'store_true',
-                            help = 'Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API. Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.')
+                            help = 'Specify whether to use HTTP or HTTPS when connecting to the PDFCrowd API. Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.')
         parser.add_argument('-client-user-agent',
                             help = 'Specifies the User-Agent HTTP header that the client library will use when interacting with the API. The user agent string.')
         parser.add_argument('-user-agent',
@@ -8359,14 +8359,14 @@ available converters:
         parser.add_argument('-tag',
                             help = 'Tag the conversion with a custom value. The tag is used in conversion statistics. A value longer than 32 characters is cut off. A string with the custom tag.')
         parser.add_argument('-http-proxy',
-                            help = 'A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTP scheme. It can help to circumvent regional restrictions or provide limited access to your intranet. The value must have format DOMAIN_OR_IP_ADDRESS:PORT.')
+                            help = 'A proxy server used by the conversion process for accessing the source URLs with HTTP scheme. It can help to circumvent regional restrictions or provide limited access to your intranet. The value must have format DOMAIN_OR_IP_ADDRESS:PORT.')
         parser.add_argument('-https-proxy',
-                            help = 'A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTPS scheme. It can help to circumvent regional restrictions or provide limited access to your intranet. The value must have format DOMAIN_OR_IP_ADDRESS:PORT.')
+                            help = 'A proxy server used by the conversion process for accessing the source URLs with HTTPS scheme. It can help to circumvent regional restrictions or provide limited access to your intranet. The value must have format DOMAIN_OR_IP_ADDRESS:PORT.')
         parser.add_argument('-converter-version',
                             help = 'Set the converter version. Different versions may produce different output. Choose which one provides the best output for your case. The version identifier. Allowed values are 24.04, 20.10, 18.10, latest. Default is 24.04.')
         parser.add_argument('-use-http',
                             action = 'store_true',
-                            help = 'Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API. Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.')
+                            help = 'Specify whether to use HTTP or HTTPS when connecting to the PDFCrowd API. Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.')
         parser.add_argument('-client-user-agent',
                             help = 'Specifies the User-Agent HTTP header that the client library will use when interacting with the API. The user agent string.')
         parser.add_argument('-user-agent',
@@ -8429,14 +8429,14 @@ available converters:
         parser.add_argument('-tag',
                             help = 'Tag the conversion with a custom value. The tag is used in conversion statistics. A value longer than 32 characters is cut off. A string with the custom tag.')
         parser.add_argument('-http-proxy',
-                            help = 'A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTP scheme. It can help to circumvent regional restrictions or provide limited access to your intranet. The value must have format DOMAIN_OR_IP_ADDRESS:PORT.')
+                            help = 'A proxy server used by the conversion process for accessing the source URLs with HTTP scheme. It can help to circumvent regional restrictions or provide limited access to your intranet. The value must have format DOMAIN_OR_IP_ADDRESS:PORT.')
         parser.add_argument('-https-proxy',
-                            help = 'A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTPS scheme. It can help to circumvent regional restrictions or provide limited access to your intranet. The value must have format DOMAIN_OR_IP_ADDRESS:PORT.')
+                            help = 'A proxy server used by the conversion process for accessing the source URLs with HTTPS scheme. It can help to circumvent regional restrictions or provide limited access to your intranet. The value must have format DOMAIN_OR_IP_ADDRESS:PORT.')
         parser.add_argument('-converter-version',
                             help = 'Set the converter version. Different versions may produce different output. Choose which one provides the best output for your case. The version identifier. Allowed values are 24.04, 20.10, 18.10, latest. Default is 24.04.')
         parser.add_argument('-use-http',
                             action = 'store_true',
-                            help = 'Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API. Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.')
+                            help = 'Specify whether to use HTTP or HTTPS when connecting to the PDFCrowd API. Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.')
         parser.add_argument('-client-user-agent',
                             help = 'Specifies the User-Agent HTTP header that the client library will use when interacting with the API. The user agent string.')
         parser.add_argument('-user-agent',
@@ -8497,12 +8497,12 @@ available converters:
         parser.add_argument('-tag',
                             help = 'Tag the conversion with a custom value. The tag is used in conversion statistics. A value longer than 32 characters is cut off. A string with the custom tag.')
         parser.add_argument('-http-proxy',
-                            help = 'A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTP scheme. It can help to circumvent regional restrictions or provide limited access to your intranet. The value must have format DOMAIN_OR_IP_ADDRESS:PORT.')
+                            help = 'A proxy server used by the conversion process for accessing the source URLs with HTTP scheme. It can help to circumvent regional restrictions or provide limited access to your intranet. The value must have format DOMAIN_OR_IP_ADDRESS:PORT.')
         parser.add_argument('-https-proxy',
-                            help = 'A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTPS scheme. It can help to circumvent regional restrictions or provide limited access to your intranet. The value must have format DOMAIN_OR_IP_ADDRESS:PORT.')
+                            help = 'A proxy server used by the conversion process for accessing the source URLs with HTTPS scheme. It can help to circumvent regional restrictions or provide limited access to your intranet. The value must have format DOMAIN_OR_IP_ADDRESS:PORT.')
         parser.add_argument('-use-http',
                             action = 'store_true',
-                            help = 'Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API. Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.')
+                            help = 'Specify whether to use HTTP or HTTPS when connecting to the PDFCrowd API. Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.')
         parser.add_argument('-client-user-agent',
                             help = 'Specifies the User-Agent HTTP header that the client library will use when interacting with the API. The user agent string.')
         parser.add_argument('-user-agent',
@@ -8557,12 +8557,12 @@ available converters:
         parser.add_argument('-tag',
                             help = 'Tag the conversion with a custom value. The tag is used in conversion statistics. A value longer than 32 characters is cut off. A string with the custom tag.')
         parser.add_argument('-http-proxy',
-                            help = 'A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTP scheme. It can help to circumvent regional restrictions or provide limited access to your intranet. The value must have format DOMAIN_OR_IP_ADDRESS:PORT.')
+                            help = 'A proxy server used by the conversion process for accessing the source URLs with HTTP scheme. It can help to circumvent regional restrictions or provide limited access to your intranet. The value must have format DOMAIN_OR_IP_ADDRESS:PORT.')
         parser.add_argument('-https-proxy',
-                            help = 'A proxy server used by Pdfcrowd conversion process for accessing the source URLs with HTTPS scheme. It can help to circumvent regional restrictions or provide limited access to your intranet. The value must have format DOMAIN_OR_IP_ADDRESS:PORT.')
+                            help = 'A proxy server used by the conversion process for accessing the source URLs with HTTPS scheme. It can help to circumvent regional restrictions or provide limited access to your intranet. The value must have format DOMAIN_OR_IP_ADDRESS:PORT.')
         parser.add_argument('-use-http',
                             action = 'store_true',
-                            help = 'Specifies if the client communicates over HTTP or HTTPS with Pdfcrowd API. Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.')
+                            help = 'Specify whether to use HTTP or HTTPS when connecting to the PDFCrowd API. Warning: Using HTTP is insecure as data sent over HTTP is not encrypted. Enable this option only if you know what you are doing.')
         parser.add_argument('-client-user-agent',
                             help = 'Specifies the User-Agent HTTP header that the client library will use when interacting with the API. The user agent string.')
         parser.add_argument('-user-agent',

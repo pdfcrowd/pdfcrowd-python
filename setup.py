@@ -31,14 +31,14 @@ except ImportError:
 py_modules=['pdfcrowd']
 
 setup(name='pdfcrowd',
-      version='6.5.1',
-      description="A client library for the Pdfcrowd API.",
+      version='6.5.2',
+      description="A client library for the PDFCrowd API.",
       url='https://pdfcrowd.com/api/',
       license="License :: OSI Approved :: MIT License",
-      author='Pdfcrowd Team',
+      author='PDFCrowd Team',
       author_email='support@pdfcrowd.com',
       long_description="""
-The Pdfcrowd API lets you easily convert between HTML, PDF and various image formats.
+The PDFCrowd API lets you easily convert between HTML, PDF and various image formats.
 """,
       py_modules=py_modules,
       scripts=['./html2pdf',
