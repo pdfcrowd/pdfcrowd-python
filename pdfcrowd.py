@@ -44,7 +44,7 @@ import ssl
 import time
 import warnings
 
-__version__ = '6.5.2'
+__version__ = '6.5.3'
 
 class BaseError(Exception):
     def __init__(self, error, http_code):
@@ -721,7 +721,7 @@ else:
 
 HOST = os.environ.get('PDFCROWD_HOST', 'api.pdfcrowd.com')
 MULTIPART_BOUNDARY = '----------ThIs_Is_tHe_bOUnDary_$'
-CLIENT_VERSION = '6.5.2'
+CLIENT_VERSION = '6.5.3'
 
 def get_utf8_string(string):
     if PYTHON_3:
@@ -814,7 +814,7 @@ class ConnectionHelper:
         self._reset_response_data()
         self.setProxy(None, None, None, None)
         self.setUseHttp(False)
-        self.setUserAgent('pdfcrowd_python_client/6.5.2 (https://pdfcrowd.com)')
+        self.setUserAgent('pdfcrowd_python_client/6.5.3 (https://pdfcrowd.com)')
 
         self.retry_count = 1
         self.converter_version = '24.04'
