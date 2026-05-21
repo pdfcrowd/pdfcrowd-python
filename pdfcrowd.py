@@ -44,7 +44,7 @@ import ssl
 import time
 import warnings
 
-__version__ = '6.5.4'
+__version__ = '6.6.0'
 
 class BaseError(Exception):
     def __init__(self, error, http_code):
@@ -721,7 +721,7 @@ else:
 
 HOST = os.environ.get('PDFCROWD_HOST', 'api.pdfcrowd.com')
 MULTIPART_BOUNDARY = '----------ThIs_Is_tHe_bOUnDary_$'
-CLIENT_VERSION = '6.5.4'
+CLIENT_VERSION = '6.6.0'
 
 def get_utf8_string(string):
     if PYTHON_3:
@@ -814,7 +814,7 @@ class ConnectionHelper:
         self._reset_response_data()
         self.setProxy(None, None, None, None)
         self.setUseHttp(False)
-        self.setUserAgent('pdfcrowd_python_client/6.5.4 (https://pdfcrowd.com)')
+        self.setUserAgent('pdfcrowd_python_client/6.6.0 (https://pdfcrowd.com)')
 
         self.retry_count = 1
         self.converter_version = '24.04'
@@ -1818,6 +1818,14 @@ class HtmlToPdfClient:
         self.fields['data_trim_blocks'] = value
         return self
 
+    def setDataVariableMarkers(self, markers):
+        """https://pdfcrowd.com/api/html-to-pdf-python/ref/#set_data_variable_markers"""
+        if not re.match(r'(?i)^(standard|square|angle)$', markers):
+            raise Error(create_invalid_value_message(markers, "setDataVariableMarkers", "html-to-pdf", 'Allowed values are standard, square, angle.', "set_data_variable_markers"), 470);
+        
+        self.fields['data_variable_markers'] = get_utf8_string(markers)
+        return self
+
     def setDataOptions(self, options):
         """https://pdfcrowd.com/api/html-to-pdf-python/ref/#set_data_options"""
         self.fields['data_options'] = get_utf8_string(options)
@@ -2418,6 +2426,14 @@ class HtmlToImageClient:
     def setDataTrimBlocks(self, value):
         """https://pdfcrowd.com/api/html-to-image-python/ref/#set_data_trim_blocks"""
         self.fields['data_trim_blocks'] = value
+        return self
+
+    def setDataVariableMarkers(self, markers):
+        """https://pdfcrowd.com/api/html-to-image-python/ref/#set_data_variable_markers"""
+        if not re.match(r'(?i)^(standard|square|angle)$', markers):
+            raise Error(create_invalid_value_message(markers, "setDataVariableMarkers", "html-to-image", 'Allowed values are standard, square, angle.', "set_data_variable_markers"), 470);
+        
+        self.fields['data_variable_markers'] = get_utf8_string(markers)
         return self
 
     def setDataOptions(self, options):
@@ -5076,8 +5092,10 @@ available converters:
         parser.add_argument('-data-trim-blocks',
                             action = 'store_true',
                             help = 'Auto trim whitespace around each template command block.')
+        parser.add_argument('-data-variable-markers',
+                            help = 'Set the markers that delimit variable expressions in the template. The default Jinja2 syntax uses {{ and }}, which can clash with other systems (e.g. Zapier) that interpret double braces. Use an alternative style to avoid the conflict. Block markers {%% %%} and comment markers {# #} are not affected. The variable markers style. Allowed values are standard, square, angle. Default is standard.')
         parser.add_argument('-data-options',
-                            help = 'Set the advanced data options:csv_delimiter - The CSV data delimiter, the default is ,.xml_remove_root - Remove the root XML element from the input data.data_root - The name of the root element inserted into the input data without a root node (e.g. CSV), the default is data. Comma separated list of options.')
+                            help = 'Set the advanced data options as comma separated key=value pairs:csv_delimiter - The CSV data delimiter, the default is ,.xml_remove_root - Remove the root XML element from the input data.data_root - The name of the root element inserted into the input data without a root node (e.g. CSV), the default is data. Comma separated list of options.')
         parser.add_argument('-debug-log',
                             action = 'store_true',
                             help = 'Turn on debug logging to troubleshoot conversion issues. Details about the conversion process, including resource loading, rendering steps, and error messages are stored in the debug log. Use this when conversions fail or produce unexpected results.')
@@ -5255,8 +5273,10 @@ available converters:
         parser.add_argument('-data-trim-blocks',
                             action = 'store_true',
                             help = 'Auto trim whitespace around each template command block.')
+        parser.add_argument('-data-variable-markers',
+                            help = 'Set the markers that delimit variable expressions in the template. The default Jinja2 syntax uses {{ and }}, which can clash with other systems (e.g. Zapier) that interpret double braces. Use an alternative style to avoid the conflict. Block markers {%% %%} and comment markers {# #} are not affected. The variable markers style. Allowed values are standard, square, angle. Default is standard.')
         parser.add_argument('-data-options',
-                            help = 'Set the advanced data options:csv_delimiter - The CSV data delimiter, the default is ,.xml_remove_root - Remove the root XML element from the input data.data_root - The name of the root element inserted into the input data without a root node (e.g. CSV), the default is data. Comma separated list of options.')
+                            help = 'Set the advanced data options as comma separated key=value pairs:csv_delimiter - The CSV data delimiter, the default is ,.xml_remove_root - Remove the root XML element from the input data.data_root - The name of the root element inserted into the input data without a root node (e.g. CSV), the default is data. Comma separated list of options.')
         parser.add_argument('-debug-log',
                             action = 'store_true',
                             help = 'Turn on debug logging to troubleshoot conversion issues. Details about the conversion process, including resource loading, rendering steps, and error messages are stored in the debug log. Use this when conversions fail or produce unexpected results.')
