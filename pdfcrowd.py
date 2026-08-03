@@ -44,7 +44,7 @@ import ssl
 import time
 import warnings
 
-__version__ = '6.6.0'
+__version__ = '6.7.0'
 
 class BaseError(Exception):
     def __init__(self, error, http_code):
@@ -721,7 +721,7 @@ else:
 
 HOST = os.environ.get('PDFCROWD_HOST', 'api.pdfcrowd.com')
 MULTIPART_BOUNDARY = '----------ThIs_Is_tHe_bOUnDary_$'
-CLIENT_VERSION = '6.6.0'
+CLIENT_VERSION = '6.7.0'
 
 def get_utf8_string(string):
     if PYTHON_3:
@@ -814,7 +814,7 @@ class ConnectionHelper:
         self._reset_response_data()
         self.setProxy(None, None, None, None)
         self.setUseHttp(False)
-        self.setUserAgent('pdfcrowd_python_client/6.6.0 (https://pdfcrowd.com)')
+        self.setUserAgent('pdfcrowd_python_client/6.7.0 (https://pdfcrowd.com)')
 
         self.retry_count = 1
         self.converter_version = '24.04'
@@ -1703,6 +1703,28 @@ class HtmlToPdfClient:
     def setExtractMetaTags(self, value):
         """https://pdfcrowd.com/api/html-to-pdf-python/ref/#set_extract_meta_tags"""
         self.fields['extract_meta_tags'] = value
+        return self
+
+    def setConformance(self, conformance):
+        """https://pdfcrowd.com/api/html-to-pdf-python/ref/#set_conformance"""
+        if not re.match(r'(?i)^(PDF/A-2a|PDF/A-2b|PDF/A-2u|PDF/A-3a|PDF/A-3b|PDF/A-3u|PDF/A-4|PDF/A-4e|PDF/A-4f)$', conformance):
+            raise Error(create_invalid_value_message(conformance, "setConformance", "html-to-pdf", 'Allowed values are PDF/A-2a, PDF/A-2b, PDF/A-2u, PDF/A-3a, PDF/A-3b, PDF/A-3u, PDF/A-4, PDF/A-4e, PDF/A-4f.', "set_conformance"), 470);
+        
+        self.fields['conformance'] = get_utf8_string(conformance)
+        return self
+
+    def setTaggedPdf(self, value):
+        """https://pdfcrowd.com/api/html-to-pdf-python/ref/#set_tagged_pdf"""
+        self.fields['tagged_pdf'] = value
+        return self
+
+    def addAttachment(self, attachment):
+        """https://pdfcrowd.com/api/html-to-pdf-python/ref/#add_attachment"""
+        if not (os.path.isfile(attachment) and os.path.getsize(attachment)):
+            raise Error(create_invalid_value_message(attachment, "addAttachment", "html-to-pdf", 'The file must exist and not be empty.', "add_attachment"), 470);
+        
+        self.files['attachment_{}'.format(self.file_id)] = attachment
+        self.file_id += 1
         return self
 
     def setPageLayout(self, layout):
@@ -3131,6 +3153,15 @@ class PdfToPdfClient:
         self.fields['use_metadata_from'] = index
         return self
 
+    def addAttachment(self, attachment):
+        """https://pdfcrowd.com/api/pdf-to-pdf-python/ref/#add_attachment"""
+        if not (os.path.isfile(attachment) and os.path.getsize(attachment)):
+            raise Error(create_invalid_value_message(attachment, "addAttachment", "pdf-to-pdf", 'The file must exist and not be empty.', "add_attachment"), 470);
+        
+        self.files['attachment_{}'.format(self.file_id)] = attachment
+        self.file_id += 1
+        return self
+
     def setPageLayout(self, layout):
         """https://pdfcrowd.com/api/pdf-to-pdf-python/ref/#set_page_layout"""
         if not re.match(r'(?i)^(single-page|one-column|two-column-left|two-column-right)$', layout):
@@ -3680,6 +3711,15 @@ class ImageToPdfClient:
     def setKeywords(self, keywords):
         """https://pdfcrowd.com/api/image-to-pdf-python/ref/#set_keywords"""
         self.fields['keywords'] = get_utf8_string(keywords)
+        return self
+
+    def addAttachment(self, attachment):
+        """https://pdfcrowd.com/api/image-to-pdf-python/ref/#add_attachment"""
+        if not (os.path.isfile(attachment) and os.path.getsize(attachment)):
+            raise Error(create_invalid_value_message(attachment, "addAttachment", "image-to-pdf", 'The file must exist and not be empty.', "add_attachment"), 470);
+        
+        self.files['attachment_{}'.format(self.file_id)] = attachment
+        self.file_id += 1
         return self
 
     def setPageLayout(self, layout):
@@ -5044,6 +5084,14 @@ available converters:
         parser.add_argument('-extract-meta-tags',
                             action = 'store_true',
                             help = 'Extract meta tags (author, keywords and description) from the input HTML and automatically populate PDF metadata. Use this when converting web pages that already have proper HTML meta tags, saving you from manually setting title, author, and keywords. Ideal for automated conversion workflows where source HTML is well-structured.')
+        parser.add_argument('-conformance',
+                            help = 'Produce the output PDF at the specified PDF/A conformance level. PDF/A is the ISO-standardized archival format for long-term document preservation. Can not be combined with encryption options, fillable PDF forms, or watermarks and backgrounds. The PDF/A conformance level. Allowed values are PDF/A-2a, PDF/A-2b, PDF/A-2u, PDF/A-3a, PDF/A-3b, PDF/A-3u, PDF/A-4, PDF/A-4e, PDF/A-4f.')
+        parser.add_argument('-tagged-pdf',
+                            action = 'store_true',
+                            help = 'Create a tagged PDF that preserves the logical structure of the source HTML - headings, paragraphs, lists, links and reading order - as PDF structure tags. Use this to make documents accessible to screen readers and to improve text extraction and content reflow. Can not be combined with watermarks and backgrounds.')
+        parser.add_argument('-attachment',
+                            action = 'append',
+                            help = 'Embed a file as an attachment in the output PDF. Call this method repeatedly to attach several files. The file path to a local file. The file must exist and not be empty.')
         parser.add_argument('-page-layout',
                             help = 'Control how pages appear when the PDF opens in viewers that respect these preferences. "single-page" for focused reading one page at a time. "one-column" for continuous scrolling like a web page. "two-column-left" for book-like layouts with odd pages on left (international standard). "two-column-right" for magazines with odd pages on right. Allowed values are single-page, one-column, two-column-left, two-column-right.')
         parser.add_argument('-page-mode',
@@ -5457,6 +5505,9 @@ available converters:
                             help = 'Associate keywords with the document to improve searchability in document management systems. Use relevant terms that describe the content, making it easier to find documents later. Separate multiple keywords with commas. Particularly useful for large document repositories or DAM systems. The string with the keywords.')
         parser.add_argument('-use-metadata-from',
                             help = 'Use metadata (title, subject, author and keywords) from the n-th input PDF when merging multiple PDFs. Set to 1 to use the first PDF\'s metadata, 2 for the second, etc. Use this when combining PDFs and you want to preserve the metadata from a specific document rather than starting with blank metadata. Set to 0 for no metadata. Set the index of the input PDF file from which to use the metadata. 0 means no metadata. Must be a positive integer or 0.')
+        parser.add_argument('-attachment',
+                            action = 'append',
+                            help = 'Embed a file as an attachment in the output PDF. Call this method repeatedly to attach several files. The file path to a local file. The file must exist and not be empty.')
         parser.add_argument('-page-layout',
                             help = 'Control how pages appear when the PDF opens in viewers that respect these preferences. "single-page" for focused reading one page at a time. "one-column" for continuous scrolling like a web page. "two-column-left" for book-like layouts with odd pages on left (international standard). "two-column-right" for magazines with odd pages on right. Allowed values are single-page, one-column, two-column-left, two-column-right.')
         parser.add_argument('-page-mode',
@@ -5609,6 +5660,9 @@ available converters:
                             help = 'Set the author of the PDF for attribution and document tracking. Use this to identify who created the document, important for official documents, reports, or publications. This metadata appears in PDF properties and helps with document management and version control. The author.')
         parser.add_argument('-keywords',
                             help = 'Associate keywords with the document to improve searchability in document management systems. Use relevant terms that describe the content, making it easier to find documents later. Separate multiple keywords with commas. Particularly useful for large document repositories or DAM systems. The string with the keywords.')
+        parser.add_argument('-attachment',
+                            action = 'append',
+                            help = 'Embed a file as an attachment in the output PDF. Call this method repeatedly to attach several files. The file path to a local file. The file must exist and not be empty.')
         parser.add_argument('-page-layout',
                             help = 'Control how pages appear when the PDF opens in viewers that respect these preferences. "single-page" for focused reading one page at a time. "one-column" for continuous scrolling like a web page. "two-column-left" for book-like layouts with odd pages on left (international standard). "two-column-right" for magazines with odd pages on right. Allowed values are single-page, one-column, two-column-left, two-column-right.')
         parser.add_argument('-page-mode',
@@ -5881,6 +5935,10 @@ available converters:
             if len(values) != multi_args[arg]:
                 raise Error("Invalid number of arguments for '%s': %s" % (arg, value))
             getattr(converter, method)(*values)
+        elif isinstance(value, list):
+            # repeatable option (argparse append), one method call per value
+            for item in value:
+                getattr(converter, method)(item)
         else:
             getattr(converter, method)(value)
 
@@ -5904,10 +5962,14 @@ available converters:
             value = getattr(args, arg)
             if value:
                 method = ''.join([w.title() if w.islower() else w for w in arg.split('_')])
-                try:
-                    invoke_method('set' + method, value, arg)
-                except AttributeError:
-                    invoke_method(method[0].lower() + method[1:], value, arg)
+                for candidate in ('set' + method,
+                                  'add' + method,
+                                  method[0].lower() + method[1:]):
+                    if hasattr(converter, candidate):
+                        invoke_method(candidate, value, arg)
+                        break
+                else:
+                    raise Error("Unknown option '%s'." % arg)
 
     if converter_name == 'PdfToPdfClient':
         for in_file in args.source:
