@@ -1,6 +1,12 @@
 Change Log
 ==========
 
+6.7.1
+-----
+
+- FIX: fix UnicodeEncodeError when uploading files with non-ASCII filenames on Python 2
+- DOCS: updated command-line help text
+
 6.7.0
 -----
 
