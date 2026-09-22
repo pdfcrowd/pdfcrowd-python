@@ -44,7 +44,7 @@ import ssl
 import time
 import warnings
 
-__version__ = '6.7.1'
+__version__ = '6.7.2'
 
 class BaseError(Exception):
     def __init__(self, error, http_code):
@@ -721,7 +721,7 @@ else:
 
 HOST = os.environ.get('PDFCROWD_HOST', 'api.pdfcrowd.com')
 MULTIPART_BOUNDARY = '----------ThIs_Is_tHe_bOUnDary_$'
-CLIENT_VERSION = '6.7.1'
+CLIENT_VERSION = '6.7.2'
 
 def get_utf8_string(string):
     if PYTHON_3:
@@ -816,7 +816,7 @@ class ConnectionHelper:
         self._reset_response_data()
         self.setProxy(None, None, None, None)
         self.setUseHttp(False)
-        self.setUserAgent('pdfcrowd_python_client/6.7.1 (https://pdfcrowd.com)')
+        self.setUserAgent('pdfcrowd_python_client/6.7.2 (https://pdfcrowd.com)')
 
         self.retry_count = 1
         self.converter_version = '24.04'
@@ -5055,7 +5055,7 @@ available converters:
                             help = 'Set the DPI of images in PDF to control resolution and file size. Use 300 DPI for professional printing, 150 DPI for everyday documents, 96 DPI for screen-only viewing, or 72 DPI for web distribution. Lower DPI creates smaller files but reduces image quality. Use 0 to preserve original image resolution. Note that this only downscales - it will not upscale low-resolution images. The DPI value. Must be a positive integer or 0.')
         parser.add_argument('-enable-pdf-forms',
                             action = 'store_true',
-                            help = 'Convert HTML forms to fillable PDF forms that users can complete in PDF readers. Use this to create interactive PDFs from HTML forms. Use this for fillable applications, surveys, or order forms that work offline. Details can be found in the blog post.')
+                            help = 'Convert HTML forms to fillable PDF forms that users can complete in PDF readers. Use this to create interactive PDFs from HTML forms. Use this for fillable applications, surveys, or order forms that work offline. Details can be found in the fillable PDF forms guide.')
         parser.add_argument('-linearize',
                             action = 'store_true',
                             help = 'Create linearized PDF. This is also known as Fast Web View. Use this to optimize PDFs for progressive download, allowing users to start viewing the first page while the rest downloads.')
