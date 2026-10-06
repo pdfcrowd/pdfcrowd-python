@@ -44,7 +44,7 @@ import ssl
 import time
 import warnings
 
-__version__ = '6.7.2'
+__version__ = '6.7.3'
 
 class BaseError(Exception):
     def __init__(self, error, http_code):
@@ -721,7 +721,7 @@ else:
 
 HOST = os.environ.get('PDFCROWD_HOST', 'api.pdfcrowd.com')
 MULTIPART_BOUNDARY = '----------ThIs_Is_tHe_bOUnDary_$'
-CLIENT_VERSION = '6.7.2'
+CLIENT_VERSION = '6.7.3'
 
 def get_utf8_string(string):
     if PYTHON_3:
@@ -816,10 +816,18 @@ class ConnectionHelper:
         self._reset_response_data()
         self.setProxy(None, None, None, None)
         self.setUseHttp(False)
-        self.setUserAgent('pdfcrowd_python_client/6.7.2 (https://pdfcrowd.com)')
+        self.setUserAgent('pdfcrowd_python_client/6.7.3 (https://pdfcrowd.com)')
 
         self.retry_count = 1
         self.converter_version = '24.04'
+
+    def reset_input(self, fields, files, raw_data):
+        # Preserve conversion options and auxiliary files between requests.
+        fields.pop('url', None)
+        fields.pop('text', None)
+        files.pop('file', None)
+        raw_data.pop('file', None)
+        raw_data.pop('stream', None)
 
     def _reset_response_data(self):
         self.debug_log_url = None
@@ -992,6 +1000,7 @@ class HtmlToPdfClient:
         if not re.match(r'(?i)^https?://.*$', url):
             raise Error(create_invalid_value_message(url, "convertUrl", "html-to-pdf", 'Supported protocols are http:// and https://.', "convert_url"), 470);
         
+        self.helper.reset_input(self.fields, self.files, self.raw_data)
         self.fields['url'] = get_utf8_string(url)
         return self.helper.post(self.fields, self.files, self.raw_data)
 
@@ -1000,6 +1009,7 @@ class HtmlToPdfClient:
         if not re.match(r'(?i)^https?://.*$', url):
             raise Error(create_invalid_value_message(url, "convertUrlToStream::url", "html-to-pdf", 'Supported protocols are http:// and https://.', "convert_url_to_stream"), 470);
         
+        self.helper.reset_input(self.fields, self.files, self.raw_data)
         self.fields['url'] = get_utf8_string(url)
         self.helper.post(self.fields, self.files, self.raw_data, out_stream)
 
@@ -1009,19 +1019,29 @@ class HtmlToPdfClient:
             raise Error(create_invalid_value_message(file_path, "convertUrlToFile::file_path", "html-to-pdf", 'The string must not be empty.', "convert_url_to_file"), 470);
         
         output_file = open(file_path, 'wb')
+        succeeded = False
         try:
-            self.convertUrlToStream(url, output_file)
-            output_file.close()
-        except Error:
-            output_file.close()
-            os.remove(file_path)
-            raise
+            self.convertUrlToStream(url,output_file)
+            succeeded = True
+        finally:
+            if succeeded:
+                output_file.close()
+            else:
+                try:
+                    output_file.close()
+                except BaseException:
+                    pass
+                try:
+                    os.remove(file_path)
+                except OSError:
+                    pass
 
     def convertFile(self, file):
         """https://pdfcrowd.com/api/html-to-pdf-python/ref/#convert_file"""
         if not (os.path.isfile(file) and os.path.getsize(file)):
             raise Error(create_invalid_value_message(file, "convertFile", "html-to-pdf", 'The file must exist and not be empty.', "convert_file"), 470);
         
+        self.helper.reset_input(self.fields, self.files, self.raw_data)
         self.files['file'] = get_utf8_string(file)
         return self.helper.post(self.fields, self.files, self.raw_data)
 
@@ -1030,6 +1050,7 @@ class HtmlToPdfClient:
         if not (os.path.isfile(file) and os.path.getsize(file)):
             raise Error(create_invalid_value_message(file, "convertFileToStream::file", "html-to-pdf", 'The file must exist and not be empty.', "convert_file_to_stream"), 470);
         
+        self.helper.reset_input(self.fields, self.files, self.raw_data)
         self.files['file'] = get_utf8_string(file)
         self.helper.post(self.fields, self.files, self.raw_data, out_stream)
 
@@ -1039,19 +1060,29 @@ class HtmlToPdfClient:
             raise Error(create_invalid_value_message(file_path, "convertFileToFile::file_path", "html-to-pdf", 'The string must not be empty.', "convert_file_to_file"), 470);
         
         output_file = open(file_path, 'wb')
+        succeeded = False
         try:
-            self.convertFileToStream(file, output_file)
-            output_file.close()
-        except Error:
-            output_file.close()
-            os.remove(file_path)
-            raise
+            self.convertFileToStream(file,output_file)
+            succeeded = True
+        finally:
+            if succeeded:
+                output_file.close()
+            else:
+                try:
+                    output_file.close()
+                except BaseException:
+                    pass
+                try:
+                    os.remove(file_path)
+                except OSError:
+                    pass
 
     def convertString(self, text):
         """https://pdfcrowd.com/api/html-to-pdf-python/ref/#convert_string"""
         if not (text):
             raise Error(create_invalid_value_message(text, "convertString", "html-to-pdf", 'The string must not be empty.', "convert_string"), 470);
         
+        self.helper.reset_input(self.fields, self.files, self.raw_data)
         self.fields['text'] = get_utf8_string(text)
         return self.helper.post(self.fields, self.files, self.raw_data)
 
@@ -1060,6 +1091,7 @@ class HtmlToPdfClient:
         if not (text):
             raise Error(create_invalid_value_message(text, "convertStringToStream::text", "html-to-pdf", 'The string must not be empty.', "convert_string_to_stream"), 470);
         
+        self.helper.reset_input(self.fields, self.files, self.raw_data)
         self.fields['text'] = get_utf8_string(text)
         self.helper.post(self.fields, self.files, self.raw_data, out_stream)
 
@@ -1069,21 +1101,32 @@ class HtmlToPdfClient:
             raise Error(create_invalid_value_message(file_path, "convertStringToFile::file_path", "html-to-pdf", 'The string must not be empty.', "convert_string_to_file"), 470);
         
         output_file = open(file_path, 'wb')
+        succeeded = False
         try:
-            self.convertStringToStream(text, output_file)
-            output_file.close()
-        except Error:
-            output_file.close()
-            os.remove(file_path)
-            raise
+            self.convertStringToStream(text,output_file)
+            succeeded = True
+        finally:
+            if succeeded:
+                output_file.close()
+            else:
+                try:
+                    output_file.close()
+                except BaseException:
+                    pass
+                try:
+                    os.remove(file_path)
+                except OSError:
+                    pass
 
     def convertStream(self, in_stream):
         """https://pdfcrowd.com/api/html-to-pdf-python/ref/#convert_stream"""
+        self.helper.reset_input(self.fields, self.files, self.raw_data)
         self.raw_data['stream'] = in_stream.read()
         return self.helper.post(self.fields, self.files, self.raw_data)
 
     def convertStreamToStream(self, in_stream, out_stream):
         """https://pdfcrowd.com/api/html-to-pdf-python/ref/#convert_stream_to_stream"""
+        self.helper.reset_input(self.fields, self.files, self.raw_data)
         self.raw_data['stream'] = in_stream.read()
         self.helper.post(self.fields, self.files, self.raw_data, out_stream)
 
@@ -1093,13 +1136,22 @@ class HtmlToPdfClient:
             raise Error(create_invalid_value_message(file_path, "convertStreamToFile::file_path", "html-to-pdf", 'The string must not be empty.', "convert_stream_to_file"), 470);
         
         output_file = open(file_path, 'wb')
+        succeeded = False
         try:
-            self.convertStreamToStream(in_stream, output_file)
-            output_file.close()
-        except Error:
-            output_file.close()
-            os.remove(file_path)
-            raise
+            self.convertStreamToStream(in_stream,output_file)
+            succeeded = True
+        finally:
+            if succeeded:
+                output_file.close()
+            else:
+                try:
+                    output_file.close()
+                except BaseException:
+                    pass
+                try:
+                    os.remove(file_path)
+                except OSError:
+                    pass
 
     def setZipMainFilename(self, filename):
         """https://pdfcrowd.com/api/html-to-pdf-python/ref/#set_zip_main_filename"""
@@ -2097,6 +2149,7 @@ class HtmlToImageClient:
         if not re.match(r'(?i)^https?://.*$', url):
             raise Error(create_invalid_value_message(url, "convertUrl", "html-to-image", 'Supported protocols are http:// and https://.', "convert_url"), 470);
         
+        self.helper.reset_input(self.fields, self.files, self.raw_data)
         self.fields['url'] = get_utf8_string(url)
         return self.helper.post(self.fields, self.files, self.raw_data)
 
@@ -2105,6 +2158,7 @@ class HtmlToImageClient:
         if not re.match(r'(?i)^https?://.*$', url):
             raise Error(create_invalid_value_message(url, "convertUrlToStream::url", "html-to-image", 'Supported protocols are http:// and https://.', "convert_url_to_stream"), 470);
         
+        self.helper.reset_input(self.fields, self.files, self.raw_data)
         self.fields['url'] = get_utf8_string(url)
         self.helper.post(self.fields, self.files, self.raw_data, out_stream)
 
@@ -2114,19 +2168,29 @@ class HtmlToImageClient:
             raise Error(create_invalid_value_message(file_path, "convertUrlToFile::file_path", "html-to-image", 'The string must not be empty.', "convert_url_to_file"), 470);
         
         output_file = open(file_path, 'wb')
+        succeeded = False
         try:
-            self.convertUrlToStream(url, output_file)
-            output_file.close()
-        except Error:
-            output_file.close()
-            os.remove(file_path)
-            raise
+            self.convertUrlToStream(url,output_file)
+            succeeded = True
+        finally:
+            if succeeded:
+                output_file.close()
+            else:
+                try:
+                    output_file.close()
+                except BaseException:
+                    pass
+                try:
+                    os.remove(file_path)
+                except OSError:
+                    pass
 
     def convertFile(self, file):
         """https://pdfcrowd.com/api/html-to-image-python/ref/#convert_file"""
         if not (os.path.isfile(file) and os.path.getsize(file)):
             raise Error(create_invalid_value_message(file, "convertFile", "html-to-image", 'The file must exist and not be empty.', "convert_file"), 470);
         
+        self.helper.reset_input(self.fields, self.files, self.raw_data)
         self.files['file'] = get_utf8_string(file)
         return self.helper.post(self.fields, self.files, self.raw_data)
 
@@ -2135,6 +2199,7 @@ class HtmlToImageClient:
         if not (os.path.isfile(file) and os.path.getsize(file)):
             raise Error(create_invalid_value_message(file, "convertFileToStream::file", "html-to-image", 'The file must exist and not be empty.', "convert_file_to_stream"), 470);
         
+        self.helper.reset_input(self.fields, self.files, self.raw_data)
         self.files['file'] = get_utf8_string(file)
         self.helper.post(self.fields, self.files, self.raw_data, out_stream)
 
@@ -2144,19 +2209,29 @@ class HtmlToImageClient:
             raise Error(create_invalid_value_message(file_path, "convertFileToFile::file_path", "html-to-image", 'The string must not be empty.', "convert_file_to_file"), 470);
         
         output_file = open(file_path, 'wb')
+        succeeded = False
         try:
-            self.convertFileToStream(file, output_file)
-            output_file.close()
-        except Error:
-            output_file.close()
-            os.remove(file_path)
-            raise
+            self.convertFileToStream(file,output_file)
+            succeeded = True
+        finally:
+            if succeeded:
+                output_file.close()
+            else:
+                try:
+                    output_file.close()
+                except BaseException:
+                    pass
+                try:
+                    os.remove(file_path)
+                except OSError:
+                    pass
 
     def convertString(self, text):
         """https://pdfcrowd.com/api/html-to-image-python/ref/#convert_string"""
         if not (text):
             raise Error(create_invalid_value_message(text, "convertString", "html-to-image", 'The string must not be empty.', "convert_string"), 470);
         
+        self.helper.reset_input(self.fields, self.files, self.raw_data)
         self.fields['text'] = get_utf8_string(text)
         return self.helper.post(self.fields, self.files, self.raw_data)
 
@@ -2165,6 +2240,7 @@ class HtmlToImageClient:
         if not (text):
             raise Error(create_invalid_value_message(text, "convertStringToStream::text", "html-to-image", 'The string must not be empty.', "convert_string_to_stream"), 470);
         
+        self.helper.reset_input(self.fields, self.files, self.raw_data)
         self.fields['text'] = get_utf8_string(text)
         self.helper.post(self.fields, self.files, self.raw_data, out_stream)
 
@@ -2174,21 +2250,32 @@ class HtmlToImageClient:
             raise Error(create_invalid_value_message(file_path, "convertStringToFile::file_path", "html-to-image", 'The string must not be empty.', "convert_string_to_file"), 470);
         
         output_file = open(file_path, 'wb')
+        succeeded = False
         try:
-            self.convertStringToStream(text, output_file)
-            output_file.close()
-        except Error:
-            output_file.close()
-            os.remove(file_path)
-            raise
+            self.convertStringToStream(text,output_file)
+            succeeded = True
+        finally:
+            if succeeded:
+                output_file.close()
+            else:
+                try:
+                    output_file.close()
+                except BaseException:
+                    pass
+                try:
+                    os.remove(file_path)
+                except OSError:
+                    pass
 
     def convertStream(self, in_stream):
         """https://pdfcrowd.com/api/html-to-image-python/ref/#convert_stream"""
+        self.helper.reset_input(self.fields, self.files, self.raw_data)
         self.raw_data['stream'] = in_stream.read()
         return self.helper.post(self.fields, self.files, self.raw_data)
 
     def convertStreamToStream(self, in_stream, out_stream):
         """https://pdfcrowd.com/api/html-to-image-python/ref/#convert_stream_to_stream"""
+        self.helper.reset_input(self.fields, self.files, self.raw_data)
         self.raw_data['stream'] = in_stream.read()
         self.helper.post(self.fields, self.files, self.raw_data, out_stream)
 
@@ -2198,13 +2285,22 @@ class HtmlToImageClient:
             raise Error(create_invalid_value_message(file_path, "convertStreamToFile::file_path", "html-to-image", 'The string must not be empty.', "convert_stream_to_file"), 470);
         
         output_file = open(file_path, 'wb')
+        succeeded = False
         try:
-            self.convertStreamToStream(in_stream, output_file)
-            output_file.close()
-        except Error:
-            output_file.close()
-            os.remove(file_path)
-            raise
+            self.convertStreamToStream(in_stream,output_file)
+            succeeded = True
+        finally:
+            if succeeded:
+                output_file.close()
+            else:
+                try:
+                    output_file.close()
+                except BaseException:
+                    pass
+                try:
+                    os.remove(file_path)
+                except OSError:
+                    pass
 
     def setZipMainFilename(self, filename):
         """https://pdfcrowd.com/api/html-to-image-python/ref/#set_zip_main_filename"""
@@ -2600,6 +2696,7 @@ class ImageToImageClient:
         if not re.match(r'(?i)^https?://.*$', url):
             raise Error(create_invalid_value_message(url, "convertUrl", "image-to-image", 'Supported protocols are http:// and https://.', "convert_url"), 470);
         
+        self.helper.reset_input(self.fields, self.files, self.raw_data)
         self.fields['url'] = get_utf8_string(url)
         return self.helper.post(self.fields, self.files, self.raw_data)
 
@@ -2608,6 +2705,7 @@ class ImageToImageClient:
         if not re.match(r'(?i)^https?://.*$', url):
             raise Error(create_invalid_value_message(url, "convertUrlToStream::url", "image-to-image", 'Supported protocols are http:// and https://.', "convert_url_to_stream"), 470);
         
+        self.helper.reset_input(self.fields, self.files, self.raw_data)
         self.fields['url'] = get_utf8_string(url)
         self.helper.post(self.fields, self.files, self.raw_data, out_stream)
 
@@ -2617,19 +2715,29 @@ class ImageToImageClient:
             raise Error(create_invalid_value_message(file_path, "convertUrlToFile::file_path", "image-to-image", 'The string must not be empty.', "convert_url_to_file"), 470);
         
         output_file = open(file_path, 'wb')
+        succeeded = False
         try:
-            self.convertUrlToStream(url, output_file)
-            output_file.close()
-        except Error:
-            output_file.close()
-            os.remove(file_path)
-            raise
+            self.convertUrlToStream(url,output_file)
+            succeeded = True
+        finally:
+            if succeeded:
+                output_file.close()
+            else:
+                try:
+                    output_file.close()
+                except BaseException:
+                    pass
+                try:
+                    os.remove(file_path)
+                except OSError:
+                    pass
 
     def convertFile(self, file):
         """https://pdfcrowd.com/api/image-to-image-python/ref/#convert_file"""
         if not (os.path.isfile(file) and os.path.getsize(file)):
             raise Error(create_invalid_value_message(file, "convertFile", "image-to-image", 'The file must exist and not be empty.', "convert_file"), 470);
         
+        self.helper.reset_input(self.fields, self.files, self.raw_data)
         self.files['file'] = get_utf8_string(file)
         return self.helper.post(self.fields, self.files, self.raw_data)
 
@@ -2638,6 +2746,7 @@ class ImageToImageClient:
         if not (os.path.isfile(file) and os.path.getsize(file)):
             raise Error(create_invalid_value_message(file, "convertFileToStream::file", "image-to-image", 'The file must exist and not be empty.', "convert_file_to_stream"), 470);
         
+        self.helper.reset_input(self.fields, self.files, self.raw_data)
         self.files['file'] = get_utf8_string(file)
         self.helper.post(self.fields, self.files, self.raw_data, out_stream)
 
@@ -2647,21 +2756,32 @@ class ImageToImageClient:
             raise Error(create_invalid_value_message(file_path, "convertFileToFile::file_path", "image-to-image", 'The string must not be empty.', "convert_file_to_file"), 470);
         
         output_file = open(file_path, 'wb')
+        succeeded = False
         try:
-            self.convertFileToStream(file, output_file)
-            output_file.close()
-        except Error:
-            output_file.close()
-            os.remove(file_path)
-            raise
+            self.convertFileToStream(file,output_file)
+            succeeded = True
+        finally:
+            if succeeded:
+                output_file.close()
+            else:
+                try:
+                    output_file.close()
+                except BaseException:
+                    pass
+                try:
+                    os.remove(file_path)
+                except OSError:
+                    pass
 
     def convertRawData(self, data):
         """https://pdfcrowd.com/api/image-to-image-python/ref/#convert_raw_data"""
+        self.helper.reset_input(self.fields, self.files, self.raw_data)
         self.raw_data['file'] = data
         return self.helper.post(self.fields, self.files, self.raw_data)
 
     def convertRawDataToStream(self, data, out_stream):
         """https://pdfcrowd.com/api/image-to-image-python/ref/#convert_raw_data_to_stream"""
+        self.helper.reset_input(self.fields, self.files, self.raw_data)
         self.raw_data['file'] = data
         self.helper.post(self.fields, self.files, self.raw_data, out_stream)
 
@@ -2671,21 +2791,32 @@ class ImageToImageClient:
             raise Error(create_invalid_value_message(file_path, "convertRawDataToFile::file_path", "image-to-image", 'The string must not be empty.', "convert_raw_data_to_file"), 470);
         
         output_file = open(file_path, 'wb')
+        succeeded = False
         try:
-            self.convertRawDataToStream(data, output_file)
-            output_file.close()
-        except Error:
-            output_file.close()
-            os.remove(file_path)
-            raise
+            self.convertRawDataToStream(data,output_file)
+            succeeded = True
+        finally:
+            if succeeded:
+                output_file.close()
+            else:
+                try:
+                    output_file.close()
+                except BaseException:
+                    pass
+                try:
+                    os.remove(file_path)
+                except OSError:
+                    pass
 
     def convertStream(self, in_stream):
         """https://pdfcrowd.com/api/image-to-image-python/ref/#convert_stream"""
+        self.helper.reset_input(self.fields, self.files, self.raw_data)
         self.raw_data['stream'] = in_stream.read()
         return self.helper.post(self.fields, self.files, self.raw_data)
 
     def convertStreamToStream(self, in_stream, out_stream):
         """https://pdfcrowd.com/api/image-to-image-python/ref/#convert_stream_to_stream"""
+        self.helper.reset_input(self.fields, self.files, self.raw_data)
         self.raw_data['stream'] = in_stream.read()
         self.helper.post(self.fields, self.files, self.raw_data, out_stream)
 
@@ -2695,13 +2826,22 @@ class ImageToImageClient:
             raise Error(create_invalid_value_message(file_path, "convertStreamToFile::file_path", "image-to-image", 'The string must not be empty.', "convert_stream_to_file"), 470);
         
         output_file = open(file_path, 'wb')
+        succeeded = False
         try:
-            self.convertStreamToStream(in_stream, output_file)
-            output_file.close()
-        except Error:
-            output_file.close()
-            os.remove(file_path)
-            raise
+            self.convertStreamToStream(in_stream,output_file)
+            succeeded = True
+        finally:
+            if succeeded:
+                output_file.close()
+            else:
+                try:
+                    output_file.close()
+                except BaseException:
+                    pass
+                try:
+                    os.remove(file_path)
+                except OSError:
+                    pass
 
     def setOutputFormat(self, output_format):
         """https://pdfcrowd.com/api/image-to-image-python/ref/#set_output_format"""
@@ -2994,8 +3134,22 @@ class PdfToPdfClient:
             raise Error(create_invalid_value_message(file_path, "convertToFile", "pdf-to-pdf", 'The string must not be empty.', "convert_to_file"), 470);
         
         output_file = open(file_path, 'wb')
-        self.convertToStream(output_file)
-        output_file.close()
+        succeeded = False
+        try:
+            self.convertToStream(output_file)
+            succeeded = True
+        finally:
+            if succeeded:
+                output_file.close()
+            else:
+                try:
+                    output_file.close()
+                except BaseException:
+                    pass
+                try:
+                    os.remove(file_path)
+                except OSError:
+                    pass
 
     def addPdfFile(self, file_path):
         """https://pdfcrowd.com/api/pdf-to-pdf-python/ref/#add_pdf_file"""
@@ -3331,6 +3485,7 @@ class ImageToPdfClient:
         if not re.match(r'(?i)^https?://.*$', url):
             raise Error(create_invalid_value_message(url, "convertUrl", "image-to-pdf", 'Supported protocols are http:// and https://.', "convert_url"), 470);
         
+        self.helper.reset_input(self.fields, self.files, self.raw_data)
         self.fields['url'] = get_utf8_string(url)
         return self.helper.post(self.fields, self.files, self.raw_data)
 
@@ -3339,6 +3494,7 @@ class ImageToPdfClient:
         if not re.match(r'(?i)^https?://.*$', url):
             raise Error(create_invalid_value_message(url, "convertUrlToStream::url", "image-to-pdf", 'Supported protocols are http:// and https://.', "convert_url_to_stream"), 470);
         
+        self.helper.reset_input(self.fields, self.files, self.raw_data)
         self.fields['url'] = get_utf8_string(url)
         self.helper.post(self.fields, self.files, self.raw_data, out_stream)
 
@@ -3348,19 +3504,29 @@ class ImageToPdfClient:
             raise Error(create_invalid_value_message(file_path, "convertUrlToFile::file_path", "image-to-pdf", 'The string must not be empty.', "convert_url_to_file"), 470);
         
         output_file = open(file_path, 'wb')
+        succeeded = False
         try:
-            self.convertUrlToStream(url, output_file)
-            output_file.close()
-        except Error:
-            output_file.close()
-            os.remove(file_path)
-            raise
+            self.convertUrlToStream(url,output_file)
+            succeeded = True
+        finally:
+            if succeeded:
+                output_file.close()
+            else:
+                try:
+                    output_file.close()
+                except BaseException:
+                    pass
+                try:
+                    os.remove(file_path)
+                except OSError:
+                    pass
 
     def convertFile(self, file):
         """https://pdfcrowd.com/api/image-to-pdf-python/ref/#convert_file"""
         if not (os.path.isfile(file) and os.path.getsize(file)):
             raise Error(create_invalid_value_message(file, "convertFile", "image-to-pdf", 'The file must exist and not be empty.', "convert_file"), 470);
         
+        self.helper.reset_input(self.fields, self.files, self.raw_data)
         self.files['file'] = get_utf8_string(file)
         return self.helper.post(self.fields, self.files, self.raw_data)
 
@@ -3369,6 +3535,7 @@ class ImageToPdfClient:
         if not (os.path.isfile(file) and os.path.getsize(file)):
             raise Error(create_invalid_value_message(file, "convertFileToStream::file", "image-to-pdf", 'The file must exist and not be empty.', "convert_file_to_stream"), 470);
         
+        self.helper.reset_input(self.fields, self.files, self.raw_data)
         self.files['file'] = get_utf8_string(file)
         self.helper.post(self.fields, self.files, self.raw_data, out_stream)
 
@@ -3378,21 +3545,32 @@ class ImageToPdfClient:
             raise Error(create_invalid_value_message(file_path, "convertFileToFile::file_path", "image-to-pdf", 'The string must not be empty.', "convert_file_to_file"), 470);
         
         output_file = open(file_path, 'wb')
+        succeeded = False
         try:
-            self.convertFileToStream(file, output_file)
-            output_file.close()
-        except Error:
-            output_file.close()
-            os.remove(file_path)
-            raise
+            self.convertFileToStream(file,output_file)
+            succeeded = True
+        finally:
+            if succeeded:
+                output_file.close()
+            else:
+                try:
+                    output_file.close()
+                except BaseException:
+                    pass
+                try:
+                    os.remove(file_path)
+                except OSError:
+                    pass
 
     def convertRawData(self, data):
         """https://pdfcrowd.com/api/image-to-pdf-python/ref/#convert_raw_data"""
+        self.helper.reset_input(self.fields, self.files, self.raw_data)
         self.raw_data['file'] = data
         return self.helper.post(self.fields, self.files, self.raw_data)
 
     def convertRawDataToStream(self, data, out_stream):
         """https://pdfcrowd.com/api/image-to-pdf-python/ref/#convert_raw_data_to_stream"""
+        self.helper.reset_input(self.fields, self.files, self.raw_data)
         self.raw_data['file'] = data
         self.helper.post(self.fields, self.files, self.raw_data, out_stream)
 
@@ -3402,21 +3580,32 @@ class ImageToPdfClient:
             raise Error(create_invalid_value_message(file_path, "convertRawDataToFile::file_path", "image-to-pdf", 'The string must not be empty.', "convert_raw_data_to_file"), 470);
         
         output_file = open(file_path, 'wb')
+        succeeded = False
         try:
-            self.convertRawDataToStream(data, output_file)
-            output_file.close()
-        except Error:
-            output_file.close()
-            os.remove(file_path)
-            raise
+            self.convertRawDataToStream(data,output_file)
+            succeeded = True
+        finally:
+            if succeeded:
+                output_file.close()
+            else:
+                try:
+                    output_file.close()
+                except BaseException:
+                    pass
+                try:
+                    os.remove(file_path)
+                except OSError:
+                    pass
 
     def convertStream(self, in_stream):
         """https://pdfcrowd.com/api/image-to-pdf-python/ref/#convert_stream"""
+        self.helper.reset_input(self.fields, self.files, self.raw_data)
         self.raw_data['stream'] = in_stream.read()
         return self.helper.post(self.fields, self.files, self.raw_data)
 
     def convertStreamToStream(self, in_stream, out_stream):
         """https://pdfcrowd.com/api/image-to-pdf-python/ref/#convert_stream_to_stream"""
+        self.helper.reset_input(self.fields, self.files, self.raw_data)
         self.raw_data['stream'] = in_stream.read()
         self.helper.post(self.fields, self.files, self.raw_data, out_stream)
 
@@ -3426,13 +3615,22 @@ class ImageToPdfClient:
             raise Error(create_invalid_value_message(file_path, "convertStreamToFile::file_path", "image-to-pdf", 'The string must not be empty.', "convert_stream_to_file"), 470);
         
         output_file = open(file_path, 'wb')
+        succeeded = False
         try:
-            self.convertStreamToStream(in_stream, output_file)
-            output_file.close()
-        except Error:
-            output_file.close()
-            os.remove(file_path)
-            raise
+            self.convertStreamToStream(in_stream,output_file)
+            succeeded = True
+        finally:
+            if succeeded:
+                output_file.close()
+            else:
+                try:
+                    output_file.close()
+                except BaseException:
+                    pass
+                try:
+                    os.remove(file_path)
+                except OSError:
+                    pass
 
     def setResize(self, resize):
         """https://pdfcrowd.com/api/image-to-pdf-python/ref/#set_resize"""
@@ -3898,6 +4096,7 @@ class PdfToHtmlClient:
         if not re.match(r'(?i)^https?://.*$', url):
             raise Error(create_invalid_value_message(url, "convertUrl", "pdf-to-html", 'Supported protocols are http:// and https://.', "convert_url"), 470);
         
+        self.helper.reset_input(self.fields, self.files, self.raw_data)
         self.fields['url'] = get_utf8_string(url)
         return self.helper.post(self.fields, self.files, self.raw_data)
 
@@ -3906,6 +4105,7 @@ class PdfToHtmlClient:
         if not re.match(r'(?i)^https?://.*$', url):
             raise Error(create_invalid_value_message(url, "convertUrlToStream::url", "pdf-to-html", 'Supported protocols are http:// and https://.', "convert_url_to_stream"), 470);
         
+        self.helper.reset_input(self.fields, self.files, self.raw_data)
         self.fields['url'] = get_utf8_string(url)
         self.helper.post(self.fields, self.files, self.raw_data, out_stream)
 
@@ -3918,19 +4118,29 @@ class PdfToHtmlClient:
             raise Error(create_invalid_value_message(file_path, "convertUrlToFile::file_path", "pdf-to-html", 'The converter generates an HTML or ZIP file. If ZIP file is generated, the file path must have a ZIP or zip extension.', "convert_url_to_file"), 470);
         
         output_file = open(file_path, 'wb')
+        succeeded = False
         try:
-            self.convertUrlToStream(url, output_file)
-            output_file.close()
-        except Error:
-            output_file.close()
-            os.remove(file_path)
-            raise
+            self.convertUrlToStream(url,output_file)
+            succeeded = True
+        finally:
+            if succeeded:
+                output_file.close()
+            else:
+                try:
+                    output_file.close()
+                except BaseException:
+                    pass
+                try:
+                    os.remove(file_path)
+                except OSError:
+                    pass
 
     def convertFile(self, file):
         """https://pdfcrowd.com/api/pdf-to-html-python/ref/#convert_file"""
         if not (os.path.isfile(file) and os.path.getsize(file)):
             raise Error(create_invalid_value_message(file, "convertFile", "pdf-to-html", 'The file must exist and not be empty.', "convert_file"), 470);
         
+        self.helper.reset_input(self.fields, self.files, self.raw_data)
         self.files['file'] = get_utf8_string(file)
         return self.helper.post(self.fields, self.files, self.raw_data)
 
@@ -3939,6 +4149,7 @@ class PdfToHtmlClient:
         if not (os.path.isfile(file) and os.path.getsize(file)):
             raise Error(create_invalid_value_message(file, "convertFileToStream::file", "pdf-to-html", 'The file must exist and not be empty.', "convert_file_to_stream"), 470);
         
+        self.helper.reset_input(self.fields, self.files, self.raw_data)
         self.files['file'] = get_utf8_string(file)
         self.helper.post(self.fields, self.files, self.raw_data, out_stream)
 
@@ -3951,21 +4162,32 @@ class PdfToHtmlClient:
             raise Error(create_invalid_value_message(file_path, "convertFileToFile::file_path", "pdf-to-html", 'The converter generates an HTML or ZIP file. If ZIP file is generated, the file path must have a ZIP or zip extension.', "convert_file_to_file"), 470);
         
         output_file = open(file_path, 'wb')
+        succeeded = False
         try:
-            self.convertFileToStream(file, output_file)
-            output_file.close()
-        except Error:
-            output_file.close()
-            os.remove(file_path)
-            raise
+            self.convertFileToStream(file,output_file)
+            succeeded = True
+        finally:
+            if succeeded:
+                output_file.close()
+            else:
+                try:
+                    output_file.close()
+                except BaseException:
+                    pass
+                try:
+                    os.remove(file_path)
+                except OSError:
+                    pass
 
     def convertRawData(self, data):
         """https://pdfcrowd.com/api/pdf-to-html-python/ref/#convert_raw_data"""
+        self.helper.reset_input(self.fields, self.files, self.raw_data)
         self.raw_data['file'] = data
         return self.helper.post(self.fields, self.files, self.raw_data)
 
     def convertRawDataToStream(self, data, out_stream):
         """https://pdfcrowd.com/api/pdf-to-html-python/ref/#convert_raw_data_to_stream"""
+        self.helper.reset_input(self.fields, self.files, self.raw_data)
         self.raw_data['file'] = data
         self.helper.post(self.fields, self.files, self.raw_data, out_stream)
 
@@ -3978,21 +4200,32 @@ class PdfToHtmlClient:
             raise Error(create_invalid_value_message(file_path, "convertRawDataToFile::file_path", "pdf-to-html", 'The converter generates an HTML or ZIP file. If ZIP file is generated, the file path must have a ZIP or zip extension.', "convert_raw_data_to_file"), 470);
         
         output_file = open(file_path, 'wb')
+        succeeded = False
         try:
-            self.convertRawDataToStream(data, output_file)
-            output_file.close()
-        except Error:
-            output_file.close()
-            os.remove(file_path)
-            raise
+            self.convertRawDataToStream(data,output_file)
+            succeeded = True
+        finally:
+            if succeeded:
+                output_file.close()
+            else:
+                try:
+                    output_file.close()
+                except BaseException:
+                    pass
+                try:
+                    os.remove(file_path)
+                except OSError:
+                    pass
 
     def convertStream(self, in_stream):
         """https://pdfcrowd.com/api/pdf-to-html-python/ref/#convert_stream"""
+        self.helper.reset_input(self.fields, self.files, self.raw_data)
         self.raw_data['stream'] = in_stream.read()
         return self.helper.post(self.fields, self.files, self.raw_data)
 
     def convertStreamToStream(self, in_stream, out_stream):
         """https://pdfcrowd.com/api/pdf-to-html-python/ref/#convert_stream_to_stream"""
+        self.helper.reset_input(self.fields, self.files, self.raw_data)
         self.raw_data['stream'] = in_stream.read()
         self.helper.post(self.fields, self.files, self.raw_data, out_stream)
 
@@ -4005,13 +4238,22 @@ class PdfToHtmlClient:
             raise Error(create_invalid_value_message(file_path, "convertStreamToFile::file_path", "pdf-to-html", 'The converter generates an HTML or ZIP file. If ZIP file is generated, the file path must have a ZIP or zip extension.', "convert_stream_to_file"), 470);
         
         output_file = open(file_path, 'wb')
+        succeeded = False
         try:
-            self.convertStreamToStream(in_stream, output_file)
-            output_file.close()
-        except Error:
-            output_file.close()
-            os.remove(file_path)
-            raise
+            self.convertStreamToStream(in_stream,output_file)
+            succeeded = True
+        finally:
+            if succeeded:
+                output_file.close()
+            else:
+                try:
+                    output_file.close()
+                except BaseException:
+                    pass
+                try:
+                    os.remove(file_path)
+                except OSError:
+                    pass
 
     def setPdfPassword(self, password):
         """https://pdfcrowd.com/api/pdf-to-html-python/ref/#set_pdf_password"""
@@ -4240,6 +4482,7 @@ class PdfToTextClient:
         if not re.match(r'(?i)^https?://.*$', url):
             raise Error(create_invalid_value_message(url, "convertUrl", "pdf-to-text", 'Supported protocols are http:// and https://.', "convert_url"), 470);
         
+        self.helper.reset_input(self.fields, self.files, self.raw_data)
         self.fields['url'] = get_utf8_string(url)
         return self.helper.post(self.fields, self.files, self.raw_data)
 
@@ -4248,6 +4491,7 @@ class PdfToTextClient:
         if not re.match(r'(?i)^https?://.*$', url):
             raise Error(create_invalid_value_message(url, "convertUrlToStream::url", "pdf-to-text", 'Supported protocols are http:// and https://.', "convert_url_to_stream"), 470);
         
+        self.helper.reset_input(self.fields, self.files, self.raw_data)
         self.fields['url'] = get_utf8_string(url)
         self.helper.post(self.fields, self.files, self.raw_data, out_stream)
 
@@ -4257,19 +4501,29 @@ class PdfToTextClient:
             raise Error(create_invalid_value_message(file_path, "convertUrlToFile::file_path", "pdf-to-text", 'The string must not be empty.', "convert_url_to_file"), 470);
         
         output_file = open(file_path, 'wb')
+        succeeded = False
         try:
-            self.convertUrlToStream(url, output_file)
-            output_file.close()
-        except Error:
-            output_file.close()
-            os.remove(file_path)
-            raise
+            self.convertUrlToStream(url,output_file)
+            succeeded = True
+        finally:
+            if succeeded:
+                output_file.close()
+            else:
+                try:
+                    output_file.close()
+                except BaseException:
+                    pass
+                try:
+                    os.remove(file_path)
+                except OSError:
+                    pass
 
     def convertFile(self, file):
         """https://pdfcrowd.com/api/pdf-to-text-python/ref/#convert_file"""
         if not (os.path.isfile(file) and os.path.getsize(file)):
             raise Error(create_invalid_value_message(file, "convertFile", "pdf-to-text", 'The file must exist and not be empty.', "convert_file"), 470);
         
+        self.helper.reset_input(self.fields, self.files, self.raw_data)
         self.files['file'] = get_utf8_string(file)
         return self.helper.post(self.fields, self.files, self.raw_data)
 
@@ -4278,6 +4532,7 @@ class PdfToTextClient:
         if not (os.path.isfile(file) and os.path.getsize(file)):
             raise Error(create_invalid_value_message(file, "convertFileToStream::file", "pdf-to-text", 'The file must exist and not be empty.', "convert_file_to_stream"), 470);
         
+        self.helper.reset_input(self.fields, self.files, self.raw_data)
         self.files['file'] = get_utf8_string(file)
         self.helper.post(self.fields, self.files, self.raw_data, out_stream)
 
@@ -4287,21 +4542,32 @@ class PdfToTextClient:
             raise Error(create_invalid_value_message(file_path, "convertFileToFile::file_path", "pdf-to-text", 'The string must not be empty.', "convert_file_to_file"), 470);
         
         output_file = open(file_path, 'wb')
+        succeeded = False
         try:
-            self.convertFileToStream(file, output_file)
-            output_file.close()
-        except Error:
-            output_file.close()
-            os.remove(file_path)
-            raise
+            self.convertFileToStream(file,output_file)
+            succeeded = True
+        finally:
+            if succeeded:
+                output_file.close()
+            else:
+                try:
+                    output_file.close()
+                except BaseException:
+                    pass
+                try:
+                    os.remove(file_path)
+                except OSError:
+                    pass
 
     def convertRawData(self, data):
         """https://pdfcrowd.com/api/pdf-to-text-python/ref/#convert_raw_data"""
+        self.helper.reset_input(self.fields, self.files, self.raw_data)
         self.raw_data['file'] = data
         return self.helper.post(self.fields, self.files, self.raw_data)
 
     def convertRawDataToStream(self, data, out_stream):
         """https://pdfcrowd.com/api/pdf-to-text-python/ref/#convert_raw_data_to_stream"""
+        self.helper.reset_input(self.fields, self.files, self.raw_data)
         self.raw_data['file'] = data
         self.helper.post(self.fields, self.files, self.raw_data, out_stream)
 
@@ -4311,21 +4577,32 @@ class PdfToTextClient:
             raise Error(create_invalid_value_message(file_path, "convertRawDataToFile::file_path", "pdf-to-text", 'The string must not be empty.', "convert_raw_data_to_file"), 470);
         
         output_file = open(file_path, 'wb')
+        succeeded = False
         try:
-            self.convertRawDataToStream(data, output_file)
-            output_file.close()
-        except Error:
-            output_file.close()
-            os.remove(file_path)
-            raise
+            self.convertRawDataToStream(data,output_file)
+            succeeded = True
+        finally:
+            if succeeded:
+                output_file.close()
+            else:
+                try:
+                    output_file.close()
+                except BaseException:
+                    pass
+                try:
+                    os.remove(file_path)
+                except OSError:
+                    pass
 
     def convertStream(self, in_stream):
         """https://pdfcrowd.com/api/pdf-to-text-python/ref/#convert_stream"""
+        self.helper.reset_input(self.fields, self.files, self.raw_data)
         self.raw_data['stream'] = in_stream.read()
         return self.helper.post(self.fields, self.files, self.raw_data)
 
     def convertStreamToStream(self, in_stream, out_stream):
         """https://pdfcrowd.com/api/pdf-to-text-python/ref/#convert_stream_to_stream"""
+        self.helper.reset_input(self.fields, self.files, self.raw_data)
         self.raw_data['stream'] = in_stream.read()
         self.helper.post(self.fields, self.files, self.raw_data, out_stream)
 
@@ -4335,13 +4612,22 @@ class PdfToTextClient:
             raise Error(create_invalid_value_message(file_path, "convertStreamToFile::file_path", "pdf-to-text", 'The string must not be empty.', "convert_stream_to_file"), 470);
         
         output_file = open(file_path, 'wb')
+        succeeded = False
         try:
-            self.convertStreamToStream(in_stream, output_file)
-            output_file.close()
-        except Error:
-            output_file.close()
-            os.remove(file_path)
-            raise
+            self.convertStreamToStream(in_stream,output_file)
+            succeeded = True
+        finally:
+            if succeeded:
+                output_file.close()
+            else:
+                try:
+                    output_file.close()
+                except BaseException:
+                    pass
+                try:
+                    os.remove(file_path)
+                except OSError:
+                    pass
 
     def setPdfPassword(self, password):
         """https://pdfcrowd.com/api/pdf-to-text-python/ref/#set_pdf_password"""
@@ -4548,6 +4834,7 @@ class PdfToImageClient:
         if not re.match(r'(?i)^https?://.*$', url):
             raise Error(create_invalid_value_message(url, "convertUrl", "pdf-to-image", 'Supported protocols are http:// and https://.', "convert_url"), 470);
         
+        self.helper.reset_input(self.fields, self.files, self.raw_data)
         self.fields['url'] = get_utf8_string(url)
         return self.helper.post(self.fields, self.files, self.raw_data)
 
@@ -4556,6 +4843,7 @@ class PdfToImageClient:
         if not re.match(r'(?i)^https?://.*$', url):
             raise Error(create_invalid_value_message(url, "convertUrlToStream::url", "pdf-to-image", 'Supported protocols are http:// and https://.', "convert_url_to_stream"), 470);
         
+        self.helper.reset_input(self.fields, self.files, self.raw_data)
         self.fields['url'] = get_utf8_string(url)
         self.helper.post(self.fields, self.files, self.raw_data, out_stream)
 
@@ -4565,19 +4853,29 @@ class PdfToImageClient:
             raise Error(create_invalid_value_message(file_path, "convertUrlToFile::file_path", "pdf-to-image", 'The string must not be empty.', "convert_url_to_file"), 470);
         
         output_file = open(file_path, 'wb')
+        succeeded = False
         try:
-            self.convertUrlToStream(url, output_file)
-            output_file.close()
-        except Error:
-            output_file.close()
-            os.remove(file_path)
-            raise
+            self.convertUrlToStream(url,output_file)
+            succeeded = True
+        finally:
+            if succeeded:
+                output_file.close()
+            else:
+                try:
+                    output_file.close()
+                except BaseException:
+                    pass
+                try:
+                    os.remove(file_path)
+                except OSError:
+                    pass
 
     def convertFile(self, file):
         """https://pdfcrowd.com/api/pdf-to-image-python/ref/#convert_file"""
         if not (os.path.isfile(file) and os.path.getsize(file)):
             raise Error(create_invalid_value_message(file, "convertFile", "pdf-to-image", 'The file must exist and not be empty.', "convert_file"), 470);
         
+        self.helper.reset_input(self.fields, self.files, self.raw_data)
         self.files['file'] = get_utf8_string(file)
         return self.helper.post(self.fields, self.files, self.raw_data)
 
@@ -4586,6 +4884,7 @@ class PdfToImageClient:
         if not (os.path.isfile(file) and os.path.getsize(file)):
             raise Error(create_invalid_value_message(file, "convertFileToStream::file", "pdf-to-image", 'The file must exist and not be empty.', "convert_file_to_stream"), 470);
         
+        self.helper.reset_input(self.fields, self.files, self.raw_data)
         self.files['file'] = get_utf8_string(file)
         self.helper.post(self.fields, self.files, self.raw_data, out_stream)
 
@@ -4595,21 +4894,32 @@ class PdfToImageClient:
             raise Error(create_invalid_value_message(file_path, "convertFileToFile::file_path", "pdf-to-image", 'The string must not be empty.', "convert_file_to_file"), 470);
         
         output_file = open(file_path, 'wb')
+        succeeded = False
         try:
-            self.convertFileToStream(file, output_file)
-            output_file.close()
-        except Error:
-            output_file.close()
-            os.remove(file_path)
-            raise
+            self.convertFileToStream(file,output_file)
+            succeeded = True
+        finally:
+            if succeeded:
+                output_file.close()
+            else:
+                try:
+                    output_file.close()
+                except BaseException:
+                    pass
+                try:
+                    os.remove(file_path)
+                except OSError:
+                    pass
 
     def convertRawData(self, data):
         """https://pdfcrowd.com/api/pdf-to-image-python/ref/#convert_raw_data"""
+        self.helper.reset_input(self.fields, self.files, self.raw_data)
         self.raw_data['file'] = data
         return self.helper.post(self.fields, self.files, self.raw_data)
 
     def convertRawDataToStream(self, data, out_stream):
         """https://pdfcrowd.com/api/pdf-to-image-python/ref/#convert_raw_data_to_stream"""
+        self.helper.reset_input(self.fields, self.files, self.raw_data)
         self.raw_data['file'] = data
         self.helper.post(self.fields, self.files, self.raw_data, out_stream)
 
@@ -4619,21 +4929,32 @@ class PdfToImageClient:
             raise Error(create_invalid_value_message(file_path, "convertRawDataToFile::file_path", "pdf-to-image", 'The string must not be empty.', "convert_raw_data_to_file"), 470);
         
         output_file = open(file_path, 'wb')
+        succeeded = False
         try:
-            self.convertRawDataToStream(data, output_file)
-            output_file.close()
-        except Error:
-            output_file.close()
-            os.remove(file_path)
-            raise
+            self.convertRawDataToStream(data,output_file)
+            succeeded = True
+        finally:
+            if succeeded:
+                output_file.close()
+            else:
+                try:
+                    output_file.close()
+                except BaseException:
+                    pass
+                try:
+                    os.remove(file_path)
+                except OSError:
+                    pass
 
     def convertStream(self, in_stream):
         """https://pdfcrowd.com/api/pdf-to-image-python/ref/#convert_stream"""
+        self.helper.reset_input(self.fields, self.files, self.raw_data)
         self.raw_data['stream'] = in_stream.read()
         return self.helper.post(self.fields, self.files, self.raw_data)
 
     def convertStreamToStream(self, in_stream, out_stream):
         """https://pdfcrowd.com/api/pdf-to-image-python/ref/#convert_stream_to_stream"""
+        self.helper.reset_input(self.fields, self.files, self.raw_data)
         self.raw_data['stream'] = in_stream.read()
         self.helper.post(self.fields, self.files, self.raw_data, out_stream)
 
@@ -4643,13 +4964,22 @@ class PdfToImageClient:
             raise Error(create_invalid_value_message(file_path, "convertStreamToFile::file_path", "pdf-to-image", 'The string must not be empty.', "convert_stream_to_file"), 470);
         
         output_file = open(file_path, 'wb')
+        succeeded = False
         try:
-            self.convertStreamToStream(in_stream, output_file)
-            output_file.close()
-        except Error:
-            output_file.close()
-            os.remove(file_path)
-            raise
+            self.convertStreamToStream(in_stream,output_file)
+            succeeded = True
+        finally:
+            if succeeded:
+                output_file.close()
+            else:
+                try:
+                    output_file.close()
+                except BaseException:
+                    pass
+                try:
+                    os.remove(file_path)
+                except OSError:
+                    pass
 
     def setOutputFormat(self, output_format):
         """https://pdfcrowd.com/api/pdf-to-image-python/ref/#set_output_format"""

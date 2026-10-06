@@ -1,6 +1,12 @@
 Change Log
 ==========
 
+6.7.3
+-----
+
+- FIX: reset conversion inputs when switching methods on the same client instance, preserving conversion settings and auxiliary files
+- FIX: close SDK-owned output files after native I/O errors and failed PDF manipulation, preserving the original failure
+
 6.7.2
 -----
 
