@@ -1,10 +1,11 @@
-.PHONY: dist clean publish build
+.PHONY: dist clean publish publish-to-testpypi build check
 
-PYTHON=python3
+PYTHON ?= python3
+TWINE ?= twine
 
 dist:
-	@rm -rf dist/* build/* python/MANIFEST
-	@$(PYTHON) setup.py clean && $(PYTHON) setup.py sdist --formats=zip
+	@$(MAKE) clean
+	@$(PYTHON) setup.py sdist --formats=zip
 	@for fname in dist/* ; do mv $$fname "$${fname%.*}-python.$${fname##*.}" ; done
 
 # cat ~/.pypirc
@@ -15,23 +16,26 @@ dist:
 #
 # [pypi]
 # repository=https://upload.pypi.org/legacy/
-# username=$username-at-pypi
-# password=$password-at-pypi
+# username=__token__
+# password=$pypi-api-token
 #
 # [testpypi]
 # repository=https://test.pypi.org/legacy/
-# username=$username-at-testpypi
-# password=$password-at-testpypi
+# username=__token__
+# password=$testpypi-api-token
 
 build:
-	@rm -rf dist/* build/* python/MANIFEST
-	@$(PYTHON) setup.py clean && $(PYTHON) setup.py sdist bdist_wheel
+	@$(MAKE) clean
+	@$(PYTHON) setup.py sdist bdist_wheel
 
-publish: build
-	@twine upload dist/*
+check: build
+	@$(TWINE) check --strict dist/*
 
-publish-to-testpypi: build
-	@twine upload --repository testpypi dist/*
+publish: check
+	@$(TWINE) upload dist/*
+
+publish-to-testpypi: check
+	@$(TWINE) upload --repository testpypi dist/*
 
 clean:
-	rm -rf dist/* build/* python/MANIFEST
+	rm -rf dist build *.egg-info MANIFEST

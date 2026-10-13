@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2009 pdfcrowd.com
+# Copyright (C) 2009-2026 pdfcrowd.com
 # 
 # Permission is hereby granted, free of charge, to any person
 # obtaining a copy of this software and associated documentation
@@ -23,37 +23,38 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 # OTHER DEALINGS IN THE SOFTWARE.
 
-try:
-    from setuptools import setup
-except ImportError:
-    from distutils.core import setup
+from io import open
+import os
 
-py_modules=['pdfcrowd']
+from setuptools import setup
 
-setup(name='pdfcrowd',
-      version='6.7.3',
-      description="A client library for the PDFCrowd API.",
-      url='https://pdfcrowd.com/api/',
-      license="License :: OSI Approved :: MIT License",
-      author='PDFCrowd Team',
-      author_email='support@pdfcrowd.com',
-      long_description="""
-The PDFCrowd API lets you easily convert between HTML, PDF and various image formats.
-""",
-      py_modules=py_modules,
-      scripts=['./html2pdf',
-               './html2image',
-               './image2image',
-               './image2pdf',
-               './pdf2pdf',
-               './pdf2html',
-               './pdf2text',
-               './pdf2image'
-               ],
-      classifiers=["License :: OSI Approved :: MIT License",
-                   "Operating System :: MacOS",
-                   "Operating System :: Microsoft",
-                   "Operating System :: POSIX",
-                   "Operating System :: Unix",
-                   "Intended Audience :: Developers",
-                   "Topic :: Software Development :: Libraries"])
+
+with open(os.path.join(os.path.dirname(__file__), 'README.md'),
+          encoding='utf-8') as readme:
+    long_description = readme.read()
+
+setup(
+    name='pdfcrowd',
+    version='7.0.0',
+    description='A client library for the PDFCrowd API.',
+    long_description=long_description,
+    long_description_content_type='text/markdown',
+    url='https://pdfcrowd.com/api/',
+    project_urls={
+        'Documentation': 'https://pdfcrowd.com/api/client-library/python/',
+    },
+    license='MIT',
+    author='PDFCrowd Team',
+    author_email='support@pdfcrowd.com',
+    python_requires='>=2.7',
+    py_modules=['pdfcrowd'],
+    classifiers=[
+        'License :: OSI Approved :: MIT License',
+        'Operating System :: OS Independent',
+        'Intended Audience :: Developers',
+        'Topic :: Software Development :: Libraries :: Python Modules',
+        'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
+    ],
+)

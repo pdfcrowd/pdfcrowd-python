@@ -1,34 +1,35 @@
-# Pdfcrowd API - Python client library
+# PDFCrowd Python SDK
 
-The Pdfcrowd API lets you easily convert between HTML, PDF and various image
-formats in your Python applications.
+The Python SDK provides API clients for converting HTML, PDF, and images.
+It supports Python 2.7 and Python 3 and has no third-party runtime dependencies.
 
-To use the API, you need an account on
-[http://pdfcrowd.com](https://pdfcrowd.com). If you don't have one, you
-can sign up [here](https://pdfcrowd.com/pricing/api/).
+```sh
+python -m pip install pdfcrowd
+```
 
-## Installation
+See the [Python documentation](https://pdfcrowd.com/api/client-library/python/)
+for authentication, conversion examples, and API references.
 
-The library runs on Python 2 and 3. It can be installed from
-[pypi](http://pypi.python.org/pypi/pdfcrowd/):
+## Migrating converter commands
 
-    pip install pdfcrowd
+Starting with version 7.0.0, this package contains only the Python API. The
+`html2pdf`, `html2image`, `image2pdf`, `image2image`, `pdf2pdf`, `pdf2html`,
+`pdf2text`, and `pdf2image` commands are provided by `pdfcrowd-cli`.
+The CLI requires Python 3.8 or later; the SDK continues to support Python 2.7.
 
-Or you can download/clone the client and run
+Install the CLI with pipx:
 
-    git clone https://github.com/pdfcrowd/pdfcrowd-python.git
-    cd pdfcrowd-python/
-    python setup.py install
+```sh
+pipx install pdfcrowd-cli
+html2pdf --help
+```
 
-## Learn more
+Or install it in your Python virtual environment:
 
-* API Home:  <https://pdfcrowd.com/api/>
-* API Reference:  <https://pdfcrowd.com/api/html-to-pdf-python/>
-* Interactive API Playground:
-  * Python: <https://pdfcrowd.com/playground/html-to-pdf/?lang=python>
-  * Django: <https://pdfcrowd.com/playground/html-to-pdf/?lang=wf-django>
-  * Flask: <https://pdfcrowd.com/playground/html-to-pdf/?lang=wf-flask>
+```sh
+python -m pip install pdfcrowd-cli
+html2pdf --help
+```
 
-## License
-
-This client library is licensed under the MIT License.
+The CLI installs a compatible SDK automatically. Python applications that
+import `pdfcrowd` continue to use the API clients directly.

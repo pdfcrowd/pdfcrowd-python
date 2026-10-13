@@ -1,6 +1,11 @@
 Change Log
 ==========
 
+7.0.0
+-----
+
+- CHANGE: remove the bundled converter commands; install pdfcrowd-cli with pipx install pdfcrowd-cli or python -m pip install pdfcrowd-cli to use html2pdf and the other commands
+
 6.7.3
 -----
 
