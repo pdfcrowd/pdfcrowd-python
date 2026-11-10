@@ -10,6 +10,15 @@ python -m pip install pdfcrowd
 See the [Python documentation](https://pdfcrowd.com/api/client-library/python/)
 for authentication, conversion examples, and API references.
 
+## Error codes
+
+Starting with version 7.0.1, status and reason codes parsed from API errors
+are integers. Compare `error.getStatusCode()` with `400`, rather than
+`"400"`; use integer comparisons for `error.getReasonCode()` too.
+An error without a supplied or parsed status retains `None`, and an error
+without a parsed reason retains `-1`. Error messages and string output
+are preserved.
+
 ## Migrating converter commands
 
 Starting with version 7.0.0, this package contains only the Python API. The

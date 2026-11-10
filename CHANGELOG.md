@@ -1,6 +1,11 @@
 Change Log
 ==========
 
+7.0.1
+-----
+
+- CHANGE: parsed error status and reason codes are now integers; compare getStatusCode() and getReasonCode() with numbers such as 400 and 123 instead of strings; missing status remains None and missing reason remains -1
+
 7.0.0
 -----
 

@@ -35,7 +35,7 @@ with open(os.path.join(os.path.dirname(__file__), 'README.md'),
 
 setup(
     name='pdfcrowd',
-    version='7.0.0',
+    version='7.0.1',
     description='A client library for the PDFCrowd API.',
     long_description=long_description,
     long_description_content_type='text/markdown',
